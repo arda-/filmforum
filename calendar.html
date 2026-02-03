@@ -6,27 +6,58 @@
   <title>Tenement Stories - Film Forum Feb 2026</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Light mode (default) */
+    :root {
+      --bg-body: #f8fafc;
+      --bg-grid: #cbd5e1;
+      --bg-day: #f1f5f9;
+      --bg-day-movies: #e2e8f0;
+      --bg-movie: #cbd5e1;
+      --bg-movie-hover: #94a3b8;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-tertiary: #475569;
+      --accent: #0891b2;
+    }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-body: #020617;
+        --bg-grid: #0f172a;
+        --bg-day: #0f172a;
+        --bg-day-movies: #1e293b;
+        --bg-movie: #334155;
+        --bg-movie-hover: #475569;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --text-tertiary: #94a3b8;
+        --accent: #06b6d4;
+      }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #020617;
-      color: #e2e8f0;
+      background: var(--bg-body);
+      color: var(--text-primary);
       padding: 20px;
     }
     h1 {
       text-align: center;
       margin-bottom: 10px;
-      color: #fff;
+      color: var(--text-primary);
     }
     .subtitle {
       text-align: center;
-      color: #94a3b8;
+      color: var(--text-secondary);
       margin-bottom: 30px;
     }
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 1px;
-      background: #0f172a;
+      background: var(--bg-grid);
       max-width: 1400px;
       margin: 0 auto;
     }
@@ -34,11 +65,11 @@
       text-align: center;
       font-weight: bold;
       padding: 10px;
-      color: #94a3b8;
+      color: var(--text-secondary);
       font-size: 12px;
     }
     .day {
-      background: #0f172a;
+      background: var(--bg-day);
       border-radius: 0;
       min-height: 120px;
       padding: 4px;
@@ -48,35 +79,35 @@
       background: transparent;
     }
     .day.has-movies {
-      background: #1e293b;
+      background: var(--bg-day-movies);
     }
     .day-number {
       font-size: 14px;
       font-weight: bold;
-      color: #94a3b8;
+      color: var(--text-secondary);
       margin-bottom: 8px;
     }
     .day.has-movies .day-number {
-      color: #fff;
+      color: var(--text-primary);
     }
     .movie {
-      background: #334155;
+      background: var(--bg-movie);
       border-radius: 0;
       margin-bottom: 2px;
       font-size: 11px;
-      border-left: 3px solid #06b6d4;
+      border-left: 3px solid var(--accent);
     }
     .movie a {
       display: block;
       padding: 4px 6px;
-      color: #fff;
+      color: var(--text-primary);
       text-decoration: none;
     }
     .movie a:hover {
-      background: #475569;
+      background: var(--bg-movie-hover);
     }
     .movie-time {
-      color: #06b6d4;
+      color: var(--accent);
       font-weight: bold;
       margin-right: 5px;
     }
@@ -84,14 +115,14 @@
       font-weight: 500;
     }
     .movie-meta {
-      color: #94a3b8;
+      color: var(--text-tertiary);
       font-size: 10px;
       margin-top: 3px;
     }
     .legend {
       text-align: center;
       margin-top: 20px;
-      color: #64748b;
+      color: var(--text-secondary);
       font-size: 12px;
     }
     .controls {
