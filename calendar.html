@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenement Stories - Film Forum Feb 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 30px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .day-header {
+      text-align: center;
+      font-weight: bold;
+      padding: 10px;
+      color: #888;
+      font-size: 12px;
+    }
+    .day {
+      background: #16213e;
+      border-radius: 8px;
+      min-height: 120px;
+      padding: 10px;
+      vertical-align: top;
+    }
+    .day.empty {
+      background: transparent;
+    }
+    .day.has-movies {
+      background: #1f4068;
+    }
+    .day-number {
+      font-size: 14px;
+      font-weight: bold;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .day.has-movies .day-number {
+      color: #fff;
+    }
+    .movie {
+      background: #0f3460;
+      border-radius: 4px;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border-left: 3px solid #e94560;
+    }
+    .movie:hover {
+      background: #1a4a7a;
+    }
+    .movie a {
+      color: #fff;
+      text-decoration: none;
+    }
+    .movie a:hover {
+      text-decoration: underline;
+    }
+    .movie-time {
+      color: #e94560;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .movie-title {
+      font-weight: 500;
+    }
+    .movie-meta {
+      color: #888;
+      font-size: 10px;
+      margin-top: 3px;
+    }
+    .legend {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tenement Stories: From Immigrants to Bohemians</h1>
+  <p class="subtitle">Film Forum, NYC - February 2026 (Evenings & Weekends)</p>
+
+  <div class="calendar">
+    <div class="day-header">Sun</div>
+    <div class="day-header">Mon</div>
+    <div class="day-header">Tue</div>
+    <div class="day-header">Wed</div>
+    <div class="day-header">Thu</div>
+    <div class="day-header">Fri</div>
+    <div class="day-header">Sat</div>
+
+    <!-- Feb 2026 starts on Sunday -->
+    <div class="day"><div class="day-number">1</div></div>
+    <div class="day"><div class="day-number">2</div></div>
+    <div class="day"><div class="day-number">3</div></div>
+    <div class="day"><div class="day-number">4</div></div>
+    <div class="day"><div class="day-number">5</div></div>
+
+    <!-- Feb 6 - Friday -->
+    <div class="day has-movies">
+      <div class="day-number">6 Fri</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/street-scene"><span class="movie-time">6:10</span><span class="movie-title">Street Scene</span></a><div class="movie-meta">1931 - King Vidor - 80 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-window-tene"><span class="movie-time">8:00</span><span class="movie-title">The Window</span></a><div class="movie-meta">1949 - Ted Tetzlaff - 73 min</div></div>
+    </div>
+
+    <!-- Feb 7 - Saturday -->
+    <div class="day has-movies">
+      <div class="day-number">7 Sat</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/three-on-a-match"><span class="movie-time">12:40</span><span class="movie-title">Three on a Match</span></a><div class="movie-meta">1932 - Mervyn LeRoy - 63 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/street-scene"><span class="movie-time">2:10</span><span class="movie-title">Street Scene</span></a><div class="movie-meta">1931 - King Vidor - 80 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-window-tene"><span class="movie-time">4:00</span><span class="movie-title">The Window</span></a><div class="movie-meta">1949 - Ted Tetzlaff - 73 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/italianamerican-tene"><span class="movie-time">5:40</span><span class="movie-title">Italianamerican</span></a><div class="movie-meta">1974 - Martin Scorsese - 49 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/mean-streets-tene"><span class="movie-time">7:10</span><span class="movie-title">Mean Streets</span></a><div class="movie-meta">1973 - Martin Scorsese - 112 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/heavy-traffic"><span class="movie-time">9:40</span><span class="movie-title">Heavy Traffic</span></a><div class="movie-meta">1973 - Ralph Bakshi - 79 min</div></div>
+    </div>
+
+    <!-- Feb 8 - Sunday -->
+    <div class="day has-movies">
+      <div class="day-number">8 Sun</div>
+      <div class="movie"><a href="https://my.filmforum.org/the-kid-ffjr"><span class="movie-time">11:00</span><span class="movie-title">The Kid (FF Jr.)</span></a><div class="movie-meta">1921 - Charlie Chaplin - 58 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/applause-tene"><span class="movie-time">1:00</span><span class="movie-title">Applause</span></a><div class="movie-meta">1929 - Rouben Mamoulian - 80 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/taxi"><span class="movie-time">2:50</span><span class="movie-title">Taxi!</span></a><div class="movie-meta">1932 - Roy Del Ruth - 69 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/three-on-a-match"><span class="movie-time">4:30</span><span class="movie-title">Three on a Match</span></a><div class="movie-meta">1932 - Mervyn LeRoy - 63 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/dead-end"><span class="movie-time">6:00</span><span class="movie-title">Dead End</span></a><div class="movie-meta">1937 - William Wyler - 93 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/mixed-blood"><span class="movie-time">8:40</span><span class="movie-title">Mixed Blood</span></a><div class="movie-meta">1984 - Paul Morrissey - 98 min</div></div>
+    </div>
+
+    <!-- Feb 9 - Monday -->
+    <div class="day has-movies">
+      <div class="day-number">9 Mon</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/two-seconds"><span class="movie-time">6:10</span><span class="movie-title">Two Seconds</span></a><div class="movie-meta">1932 - Mervyn LeRoy - 68 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/hester-street-tene"><span class="movie-time">7:50</span><span class="movie-title">Hester Street</span></a><div class="movie-meta">1975 - Joan Micklin Silver - 92 min</div></div>
+    </div>
+
+    <!-- Feb 10 - Tuesday -->
+    <div class="day has-movies">
+      <div class="day-number">10 Tue</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-heart-of-new-york"><span class="movie-time">6:00</span><span class="movie-title">The Heart of New York</span></a><div class="movie-meta">1932 - Mervyn LeRoy - 73 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/humoresque-tene"><span class="movie-time">7:40</span><span class="movie-title">Humoresque</span></a><div class="movie-meta">1920 - Frank Borzage - 60 min</div></div>
+    </div>
+
+    <!-- Feb 11 - Wednesday -->
+    <div class="day has-movies">
+      <div class="day-number">11 Wed</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/el-super-tene"><span class="movie-time">5:50</span><span class="movie-title">El Super</span></a><div class="movie-meta">1979 - Ichaso/Leal - 90 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/something-wild"><span class="movie-time">8:30</span><span class="movie-title">Something Wild</span></a><div class="movie-meta">1961 - Jack Garfein - 112 min</div></div>
+    </div>
+
+    <!-- Feb 12 - Thursday -->
+    <div class="day has-movies">
+      <div class="day-number">12 Thu</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/hungry-hearts"><span class="movie-time">6:00</span><span class="movie-title">Hungry Hearts</span></a><div class="movie-meta">1922 - E. Mason Hopper - 70 min</div></div>
+    </div>
+
+    <!-- Feb 13 - Friday -->
+    <div class="day has-movies">
+      <div class="day-number">13 Fri</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/hester-street-tene"><span class="movie-time">5:50</span><span class="movie-title">Hester Street</span></a><div class="movie-meta">1975 - Joan Micklin Silver - 92 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/frownland"><span class="movie-time">8:30</span><span class="movie-title">Frownland</span></a><div class="movie-meta">2007 - Ronald Bronstein - 106 min</div></div>
+    </div>
+
+    <!-- Feb 14 - Saturday -->
+    <div class="day has-movies">
+      <div class="day-number">14 Sat</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/rafter-romance"><span class="movie-time">12:30</span><span class="movie-title">Rafter Romance</span></a><div class="movie-meta">1932 - William A. Seiter - 72 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/me-and-my-gal"><span class="movie-time">2:10</span><span class="movie-title">Me and My Gal</span></a><div class="movie-meta">1932 - Raoul Walsh - 79 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-cameraman-tene"><span class="movie-time">4:15</span><span class="movie-title">The Cameraman</span></a><div class="movie-meta">1928 - Edward Sedgwick - 76 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/christmas-in-july-tene"><span class="movie-time">6:15</span><span class="movie-title">Christmas in July</span></a><div class="movie-meta">1940 - Preston Sturges - 67 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/west-side-story-tene"><span class="movie-time">7:40</span><span class="movie-title">West Side Story</span></a><div class="movie-meta">1961 - Wise/Robbins - 155 min</div></div>
+    </div>
+
+    <!-- Feb 15 - Sunday -->
+    <div class="day has-movies">
+      <div class="day-number">15 Sun</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-cameraman-tene"><span class="movie-time">11:00</span><span class="movie-title">The Cameraman (FF Jr.)</span></a><div class="movie-meta">1928 - Edward Sedgwick - 76 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/speedy-tene"><span class="movie-time">1:00</span><span class="movie-title">Speedy</span></a><div class="movie-meta">1928 - Ted Wilde - 85 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-crowd-tene"><span class="movie-time">2:55</span><span class="movie-title">The Crowd</span></a><div class="movie-meta">1928 - King Vidor - 98 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/one-third-of-a-nation"><span class="movie-time">5:10</span><span class="movie-title">One Third of a Nation</span></a><div class="movie-meta">1939 - Dudley Murphy - 79 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/once-upon-a-time-in-america"><span class="movie-time">7:00</span><span class="movie-title">Once Upon a Time in America</span></a><div class="movie-meta">1984 - Sergio Leone - 229 min</div></div>
+    </div>
+
+    <!-- Feb 16 - Monday -->
+    <div class="day has-movies">
+      <div class="day-number">16 Mon</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/east-side-west-side"><span class="movie-time">7:30</span><span class="movie-title">East Side, West Side</span></a><div class="movie-meta">1927 - Allan Dwan - 90 min</div></div>
+    </div>
+
+    <!-- Feb 17 - Tuesday -->
+    <div class="day has-movies">
+      <div class="day-number">17 Tue</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/raising-victor-vargas"><span class="movie-time">8:00</span><span class="movie-title">Raising Victor Vargas</span></a><div class="movie-meta">2002 - Peter Sollett - 88 min</div></div>
+    </div>
+
+    <!-- Feb 18 - Wednesday -->
+    <div class="day has-movies">
+      <div class="day-number">18 Wed</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/take-out"><span class="movie-time">6:10</span><span class="movie-title">Take Out</span></a><div class="movie-meta">2004 - Baker/Tsou - 90 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-naked-city-tene"><span class="movie-time">8:10</span><span class="movie-title">The Naked City</span></a><div class="movie-meta">1948 - Jules Dassin - 96 min</div></div>
+    </div>
+
+    <!-- Feb 19 - Thursday -->
+    <div class="day has-movies">
+      <div class="day-number">19 Thu</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/los-sures-tene"><span class="movie-time">6:40</span><span class="movie-title">Los Sures</span></a><div class="movie-meta">1984 - Diego Echeverria - 57 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/heavy-traffic"><span class="movie-time">9:10</span><span class="movie-title">Heavy Traffic</span></a><div class="movie-meta">1973 - Ralph Bakshi - 79 min</div></div>
+    </div>
+
+    <!-- Feb 20 - Friday -->
+    <div class="day has-movies">
+      <div class="day-number">20 Fri</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/sweet-love-bitter"><span class="movie-time">6:00</span><span class="movie-title">Sweet Love, Bitter</span></a><div class="movie-meta">1967 - Herbert Danska - 92 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-connection-tene"><span class="movie-time">8:00</span><span class="movie-title">The Connection</span></a><div class="movie-meta">1961 - Shirley Clarke - 103 min</div></div>
+    </div>
+
+    <!-- Feb 21 - Saturday -->
+    <div class="day has-movies">
+      <div class="day-number">21 Sat</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/los-sures-tene"><span class="movie-time">12:15</span><span class="movie-title">Los Sures</span></a><div class="movie-meta">1984 - Diego Echeverria - 57 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/sweet-love-bitter"><span class="movie-time">1:45</span><span class="movie-title">Sweet Love, Bitter</span></a><div class="movie-meta">1967 - Herbert Danska - 92 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-asphalt-jungle-tene"><span class="movie-time">3:45</span><span class="movie-title">The Asphalt Jungle</span></a><div class="movie-meta">1950 - John Huston - 112 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-landlord-tene"><span class="movie-time">6:10</span><span class="movie-title">The Landlord</span></a><div class="movie-meta">1970 - Hal Ashby - 110 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/taxi-driver-tene"><span class="movie-time">8:30</span><span class="movie-title">Taxi Driver</span></a><div class="movie-meta">1976 - Martin Scorsese - 113 min</div></div>
+    </div>
+
+    <!-- Feb 22 - Sunday -->
+    <div class="day has-movies">
+      <div class="day-number">22 Sun</div>
+      <div class="movie"><a href="https://my.filmforum.org/little-annie-rooney-ffjr"><span class="movie-time">11:00</span><span class="movie-title">Little Annie Rooney (FF Jr.)</span></a><div class="movie-meta">1925 - William Beaudine - 95 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/uncle-moses-tene"><span class="movie-time">1:00</span><span class="movie-title">Uncle Moses</span></a><div class="movie-meta">1932 - Goldin/Scotto - 87 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/his-people"><span class="movie-time">3:20</span><span class="movie-title">His People</span></a><div class="movie-meta">1925 - Edward Sloman - 91 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/a-tree-grows-in-brooklyn"><span class="movie-time">5:40</span><span class="movie-title">A Tree Grows in Brooklyn</span></a><div class="movie-meta">1945 - Elia Kazan - 128 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/a-raisin-in-the-sun-tene"><span class="movie-time">8:30</span><span class="movie-title">A Raisin in the Sun</span></a><div class="movie-meta">1961 - Daniel Petrie - 128 min</div></div>
+    </div>
+
+    <!-- Feb 23 - Monday -->
+    <div class="day has-movies">
+      <div class="day-number">23 Mon</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/lonesome"><span class="movie-time">5:35</span><span class="movie-title">Lonesome</span></a><div class="movie-meta">1928 - Paul Fejos - 70 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/shoes"><span class="movie-time">7:15</span><span class="movie-title">Shoes</span></a><div class="movie-meta">1916 - Lois Weber - 60 min</div></div>
+    </div>
+
+    <!-- Feb 24 - Tuesday -->
+    <div class="day has-movies">
+      <div class="day-number">24 Tue</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/manhattan-by-numbers-tene"><span class="movie-time">6:00</span><span class="movie-title">Manhattan by Numbers</span></a><div class="movie-meta">1993 - Amir Naderi - 110 min</div></div>
+      <div class="movie"><a href="https://my.filmforum.org/events/taxi-driver-tene"><span class="movie-time">8:20</span><span class="movie-title">Taxi Driver</span></a><div class="movie-meta">1976 - Martin Scorsese - 113 min</div></div>
+    </div>
+
+    <!-- Feb 25 - Wednesday -->
+    <div class="day has-movies">
+      <div class="day-number">25 Wed</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/regeneration-tene"><span class="movie-time">6:10</span><span class="movie-title">Regeneration</span></a><div class="movie-meta">1915 - Raoul Walsh - 72 min</div></div>
+    </div>
+
+    <!-- Feb 26 - Thursday -->
+    <div class="day has-movies">
+      <div class="day-number">26 Thu</div>
+      <div class="movie"><a href="https://my.filmforum.org/events/the-godfather-part-2-tene"><span class="movie-time">7:10</span><span class="movie-title">The Godfather Part II</span></a><div class="movie-meta">1974 - Francis Ford Coppola - 202 min</div></div>
+    </div>
+
+    <!-- Feb 27-28 -->
+    <div class="day"><div class="day-number">27</div></div>
+    <div class="day"><div class="day-number">28</div></div>
+  </div>
+
+  <p class="legend">Click any movie to buy tickets. Times shown are PM unless marked "FF Jr." (morning kids' screenings).</p>
+</body>
+</html>
