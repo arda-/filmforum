@@ -16,6 +16,8 @@
 @media (min-width: 1024px) {
   .movie:not(.movie--timeline) {
     margin: 0 4px 4px 4px;
+    border-radius: 3px;
+    overflow: hidden;
   }
 }
 
@@ -254,6 +256,12 @@ body.show-image .movie.has-poster .movie-meta {
   body.show-image .movie.has-poster .movie-title {
     font-weight: 500;
   }
+}
+
+/* Hover effect for poster tiles */
+body.show-image .movie.has-poster:hover,
+body.show-image .movie.has-poster:focus {
+  filter: brightness(1.15);
 }
 
 /* ===== Timeline Mode: Overlap Columns ===== */
