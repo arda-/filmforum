@@ -43,8 +43,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       name="blend-mode"
       options={[
         { label: 'Normal', value: 'normal', checked: true },
-        { label: 'Darken', value: 'darken' },
-        { label: 'Multiply', value: 'multiply' }
+        { label: 'Darken', value: 'darken' }
       ]}
     />
   </div>
@@ -59,6 +58,12 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     <h2>Without Gradient (Direct Comparison)</h2>
     <p class="demo-note">Same tile with gradient disabled vs enabled</p>
     <div class="demo-grid" id="comparison-tiles"></div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Blend Mode Comparison</h2>
+    <p class="demo-note">Drag the slider to compare original vs gradient</p>
+    <div class="blend-comparison-grid" id="blend-comparison-tiles"></div>
   </div>
 </Layout>
 
@@ -169,6 +174,97 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         comparisonGrid.appendChild(wrapper2);
       }
 
+      // Blend mode comparison - draggable reveal
+      const blendComparisonGrid = document.getElementById('blend-comparison-tiles');
+      if (blendComparisonGrid) {
+        const movie = moviesWithPosters[3];
+
+        function createComparisonSlider(label: string, blendClass: string) {
+          const container = document.createElement('div');
+          container.className = 'comparison-container';
+
+          const labelEl = document.createElement('span');
+          labelEl.className = 'comparison-label';
+          labelEl.textContent = label;
+          container.appendChild(labelEl);
+
+          const slider = document.createElement('div');
+          slider.className = 'comparison-slider';
+
+          // Before (original - full width, underneath)
+          const beforeTile = createMovieElement(movie, 200);
+          beforeTile.classList.add('comparison-tile', 'comparison-before', 'no-gradient');
+          slider.appendChild(beforeTile);
+
+          // After (with gradient - clipped)
+          const afterWrapper = document.createElement('div');
+          afterWrapper.className = 'comparison-after-wrapper';
+          const afterTile = createMovieElement(movie, 200);
+          afterTile.classList.add('comparison-tile', 'comparison-after', blendClass);
+          afterWrapper.appendChild(afterTile);
+          slider.appendChild(afterWrapper);
+
+          // Drag handle
+          const handle = document.createElement('div');
+          handle.className = 'comparison-handle';
+          handle.innerHTML = '<div class="handle-line"></div><div class="handle-grip">⋮</div><div class="handle-line"></div>';
+          slider.appendChild(handle);
+
+          // Labels
+          const beforeLabel = document.createElement('span');
+          beforeLabel.className = 'comparison-side-label before';
+          beforeLabel.textContent = 'Original';
+          slider.appendChild(beforeLabel);
+
+          const afterLabel = document.createElement('span');
+          afterLabel.className = 'comparison-side-label after';
+          afterLabel.textContent = 'Gradient';
+          slider.appendChild(afterLabel);
+
+          container.appendChild(slider);
+
+          // Drag logic
+          let isDragging = false;
+
+          function updatePosition(x: number) {
+            const rect = slider.getBoundingClientRect();
+            let percent = ((x - rect.left) / rect.width) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            afterWrapper.style.clipPath = `inset(0 0 0 ${percent}%)`;
+            handle.style.left = `${percent}%`;
+          }
+
+          handle.addEventListener('mousedown', () => { isDragging = true; });
+          slider.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updatePosition(e.clientX);
+          });
+          document.addEventListener('mousemove', (e) => {
+            if (isDragging) updatePosition(e.clientX);
+          });
+          document.addEventListener('mouseup', () => { isDragging = false; });
+
+          // Touch support
+          handle.addEventListener('touchstart', () => { isDragging = true; });
+          slider.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            updatePosition(e.touches[0].clientX);
+          });
+          document.addEventListener('touchmove', (e) => {
+            if (isDragging) updatePosition(e.touches[0].clientX);
+          });
+          document.addEventListener('touchend', () => { isDragging = false; });
+
+          // Initialize at 50%
+          setTimeout(() => updatePosition(slider.getBoundingClientRect().left + slider.offsetWidth / 2), 100);
+
+          return container;
+        }
+
+        blendComparisonGrid.appendChild(createComparisonSlider('Normal Blend', 'force-blend-normal'));
+        blendComparisonGrid.appendChild(createComparisonSlider('Darken Blend', 'force-blend-darken'));
+      }
+
       // Initial height calculation
       updateTextHeights();
     });
@@ -211,11 +307,12 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     });
   });
 
+
   // Blend mode toggle
   document.querySelectorAll('input[name="blend-mode"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       const value = (e.target as HTMLInputElement).value;
-      document.body.classList.remove('blend-normal', 'blend-darken', 'blend-multiply');
+      document.body.classList.remove('blend-normal', 'blend-darken');
       document.body.classList.add(`blend-${value}`);
     });
   });
@@ -314,6 +411,116 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     flex-wrap: wrap;
     gap: 16px;
     align-items: flex-end;
+  }
+
+  .blend-comparison-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+
+  :global(.comparison-container) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :global(.comparison-label) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  :global(.comparison-slider) {
+    position: relative;
+    width: 240px;
+    height: 200px;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  :global(.comparison-slider *) {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  :global(.comparison-tile) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.comparison-before) {
+    z-index: 1;
+  }
+
+  :global(.comparison-after-wrapper) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    clip-path: inset(0 0 0 50%);
+  }
+
+  :global(.comparison-after) {
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.comparison-handle) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+  }
+
+  :global(.handle-line) {
+    flex: 1;
+    width: 2px;
+    background: white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+
+  :global(.handle-grip) {
+    background: white;
+    color: #333;
+    font-size: 14px;
+    padding: 6px 4px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    line-height: 1;
+  }
+
+  :global(.comparison-side-label) {
+    position: absolute;
+    bottom: 8px;
+    font-size: 11px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  :global(.comparison-side-label.before) {
+    left: 8px;
+  }
+
+  :global(.comparison-side-label.after) {
+    right: 8px;
   }
 
   :global(.demo-tile-wrapper) {
@@ -475,8 +682,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     height: var(--text-height, 60px);
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.75) 0%,
-      rgba(0, 0, 0, 0.5) 60%,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.75) 60%,
       rgba(0, 0, 0, 0) 100%
     );
     pointer-events: none;
@@ -491,19 +698,60 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   :global(body.show-image.content-gradient.content-debug .movie--timeline.has-poster .movie-clickable::before) {
     background: linear-gradient(
       to bottom,
-      rgba(0, 180, 0, 0.8) 0%,
-      rgba(0, 180, 0, 0.5) 60%,
-      rgba(0, 180, 0, 0) 100%
+      rgba(0, 60, 0, 0.9) 0%,
+      rgba(0, 60, 0, 0.75) 60%,
+      rgba(0, 60, 0, 0) 100%
     );
   }
 
-  /* Blend modes */
-  :global(body.blend-darken .movie--timeline.has-poster .movie-clickable::before) {
+  /* Darken blend mode - uses rgba for fade-out */
+  :global(body.blend-darken.content-gradient .movie--timeline.has-poster .movie-clickable::before) {
+    mix-blend-mode: darken;
+    background: linear-gradient(
+      to bottom,
+      rgba(15, 15, 15, 1) 0%,
+      rgba(20, 20, 20, 0.5) 60%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+
+  /* Force blend modes for static comparison tiles */
+  :global(body.show-image .force-blend-normal.movie--timeline.has-poster .movie-clickable::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+    mix-blend-mode: normal;
+  }
+
+  :global(body.show-image .force-blend-darken.movie--timeline.has-poster .movie-clickable::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(15,15,15,1) 0%, rgba(20,20,20,0.5) 60%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
     mix-blend-mode: darken;
   }
 
-  :global(body.blend-multiply .movie--timeline.has-poster .movie-clickable::before) {
-    mix-blend-mode: multiply;
+
+  :global(body.show-image .force-blend-normal .movie-header),
+  :global(body.show-image .force-blend-normal .movie-meta),
+  :global(body.show-image .force-blend-darken .movie-header),
+  :global(body.show-image .force-blend-darken .movie-meta),
+  :global(body.show-image .force-blend-multiply .movie-header),
+  :global(body.show-image .force-blend-multiply .movie-meta) {
+    position: relative;
+    z-index: 1;
   }
 
   /* No gradient class for comparison */
