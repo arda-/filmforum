@@ -650,7 +650,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     />
     <div class="slider-control">
       <label>
-        <span class="slider-label">Radius: <span id="global-blur-value">16px</span></span>
+        <span class="slider-label">Radius: <span id="global-blur-value">1.0rem</span></span>
         <input
           type="range"
           id="global-blur-slider"
@@ -772,7 +772,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     const blurValue = document.getElementById('global-blur-value') as HTMLElement;
     if (blurSlider) {
       blurSlider.value = String(blurAmount);
-      if (blurValue) blurValue.textContent = `${blurAmount}px`;
+      if (blurValue) blurValue.textContent = `${(blurAmount / 16).toFixed(1)}rem`;
     }
 
     // Global text level
@@ -888,7 +888,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   blurSlider?.addEventListener('input', (e) => {
     blurAmount = parseInt((e.target as HTMLInputElement).value);
-    if (blurValue) blurValue.textContent = `${blurAmount}px`;
+    if (blurValue) blurValue.textContent = `${(blurAmount / 16).toFixed(1)}rem`;
     updateBlur();
     updateRelBlur();
     updateComparisonBlur();
