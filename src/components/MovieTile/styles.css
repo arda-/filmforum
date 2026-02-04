@@ -13,6 +13,12 @@
   cursor: pointer;
 }
 
+@media (min-width: 1024px) {
+  .movie:not(.movie--timeline) {
+    margin: 0 4px 4px 4px;
+  }
+}
+
 .movie:hover,
 .movie:focus {
   background: var(--bg-movie-hover);
@@ -29,6 +35,12 @@
   justify-content: flex-start;
   padding: 4px;
   color: var(--text-primary);
+}
+
+@media (min-width: 768px) {
+  .movie-clickable {
+    padding: 6px;
+  }
 }
 
 .movie-header {
@@ -166,6 +178,12 @@ body.show-image .movie.has-poster:not(.movie--timeline) {
   min-height: 80px;
 }
 
+@media (min-width: 1024px) {
+  body.show-image .movie.has-poster:not(.movie--timeline) {
+    min-height: 120px;
+  }
+}
+
 /* Hide background when show-image is not enabled */
 body:not(.show-image) .movie.has-poster {
   background-image: none !important;
@@ -223,12 +241,19 @@ body.show-image .movie.has-poster .movie-title {
 }
 
 body.show-image .movie.has-poster .movie-meta {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 300;
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 1),
     0 2px 4px rgba(0, 0, 0, 0.8),
     0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+@media (min-width: 768px) {
+  body.show-image .movie.has-poster .movie-time,
+  body.show-image .movie.has-poster .movie-title {
+    font-weight: 500;
+  }
 }
 
 /* ===== Timeline Mode: Overlap Columns ===== */

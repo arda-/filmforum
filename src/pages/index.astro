@@ -872,6 +872,12 @@ for (let i = 1; i <= 28; i++) {
     margin-bottom: 0;
   }
 
+  @media (min-width: 768px) {
+    :global(body.show-image .day-number) {
+      font-weight: 500;
+    }
+  }
+
   /* Toggle row styling */
   .toggle-row {
     display: flex;
