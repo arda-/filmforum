@@ -22,7 +22,6 @@
       --text-secondary: #64748b;
       --text-tertiary: #64748b;
       --accent: #0891b2;
-      --ribbon: #0e7490;
     }
 
     /* Dark mode */
@@ -38,7 +37,6 @@
         --text-secondary: #94a3b8;
         --text-tertiary: #94a3b8;
         --accent: #06b6d4;
-        --ribbon: #0891b2;
       }
     }
 
@@ -82,8 +80,10 @@
       background: var(--bg-day);
       border-radius: 0;
       min-height: 120px;
-      padding: 4px;
+      padding: 4px 0;
       vertical-align: top;
+      overflow: hidden;
+      max-width: 100%;
     }
     .day.empty {
       background: transparent;
@@ -102,7 +102,6 @@
     }
     @media (min-width: 480px) {
       .day-number {
-        font-size: 14px;
         font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         text-transform: none;
         letter-spacing: normal;
@@ -115,15 +114,10 @@
     .movie {
       background: var(--bg-movie);
       border-radius: 0;
-      margin-bottom: 4px;
+      margin: 0 0 4px 0;
       font-size: 13px;
       line-height: 1.25;
       border-left: none;
-    }
-    @media (min-width: 480px) {
-      .movie {
-        border-left: 0.2em solid var(--ribbon);
-      }
     }
     .movie a {
       display: block;
@@ -148,6 +142,12 @@
       margin-top: 0.25em;
       line-height: 1.05;
       font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: none;
+    }
+    @media (min-width: 640px) {
+      .movie-meta {
+        display: block;
+      }
     }
     .movie-actors {
       display: none;
@@ -230,6 +230,7 @@
     .day.timeline-view {
       position: relative;
       padding-top: 28px; /* space for day number */
+      overflow: hidden;
     }
 
     .day.timeline-view .day-number {
@@ -249,26 +250,11 @@
       z-index: 1;
       margin-bottom: 0;
     }
-    @media (min-width: 1024px) {
-      .movie--timeline {
-        left: 4px;
-        right: 4px;
-      }
-    }
 
     .movie--timeline a {
       height: 100%;
     }
 
-    /* Hide meta until 768px */
-    .movie--timeline .movie-meta {
-      display: none;
-    }
-    @media (min-width: 768px) {
-      .movie--timeline .movie-meta {
-        display: block;
-      }
-    }
 
     /* Overlap handling - side by side */
     .movie--timeline.overlap-col-1 {
@@ -379,6 +365,27 @@
   </template>
 
   <script>
+    const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Format day label from date string
+    function formatDayLabel(dateStr) {
+      const date = new Date(dateStr + 'T12:00:00');
+      const day = date.getDate();
+      const dayName = DAYS[date.getDay()];
+      return `${day} ${dayName}`;
+    }
+
+    // Initialize all day labels from data-date
+    document.querySelectorAll('.day[data-date]').forEach(cell => {
+      const dateStr = cell.dataset.date;
+      const label = formatDayLabel(dateStr);
+      const dayNumEl = cell.querySelector('.day-number');
+      if (dayNumEl) {
+        dayNumEl.textContent = label;
+      }
+      cell.dataset.dayNumber = label;
+    });
+
     // Week toggle
     document.getElementById('week-start-toggle').addEventListener('change', (e) => {
       if (e.target.checked) {
@@ -557,14 +564,6 @@
           const date = movie.Datetime.split('T')[0];
           if (!moviesByDate[date]) moviesByDate[date] = [];
           moviesByDate[date].push(movie);
-        });
-
-        // Store day numbers before clearing
-        document.querySelectorAll('[data-date]').forEach(cell => {
-          const dayNumEl = cell.querySelector('.day-number');
-          if (dayNumEl) {
-            cell.dataset.dayNumber = dayNumEl.textContent;
-          }
         });
 
         // Calculate global time range across all days
