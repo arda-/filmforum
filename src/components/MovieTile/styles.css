@@ -30,7 +30,9 @@
 }
 
 .movie-clickable {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   padding: 4px;
   color: var(--text-primary);
 }
@@ -176,11 +178,8 @@ body:not(.show-image) .movie.has-poster {
   background-image: none !important;
 }
 
-/* Text at top with flexbox layout */
+/* Clear background when showing poster */
 body.show-image .movie.has-poster .movie-clickable {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
   position: relative;
   background: none;
 }
