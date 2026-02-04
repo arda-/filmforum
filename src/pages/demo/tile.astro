@@ -51,131 +51,129 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   <div class="demo-section">
     <h2>Test Tiles with Poster Background</h2>
-    <p class="demo-note">These tiles simulate timeline mode with poster images as CSS background</p>
-
-    <div class="demo-grid">
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">50px</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 50px; background-image: url(/posters/lonesome.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">12:30</span>
-              <span class="movie-title">Lonesome</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">75px</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 75px; background-image: url(/posters/taxi.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">2:10</span>
-              <span class="movie-title">Taxi!</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">100px</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 100px; background-image: url(/posters/hester-street.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">4:10</span>
-              <span class="movie-title">Hester Street</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">150px</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 150px; background-image: url(/posters/street-scene.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">6:10</span>
-              <span class="movie-title">Street Scene</span>
-            </div>
-            <div class="movie-meta">
-              <span class="movie-year-director">1931, King Vidor</span>
-              <span class="movie-runtime">80min</span>
-              <span class="movie-actors">Sylvia Sidney, William Collier Jr.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">200px</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 200px; background-image: url(/posters/the-window.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">8:00</span>
-              <span class="movie-title">The Window</span>
-            </div>
-            <div class="movie-meta">
-              <span class="movie-year-director">1949, Ted Tetzlaff</span>
-              <span class="movie-runtime">73min</span>
-              <span class="movie-actors">Bobby Driscoll, Barbara Hale</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">300px</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 300px; background-image: url(/posters/three-on-a-match.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">12:40</span>
-              <span class="movie-title">Three on a Match</span>
-            </div>
-            <div class="movie-meta">
-              <span class="movie-year-director">1932, Mervyn LeRoy</span>
-              <span class="movie-runtime">63min</span>
-              <span class="movie-actors">Joan Blondell, Warren William, Ann Dvorak</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="demo-note">Real movie data rendered at various fixed heights</p>
+    <div class="demo-grid" id="demo-tiles"></div>
   </div>
 
   <div class="demo-section">
     <h2>Without Gradient (Direct Comparison)</h2>
-    <p class="demo-note">Same tiles but with gradient disabled to see the difference</p>
-
-    <div class="demo-grid">
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">150px (no gradient)</span>
-        <div class="demo-tile movie movie--timeline has-poster no-gradient" style="height: 150px; background-image: url(/posters/street-scene.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">6:10</span>
-              <span class="movie-title">Street Scene</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="demo-tile-wrapper">
-        <span class="demo-label">150px (with gradient)</span>
-        <div class="demo-tile movie movie--timeline has-poster" style="height: 150px; background-image: url(/posters/street-scene.png);">
-          <div class="movie-clickable">
-            <div class="movie-header">
-              <span class="movie-time">6:10</span>
-              <span class="movie-title">Street Scene</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="demo-note">Same tile with gradient disabled vs enabled</p>
+    <div class="demo-grid" id="comparison-tiles"></div>
   </div>
 </Layout>
 
 <script>
+  interface Movie {
+    Movie: string;
+    Time: string;
+    Datetime: string;
+    Tickets: string;
+    year?: string;
+    director?: string;
+    runtime?: string;
+    actors?: string;
+    poster_url?: string;
+    description?: string;
+    film_url?: string;
+  }
+
+  function toTitleCase(str: string) {
+    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  }
+
+  function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {
+    const isFFJr = time.includes('FF Jr');
+    const displayTime = isFFJr ? time.replace(/\s*[–-]?\s*FF Jr\.?/g, '').trim() : time;
+    const displayTitle = isFFJr ? `${toTitleCase(title)} (FF Jr.)` : toTitleCase(title);
+    return { displayTime, displayTitle };
+  }
+
+  function createMovieElement(movie: Movie, heightPx: number) {
+    const el = document.createElement('div');
+    el.className = 'movie movie--timeline';
+    el.style.height = `${heightPx}px`;
+
+    if (movie.poster_url) {
+      el.style.backgroundImage = `url(${movie.poster_url})`;
+      el.classList.add('has-poster');
+    }
+
+    const yearDirector = [movie.year, movie.director].filter(Boolean).join(', ');
+    const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
+    const actors = movie.actors ? movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ') : '';
+
+    const { displayTime, displayTitle } = processFFJr(movie.Time, movie.Movie);
+
+    el.innerHTML = `
+      <div class="movie-clickable">
+        <div class="movie-header">
+          <span class="movie-time">${displayTime}</span>
+          <span class="movie-title">${displayTitle}</span>
+        </div>
+        <div class="movie-meta">
+          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
+          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
+          ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
+        </div>
+      </div>
+    `;
+    return el;
+  }
+
+  // Fetch real movie data
+  fetch('/tenement-stories-full.json')
+    .then(res => res.json())
+    .then((movies: Movie[]) => {
+      // Filter to movies with posters
+      const moviesWithPosters = movies.filter(m => m.poster_url);
+
+      // Demo tile heights to test
+      const heights = [50, 75, 100, 150, 200, 300];
+
+      const demoGrid = document.getElementById('demo-tiles');
+      const comparisonGrid = document.getElementById('comparison-tiles');
+
+      if (demoGrid) {
+        heights.forEach((height, i) => {
+          const movie = moviesWithPosters[i % moviesWithPosters.length];
+          const wrapper = document.createElement('div');
+          wrapper.className = 'demo-tile-wrapper';
+          wrapper.innerHTML = `<span class="demo-label">${height}px</span>`;
+
+          const tile = createMovieElement(movie, height);
+          tile.classList.add('demo-tile');
+          wrapper.appendChild(tile);
+          demoGrid.appendChild(wrapper);
+        });
+      }
+
+      if (comparisonGrid) {
+        const movie = moviesWithPosters[3]; // Use a movie with good poster
+
+        // No gradient tile
+        const wrapper1 = document.createElement('div');
+        wrapper1.className = 'demo-tile-wrapper';
+        wrapper1.innerHTML = `<span class="demo-label">150px (no gradient)</span>`;
+        const tile1 = createMovieElement(movie, 150);
+        tile1.classList.add('demo-tile', 'no-gradient');
+        wrapper1.appendChild(tile1);
+        comparisonGrid.appendChild(wrapper1);
+
+        // With gradient tile
+        const wrapper2 = document.createElement('div');
+        wrapper2.className = 'demo-tile-wrapper';
+        wrapper2.innerHTML = `<span class="demo-label">150px (with gradient)</span>`;
+        const tile2 = createMovieElement(movie, 150);
+        tile2.classList.add('demo-tile');
+        wrapper2.appendChild(tile2);
+        comparisonGrid.appendChild(wrapper2);
+      }
+
+      // Initial height calculation
+      updateTextHeights();
+    });
+
+  // Control toggles
   const showImagesToggle = document.getElementById('show-images-toggle') as HTMLInputElement;
   const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
   const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
@@ -187,14 +185,17 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   showYearDirector?.addEventListener('change', () => {
     document.body.classList.toggle('show-year-director', showYearDirector.checked);
+    setTimeout(updateTextHeights, 10);
   });
 
   showRuntime?.addEventListener('change', () => {
     document.body.classList.toggle('show-runtime', showRuntime.checked);
+    setTimeout(updateTextHeights, 10);
   });
 
   showActors?.addEventListener('change', () => {
     document.body.classList.toggle('show-actors', showActors.checked);
+    setTimeout(updateTextHeights, 10);
   });
 
   // Fixed gradient mode toggle
@@ -237,21 +238,14 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       const meta = tile.querySelector('.movie-meta') as HTMLElement;
 
       if (clickable && header) {
-        let textHeight = header.offsetHeight + 8; // header + padding
+        let textHeight = header.offsetHeight + 8;
         if (meta && getComputedStyle(meta).display !== 'none') {
           textHeight += meta.offsetHeight + 4;
         }
-        // Add fade zone (50% extra for gradient fade)
         clickable.style.setProperty('--text-height', `${textHeight * 1.5}px`);
       }
     });
   }
-
-  // Update on load and when display options change
-  updateTextHeights();
-  [showYearDirector, showRuntime, showActors].forEach(toggle => {
-    toggle?.addEventListener('change', () => setTimeout(updateTextHeights, 10));
-  });
 </script>
 
 <style>
@@ -263,13 +257,15 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     display: flex;
     gap: 24px;
     justify-content: center;
+    align-items: flex-start;
     margin-bottom: 32px;
     padding: 16px;
     background: var(--bg-movie);
     border-radius: 8px;
-    max-width: 700px;
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
+    flex-wrap: wrap;
   }
 
   .control-group {
@@ -284,12 +280,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-tertiary);
-  }
-
-  .control-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
   }
 
   .control-grid-2x2 {
@@ -330,31 +320,38 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     align-items: flex-end;
   }
 
-  .demo-tile-wrapper {
+  :global(.demo-tile-wrapper) {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
-  .demo-label {
+  :global(.demo-label) {
     font-size: 12px;
     color: var(--text-tertiary);
     font-family: monospace;
   }
 
-  .demo-tile {
+  :global(.demo-tile) {
     width: 120px;
     position: relative;
   }
 
-  /* Replicate the exact styles from index.astro for testing */
+  /* ===== Movie tile styles (copied from index.astro) ===== */
+
   :global(.movie) {
     position: relative;
     background: var(--bg-movie);
     border-radius: 0;
     margin: 0;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1;
+  }
+
+  @media (min-width: 480px) {
+    :global(.movie) {
+      font-size: 13px;
+    }
   }
 
   :global(.movie-clickable) {
@@ -369,18 +366,73 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   :global(.movie-time) {
     color: var(--accent);
-    font-weight: 500;
+    font-weight: 400;
     margin-right: 3px;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.015em;
+    text-transform: uppercase;
   }
 
   :global(.movie-title) {
-    font-weight: 500;
+    font-weight: 400;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.005em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 640px) {
+    :global(.movie) {
+      line-height: 1;
+    }
+    :global(.movie-time),
+    :global(.movie-title) {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: normal;
+      font-weight: 500;
+      text-transform: none;
+    }
   }
 
   :global(.movie-meta) {
     color: var(--text-tertiary);
     font-size: 0.85em;
     margin-top: 0.25em;
+    line-height: 1.05;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: none;
+  }
+
+  :global(.movie-actors) {
+    display: none;
+    font-style: italic;
+    margin-top: 0.3em;
+  }
+
+  :global(.movie-year-director),
+  :global(.movie-runtime) {
+    display: none;
+  }
+
+  :global(body.show-year-director.show-runtime .movie-year-director)::after {
+    content: ', ';
+  }
+
+  :global(body.show-year-director .movie-meta),
+  :global(body.show-runtime .movie-meta),
+  :global(body.show-actors .movie-meta) {
+    display: block !important;
+  }
+
+  :global(body.show-year-director .movie-year-director) {
+    display: inline !important;
+  }
+
+  :global(body.show-runtime .movie-runtime) {
+    display: inline !important;
+  }
+
+  :global(body.show-actors .movie-actors) {
+    display: block !important;
   }
 
   :global(.movie--timeline) {
@@ -392,14 +444,13 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     height: 100%;
   }
 
-  /* Timeline mode: poster as background (only when show-image is enabled) */
+  /* Timeline mode: poster as background */
   :global(body.show-image .movie--timeline.has-poster) {
     background-size: cover;
     background-position: center top;
     background-repeat: no-repeat;
   }
 
-  /* Hide background when show-image is not enabled */
   :global(body:not(.show-image) .movie--timeline.has-poster) {
     background-image: none !important;
   }
@@ -412,17 +463,16 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     background: none;
   }
 
-  /* FIXED: pixel-based gradient - consistent across all tile heights */
+  /* ===== FIXED PX GRADIENT ===== */
   :global(body.show-image.fixed-gradient .movie--timeline.has-poster .movie-clickable) {
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.85) 0px,
-      rgba(0, 0, 0, 0.6) 24px,
+      rgba(0, 0, 0, 0.7) 0px,
+      rgba(0, 0, 0, 0.5) 24px,
       rgba(0, 0, 0, 0) 48px
     );
   }
 
-  /* Fixed gradient debug mode - RED */
   :global(body.show-image.fixed-gradient.fixed-debug .movie--timeline.has-poster .movie-clickable) {
     background: linear-gradient(
       to bottom,
@@ -432,7 +482,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     );
   }
 
-  /* CONTENT-BASED: single gradient using pseudo-element sized to content */
+  /* ===== CONTENT-BASED GRADIENT ===== */
   :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-clickable) {
     background: none;
     position: relative;
@@ -445,25 +495,22 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     left: 0;
     right: 0;
     z-index: 0;
-    /* Height will be set by JS based on text content, fallback to reasonable default */
     height: var(--text-height, 60px);
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 0, 0, 0.7) 60%,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.5) 60%,
       rgba(0, 0, 0, 0) 100%
     );
     pointer-events: none;
   }
 
-  /* Ensure text content is above the gradient */
   :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-header),
   :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-meta) {
     position: relative;
     z-index: 1;
   }
 
-  /* Content gradient debug mode - GREEN */
   :global(body.show-image.content-gradient.content-debug .movie--timeline.has-poster .movie-clickable::before) {
     background: linear-gradient(
       to bottom,
@@ -478,8 +525,11 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     background: none !important;
   }
 
-  /* Ensure text is readable on poster background (only when showing images) */
-  /* Use brighter dark-mode accent (#06b6d4) since gradient creates dark bg */
+  :global(body.show-image .movie--timeline.has-poster.no-gradient .movie-clickable::before) {
+    display: none !important;
+  }
+
+  /* Text styling on poster background */
   :global(body.show-image .movie--timeline.has-poster .movie-time) {
     color: #06b6d4;
     text-shadow:
@@ -495,39 +545,5 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       0 1px 2px rgba(0, 0, 0, 1),
       0 2px 4px rgba(0, 0, 0, 0.8),
       0 0 8px rgba(0, 0, 0, 0.6);
-  }
-
-  /* Show/hide metadata fields */
-  :global(.movie-year-director),
-  :global(.movie-runtime),
-  :global(.movie-actors) {
-    display: none;
-  }
-
-  :global(.movie-meta) {
-    display: none;
-  }
-
-  :global(body.show-year-director .movie-meta),
-  :global(body.show-runtime .movie-meta),
-  :global(body.show-actors .movie-meta) {
-    display: block;
-  }
-
-  :global(body.show-year-director .movie-year-director) {
-    display: inline;
-  }
-
-  :global(body.show-runtime .movie-runtime) {
-    display: inline;
-  }
-
-  :global(body.show-actors .movie-actors) {
-    display: block;
-  }
-
-  /* Comma between year-director and runtime */
-  :global(body.show-year-director.show-runtime .movie-year-director)::after {
-    content: ', ';
   }
 </style>
