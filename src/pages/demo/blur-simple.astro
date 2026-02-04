@@ -707,15 +707,32 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   let textLevel = params.get('text') || 'full';
 
   function updateURL() {
-    const newParams = new URLSearchParams();
+    // Merge with existing params to preserve text-relative settings
+    const newParams = new URLSearchParams(window.location.search);
+
     if (direction !== 'bottom') newParams.set('dir', direction);
+    else newParams.delete('dir');
+
     if (blurAmount !== 16) newParams.set('blur', String(blurAmount));
+    else newParams.delete('blur');
+
     if (blurEnd !== 50) newParams.set('end', String(blurEnd));
+    else newParams.delete('end');
+
     if (fullBlur !== 15) newParams.set('full', String(fullBlur));
+    else newParams.delete('full');
+
     if (debugEnabled) newParams.set('debug', '1');
+    else newParams.delete('debug');
+
     if (textShadowEnabled) newParams.set('textshadow', '1');
+    else newParams.delete('textshadow');
+
     if (cardShadowEnabled) newParams.set('cardshadow', '1');
+    else newParams.delete('cardshadow');
+
     if (textLevel !== 'full') newParams.set('text', textLevel);
+    else newParams.delete('text');
 
     const newURL = newParams.toString()
       ? `${window.location.pathname}?${newParams.toString()}`
