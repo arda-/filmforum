@@ -7,31 +7,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   <h1>Simple Blur Fade</h1>
   <p class="subtitle">Single-layer backdrop-filter blur with mask-image fade</p>
 
-  <div class="demo-controls">
-    <div class="control-row">
-      <ToggleGroup
-        label="Direction:"
-        name="blur-direction"
-        options={[
-          { label: 'Bottom', value: 'bottom', checked: true },
-          { label: 'Top', value: 'top' },
-          { label: 'Left', value: 'left' },
-          { label: 'Right', value: 'right' }
-        ]}
-      />
-    </div>
-    <div class="control-row">
-      <ToggleGroup
-        label="Blur radius:"
-        name="blur-amount"
-        options={[
-          { label: '8px', value: '8' },
-          { label: '16px', value: '16', checked: true },
-          { label: '32px', value: '32' },
-          { label: '64px', value: '64' }
-        ]}
-      />
-    </div>
+  <div class="demo-controls section-controls">
     <div class="control-row">
       <ToggleGroup
         label="100% blur until:"
@@ -54,21 +30,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <label class="debug-toggle">
         <input type="checkbox" id="debug-lines" />
         <span>Debug</span>
-      </label>
-    </div>
-    <div class="control-row">
-      <ToggleGroup
-        label="Text:"
-        name="text-level"
-        options={[
-          { label: 'Title', value: 'title' },
-          { label: '+ Sub', value: 'subtitle' },
-          { label: '+ Desc', value: 'full', checked: true }
-        ]}
-      />
-      <label class="debug-toggle">
-        <input type="checkbox" id="show-shadow" checked />
-        <span>Shadow</span>
       </label>
     </div>
   </div>
@@ -203,15 +164,226 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 {'}'}</code></pre>
     <p class="caveat"><strong>Limitation:</strong> The blur amount is uniform — you can't create a gradient where the blur gets progressively stronger.</p>
   </div>
+
+  <!-- Text-Relative Blur Section -->
+  <div class="text-relative-section">
+    <h2>Text-Relative Blur Sizing</h2>
+    <p class="section-intro">Instead of fixed percentages, blur boundaries are calculated from the text overlay's actual height. The blur automatically adapts when text content changes.</p>
+
+    <div class="demo-controls text-relative-controls section-controls">
+      <div class="control-row">
+        <ToggleGroup
+          label="100% blur until:"
+          name="rel-full-mult"
+          options={[
+            { label: '0.25×', value: '0.25' },
+            { label: '0.5×', value: '0.5' },
+            { label: '0.8×', value: '0.8' },
+            { label: '1.0×', value: '1', checked: true }
+          ]}
+        />
+        <label class="debug-toggle">
+          <input type="checkbox" id="rel-debug-lines" />
+          <span>Debug</span>
+        </label>
+      </div>
+      <div class="control-row">
+        <ToggleGroup
+          label="Blur ends at:"
+          name="rel-sizing-mode"
+          options={[
+            { label: '× (Mult)', value: 'multiplier', checked: true },
+            { label: 'em', value: 'em' }
+          ]}
+        />
+        <span class="rel-controls-multiplier">
+          <ToggleGroup
+            label=""
+            name="rel-end-mult"
+            options={[
+              { label: '0.75×', value: '0.75' },
+              { label: '0.85×', value: '0.85' },
+              { label: '0.9×', value: '0.9' },
+              { label: '1.0×', value: '1' },
+              { label: '1.1×', value: '1.1' },
+              { label: '1.25×', value: '1.25', checked: true }
+            ]}
+          />
+        </span>
+        <span class="rel-controls-em" style="display: none;">
+          <ToggleGroup
+            label=""
+            name="rel-end-em"
+            options={[
+              { label: '0.5em', value: '0.5' },
+              { label: '0.75em', value: '0.75' },
+              { label: '1em', value: '1', checked: true },
+              { label: '1.1em', value: '1.1' },
+              { label: '1.25em', value: '1.25' }
+            ]}
+          />
+        </span>
+      </div>
+    </div>
+
+    <div class="text-relative-grid">
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">2:3 (poster)</span>
+        <div class="poster-card text-relative-card aspect-2-3" data-aspect="2-3">
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>Mean Streets</h3>
+            <p class="subtitle">Martin Scorsese • 1973</p>
+            <p class="description">A small-time hood struggles to reconcile his ambitions with his responsibilities to his neighborhood and his volatile friend.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">16:9 (wide)</span>
+        <div class="poster-card text-relative-card aspect-16-9" data-aspect="16-9">
+          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>Once Upon a Time in America</h3>
+            <p class="subtitle">Sergio Leone • 1984</p>
+            <p class="description">A former Prohibition-era Jewish gangster returns to the Lower East Side of Manhattan.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">1:1 (square)</span>
+        <div class="poster-card text-relative-card aspect-1-1" data-aspect="1-1">
+          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>The Godfather Part II</h3>
+            <p class="subtitle">Francis Ford Coppola • 1974</p>
+            <p class="description">The continuing saga of the Corleone crime family tells the parallel stories of Michael and Vito.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">9:16 (vertical)</span>
+        <div class="poster-card text-relative-card aspect-9-16" data-aspect="9-16">
+          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>The Crowd</h3>
+            <p class="subtitle">King Vidor • 1928</p>
+            <p class="description">A man and woman struggle to survive in the anonymity of the big city.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Slider Section -->
+  <div class="comparison-section">
+    <h2>Side-by-Side Comparison</h2>
+    <p class="section-intro">Drag the slider to compare percentage-based (left) vs text-relative (right) blur sizing.</p>
+
+    <div class="comparison-container">
+      <div class="comparison-card">
+        <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+
+        <!-- Left side: Percentage-based -->
+        <div class="comparison-side comparison-left">
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
+          <div class="blur-layer comparison-blur-left"></div>
+          <div class="debug-line comparison-debug-left-full"></div>
+          <div class="debug-line comparison-debug-left-end"></div>
+          <div class="text-overlay comparison-text-left">
+            <h3>Mean Streets</h3>
+            <p class="subtitle">Martin Scorsese • 1973</p>
+            <p class="description">A small-time hood struggles to reconcile his ambitions.</p>
+          </div>
+          <span class="comparison-label">Percent</span>
+        </div>
+
+        <!-- Right side: Text-relative -->
+        <div class="comparison-side comparison-right">
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
+          <div class="blur-layer comparison-blur-right"></div>
+          <div class="debug-line comparison-debug-right-text"></div>
+          <div class="debug-line comparison-debug-right-blur"></div>
+          <div class="text-overlay comparison-text-right">
+            <h3>Mean Streets</h3>
+            <p class="subtitle">Martin Scorsese • 1973</p>
+            <p class="description">A small-time hood struggles to reconcile his ambitions.</p>
+          </div>
+          <span class="comparison-label">Text-Relative</span>
+        </div>
+
+        <!-- Slider -->
+        <div class="comparison-slider">
+          <div class="slider-handle"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Global Controls -->
+  <div class="floating-controls">
+    <ToggleGroup
+      label="Direction:"
+      name="global-direction"
+      options={[
+        { label: 'Bottom', value: 'bottom', checked: true },
+        { label: 'Top', value: 'top' },
+        { label: 'Left', value: 'left' },
+        { label: 'Right', value: 'right' }
+      ]}
+    />
+    <ToggleGroup
+      label="Radius (px):"
+      name="global-blur"
+      options={[
+        { label: '8', value: '8' },
+        { label: '16', value: '16', checked: true },
+        { label: '24', value: '24' },
+        { label: '32', value: '32' }
+      ]}
+    />
+    <ToggleGroup
+      label="Text:"
+      name="global-text"
+      options={[
+        { label: 'Title', value: 'title' },
+        { label: '+ Sub', value: 'subtitle' },
+        { label: '+ Desc', value: 'full', checked: true }
+      ]}
+    />
+    <label class="debug-toggle">
+      <input type="checkbox" id="global-text-shadow" />
+      <span>Text Shadow</span>
+    </label>
+    <label class="debug-toggle">
+      <input type="checkbox" id="global-card-shadow" />
+      <span>Card Shadow</span>
+    </label>
+  </div>
 </Layout>
 
 <script>
-  const blurLayers = document.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
-  const textOverlays = document.querySelectorAll('.text-overlay') as NodeListOf<HTMLElement>;
-  const debugLinesReach = document.querySelectorAll('.debug-line-reach') as NodeListOf<HTMLElement>;
-  const debugLinesFull = document.querySelectorAll('.debug-line-full') as NodeListOf<HTMLElement>;
+  // Select only the main section's blur layers (exclude text-relative and comparison sections)
+  const blurLayers = document.querySelectorAll('.aspect-ratio-grid .blur-layer') as NodeListOf<HTMLElement>;
+  const textOverlays = document.querySelectorAll('.aspect-ratio-grid .text-overlay') as NodeListOf<HTMLElement>;
+  const debugLinesReach = document.querySelectorAll('.aspect-ratio-grid .debug-line-reach') as NodeListOf<HTMLElement>;
+  const debugLinesFull = document.querySelectorAll('.aspect-ratio-grid .debug-line-full') as NodeListOf<HTMLElement>;
   const debugToggle = document.getElementById('debug-lines') as HTMLInputElement;
-  const shadowToggle = document.getElementById('show-shadow') as HTMLInputElement;
+
+  // Global controls (floating bar)
+  const globalTextShadowToggle = document.getElementById('global-text-shadow') as HTMLInputElement;
+  const globalCardShadowToggle = document.getElementById('global-card-shadow') as HTMLInputElement;
 
   // Read initial values from URL params
   const params = new URLSearchParams(window.location.search);
@@ -221,7 +393,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   let fullBlur = parseInt(params.get('full') || '15');    // where blur is 100%
   let direction = params.get('dir') || 'bottom';
   let debugEnabled = params.get('debug') === '1';
-  let shadowEnabled = params.get('shadow') !== '0';
+  let textShadowEnabled = params.get('textshadow') === '1';
+  let cardShadowEnabled = params.get('cardshadow') === '1';
   let textLevel = params.get('text') || 'full';
 
   function updateURL() {
@@ -231,7 +404,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     if (blurEnd !== 50) newParams.set('end', String(blurEnd));
     if (fullBlur !== 15) newParams.set('full', String(fullBlur));
     if (debugEnabled) newParams.set('debug', '1');
-    if (!shadowEnabled) newParams.set('shadow', '0');
+    if (textShadowEnabled) newParams.set('textshadow', '1');
+    if (cardShadowEnabled) newParams.set('cardshadow', '1');
     if (textLevel !== 'full') newParams.set('text', textLevel);
 
     const newURL = newParams.toString()
@@ -248,17 +422,19 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       document.body.classList.add('text-with-subtitle');
     }
     // 'full' shows everything (no class needed)
+
+    // Recalculate text-relative blur after text level change
+    requestAnimationFrame(() => {
+      if (typeof updateRelBlur === 'function') updateRelBlur();
+      if (typeof updateComparisonBlur === 'function') updateComparisonBlur();
+    });
   }
 
   // Set initial control states from URL
   function initControls() {
-    // Direction
-    const dirRadio = document.querySelector(`input[name="blur-direction"][value="${direction}"]`) as HTMLInputElement;
+    // Global direction
+    const dirRadio = document.querySelector(`input[name="global-direction"][value="${direction}"]`) as HTMLInputElement;
     if (dirRadio) dirRadio.checked = true;
-
-    // Blur amount
-    const blurRadio = document.querySelector(`input[name="blur-amount"][value="${blurAmount}"]`) as HTMLInputElement;
-    if (blurRadio) blurRadio.checked = true;
 
     // Blur end (where blur fades to 0)
     const endRadio = document.querySelector(`input[name="mask-start"][value="${blurEnd}"]`) as HTMLInputElement;
@@ -274,16 +450,26 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       document.body.classList.toggle('show-debug', debugEnabled);
     }
 
-    // Shadow toggle
-    if (shadowToggle) {
-      shadowToggle.checked = shadowEnabled;
-      document.body.classList.toggle('no-shadow', !shadowEnabled);
-    }
+    // Global blur amount
+    const blurRadio = document.querySelector(`input[name="global-blur"][value="${blurAmount}"]`) as HTMLInputElement;
+    if (blurRadio) blurRadio.checked = true;
 
-    // Text level
-    const textRadio = document.querySelector(`input[name="text-level"][value="${textLevel}"]`) as HTMLInputElement;
+    // Global text level
+    const textRadio = document.querySelector(`input[name="global-text"][value="${textLevel}"]`) as HTMLInputElement;
     if (textRadio) textRadio.checked = true;
     applyTextLevel();
+
+    // Global text shadow toggle
+    if (globalTextShadowToggle) {
+      globalTextShadowToggle.checked = textShadowEnabled;
+      document.body.classList.toggle('no-text-shadow', !textShadowEnabled);
+    }
+
+    // Global card shadow toggle
+    if (globalCardShadowToggle) {
+      globalCardShadowToggle.checked = cardShadowEnabled;
+      document.body.classList.toggle('no-card-shadow', !cardShadowEnabled);
+    }
   }
 
   // Map direction to CSS gradient direction and text position
@@ -341,32 +527,47 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     updateURL();
   });
 
-  shadowToggle?.addEventListener('change', () => {
-    shadowEnabled = shadowToggle.checked;
-    document.body.classList.toggle('no-shadow', !shadowEnabled);
+  // Global text shadow toggle
+  globalTextShadowToggle?.addEventListener('change', () => {
+    textShadowEnabled = globalTextShadowToggle.checked;
+    document.body.classList.toggle('no-text-shadow', !textShadowEnabled);
     updateURL();
   });
 
-  document.querySelectorAll('input[name="text-level"]').forEach(radio => {
+  // Global card shadow toggle
+  globalCardShadowToggle?.addEventListener('change', () => {
+    cardShadowEnabled = globalCardShadowToggle.checked;
+    document.body.classList.toggle('no-card-shadow', !cardShadowEnabled);
+    updateURL();
+  });
+
+  // Global text level
+  document.querySelectorAll('input[name="global-text"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       textLevel = (e.target as HTMLInputElement).value;
       applyTextLevel();
+      // Also update text-relative blur since text height changed
+      requestAnimationFrame(() => updateRelBlur());
       updateURL();
     });
   });
 
-  document.querySelectorAll('input[name="blur-direction"]').forEach(radio => {
+  document.querySelectorAll('input[name="global-direction"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       direction = (e.target as HTMLInputElement).value;
       updateBlur();
+      updateRelBlur();
       updateURL();
     });
   });
 
-  document.querySelectorAll('input[name="blur-amount"]').forEach(radio => {
+  // Global blur amount
+  document.querySelectorAll('input[name="global-blur"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
       blurAmount = parseInt((e.target as HTMLInputElement).value);
       updateBlur();
+      updateRelBlur();
+      updateComparisonBlur();
       updateURL();
     });
   });
@@ -390,6 +591,420 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   // Initialize controls from URL and apply blur
   initControls();
   updateBlur();
+
+  // ========================================
+  // TEXT-RELATIVE BLUR SECTION
+  // ========================================
+
+  const relBlurLayers = document.querySelectorAll('.rel-blur-layer') as NodeListOf<HTMLElement>;
+  const relTextOverlays = document.querySelectorAll('.rel-text-overlay') as NodeListOf<HTMLElement>;
+  const relDebugText = document.querySelectorAll('.rel-debug-line-text') as NodeListOf<HTMLElement>;
+  const relDebugBlur = document.querySelectorAll('.rel-debug-line-blur') as NodeListOf<HTMLElement>;
+  const relCards = document.querySelectorAll('.text-relative-card') as NodeListOf<HTMLElement>;
+  const relDebugToggle = document.getElementById('rel-debug-lines') as HTMLInputElement;
+
+  // Text-relative specific state (blur, text level, shadows use global values)
+  let relSizingMode = params.get('rel_mode') || 'multiplier';
+  let relFullBlurMult = parseFloat(params.get('rel_full_mult') || '1');
+  let relBlurEndMult = parseFloat(params.get('rel_end_mult') || '1.25');
+  let relBlurEndEm = parseFloat(params.get('rel_end_em') || '1');
+  let relDebugEnabled = params.get('rel_debug') === '1';
+
+  function updateRelURL() {
+    // Merge with existing params
+    const newParams = new URLSearchParams(window.location.search);
+
+    if (relSizingMode !== 'multiplier') newParams.set('rel_mode', relSizingMode);
+    else newParams.delete('rel_mode');
+
+    // Full blur is always multiplier-based
+    if (relFullBlurMult !== 1) newParams.set('rel_full_mult', String(relFullBlurMult));
+    else newParams.delete('rel_full_mult');
+
+    // Blur end depends on mode
+    if (relSizingMode === 'multiplier') {
+      if (relBlurEndMult !== 1.25) newParams.set('rel_end_mult', String(relBlurEndMult));
+      else newParams.delete('rel_end_mult');
+      newParams.delete('rel_end_em');
+    } else {
+      if (relBlurEndEm !== 1) newParams.set('rel_end_em', String(relBlurEndEm));
+      else newParams.delete('rel_end_em');
+      newParams.delete('rel_end_mult');
+    }
+
+    if (relDebugEnabled) newParams.set('rel_debug', '1');
+    else newParams.delete('rel_debug');
+
+    const newURL = newParams.toString()
+      ? `${window.location.pathname}?${newParams.toString()}`
+      : window.location.pathname;
+    window.history.replaceState({}, '', newURL);
+  }
+
+  function initRelControls() {
+    // Sizing mode
+    const modeRadio = document.querySelector(`input[name="rel-sizing-mode"][value="${relSizingMode}"]`) as HTMLInputElement;
+    if (modeRadio) modeRadio.checked = true;
+
+    // Show/hide appropriate controls
+    const multControls = document.querySelector('.rel-controls-multiplier') as HTMLElement;
+    const emControls = document.querySelector('.rel-controls-em') as HTMLElement;
+    if (multControls) multControls.style.display = relSizingMode === 'multiplier' ? '' : 'none';
+    if (emControls) emControls.style.display = relSizingMode === 'em' ? '' : 'none';
+
+    // Full blur multiplier control (always used)
+    const fullMultRadio = document.querySelector(`input[name="rel-full-mult"][value="${relFullBlurMult}"]`) as HTMLInputElement;
+    if (fullMultRadio) fullMultRadio.checked = true;
+
+    // Blur end multiplier controls
+    const endMultRadio = document.querySelector(`input[name="rel-end-mult"][value="${relBlurEndMult}"]`) as HTMLInputElement;
+    if (endMultRadio) endMultRadio.checked = true;
+
+    // Blur end em controls
+    const endEmRadio = document.querySelector(`input[name="rel-end-em"][value="${relBlurEndEm}"]`) as HTMLInputElement;
+    if (endEmRadio) endEmRadio.checked = true;
+
+    if (relDebugToggle) {
+      relDebugToggle.checked = relDebugEnabled;
+      document.body.classList.toggle('show-rel-debug', relDebugEnabled);
+    }
+  }
+
+  function updateRelBlur() {
+    const config = directionConfig[direction];
+
+    relCards.forEach((card, index) => {
+      const blurLayer = card.querySelector('.rel-blur-layer') as HTMLElement;
+      const textOverlay = card.querySelector('.rel-text-overlay') as HTMLElement;
+      const debugText = card.querySelector('.rel-debug-line-text') as HTMLElement;
+      const debugBlur = card.querySelector('.rel-debug-line-blur') as HTMLElement;
+
+      if (!blurLayer || !textOverlay) return;
+
+      // Apply text position based on direction
+      applyTextPosition(textOverlay, config);
+
+      const cardSize = config.isHorizontal ? card.offsetWidth : card.offsetHeight;
+      const textSize = config.isHorizontal ? textOverlay.offsetWidth : textOverlay.offsetHeight;
+
+      // Calculate blur boundaries based on sizing mode
+      let fullBlurPx, blurEndPx;
+
+      // Full blur is always multiplier-based
+      fullBlurPx = textSize * relFullBlurMult;
+
+      // Blur end depends on mode
+      if (relSizingMode === 'multiplier') {
+        blurEndPx = textSize * relBlurEndMult;
+      } else {
+        // Em mode: based on title font size
+        const title = textOverlay.querySelector('h3') as HTMLElement;
+        const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
+        blurEndPx = fullBlurPx + (titleFontSize * relBlurEndEm);
+      }
+
+      // Convert to percentages
+      const fullBlurPct = (fullBlurPx / cardSize) * 100;
+      const blurEndPct = Math.min((blurEndPx / cardSize) * 100, 100);
+
+      // Apply blur (uses global blurAmount and direction)
+      blurLayer.style.backdropFilter = `blur(${blurAmount}px)`;
+      blurLayer.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
+      blurLayer.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+      blurLayer.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+
+      // Update debug lines based on direction
+      if (debugText) {
+        if (config.isHorizontal) {
+          // Vertical lines for left/right directions
+          debugText.style.left = direction === 'left' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.right = direction === 'right' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.top = '0';
+          debugText.style.bottom = '0';
+          debugText.style.width = '2px';
+          debugText.style.height = 'auto';
+        } else {
+          // Horizontal lines for top/bottom directions
+          debugText.style.bottom = direction === 'bottom' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.top = direction === 'top' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.left = '0';
+          debugText.style.right = '0';
+          debugText.style.height = '2px';
+          debugText.style.width = 'auto';
+        }
+      }
+      if (debugBlur) {
+        if (config.isHorizontal) {
+          // Vertical lines for left/right directions
+          debugBlur.style.left = direction === 'left' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.right = direction === 'right' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.top = '0';
+          debugBlur.style.bottom = '0';
+          debugBlur.style.width = '2px';
+          debugBlur.style.height = 'auto';
+        } else {
+          // Horizontal lines for top/bottom directions
+          debugBlur.style.bottom = direction === 'bottom' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.top = direction === 'top' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.left = '0';
+          debugBlur.style.right = '0';
+          debugBlur.style.height = '2px';
+          debugBlur.style.width = 'auto';
+        }
+      }
+    });
+
+    // Also update comparison
+    updateComparisonBlur();
+  }
+
+  relDebugToggle?.addEventListener('change', () => {
+    relDebugEnabled = relDebugToggle.checked;
+    document.body.classList.toggle('show-rel-debug', relDebugEnabled);
+    updateRelURL();
+  });
+
+  // Sizing mode toggle
+  document.querySelectorAll('input[name="rel-sizing-mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      relSizingMode = (e.target as HTMLInputElement).value;
+
+      // Show/hide appropriate controls
+      const multControls = document.querySelector('.rel-controls-multiplier') as HTMLElement;
+      const emControls = document.querySelector('.rel-controls-em') as HTMLElement;
+      if (multControls) multControls.style.display = relSizingMode === 'multiplier' ? '' : 'none';
+      if (emControls) emControls.style.display = relSizingMode === 'em' ? '' : 'none';
+
+      updateRelBlur();
+      updateRelURL();
+      updateComparisonBlur();
+    });
+  });
+
+  // Multiplier mode controls
+  document.querySelectorAll('input[name="rel-full-mult"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      relFullBlurMult = parseFloat((e.target as HTMLInputElement).value);
+      updateRelBlur();
+      updateRelURL();
+    });
+  });
+
+  document.querySelectorAll('input[name="rel-end-mult"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      relBlurEndMult = parseFloat((e.target as HTMLInputElement).value);
+      updateRelBlur();
+      updateRelURL();
+    });
+  });
+
+  // Em mode control for blur end
+  document.querySelectorAll('input[name="rel-end-em"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      relBlurEndEm = parseFloat((e.target as HTMLInputElement).value);
+      updateRelBlur();
+      updateRelURL();
+      updateComparisonBlur();
+    });
+  });
+
+  // ========================================
+  // COMPARISON SLIDER SECTION
+  // ========================================
+
+  const comparisonContainer = document.querySelector('.comparison-container') as HTMLElement;
+  const comparisonCard = document.querySelector('.comparison-card') as HTMLElement;
+  const comparisonLeft = document.querySelector('.comparison-left') as HTMLElement;
+  const comparisonRight = document.querySelector('.comparison-right') as HTMLElement;
+  const comparisonSlider = document.querySelector('.comparison-slider') as HTMLElement;
+  const comparisonBlurLeft = document.querySelector('.comparison-blur-left') as HTMLElement;
+  const comparisonBlurRight = document.querySelector('.comparison-blur-right') as HTMLElement;
+  const comparisonTextLeft = document.querySelector('.comparison-text-left') as HTMLElement;
+  const comparisonTextRight = document.querySelector('.comparison-text-right') as HTMLElement;
+
+  let sliderPosition = 50; // percentage
+
+  function updateSliderPosition(percent: number) {
+    sliderPosition = Math.max(0, Math.min(100, percent));
+    if (comparisonLeft) comparisonLeft.style.clipPath = `inset(0 ${100 - sliderPosition}% 0 0)`;
+    if (comparisonRight) comparisonRight.style.clipPath = `inset(0 0 0 ${sliderPosition}%)`;
+    if (comparisonSlider) comparisonSlider.style.left = `${sliderPosition}%`;
+  }
+
+  function applyComparisonTextLevel() {
+    [comparisonTextLeft, comparisonTextRight].forEach(overlay => {
+      if (!overlay) return;
+      const subtitle = overlay.querySelector('.subtitle') as HTMLElement;
+      const description = overlay.querySelector('.description') as HTMLElement;
+
+      if (relTextLevel === 'title') {
+        if (subtitle) subtitle.style.display = 'none';
+        if (description) description.style.display = 'none';
+      } else if (relTextLevel === 'subtitle') {
+        if (subtitle) subtitle.style.display = '';
+        if (description) description.style.display = 'none';
+      } else {
+        if (subtitle) subtitle.style.display = '';
+        if (description) description.style.display = '';
+      }
+    });
+  }
+
+  function updateComparisonBlur() {
+    if (!comparisonCard || !comparisonBlurLeft || !comparisonBlurRight) return;
+
+    const config = directionConfig[direction];
+    const cardSize = config.isHorizontal ? comparisonCard.offsetWidth : comparisonCard.offsetHeight;
+
+    // Apply text positioning to both sides
+    if (comparisonTextLeft) applyTextPosition(comparisonTextLeft, config);
+    if (comparisonTextRight) applyTextPosition(comparisonTextRight, config);
+
+    // Left side: percentage-based (uses main controls)
+    comparisonBlurLeft.style.backdropFilter = `blur(${blurAmount}px)`;
+    comparisonBlurLeft.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
+    comparisonBlurLeft.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlur}%, transparent ${blurEnd}%)`;
+    comparisonBlurLeft.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlur}%, transparent ${blurEnd}%)`;
+
+    // Right side: text-relative (uses global blurAmount)
+    if (comparisonTextRight) {
+      const textSize = config.isHorizontal ? comparisonTextRight.offsetWidth : comparisonTextRight.offsetHeight;
+
+      // Calculate blur boundaries based on sizing mode
+      let fullBlurPx, blurEndPx;
+
+      // Full blur is always multiplier-based
+      fullBlurPx = textSize * relFullBlurMult;
+
+      // Blur end depends on mode
+      if (relSizingMode === 'multiplier') {
+        blurEndPx = textSize * relBlurEndMult;
+      } else {
+        // Em mode: based on title font size
+        const title = comparisonTextRight.querySelector('h3') as HTMLElement;
+        const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
+        blurEndPx = fullBlurPx + (titleFontSize * relBlurEndEm);
+      }
+
+      const fullBlurPct = (fullBlurPx / cardSize) * 100;
+      const blurEndPct = Math.min((blurEndPx / cardSize) * 100, 100);
+
+      comparisonBlurRight.style.backdropFilter = `blur(${blurAmount}px)`;
+      comparisonBlurRight.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
+      comparisonBlurRight.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+      comparisonBlurRight.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+
+      // Debug lines for right side
+      const debugText = document.querySelector('.comparison-debug-right-text') as HTMLElement;
+      const debugBlur = document.querySelector('.comparison-debug-right-blur') as HTMLElement;
+      if (debugText) {
+        if (config.isHorizontal) {
+          // Vertical lines for left/right directions
+          debugText.style.left = direction === 'left' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.right = direction === 'right' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.top = '0';
+          debugText.style.bottom = '0';
+          debugText.style.width = '2px';
+          debugText.style.height = 'auto';
+        } else {
+          // Horizontal lines for top/bottom directions
+          debugText.style.bottom = direction === 'bottom' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.top = direction === 'top' ? `${fullBlurPx}px` : 'auto';
+          debugText.style.left = '0';
+          debugText.style.right = '0';
+          debugText.style.height = '2px';
+          debugText.style.width = 'auto';
+        }
+      }
+      if (debugBlur) {
+        if (config.isHorizontal) {
+          // Vertical lines for left/right directions
+          debugBlur.style.left = direction === 'left' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.right = direction === 'right' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.top = '0';
+          debugBlur.style.bottom = '0';
+          debugBlur.style.width = '2px';
+          debugBlur.style.height = 'auto';
+        } else {
+          // Horizontal lines for top/bottom directions
+          debugBlur.style.bottom = direction === 'bottom' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.top = direction === 'top' ? `${blurEndPx}px` : 'auto';
+          debugBlur.style.left = '0';
+          debugBlur.style.right = '0';
+          debugBlur.style.height = '2px';
+          debugBlur.style.width = 'auto';
+        }
+      }
+    }
+
+    // Debug lines for left side
+    const debugFull = document.querySelector('.comparison-debug-left-full') as HTMLElement;
+    const debugEnd = document.querySelector('.comparison-debug-left-end') as HTMLElement;
+    if (debugFull) {
+      debugFull.style.bottom = direction === 'bottom' ? `${fullBlur}%` : 'auto';
+      debugFull.style.top = direction === 'top' ? `${fullBlur}%` : 'auto';
+    }
+    if (debugEnd) {
+      debugEnd.style.bottom = direction === 'bottom' ? `${blurEnd}%` : 'auto';
+      debugEnd.style.top = direction === 'top' ? `${blurEnd}%` : 'auto';
+    }
+  }
+
+  // Slider drag handling
+  let isDragging = false;
+
+  function getSliderPercent(e: MouseEvent | TouchEvent) {
+    if (!comparisonCard) return 50;
+    const rect = comparisonCard.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    return ((clientX - rect.left) / rect.width) * 100;
+  }
+
+  comparisonSlider?.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    e.preventDefault();
+  });
+
+  comparisonCard?.addEventListener('mousedown', (e) => {
+    if (e.target === comparisonSlider || (e.target as HTMLElement).closest('.comparison-slider')) return;
+    isDragging = true;
+    updateSliderPosition(getSliderPercent(e));
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    updateSliderPosition(getSliderPercent(e));
+  });
+
+  document.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  // Touch support
+  comparisonSlider?.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    e.preventDefault();
+  });
+
+  comparisonCard?.addEventListener('touchstart', (e) => {
+    if (e.target === comparisonSlider || (e.target as HTMLElement).closest('.comparison-slider')) return;
+    isDragging = true;
+    updateSliderPosition(getSliderPercent(e));
+  });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    updateSliderPosition(getSliderPercent(e));
+  });
+
+  document.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  // Initialize text-relative section
+  initRelControls();
+  updateRelBlur();
+  updateSliderPosition(50);
 </script>
 
 <style>
@@ -434,10 +1049,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     transition: box-shadow 0.2s;
-  }
-
-  :global(body.no-shadow) .poster-card {
-    box-shadow: none;
   }
 
   /* Text level visibility */
@@ -682,5 +1293,291 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   .aspect-ratio-grid .text-overlay p {
     font-size: 13px;
+  }
+
+  /* ========================================
+     TEXT-RELATIVE BLUR SECTION
+     ======================================== */
+
+  .text-relative-section {
+    max-width: 1200px;
+    margin: 64px auto 48px;
+    padding: 0 16px;
+  }
+
+  .text-relative-section h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: var(--text-primary);
+  }
+
+  .section-intro {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0 0 24px 0;
+    max-width: 600px;
+  }
+
+  .text-relative-controls {
+    max-width: 800px;
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  .text-relative-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+  }
+
+  /* Text-relative debug lines */
+  .rel-debug-line-text {
+    background: #ff4488;
+    box-shadow: 0 0 4px #ff4488;
+    display: none;
+  }
+
+  .rel-debug-line-blur {
+    background: #00ff88;
+    box-shadow: 0 0 4px #00ff88;
+    display: none;
+  }
+
+  :global(body.show-rel-debug) .rel-debug-line-text,
+  :global(body.show-rel-debug) .rel-debug-line-blur {
+    display: block;
+  }
+
+
+  /* ========================================
+     COMPARISON SLIDER SECTION
+     ======================================== */
+
+  .comparison-section {
+    max-width: 800px;
+    margin: 64px auto 48px;
+    padding: 0 16px;
+  }
+
+  .comparison-section h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    color: var(--text-primary);
+  }
+
+  .comparison-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+
+  .comparison-card {
+    position: relative;
+    width: 360px;
+    height: 540px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    cursor: ew-resize;
+  }
+
+  .comparison-card > .poster-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .comparison-side {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .comparison-left {
+    clip-path: inset(0 50% 0 0);
+    z-index: 1;
+  }
+
+  .comparison-right {
+    clip-path: inset(0 0 0 50%);
+    z-index: 1;
+  }
+
+  .comparison-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+
+  .comparison-side .blur-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .comparison-side .text-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    color: white;
+    z-index: 2;
+  }
+
+  .comparison-side .text-overlay h3 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .comparison-side .text-overlay p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .comparison-side .text-overlay .description {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .comparison-label {
+    position: absolute;
+    top: 12px;
+    padding: 4px 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 5;
+  }
+
+  .comparison-left .comparison-label {
+    left: 12px;
+  }
+
+  .comparison-right .comparison-label {
+    right: 12px;
+  }
+
+  .comparison-slider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background: white;
+    transform: translateX(-50%);
+    z-index: 10;
+    cursor: ew-resize;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .slider-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slider-handle::before {
+    content: '⟷';
+    font-size: 18px;
+    color: #333;
+  }
+
+  /* Comparison debug lines */
+  .comparison-side .debug-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+  }
+
+  .comparison-debug-left-full,
+  .comparison-debug-right-text {
+    background: #ff4488;
+    box-shadow: 0 0 4px #ff4488;
+  }
+
+  .comparison-debug-left-end,
+  .comparison-debug-right-blur {
+    background: #00ff88;
+    box-shadow: 0 0 4px #00ff88;
+  }
+
+  :global(body.show-debug) .comparison-debug-left-full,
+  :global(body.show-debug) .comparison-debug-left-end {
+    display: block;
+  }
+
+  :global(body.show-rel-debug) .comparison-debug-right-text,
+  :global(body.show-rel-debug) .comparison-debug-right-blur {
+    display: block;
+  }
+
+  /* Global shadow toggles - apply to all sections */
+  :global(body.no-text-shadow) .text-overlay h3,
+  :global(body.no-text-shadow) .text-overlay p {
+    text-shadow: none;
+  }
+
+  :global(body.no-card-shadow) .poster-card,
+  :global(body.no-card-shadow) .comparison-card {
+    box-shadow: none;
+  }
+
+  /* ========================================
+     FLOATING GLOBAL CONTROLS
+     ======================================== */
+
+  .floating-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    padding: 12px 24px;
+    background: var(--bg-body);
+    border-top: 1px solid var(--bg-movie-hover);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    flex-wrap: wrap;
+  }
+
+  /* Add padding to body so content isn't hidden behind floating bar */
+  :global(body) {
+    padding-bottom: 80px;
   }
 </style>
