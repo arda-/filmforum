@@ -1,0 +1,292 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CalendarGrid from '../../components/CalendarGrid.astro';
+import DayCell from '../../components/DayCell.astro';
+
+// Generate Feb 2026 dates (just first 2 weeks for demo)
+const dates: string[] = [];
+for (let i = 1; i <= 14; i++) {
+  dates.push(`2026-02-${i.toString().padStart(2, '0')}`);
+}
+---
+
+<Layout title="Color Palette Demo">
+  <div class="colors-page">
+    <h1>Color Palette Refinement</h1>
+    <p class="intro">Testing reduced color palettes for light mode. The current palette has too many distinct grays creating visual noise.</p>
+
+    <div class="current-colors">
+      <h3>Current Light Mode Colors (the problem)</h3>
+      <div class="color-swatches">
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>bg-body<br/>#fff</span></div>
+        <div class="swatch" style="background: #e2e8f0;"><span>bg-grid<br/>#e2e8f0</span></div>
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>bg-day<br/>#fff</span></div>
+        <div class="swatch" style="background: #f8fafc;"><span>bg-day-movies<br/>#f8fafc</span></div>
+        <div class="swatch" style="background: #f1f5f9;"><span>bg-movie<br/>#f1f5f9</span></div>
+      </div>
+      <p class="problem">5 distinct background colors. bg-day vs bg-day-movies is barely visible but adds noise. Movie tiles don't stand out enough.</p>
+    </div>
+
+    <!-- Scenario A: Original (Reference) -->
+    <section class="scenario" id="scenario-original">
+      <h2>A. Original (Reference)</h2>
+      <p class="scenario-desc">Current colors - for comparison</p>
+      <div class="scenario-content" style="
+        --bg-grid: #e2e8f0;
+        --bg-day: #ffffff;
+        --bg-day-movies: #f8fafc;
+        --bg-movie: #f1f5f9;
+        --bg-movie-hover: #e2e8f0;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
+    <!-- Scenario B: Flatten day cells -->
+    <section class="scenario" id="scenario-flatten">
+      <h2>B. Flatten Day Cells</h2>
+      <p class="scenario-desc">Remove bg-day-movies distinction. All day cells same color (white). Grid gaps provide structure.</p>
+      <div class="color-swatches small">
+        <div class="swatch" style="background: #e2e8f0;"><span>grid</span></div>
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day (all)</span></div>
+        <div class="swatch" style="background: #f1f5f9;"><span>movie</span></div>
+      </div>
+      <div class="scenario-content" style="
+        --bg-grid: #e2e8f0;
+        --bg-day: #ffffff;
+        --bg-day-movies: #ffffff;
+        --bg-movie: #f1f5f9;
+        --bg-movie-hover: #e2e8f0;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
+    <!-- Scenario C: Two-tone - just background and movies -->
+    <section class="scenario" id="scenario-twotone">
+      <h2>C. Two-Tone</h2>
+      <p class="scenario-desc">Minimal: only 2 colors. Everything is the same light gray except movie tiles which are white.</p>
+      <div class="color-swatches small">
+        <div class="swatch" style="background: #f1f5f9;"><span>base (all)</span></div>
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>movie</span></div>
+      </div>
+      <div class="scenario-content" style="
+        --bg-grid: #f1f5f9;
+        --bg-day: #f1f5f9;
+        --bg-day-movies: #f1f5f9;
+        --bg-movie: #ffffff;
+        --bg-movie-hover: #e2e8f0;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
+    <!-- Scenario D: White base, tinted movies -->
+    <section class="scenario" id="scenario-tinted">
+      <h2>D. White Base, Tinted Movies</h2>
+      <p class="scenario-desc">Clean white everywhere, movie tiles get subtle blue tint to pop.</p>
+      <div class="color-swatches small">
+        <div class="swatch" style="background: #e2e8f0;"><span>grid gaps</span></div>
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day (all)</span></div>
+        <div class="swatch" style="background: #e0f2fe;"><span>movie (blue)</span></div>
+      </div>
+      <div class="scenario-content" style="
+        --bg-grid: #e2e8f0;
+        --bg-day: #ffffff;
+        --bg-day-movies: #ffffff;
+        --bg-movie: #e0f2fe;
+        --bg-movie-hover: #bae6fd;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
+    <!-- Scenario E: Minimal gaps -->
+    <section class="scenario" id="scenario-minimal-gaps">
+      <h2>E. Minimal Gaps</h2>
+      <p class="scenario-desc">Lighter grid gaps, flatten day cells. Movies slightly darker to stand out.</p>
+      <div class="color-swatches small">
+        <div class="swatch" style="background: #f1f5f9;"><span>grid (lighter)</span></div>
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day (all)</span></div>
+        <div class="swatch" style="background: #e2e8f0;"><span>movie</span></div>
+      </div>
+      <div class="scenario-content" style="
+        --bg-grid: #f1f5f9;
+        --bg-day: #ffffff;
+        --bg-day-movies: #ffffff;
+        --bg-movie: #e2e8f0;
+        --bg-movie-hover: #cbd5e1;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
+  </div>
+</Layout>
+
+<script>
+  import { createMovieElement } from '../../components/MovieTile';
+  import type { Movie } from '../../utils/icsGenerator';
+
+  // Load movies and populate all scenarios
+  fetch('/tenement-stories-full.json')
+    .then(res => res.json())
+    .then((movies: Movie[]) => {
+      // Group by date
+      const moviesByDate: Record<string, Movie[]> = {};
+      movies.forEach(movie => {
+        const date = movie.Datetime.split('T')[0];
+        if (!moviesByDate[date]) moviesByDate[date] = [];
+        moviesByDate[date].push(movie);
+      });
+
+      // Find all scenario containers
+      const scenarios = document.querySelectorAll('.scenario-content');
+
+      scenarios.forEach(scenario => {
+        // For each date in this scenario's calendar
+        const dayCells = scenario.querySelectorAll('[data-date]');
+
+        dayCells.forEach(dayCell => {
+          const date = (dayCell as HTMLElement).dataset.date;
+          if (!date || !moviesByDate[date]) return;
+
+          const dayMovies = moviesByDate[date];
+          dayCell.classList.add('has-movies');
+
+          // Add movie elements
+          dayMovies.forEach(movie => {
+            const movieEl = createMovieElement(movie, { isTimeline: false });
+            dayCell.appendChild(movieEl);
+          });
+        });
+      });
+    });
+</script>
+
+<style>
+  .colors-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  h1 {
+    margin-bottom: 8px;
+  }
+
+  .intro {
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    max-width: 600px;
+  }
+
+  .current-colors {
+    background: var(--bg-movie);
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+  }
+
+  .current-colors h3 {
+    font-size: 14px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+  }
+
+  .color-swatches {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .color-swatches.small {
+    margin-bottom: 16px;
+  }
+
+  .color-swatches.small .swatch {
+    width: 70px;
+    height: 50px;
+  }
+
+  .swatch {
+    width: 100px;
+    height: 60px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .swatch span {
+    background: rgba(255,255,255,0.8);
+    padding: 2px 4px;
+    border-radius: 3px;
+    line-height: 1.3;
+  }
+
+  .problem {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .scenario {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--bg-grid);
+  }
+
+  .scenario:last-child {
+    border-bottom: none;
+  }
+
+  .scenario h2 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .scenario-desc {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .scenario-content {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  /* Override calendar sizing for demo - show compact view */
+  .scenario-content :global(.calendar) {
+    max-width: 100%;
+  }
+
+  .scenario-content :global(.day) {
+    min-height: 80px;
+  }
+</style>
