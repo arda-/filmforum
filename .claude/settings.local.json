@@ -33,7 +33,14 @@
       "Bash(xargs:*)",
       "Bash(pnpm exec playwright install:*)",
       "Bash(node:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(git count-objects:*)",
+      "Bash(git config:*)",
+      "Bash(npx playwright:*)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)"
     ]
   }
 }

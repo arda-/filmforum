@@ -62,62 +62,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 </Layout>
 
 <script>
-  interface Movie {
-    Movie: string;
-    Time: string;
-    Datetime: string;
-    Tickets: string;
-    year?: string;
-    director?: string;
-    runtime?: string;
-    actors?: string;
-    poster_url?: string;
-    description?: string;
-    film_url?: string;
-  }
-
-  function toTitleCase(str: string) {
-    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-  }
-
-  function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {
-    const isFFJr = time.includes('FF Jr');
-    const displayTime = isFFJr ? time.replace(/\s*[–-]?\s*FF Jr\.?/g, '').trim() : time;
-    const displayTitle = isFFJr ? `${toTitleCase(title)} (FF Jr.)` : toTitleCase(title);
-    return { displayTime, displayTitle };
-  }
-
-  function createMovieElement(movie: Movie, heightPx: number) {
-    const el = document.createElement('div');
-    el.className = 'movie movie--timeline';
-    el.style.height = `${heightPx}px`;
-
-    if (movie.poster_url) {
-      el.style.backgroundImage = `url(${movie.poster_url})`;
-      el.classList.add('has-poster');
-    }
-
-    const yearDirector = [movie.year, movie.director].filter(Boolean).join(', ');
-    const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
-    const actors = movie.actors ? movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ') : '';
-
-    const { displayTime, displayTitle } = processFFJr(movie.Time, movie.Movie);
-
-    el.innerHTML = `
-      <div class="movie-clickable">
-        <div class="movie-header">
-          <span class="movie-time">${displayTime}</span>
-          <span class="movie-title">${displayTitle}</span>
-        </div>
-        <div class="movie-meta">
-          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
-          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
-          ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
-        </div>
-      </div>
-    `;
-    return el;
-  }
+  import type { Movie } from '../../utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
 
   // Fetch real movie data
   fetch('/tenement-stories-full.json')
@@ -139,7 +85,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
           wrapper.className = 'demo-tile-wrapper';
           wrapper.innerHTML = `<span class="demo-label">${height}px</span>`;
 
-          const tile = createMovieElement(movie, height);
+          const tile = createMovieElement(movie, { isTimeline: true, heightPx: height });
           tile.classList.add('demo-tile');
           wrapper.appendChild(tile);
           demoGrid.appendChild(wrapper);
@@ -161,13 +107,13 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
           const slider = document.createElement('div');
           slider.className = 'comparison-slider';
 
-          const beforeTile = createMovieElement(movie, 200);
+          const beforeTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
           beforeTile.classList.add('comparison-tile', 'comparison-before', beforeClass);
           slider.appendChild(beforeTile);
 
           const afterWrapper = document.createElement('div');
           afterWrapper.className = 'comparison-after-wrapper';
-          const afterTile = createMovieElement(movie, 200);
+          const afterTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
           afterTile.classList.add('comparison-tile', 'comparison-after', afterClass);
           afterWrapper.appendChild(afterTile);
           slider.appendChild(afterWrapper);
@@ -273,23 +219,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   if (showImagesToggle) {
     showImagesToggle.checked = true;
     document.body.classList.add('show-image');
-  }
-
-  // Calculate text content height for content-based gradient
-  function updateTextHeights() {
-    document.querySelectorAll('.movie--timeline.has-poster').forEach(tile => {
-      const clickable = tile.querySelector('.movie-clickable') as HTMLElement;
-      const header = tile.querySelector('.movie-header') as HTMLElement;
-      const meta = tile.querySelector('.movie-meta') as HTMLElement;
-
-      if (clickable && header) {
-        let textHeight = header.offsetHeight + 8;
-        if (meta && getComputedStyle(meta).display !== 'none') {
-          textHeight += meta.offsetHeight + 4;
-        }
-        clickable.style.setProperty('--text-height', `${textHeight * 1.5}px`);
-      }
-    });
   }
 </script>
 
@@ -492,135 +421,15 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     position: relative;
   }
 
-  /* ===== Movie tile styles (copied from index.astro) ===== */
+  /* ===== Demo-specific overrides ===== */
 
-  :global(.movie) {
-    position: relative;
-    background: var(--bg-movie);
-    border-radius: 0;
+  /* Demo tiles don't need margin */
+  :global(.demo-tile.movie) {
     margin: 0;
-    font-size: 12px;
-    line-height: 1;
   }
 
-  @media (min-width: 480px) {
-    :global(.movie) {
-      font-size: 13px;
-    }
-  }
-
-  :global(.movie-clickable) {
-    display: block;
-    padding: 4px;
-    color: var(--text-primary);
-  }
-
-  :global(.movie-header) {
-    display: inline;
-  }
-
-  :global(.movie-time) {
-    color: var(--accent);
-    font-weight: 400;
-    margin-right: 3px;
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    letter-spacing: -0.015em;
-    text-transform: uppercase;
-  }
-
-  :global(.movie-title) {
-    font-weight: 400;
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    letter-spacing: -0.005em;
-    text-transform: uppercase;
-  }
-
-  @media (min-width: 640px) {
-    :global(.movie) {
-      line-height: 1;
-    }
-    :global(.movie-time),
-    :global(.movie-title) {
-      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      letter-spacing: normal;
-      font-weight: 500;
-      text-transform: none;
-    }
-  }
-
-  :global(.movie-meta) {
-    color: var(--text-tertiary);
-    font-size: 0.85em;
-    margin-top: 0.25em;
-    line-height: 1.05;
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: none;
-  }
-
-  :global(.movie-actors) {
-    display: none;
-    font-style: italic;
-    margin-top: 0.3em;
-  }
-
-  :global(.movie-year-director),
-  :global(.movie-runtime) {
-    display: none;
-  }
-
-  :global(body.show-year-director.show-runtime .movie-year-director)::after {
-    content: ', ';
-  }
-
-  :global(body.show-year-director .movie-meta),
-  :global(body.show-runtime .movie-meta),
-  :global(body.show-actors .movie-meta) {
-    display: block !important;
-  }
-
-  :global(body.show-year-director .movie-year-director) {
-    display: inline !important;
-  }
-
-  :global(body.show-runtime .movie-runtime) {
-    display: inline !important;
-  }
-
-  :global(body.show-actors .movie-actors) {
-    display: block !important;
-  }
-
-  :global(.movie--timeline) {
-    position: relative;
-    overflow: hidden;
-  }
-
-  :global(.movie--timeline .movie-clickable) {
-    height: 100%;
-  }
-
-  /* Timeline mode: poster as background */
-  :global(body.show-image .movie--timeline.has-poster) {
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-  }
-
-  :global(body:not(.show-image) .movie--timeline.has-poster) {
-    background-image: none !important;
-  }
-
-  /* Base: no gradient by default when showing images */
-  :global(body.show-image .movie--timeline.has-poster .movie-clickable) {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    background: none;
-  }
-
-  /* ===== CONTENT-BASED GRADIENT ===== */
+  /* Demo uses content-gradient class for togglable gradient */
   :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-clickable) {
-    background: none;
     position: relative;
   }
 
@@ -647,6 +456,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     z-index: 1;
   }
 
+  /* Debug mode: green gradient */
   :global(body.show-image.content-gradient.content-debug .movie--timeline.has-poster .movie-clickable::before) {
     background: linear-gradient(
       to bottom,
@@ -656,7 +466,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     );
   }
 
-  /* Darken blend mode - uses rgba for fade-out */
+  /* Darken blend mode */
   :global(body.blend-darken.content-gradient .movie--timeline.has-poster .movie-clickable::before) {
     mix-blend-mode: darken;
     background: linear-gradient(
@@ -666,7 +476,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       rgba(0, 0, 0, 0) 100%
     );
   }
-
 
   /* Force blend modes for static comparison tiles */
   :global(body.show-image .force-blend-normal.movie--timeline.has-poster .movie-clickable::before) {
@@ -695,7 +504,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     mix-blend-mode: darken;
   }
 
-
   :global(body.show-image .force-blend-normal .movie-header),
   :global(body.show-image .force-blend-normal .movie-meta),
   :global(body.show-image .force-blend-darken .movie-header),
@@ -713,23 +521,5 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   :global(body.show-image .movie--timeline.has-poster.no-gradient .movie-clickable::before) {
     display: none !important;
-  }
-
-  /* Text styling on poster background */
-  :global(body.show-image .movie--timeline.has-poster .movie-time) {
-    color: #06b6d4;
-    text-shadow:
-      0 1px 2px rgba(0, 0, 0, 1),
-      0 2px 4px rgba(0, 0, 0, 0.8),
-      0 0 8px rgba(0, 0, 0, 0.6);
-  }
-
-  :global(body.show-image .movie--timeline.has-poster .movie-title),
-  :global(body.show-image .movie--timeline.has-poster .movie-meta) {
-    color: #fff;
-    text-shadow:
-      0 1px 2px rgba(0, 0, 0, 1),
-      0 2px 4px rgba(0, 0, 0, 0.8),
-      0 0 8px rgba(0, 0, 0, 0.6);
   }
 </style>
