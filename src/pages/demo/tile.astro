@@ -1,0 +1,533 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ToggleGroup from '../../components/ToggleGroup.astro';
+---
+
+<Layout title="Timeline Tile Debug">
+  <h1>Timeline Tile Debug</h1>
+  <p class="subtitle">Testing gradient overlay on movie tiles at various heights</p>
+
+  <div class="demo-controls">
+    <div class="control-group">
+      <span class="control-label">Display</span>
+      <div class="control-grid-2x2">
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-images-toggle" />
+          <span>Images</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-year-director" />
+          <span>Year/Director</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-runtime" />
+          <span>Runtime</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-actors" />
+          <span>Actors</span>
+        </label>
+      </div>
+    </div>
+    <ToggleGroup
+      label="Fixed px:"
+      name="fixed-gradient-mode"
+      options={[
+        { label: 'Off', value: 'off', checked: true },
+        { label: 'On', value: 'on' },
+        { label: 'Red', value: 'debug' }
+      ]}
+    />
+    <ToggleGroup
+      label="Content-based:"
+      name="content-gradient-mode"
+      options={[
+        { label: 'Off', value: 'off', checked: true },
+        { label: 'On', value: 'on' },
+        { label: 'Green', value: 'debug' }
+      ]}
+    />
+  </div>
+
+  <div class="demo-section">
+    <h2>Test Tiles with Poster Background</h2>
+    <p class="demo-note">These tiles simulate timeline mode with poster images as CSS background</p>
+
+    <div class="demo-grid">
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">50px</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 50px; background-image: url(/posters/lonesome.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">12:30</span>
+              <span class="movie-title">Lonesome</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">75px</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 75px; background-image: url(/posters/taxi.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">2:10</span>
+              <span class="movie-title">Taxi!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">100px</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 100px; background-image: url(/posters/hester-street.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">4:10</span>
+              <span class="movie-title">Hester Street</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">150px</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 150px; background-image: url(/posters/street-scene.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">6:10</span>
+              <span class="movie-title">Street Scene</span>
+            </div>
+            <div class="movie-meta">
+              <span class="movie-year-director">1931, King Vidor</span>
+              <span class="movie-runtime">80min</span>
+              <span class="movie-actors">Sylvia Sidney, William Collier Jr.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">200px</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 200px; background-image: url(/posters/the-window.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">8:00</span>
+              <span class="movie-title">The Window</span>
+            </div>
+            <div class="movie-meta">
+              <span class="movie-year-director">1949, Ted Tetzlaff</span>
+              <span class="movie-runtime">73min</span>
+              <span class="movie-actors">Bobby Driscoll, Barbara Hale</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">300px</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 300px; background-image: url(/posters/three-on-a-match.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">12:40</span>
+              <span class="movie-title">Three on a Match</span>
+            </div>
+            <div class="movie-meta">
+              <span class="movie-year-director">1932, Mervyn LeRoy</span>
+              <span class="movie-runtime">63min</span>
+              <span class="movie-actors">Joan Blondell, Warren William, Ann Dvorak</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Without Gradient (Direct Comparison)</h2>
+    <p class="demo-note">Same tiles but with gradient disabled to see the difference</p>
+
+    <div class="demo-grid">
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">150px (no gradient)</span>
+        <div class="demo-tile movie movie--timeline has-poster no-gradient" style="height: 150px; background-image: url(/posters/street-scene.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">6:10</span>
+              <span class="movie-title">Street Scene</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-tile-wrapper">
+        <span class="demo-label">150px (with gradient)</span>
+        <div class="demo-tile movie movie--timeline has-poster" style="height: 150px; background-image: url(/posters/street-scene.png);">
+          <div class="movie-clickable">
+            <div class="movie-header">
+              <span class="movie-time">6:10</span>
+              <span class="movie-title">Street Scene</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const showImagesToggle = document.getElementById('show-images-toggle') as HTMLInputElement;
+  const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
+  const showActors = document.getElementById('show-actors') as HTMLInputElement;
+
+  showImagesToggle?.addEventListener('change', () => {
+    document.body.classList.toggle('show-image', showImagesToggle.checked);
+  });
+
+  showYearDirector?.addEventListener('change', () => {
+    document.body.classList.toggle('show-year-director', showYearDirector.checked);
+  });
+
+  showRuntime?.addEventListener('change', () => {
+    document.body.classList.toggle('show-runtime', showRuntime.checked);
+  });
+
+  showActors?.addEventListener('change', () => {
+    document.body.classList.toggle('show-actors', showActors.checked);
+  });
+
+  // Fixed gradient mode toggle
+  document.querySelectorAll('input[name="fixed-gradient-mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('fixed-gradient', 'fixed-debug');
+      if (value === 'on') {
+        document.body.classList.add('fixed-gradient');
+      } else if (value === 'debug') {
+        document.body.classList.add('fixed-gradient', 'fixed-debug');
+      }
+    });
+  });
+
+  // Content-based gradient mode toggle
+  document.querySelectorAll('input[name="content-gradient-mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('content-gradient', 'content-debug');
+      if (value === 'on') {
+        document.body.classList.add('content-gradient');
+      } else if (value === 'debug') {
+        document.body.classList.add('content-gradient', 'content-debug');
+      }
+    });
+  });
+
+  // Start with images enabled
+  if (showImagesToggle) {
+    showImagesToggle.checked = true;
+    document.body.classList.add('show-image');
+  }
+
+  // Calculate text content height for content-based gradient
+  function updateTextHeights() {
+    document.querySelectorAll('.movie--timeline.has-poster').forEach(tile => {
+      const clickable = tile.querySelector('.movie-clickable') as HTMLElement;
+      const header = tile.querySelector('.movie-header') as HTMLElement;
+      const meta = tile.querySelector('.movie-meta') as HTMLElement;
+
+      if (clickable && header) {
+        let textHeight = header.offsetHeight + 8; // header + padding
+        if (meta && getComputedStyle(meta).display !== 'none') {
+          textHeight += meta.offsetHeight + 4;
+        }
+        // Add fade zone (50% extra for gradient fade)
+        clickable.style.setProperty('--text-height', `${textHeight * 1.5}px`);
+      }
+    });
+  }
+
+  // Update on load and when display options change
+  updateTextHeights();
+  [showYearDirector, showRuntime, showActors].forEach(toggle => {
+    toggle?.addEventListener('change', () => setTimeout(updateTextHeights, 10));
+  });
+</script>
+
+<style>
+  h1 {
+    margin-top: 20px;
+  }
+
+  .demo-controls {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .control-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .control-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .control-grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  .demo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .demo-section {
+    margin: 32px auto;
+    max-width: 900px;
+    padding: 0 16px;
+  }
+
+  .demo-section h2 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .demo-note {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .demo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .demo-tile-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .demo-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: monospace;
+  }
+
+  .demo-tile {
+    width: 120px;
+    position: relative;
+  }
+
+  /* Replicate the exact styles from index.astro for testing */
+  :global(.movie) {
+    position: relative;
+    background: var(--bg-movie);
+    border-radius: 0;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  :global(.movie-clickable) {
+    display: block;
+    padding: 4px;
+    color: var(--text-primary);
+  }
+
+  :global(.movie-header) {
+    display: inline;
+  }
+
+  :global(.movie-time) {
+    color: var(--accent);
+    font-weight: 500;
+    margin-right: 3px;
+  }
+
+  :global(.movie-title) {
+    font-weight: 500;
+  }
+
+  :global(.movie-meta) {
+    color: var(--text-tertiary);
+    font-size: 0.85em;
+    margin-top: 0.25em;
+  }
+
+  :global(.movie--timeline) {
+    position: relative;
+    overflow: hidden;
+  }
+
+  :global(.movie--timeline .movie-clickable) {
+    height: 100%;
+  }
+
+  /* Timeline mode: poster as background (only when show-image is enabled) */
+  :global(body.show-image .movie--timeline.has-poster) {
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+  }
+
+  /* Hide background when show-image is not enabled */
+  :global(body:not(.show-image) .movie--timeline.has-poster) {
+    background-image: none !important;
+  }
+
+  /* Base: no gradient by default when showing images */
+  :global(body.show-image .movie--timeline.has-poster .movie-clickable) {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: none;
+  }
+
+  /* FIXED: pixel-based gradient - consistent across all tile heights */
+  :global(body.show-image.fixed-gradient .movie--timeline.has-poster .movie-clickable) {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.85) 0px,
+      rgba(0, 0, 0, 0.6) 24px,
+      rgba(0, 0, 0, 0) 48px
+    );
+  }
+
+  /* Fixed gradient debug mode - RED */
+  :global(body.show-image.fixed-gradient.fixed-debug .movie--timeline.has-poster .movie-clickable) {
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 0, 0, 0.7) 0px,
+      rgba(255, 0, 0, 0.5) 24px,
+      rgba(255, 0, 0, 0) 48px
+    );
+  }
+
+  /* CONTENT-BASED: single gradient using pseudo-element sized to content */
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-clickable) {
+    background: none;
+    position: relative;
+  }
+
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-clickable::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    /* Height will be set by JS based on text content, fallback to reasonable default */
+    height: var(--text-height, 60px);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.7) 60%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Ensure text content is above the gradient */
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-header),
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-meta) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Content gradient debug mode - GREEN */
+  :global(body.show-image.content-gradient.content-debug .movie--timeline.has-poster .movie-clickable::before) {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 180, 0, 0.8) 0%,
+      rgba(0, 180, 0, 0.5) 60%,
+      rgba(0, 180, 0, 0) 100%
+    );
+  }
+
+  /* No gradient class for comparison */
+  :global(body.show-image .movie--timeline.has-poster.no-gradient .movie-clickable) {
+    background: none !important;
+  }
+
+  /* Ensure text is readable on poster background (only when showing images) */
+  /* Use brighter dark-mode accent (#06b6d4) since gradient creates dark bg */
+  :global(body.show-image .movie--timeline.has-poster .movie-time) {
+    color: #06b6d4;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 1),
+      0 2px 4px rgba(0, 0, 0, 0.8),
+      0 0 8px rgba(0, 0, 0, 0.6);
+  }
+
+  :global(body.show-image .movie--timeline.has-poster .movie-title),
+  :global(body.show-image .movie--timeline.has-poster .movie-meta) {
+    color: #fff;
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 1),
+      0 2px 4px rgba(0, 0, 0, 0.8),
+      0 0 8px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Show/hide metadata fields */
+  :global(.movie-year-director),
+  :global(.movie-runtime),
+  :global(.movie-actors) {
+    display: none;
+  }
+
+  :global(.movie-meta) {
+    display: none;
+  }
+
+  :global(body.show-year-director .movie-meta),
+  :global(body.show-runtime .movie-meta),
+  :global(body.show-actors .movie-meta) {
+    display: block;
+  }
+
+  :global(body.show-year-director .movie-year-director) {
+    display: inline;
+  }
+
+  :global(body.show-runtime .movie-runtime) {
+    display: inline;
+  }
+
+  :global(body.show-actors .movie-actors) {
+    display: block;
+  }
+
+  /* Comma between year-director and runtime */
+  :global(body.show-year-director.show-runtime .movie-year-director)::after {
+    content: ', ';
+  }
+</style>

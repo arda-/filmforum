@@ -1,0 +1,55 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Demo Pages">
+  <h1>Demo Pages</h1>
+  <p class="subtitle">Testing and debugging tools</p>
+
+  <nav class="demo-nav">
+    <a href="/demo/tile" class="demo-link">
+      <h2>Tile</h2>
+      <p>Timeline tile gradient overlay testing at various heights</p>
+    </a>
+  </nav>
+</Layout>
+
+<style>
+  h1 {
+    margin-top: 20px;
+  }
+
+  .demo-nav {
+    max-width: 600px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .demo-link {
+    display: block;
+    padding: 16px 20px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .demo-link:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  .demo-link h2 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    color: var(--accent);
+  }
+
+  .demo-link p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+</style>
