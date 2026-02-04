@@ -194,14 +194,19 @@ const {
     background: var(--bg-movie-hover);
   }
 
+  /* Dialog separator divider */
+  :global(.dialog-separator) {
+    height: 1px;
+    background-color: var(--bg-movie);
+    margin: 16px -24px 0 -24px;
+  }
+
   /* Dialog footer for actions */
   :global(.dialog-footer) {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid var(--bg-movie);
+    padding: 16px 0 0 0;
   }
 
   :global(.dialog-footer--center) {
@@ -210,8 +215,8 @@ const {
 
   :global(.dialog-footer--sticky) {
     position: sticky;
-    bottom: -24px;
-    margin: 24px -24px -24px -24px;
+    bottom: 0;
+    margin: 0 -24px -24px -24px;
     padding: 16px 24px;
     background: var(--bg-day);
     border-top: 1px solid var(--bg-movie);
