@@ -99,7 +99,7 @@ export function updateTextHeights(): void {
       if (meta && getComputedStyle(meta).display !== 'none') {
         textHeight += meta.offsetHeight + 4;
       }
-      clickable.style.setProperty('--text-height', `${textHeight * 1.5}px`);
+      clickable.style.setProperty('--text-height', `${textHeight}px`);
     }
   });
 }
