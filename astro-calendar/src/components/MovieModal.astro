@@ -1,96 +1,36 @@
 ---
+import Modal from './Modal.astro';
 ---
 
-<div id="movie-modal" class="modal-wrapper" data-show="">
-  <div class="modal-overlay"></div>
-  <div class="modal-content">
-    <button class="modal-close" data-id="close">&times;</button>
+<Modal id="movie-modal">
+  <div class="movie-modal-inner">
+    <div class="movie-poster">
+      <img id="modal-poster" src="" alt="" />
+      <span class="poster-placeholder">No Image Available</span>
+    </div>
 
-    <div class="movie-modal-inner">
-      <div class="movie-poster">
-        <img id="modal-poster" src="" alt="" />
-        <span class="poster-placeholder">No Image Available</span>
-      </div>
+    <h2 class="modal-title" id="modal-title"></h2>
+    <p class="modal-meta" id="modal-meta"></p>
+    <p class="modal-actors" id="modal-actors"></p>
+    <p class="modal-description" id="modal-description"></p>
+    <p class="modal-citation">— Film Forum</p>
 
-      <h2 class="modal-title" id="modal-title"></h2>
-      <p class="modal-meta" id="modal-meta"></p>
-      <p class="modal-actors" id="modal-actors"></p>
-      <p class="modal-description" id="modal-description"></p>
-      <p class="modal-citation">— Film Forum</p>
-
-      <div class="movie-actions">
-        <p class="ticket-disclaimer" id="modal-disclaimer"></p>
-        <a href="#" id="modal-buy-tickets" class="btn btn-primary" target="_blank">
-          Buy Tickets
-        </a>
-        <button id="modal-add-calendar" class="btn btn-secondary">
-          Add to Calendar
-        </button>
-        <a href="#" id="modal-film-page" class="btn btn-secondary" target="_blank">
-          View on Film Forum ↗
-        </a>
-      </div>
+    <div class="movie-actions">
+      <p class="ticket-disclaimer" id="modal-disclaimer"></p>
+      <a href="#" id="modal-buy-tickets" class="btn btn-primary" target="_blank">
+        Buy Tickets
+      </a>
+      <button id="modal-add-calendar" class="btn btn-secondary">
+        Add to Calendar
+      </button>
+      <a href="#" id="modal-film-page" class="btn btn-secondary" target="_blank">
+        View on Film Forum ↗
+      </a>
     </div>
   </div>
-</div>
+</Modal>
 
 <style>
-  .modal-wrapper {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-wrapper[data-show="true"] {
-    display: flex;
-  }
-
-  .modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-  }
-
-  .modal-content {
-    position: relative;
-    background: var(--bg-day);
-    border-radius: 12px;
-    max-width: 500px;
-    width: calc(100% - 32px);
-    max-height: 90vh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: transparent;
-    color: var(--text-tertiary);
-    border-radius: 6px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.15s ease;
-    z-index: 10;
-  }
-
-  .modal-close:hover {
-    color: var(--text-primary);
-  }
-
   .movie-modal-inner {
     display: flex;
     flex-direction: column;
