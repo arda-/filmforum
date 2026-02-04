@@ -1,0 +1,686 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ToggleGroup from '../../components/ToggleGroup.astro';
+---
+
+<Layout title="Simple Blur Fade Demo">
+  <h1>Simple Blur Fade</h1>
+  <p class="subtitle">Single-layer backdrop-filter blur with mask-image fade</p>
+
+  <div class="demo-controls">
+    <div class="control-row">
+      <ToggleGroup
+        label="Direction:"
+        name="blur-direction"
+        options={[
+          { label: 'Bottom', value: 'bottom', checked: true },
+          { label: 'Top', value: 'top' },
+          { label: 'Left', value: 'left' },
+          { label: 'Right', value: 'right' }
+        ]}
+      />
+    </div>
+    <div class="control-row">
+      <ToggleGroup
+        label="Blur radius:"
+        name="blur-amount"
+        options={[
+          { label: '8px', value: '8' },
+          { label: '16px', value: '16', checked: true },
+          { label: '32px', value: '32' },
+          { label: '64px', value: '64' }
+        ]}
+      />
+    </div>
+    <div class="control-row">
+      <ToggleGroup
+        label="100% blur until:"
+        name="mask-end"
+        options={[
+          { label: '0%', value: '0' },
+          { label: '15%', value: '15', checked: true },
+          { label: '30%', value: '30' }
+        ]}
+      />
+      <ToggleGroup
+        label="Blur ends at:"
+        name="mask-start"
+        options={[
+          { label: '30%', value: '30' },
+          { label: '50%', value: '50', checked: true },
+          { label: '70%', value: '70' }
+        ]}
+      />
+      <label class="debug-toggle">
+        <input type="checkbox" id="debug-lines" />
+        <span>Debug</span>
+      </label>
+    </div>
+    <div class="control-row">
+      <ToggleGroup
+        label="Text:"
+        name="text-level"
+        options={[
+          { label: 'Title', value: 'title' },
+          { label: '+ Sub', value: 'subtitle' },
+          { label: '+ Desc', value: 'full', checked: true }
+        ]}
+      />
+      <label class="debug-toggle">
+        <input type="checkbox" id="show-shadow" checked />
+        <span>Shadow</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="aspect-ratio-section">
+    <div class="aspect-ratio-grid">
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">2:1</span>
+        <div class="poster-card aspect-2-1">
+          <img src="/posters/the-naked-city.png" alt="The Naked City" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>The Naked City</h3>
+            <p>Jules Dassin • 1948</p>
+            <p class="description">A documentary-style police procedural following the investigation of a young model's murder in New York City.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">16:9</span>
+        <div class="poster-card aspect-16-9">
+          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>Once Upon a Time in America</h3>
+            <p>Sergio Leone • 1984</p>
+            <p class="description">A former Prohibition-era Jewish gangster returns to the Lower East Side of Manhattan and recalls his old life.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">4:3</span>
+        <div class="poster-card aspect-4-3">
+          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>The Landlord</h3>
+            <p>Hal Ashby • 1970</p>
+            <p class="description">A wealthy young man buys a Brooklyn tenement with plans to evict the tenants, but becomes deeply involved in their lives instead.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">1:1</span>
+        <div class="poster-card aspect-1-1">
+          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>The Godfather Part II</h3>
+            <p>Francis Ford Coppola • 1974</p>
+            <p class="description">The continuing saga of the Corleone crime family tells the parallel stories of Michael and his father Vito.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">3:4</span>
+        <div class="poster-card aspect-3-4">
+          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>West Side Story</h3>
+            <p>Robert Wise • 1961</p>
+            <p class="description">Two youngsters from rival New York City gangs fall in love, but tensions between their respective friends build toward tragedy.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">2:3</span>
+        <div class="poster-card aspect-2-3">
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>Mean Streets</h3>
+            <p>Martin Scorsese • 1973</p>
+            <p class="description">A small-time hood struggles to reconcile his ambitions with his responsibilities to his neighborhood and his volatile friend.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">9:16</span>
+        <div class="poster-card aspect-9-16">
+          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>The Crowd</h3>
+            <p>King Vidor • 1928</p>
+            <p class="description">A man and woman struggle to survive in the anonymity of the big city, facing tragedy and the challenge of ordinary life.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">1:2</span>
+        <div class="poster-card aspect-1-2">
+          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" />
+          <div class="blur-layer"></div>
+          <div class="debug-line debug-line-reach"></div>
+          <div class="debug-line debug-line-full"></div>
+          <div class="text-overlay">
+            <h3>A Raisin in the Sun</h3>
+            <p>Daniel Petrie • 1961</p>
+            <p class="description">A Black family's struggle against racism and poverty as they consider accepting a buyout to stay out of a white neighborhood.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <h2>How it works</h2>
+    <p>This technique uses a single <code>backdrop-filter: blur()</code> layer with a <code>mask-image: linear-gradient()</code> to fade the blur to transparent. The blur intensity stays constant — only the opacity fades.</p>
+    <pre><code>.blur-layer {'{'}
+  backdrop-filter: blur(16px);
+  mask-image: linear-gradient(
+    to top,
+    black 15%,       /* fully blurred at bottom */
+    transparent 50%  /* no blur above 50% */
+  );
+{'}'}</code></pre>
+    <p class="caveat"><strong>Limitation:</strong> The blur amount is uniform — you can't create a gradient where the blur gets progressively stronger.</p>
+  </div>
+</Layout>
+
+<script>
+  const blurLayers = document.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+  const textOverlays = document.querySelectorAll('.text-overlay') as NodeListOf<HTMLElement>;
+  const debugLinesReach = document.querySelectorAll('.debug-line-reach') as NodeListOf<HTMLElement>;
+  const debugLinesFull = document.querySelectorAll('.debug-line-full') as NodeListOf<HTMLElement>;
+  const debugToggle = document.getElementById('debug-lines') as HTMLInputElement;
+  const shadowToggle = document.getElementById('show-shadow') as HTMLInputElement;
+
+  // Read initial values from URL params
+  const params = new URLSearchParams(window.location.search);
+
+  let blurAmount = parseInt(params.get('blur') || '16');
+  let blurEnd = parseInt(params.get('end') || '50');      // where blur fades to 0
+  let fullBlur = parseInt(params.get('full') || '15');    // where blur is 100%
+  let direction = params.get('dir') || 'bottom';
+  let debugEnabled = params.get('debug') === '1';
+  let shadowEnabled = params.get('shadow') !== '0';
+  let textLevel = params.get('text') || 'full';
+
+  function updateURL() {
+    const newParams = new URLSearchParams();
+    if (direction !== 'bottom') newParams.set('dir', direction);
+    if (blurAmount !== 16) newParams.set('blur', String(blurAmount));
+    if (blurEnd !== 50) newParams.set('end', String(blurEnd));
+    if (fullBlur !== 15) newParams.set('full', String(fullBlur));
+    if (debugEnabled) newParams.set('debug', '1');
+    if (!shadowEnabled) newParams.set('shadow', '0');
+    if (textLevel !== 'full') newParams.set('text', textLevel);
+
+    const newURL = newParams.toString()
+      ? `${window.location.pathname}?${newParams.toString()}`
+      : window.location.pathname;
+    window.history.replaceState({}, '', newURL);
+  }
+
+  function applyTextLevel() {
+    document.body.classList.remove('text-title-only', 'text-with-subtitle');
+    if (textLevel === 'title') {
+      document.body.classList.add('text-title-only');
+    } else if (textLevel === 'subtitle') {
+      document.body.classList.add('text-with-subtitle');
+    }
+    // 'full' shows everything (no class needed)
+  }
+
+  // Set initial control states from URL
+  function initControls() {
+    // Direction
+    const dirRadio = document.querySelector(`input[name="blur-direction"][value="${direction}"]`) as HTMLInputElement;
+    if (dirRadio) dirRadio.checked = true;
+
+    // Blur amount
+    const blurRadio = document.querySelector(`input[name="blur-amount"][value="${blurAmount}"]`) as HTMLInputElement;
+    if (blurRadio) blurRadio.checked = true;
+
+    // Blur end (where blur fades to 0)
+    const endRadio = document.querySelector(`input[name="mask-start"][value="${blurEnd}"]`) as HTMLInputElement;
+    if (endRadio) endRadio.checked = true;
+
+    // Full blur (where blur is 100%)
+    const fullRadio = document.querySelector(`input[name="mask-end"][value="${fullBlur}"]`) as HTMLInputElement;
+    if (fullRadio) fullRadio.checked = true;
+
+    // Debug toggle
+    if (debugToggle) {
+      debugToggle.checked = debugEnabled;
+      document.body.classList.toggle('show-debug', debugEnabled);
+    }
+
+    // Shadow toggle
+    if (shadowToggle) {
+      shadowToggle.checked = shadowEnabled;
+      document.body.classList.toggle('no-shadow', !shadowEnabled);
+    }
+
+    // Text level
+    const textRadio = document.querySelector(`input[name="text-level"][value="${textLevel}"]`) as HTMLInputElement;
+    if (textRadio) textRadio.checked = true;
+    applyTextLevel();
+  }
+
+  // Map direction to CSS gradient direction and text position
+  const directionConfig: Record<string, { gradientDir: string; textPos: Record<string, string>; isHorizontal: boolean }> = {
+    bottom: { gradientDir: 'to top', textPos: { bottom: '0', top: 'auto', left: '0', right: '0' }, isHorizontal: false },
+    top: { gradientDir: 'to bottom', textPos: { top: '0', bottom: 'auto', left: '0', right: '0' }, isHorizontal: false },
+    left: { gradientDir: 'to right', textPos: { left: '0', right: 'auto', top: '0', bottom: '0' }, isHorizontal: true },
+    right: { gradientDir: 'to left', textPos: { right: '0', left: 'auto', top: '0', bottom: '0' }, isHorizontal: true }
+  };
+
+  function applyBlurToLayer(layer: HTMLElement, config: typeof directionConfig[string], fullBlurPct: number, blurEndPct: number) {
+    layer.style.backdropFilter = `blur(${blurAmount}px)`;
+    layer.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
+    // Gradient from edge: fully opaque (blurred) up to fullBlurPct, then fade to transparent at blurEndPct
+    layer.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+    layer.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+  }
+
+  function applyTextPosition(overlay: HTMLElement, config: typeof directionConfig[string]) {
+    Object.assign(overlay.style, config.textPos);
+    if (config.isHorizontal) {
+      overlay.style.width = '50%';
+      overlay.style.display = 'flex';
+      overlay.style.flexDirection = 'column';
+      overlay.style.justifyContent = 'flex-end';
+    } else {
+      overlay.style.width = '';
+      overlay.style.display = '';
+      overlay.style.flexDirection = '';
+      overlay.style.justifyContent = '';
+    }
+  }
+
+  function updateBlur() {
+    const config = directionConfig[direction];
+
+    // Update all blur layers and text overlays
+    blurLayers.forEach(layer => applyBlurToLayer(layer, config, fullBlur, blurEnd));
+    textOverlays.forEach(overlay => applyTextPosition(overlay, config));
+
+    // Update debug lines - position from the blur edge
+    debugLinesReach.forEach(line => {
+      line.style.bottom = direction === 'bottom' ? `${blurEnd}%` : 'auto';
+      line.style.top = direction === 'top' ? `${blurEnd}%` : 'auto';
+    });
+    debugLinesFull.forEach(line => {
+      line.style.bottom = direction === 'bottom' ? `${fullBlur}%` : 'auto';
+      line.style.top = direction === 'top' ? `${fullBlur}%` : 'auto';
+    });
+  }
+
+  debugToggle?.addEventListener('change', () => {
+    debugEnabled = debugToggle.checked;
+    document.body.classList.toggle('show-debug', debugEnabled);
+    updateURL();
+  });
+
+  shadowToggle?.addEventListener('change', () => {
+    shadowEnabled = shadowToggle.checked;
+    document.body.classList.toggle('no-shadow', !shadowEnabled);
+    updateURL();
+  });
+
+  document.querySelectorAll('input[name="text-level"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      textLevel = (e.target as HTMLInputElement).value;
+      applyTextLevel();
+      updateURL();
+    });
+  });
+
+  document.querySelectorAll('input[name="blur-direction"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      direction = (e.target as HTMLInputElement).value;
+      updateBlur();
+      updateURL();
+    });
+  });
+
+  document.querySelectorAll('input[name="blur-amount"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      blurAmount = parseInt((e.target as HTMLInputElement).value);
+      updateBlur();
+      updateURL();
+    });
+  });
+
+  document.querySelectorAll('input[name="mask-start"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      blurEnd = parseInt((e.target as HTMLInputElement).value);
+      updateBlur();
+      updateURL();
+    });
+  });
+
+  document.querySelectorAll('input[name="mask-end"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      fullBlur = parseInt((e.target as HTMLInputElement).value);
+      updateBlur();
+      updateURL();
+    });
+  });
+
+  // Initialize controls from URL and apply blur
+  initControls();
+  updateBlur();
+</script>
+
+<style>
+  h1 {
+    margin-top: 20px;
+  }
+
+  .demo-controls {
+    display: flex;
+    gap: 16px 24px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    max-width: 950px;
+    margin-left: auto;
+    margin-right: auto;
+    flex-wrap: wrap;
+  }
+
+  .control-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .demo-container {
+    display: flex;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .poster-card {
+    position: relative;
+    width: 300px;
+    height: 450px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: box-shadow 0.2s;
+  }
+
+  :global(body.no-shadow) .poster-card {
+    box-shadow: none;
+  }
+
+  /* Text level visibility */
+  :global(body.text-title-only) .text-overlay > p {
+    display: none;
+  }
+
+  :global(body.text-with-subtitle) .text-overlay .description {
+    display: none;
+  }
+
+  .poster-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .blur-layer {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    /* Gradient: opaque at bottom (blurred), transparent at top (clear) */
+    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .text-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    color: white;
+    z-index: 2;
+  }
+
+  .text-overlay h3 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .text-overlay p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .text-overlay .description {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .info-section {
+    max-width: 600px;
+    margin: 32px auto;
+    padding: 24px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+  }
+
+  .info-section h2 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+
+  .info-section p {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .info-section code {
+    background: var(--bg-movie-hover);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  .info-section pre {
+    background: var(--bg-movie-hover);
+    padding: 12px 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+
+  .info-section pre code {
+    background: none;
+    padding: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-primary);
+  }
+
+  .caveat {
+    background: rgba(255, 180, 0, 0.1);
+    border-left: 3px solid rgba(255, 180, 0, 0.5);
+    padding: 12px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 16px;
+  }
+
+  /* Debug toggle styling */
+  .debug-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .debug-toggle input {
+    cursor: pointer;
+  }
+
+  /* Debug lines - hidden by default, shown with body.show-debug */
+  .debug-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    pointer-events: none;
+    z-index: 10;
+    display: none;
+  }
+
+  :global(body.show-debug) .debug-line {
+    display: block;
+  }
+
+  .debug-line-reach {
+    background: #00ff88;
+    box-shadow: 0 0 4px #00ff88;
+  }
+
+  .debug-line-full {
+    background: #ff4488;
+    box-shadow: 0 0 4px #ff4488;
+  }
+
+  /* Aspect ratio section */
+  .aspect-ratio-section {
+    max-width: 1200px;
+    margin: 48px auto;
+    padding: 0 16px;
+  }
+
+  .aspect-ratio-section h2 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+
+  .section-note {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    margin: 0 0 24px 0;
+  }
+
+  .aspect-ratio-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+  }
+
+  .aspect-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .aspect-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: monospace;
+  }
+
+  /* Aspect ratio cards - larger sizes */
+  .poster-card.aspect-2-3 {
+    width: 240px;
+    height: 360px;
+  }
+
+  .poster-card.aspect-1-1 {
+    width: 280px;
+    height: 280px;
+  }
+
+  .poster-card.aspect-3-4 {
+    width: 240px;
+    height: 320px;
+  }
+
+  .poster-card.aspect-4-3 {
+    width: 320px;
+    height: 240px;
+  }
+
+  .poster-card.aspect-16-9 {
+    width: 400px;
+    height: 225px;
+  }
+
+  .poster-card.aspect-2-1 {
+    width: 440px;
+    height: 220px;
+  }
+
+  .poster-card.aspect-9-16 {
+    width: 200px;
+    height: 356px;
+  }
+
+  .poster-card.aspect-1-2 {
+    width: 180px;
+    height: 360px;
+  }
+
+  /* Text for aspect ratio cards */
+  .aspect-ratio-grid .text-overlay {
+    padding: 16px;
+  }
+
+  .aspect-ratio-grid .text-overlay h3 {
+    font-size: 18px;
+  }
+
+  .aspect-ratio-grid .text-overlay p {
+    font-size: 13px;
+  }
+</style>
