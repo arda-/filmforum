@@ -1,0 +1,56 @@
+---
+interface Props {
+  seriesName: string;
+  seriesSubtitle: string;
+  seriesUrl: string;
+  venueName: string;
+  dateRange: string;
+}
+
+const { seriesName, seriesSubtitle, seriesUrl, venueName, dateRange } = Astro.props;
+---
+
+<header class="site-header">
+  <h1>{seriesName}:</h1>
+  <h2 class="series-subtitle">{seriesSubtitle}</h2>
+  <p class="subtitle"><a href={seriesUrl}>A {venueName} series · {dateRange}</a></p>
+</header>
+
+<style>
+  .site-header {
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-align: center;
+    margin-bottom: 0;
+    color: var(--text-primary);
+  }
+
+  .series-subtitle {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-align: center;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+  }
+
+  .subtitle a {
+    color: inherit;
+    text-decoration: underline;
+  }
+</style>
