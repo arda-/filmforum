@@ -452,6 +452,7 @@ for (let i = 1; i <= 28; i++) {
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('natural-width', !checked);
     updateTileDisplayState();
+    updateUrlParams();
   });
 
   // Handle click on disabled checkbox row
@@ -471,21 +472,25 @@ for (let i = 1; i <= 28; i++) {
   showYearDirector?.addEventListener('change', () => {
     document.body.classList.toggle('show-year-director', showYearDirector.checked);
     document.body.classList.toggle('hide-year-director', !showYearDirector.checked);
+    updateUrlParams();
   });
 
   showRuntime?.addEventListener('change', () => {
     document.body.classList.toggle('show-runtime', showRuntime.checked);
     document.body.classList.toggle('hide-runtime', !showRuntime.checked);
+    updateUrlParams();
   });
 
   showActors?.addEventListener('change', () => {
     document.body.classList.toggle('show-actors', showActors.checked);
     document.body.classList.toggle('hide-actors', !showActors.checked);
+    updateUrlParams();
   });
 
   showImage?.addEventListener('change', () => {
     document.body.classList.toggle('show-image', showImage.checked);
     document.body.classList.toggle('hide-image', !showImage.checked);
+    updateUrlParams();
   });
 
   // Initialize tile display state
@@ -778,6 +783,12 @@ for (let i = 1; i <= 28; i++) {
       const fitWidthToggle = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
       const wantFitWidth = params.get('fit-width') === '1';
       if (fitWidthToggle && fitWidthToggle.checked !== wantFitWidth) fitWidthToggle.click();
+    }
+
+    if (params.has('week-start')) {
+      const weekStartToggle = document.querySelector('#week-start-toggle input') as HTMLInputElement;
+      const wantWeekStart = params.get('week-start') === '1';
+      if (weekStartToggle && weekStartToggle.checked !== wantWeekStart) weekStartToggle.click();
     }
 
     // For checkboxes: image, year-director, runtime, actors
