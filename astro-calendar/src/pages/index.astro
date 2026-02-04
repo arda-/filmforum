@@ -373,9 +373,9 @@ for (let i = 1; i <= 28; i++) {
 
     if (disclaimerEl) {
       const date = new Date(movie.Datetime);
-      const showtime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const showtime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(' ', '');
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      disclaimerEl.textContent = `When buying, select the ${showtime} showtime on ${dateStr}:`;
+      disclaimerEl.textContent = `When buying, select ${showtime} on ${dateStr}:`;
     }
 
     // Set up calendar button

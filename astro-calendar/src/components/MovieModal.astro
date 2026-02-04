@@ -34,7 +34,7 @@
   </div>
 </div>
 
-<style is:global>
+<style>
   .modal-wrapper {
     display: none;
     position: fixed;
@@ -181,7 +181,7 @@
   .ticket-disclaimer {
     font-size: 0.85rem;
     color: var(--text-secondary);
-    margin: 4px 0 8px 0;
+    margin: 0 0 2px 0;
     line-height: 1.4;
     font-weight: 600;
     font-style: italic;
@@ -201,30 +201,30 @@
     cursor: pointer;
     border: none;
     font-family: inherit;
-    transition: opacity 0.15s ease, transform 0.1s ease;
-  }
-
-  a.btn:hover,
-  button.btn:hover {
-    opacity: 0.8;
+    transition: background-color 0.15s ease, transform 0.1s ease;
   }
 
   a.btn:active,
   button.btn:active {
     transform: scale(0.98);
-    opacity: 0.7;
   }
 
-  a.btn-primary,
-  button.btn-primary {
+  .btn-primary {
     background-color: var(--accent-bg);
     color: white;
   }
 
-  a.btn-secondary,
-  button.btn-secondary {
+  .btn-primary:hover {
+    background-color: var(--accent);
+  }
+
+  .btn-secondary {
     background-color: var(--bg-movie);
     color: var(--text-primary);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--bg-movie-hover);
   }
 
   @media (max-width: 480px) {
