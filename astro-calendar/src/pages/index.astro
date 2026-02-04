@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import CalendarGrid from '../components/CalendarGrid.astro';
 import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
+import ToggleGroup from '../components/ToggleGroup.astro';
 import { Switch } from 'webcoreui/astro';
 
 // Generate Feb 2026 dates
@@ -21,49 +22,33 @@ for (let i = 1; i <= 28; i++) {
       <span class="control-group-label">Calendar Display</span>
       <div class="control-group-toggles">
         <Switch id="week-start-toggle" label="Start week on Monday" checked small />
-        <Switch id="duration-mode-toggle" label="Duration mode" checked small />
+        <Switch id="timeline-mode-toggle" label="Timeline mode" checked small />
         <Switch id="fit-width-toggle" label="Fit to width" checked small />
       </div>
     </div>
     <div class="control-group">
       <span class="control-group-label">Filtering</span>
       <div class="control-group-toggles">
-        <div class="radio-toggle-group">
-          <span class="radio-toggle-label">Availability:</span>
-          <div class="toggle-group">
-            <label class="toggle-item">
-              <input type="radio" name="hours-filter-mode" value="none" checked />
-              <span>All</span>
-            </label>
-            <label class="toggle-item">
-              <input type="radio" name="hours-filter-mode" value="afterhours" />
-              <span>After 5pm & weekends</span>
-            </label>
-            <label class="toggle-item">
-              <input type="radio" name="hours-filter-mode" value="weekends" />
-              <span>Weekends only</span>
-            </label>
-          </div>
-          <span id="hours-filter-status" class="hidden-status"></span>
-        </div>
+        <ToggleGroup
+          label="Availability:"
+          name="hours-filter-mode"
+          options={[
+            { label: 'All', value: 'none', checked: true },
+            { label: 'After 5pm & weekends', value: 'afterhours' },
+            { label: 'Weekends only', value: 'weekends' }
+          ]}
+          statusId="hours-filter-status"
+        />
         <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes" small />
-        <div class="radio-toggle-group">
-          <span class="radio-toggle-label">Single showings:</span>
-          <div class="toggle-group">
-            <label class="toggle-item">
-              <input type="radio" name="single-showtimes-mode" value="none" checked />
-              <span>Off</span>
-            </label>
-            <label class="toggle-item">
-              <input type="radio" name="single-showtimes-mode" value="highlight" />
-              <span>★ Highlight unique</span>
-            </label>
-            <label class="toggle-item">
-              <input type="radio" name="single-showtimes-mode" value="only" />
-              <span>Only show unique</span>
-            </label>
-          </div>
-        </div>
+        <ToggleGroup
+          label="Single showings:"
+          name="single-showtimes-mode"
+          options={[
+            { label: 'Off', value: 'none', checked: true },
+            { label: '★ Highlight unique', value: 'highlight' },
+            { label: 'Only show unique', value: 'only' }
+          ]}
+        />
       </div>
     </div>
   </div>
@@ -257,7 +242,7 @@ for (let i = 1; i <= 28; i++) {
   }
 
   function renderAllDays() {
-    const durationMode = (document.getElementById('duration-mode-toggle') as HTMLInputElement).checked;
+    const timelineMode = (document.getElementById('timeline-mode-toggle') as HTMLInputElement).checked;
     const WORK_START = 9 * 60;   // 9:00 AM = 540 mins
     const WORK_END = 17 * 60;    // 5:00 PM = 1020 mins
 
@@ -337,7 +322,7 @@ for (let i = 1; i <= 28; i++) {
         return;
       }
 
-      if (durationMode) {
+      if (timelineMode) {
         dayCell.style.height = `${uniformHeight}px`;
         dayCell.classList.add('timeline-view');
         const sorted = assignOverlapColumns(filteredMovies);
@@ -363,7 +348,7 @@ for (let i = 1; i <= 28; i++) {
     document.body.classList.toggle('sunday-start', !checked);
   });
 
-  document.getElementById('duration-mode-toggle')?.addEventListener('change', () => {
+  document.getElementById('timeline-mode-toggle')?.addEventListener('change', () => {
     renderAllDays();
   });
 
@@ -937,60 +922,6 @@ for (let i = 1; i <= 28; i++) {
     color: var(--accent);
   }
 
-  /* Radio toggle group */
-  .radio-toggle-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .radio-toggle-label {
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-
-  .toggle-group {
-    display: inline-flex;
-    border: 1px solid var(--text-tertiary);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .toggle-item {
-    display: flex;
-    align-items: center;
-    padding: 6px 12px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    background: transparent;
-    border-right: 1px solid var(--text-tertiary);
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .toggle-item:last-child {
-    border-right: none;
-  }
-
-  .toggle-item:hover {
-    background: var(--bg-movie);
-  }
-
-  .toggle-item:has(input:checked) {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  .toggle-item input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .toggle-item span {
-    white-space: nowrap;
-  }
 
   /* Hidden movies modal */
   :global(.hidden-modal) {
