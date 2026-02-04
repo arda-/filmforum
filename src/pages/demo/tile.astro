@@ -30,12 +30,21 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       </div>
     </div>
     <ToggleGroup
-      label="Content-based:"
+      label="Gradient:"
       name="content-gradient-mode"
       options={[
         { label: 'Off', value: 'off', checked: true },
         { label: 'On', value: 'on' },
         { label: 'Green', value: 'debug' }
+      ]}
+    />
+    <ToggleGroup
+      label="Blend mode:"
+      name="blend-mode"
+      options={[
+        { label: 'Normal', value: 'normal', checked: true },
+        { label: 'Darken', value: 'darken' },
+        { label: 'Multiply', value: 'multiply' }
       ]}
     />
   </div>
@@ -199,6 +208,15 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       } else if (value === 'debug') {
         document.body.classList.add('content-gradient', 'content-debug');
       }
+    });
+  });
+
+  // Blend mode toggle
+  document.querySelectorAll('input[name="blend-mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('blend-normal', 'blend-darken', 'blend-multiply');
+      document.body.classList.add(`blend-${value}`);
     });
   });
 
@@ -461,7 +479,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       rgba(0, 0, 0, 0.5) 60%,
       rgba(0, 0, 0, 0) 100%
     );
-    mix-blend-mode: darken;
     pointer-events: none;
   }
 
@@ -478,6 +495,15 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       rgba(0, 180, 0, 0.5) 60%,
       rgba(0, 180, 0, 0) 100%
     );
+  }
+
+  /* Blend modes */
+  :global(body.blend-darken .movie--timeline.has-poster .movie-clickable::before) {
+    mix-blend-mode: darken;
+  }
+
+  :global(body.blend-multiply .movie--timeline.has-poster .movie-clickable::before) {
+    mix-blend-mode: multiply;
   }
 
   /* No gradient class for comparison */
