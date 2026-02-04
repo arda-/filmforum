@@ -4,8 +4,6 @@ import Header from '../components/Header.astro';
 import CalendarGrid from '../components/CalendarGrid.astro';
 import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
-import ToggleGroup from '../components/ToggleGroup.astro';
-import Switch from '../components/Switch.astro';
 
 // Generate Feb 2026 dates
 const dates: string[] = [];
@@ -170,8 +168,7 @@ const scenarios = [
       <p><strong>Purpose:</strong> Refining the color palette to address:</p>
       <ul style="margin: 8px 0 0 20px; color: var(--text-secondary); font-size: 13px;">
         <li><strong>Light Mode:</strong> Too many distinct colors (grid, day cells, movies). Day cells are a different color than the background, making movie tiles not stand out. Blank day backgrounds are too dark.</li>
-        <li><strong>Toggle Design:</strong> High-contrast toggles look wrong in both light and dark mode. Need to refine the visual weight and appearance.</li>
-        <li><strong>Dark Mode:</strong> Multiple colors are less bothersome, but toggle styling still needs refinement.</li>
+        <li><strong>Dark Mode:</strong> Multiple colors are less bothersome. Testing different approaches to simplify the palette.</li>
       </ul>
     </div>
 
@@ -192,39 +189,6 @@ const scenarios = [
             '--scenario-bg-movie-hover': scenario.lightMode['--bg-movie-hover'],
           } as any}
         >
-          <div class="controls">
-            <div class="controls-label">Calendar Display</div>
-            <div class="controls-row">
-              <Switch id={`week-start-${scenario.id}`} label="Start week on Monday" checked small />
-              <Switch id={`timeline-${scenario.id}`} label="Timeline mode" checked small />
-              <Switch id={`fit-width-${scenario.id}`} label="Fit to width" checked small />
-            </div>
-          </div>
-
-          <div class="controls">
-            <div class="controls-label">Filtering</div>
-            <div class="controls-row" style="flex-direction: column; gap: 8px;">
-              <ToggleGroup
-                label="Availability:"
-                name={`hours-filter-${scenario.id}`}
-                options={[
-                  { label: 'All', value: 'none', checked: true },
-                  { label: 'After 5pm & weekends', value: 'afterhours' },
-                  { label: 'Weekends only', value: 'weekends' }
-                ]}
-              />
-              <ToggleGroup
-                label="Single showings:"
-                name={`single-showtimes-${scenario.id}`}
-                options={[
-                  { label: 'Off', value: 'none', checked: true },
-                  { label: '★ Highlight unique', value: 'highlight' },
-                  { label: 'Only show unique', value: 'only' }
-                ]}
-              />
-            </div>
-          </div>
-
           <CalendarGrid>
             {dates.map(date => (
               <DayCell date={date} />
@@ -237,19 +201,6 @@ const scenarios = [
         </div>
       </div>
     ))}
-
-    <div style="margin-top: 40px; padding: 20px; background: var(--bg-day); border-radius: 8px; border: 1px solid var(--bg-grid);">
-      <h3 style="margin: 0 0 12px 0; color: var(--text-primary);">Toggle Styling Notes</h3>
-      <p style="margin: 0 0 8px 0; color: var(--text-secondary); font-size: 13px;">
-        The toggles currently have high contrast between on/off states. Consider:
-      </p>
-      <ul style="margin: 8px 0 0 20px; color: var(--text-secondary); font-size: 13px; line-height: 1.6;">
-        <li>Reducing the contrast between off (gray) and on (bright cyan) states</li>
-        <li>Using a more subtle color for the off state that doesn't compete with the background</li>
-        <li>In dark mode, the bright cyan accent may be too harsh - test a softer shade</li>
-        <li>Ensure the toggle track and knob have good visual clarity without being jarring</li>
-      </ul>
-    </div>
   </div>
 
   <MovieModal />
