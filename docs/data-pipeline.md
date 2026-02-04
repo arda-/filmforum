@@ -1,17 +1,18 @@
 # Film Forum Data Pipeline
 
-This document describes how Film Forum showtime data is scraped, processed, and rendered in the Tenement Stories calendar application.
+Technical documentation for scraping, processing, and rendering Film Forum showtime data.
 
-## Pipeline Overview
+## Overview
+
+This project scrapes Film Forum's website to create an interactive calendar for film series (currently "Tenement Stories"). The pipeline extracts showtimes, film metadata, and poster images, then renders them in an Astro-based web application.
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌──────────────────┐
 │  Data Sources   │ ──▶ │  HTML Scraping   │ ──▶ │  Processing     │ ──▶ │  Astro Frontend  │
 │                 │     │                  │     │                 │     │                  │
-│ • Schedule TXT  │     │ • Download pages │     │ • Parse HTML    │     │ • Calendar grid  │
-│ • Film Forum    │     │ • Save to        │     │ • Extract meta  │     │ • Timeline view  │
-│   website       │     │   movie-pages/   │     │ • Download      │     │ • Filtering      │
-│                 │     │                  │     │   posters       │     │ • Modal details  │
+│ • Series page   │     │ • curl/wget      │     │ • Python regex  │     │ • Calendar grid  │
+│ • Film pages    │     │ • Save HTML      │     │ • qsv (CSV)     │     │ • Timeline view  │
+│                 │     │                  │     │ • jq (JSON)     │     │ • Filtering      │
 └─────────────────┘     └──────────────────┘     └─────────────────┘     └──────────────────┘
 ```
 
@@ -19,247 +20,315 @@ This document describes how Film Forum showtime data is scraped, processed, and 
 
 ```
 filmforum/
-├── data-processing/           # Scraping and processing scripts
-│   ├── movie-pages/           # Downloaded HTML files (one per film)
-│   ├── movie-urls.txt         # URLs to scrape
-│   ├── tenement-stories-schedule.txt   # Manual schedule input
-│   ├── tenement-stories.csv   # Parsed showtimes (raw)
-│   ├── tenement-stories-evenings.csv   # Filtered showtimes
-│   ├── tenement-stories-evenings.json  # JSON with metadata
-│   ├── parse_showtimes.py     # HTML → CSV parser
-│   ├── extract_and_download_posters.sh  # Poster downloader (bash)
-│   └── process_posters.py     # Comprehensive poster processor
+├── data-processing/
+│   ├── movie-pages/                    # Downloaded HTML (one per film)
+│   ├── movie-urls.txt                  # Film page URLs to scrape
+│   ├── tenement-stories.csv            # All showtimes (97 total)
+│   ├── tenement-stories-evenings.csv   # Filtered showtimes (57 evening/weekend)
+│   ├── tenement-stories-evenings.json  # Enriched JSON with metadata
+│   ├── tenement-stories-schedule.txt   # Human-readable grouped schedule
+│   ├── parse_showtimes.py              # HTML → CSV parser
+│   ├── extract_and_download_posters.sh # Poster downloader (bash)
+│   └── process_posters.py              # Poster processor + JSON updater
 ├── public/
-│   ├── posters/               # Downloaded poster images
-│   ├── tenement-stories-full.json  # Final JSON for frontend
-│   └── tenement-stories-evenings.json
-└── src/
-    ├── pages/index.astro      # Main calendar page
-    └── components/            # UI components
+│   ├── posters/                        # Downloaded poster images
+│   └── tenement-stories-full.json      # Final JSON served to frontend
+├── src/
+│   ├── pages/index.astro               # Main calendar page
+│   ├── components/                     # Astro UI components
+│   ├── styles/global.css               # Shared styles
+│   └── constants/                      # App constants
+└── docs/
+    ├── data-pipeline.md                # This document
+    └── filmforum-scraping.md           # Film Forum website analysis
 ```
 
-## Step 1: Data Input
+## Tools Required
 
-### Manual Schedule Entry
+| Tool | Purpose | Install |
+|------|---------|---------|
+| **curl** | Download HTML pages | Built-in |
+| **python3** | Parse HTML with regex | Built-in |
+| **qsv** | CSV manipulation (filter, sort, convert) | `brew install qsv` |
+| **jq** | JSON manipulation (merge, group, filter) | `brew install jq` |
+| **pnpm** | Package manager for Astro | `npm install -g pnpm` |
 
-The schedule is manually transcribed to `tenement-stories-schedule.txt`:
+> **Note:** `qsv` is the maintained fork of `xsv` (deprecated April 2025). Alternative: `xan` for research-focused use.
 
-```
-Friday, February 6
-  6:10  STREET SCENE  https://my.filmforum.org/events/street-scene
-  8:00  THE WINDOW  https://my.filmforum.org/events/the-window-tene
+## Data Schema
 
-Saturday, February 7
-  12:40  THREE ON A MATCH  https://my.filmforum.org/events/three-on-a-match
-  ...
-```
-
-Format:
-- Date headers: `{Day}, {Month} {Date}`
-- Showtime lines: `  {Time}  {TITLE}  {ticket_url}`
-- FF Jr. shows: `  11:00 – FF Jr.  THE KID  {url}`
-
-### Film URLs
-
-`movie-urls.txt` contains Film Forum URLs to scrape:
-
-```
-https://filmforum.org/film/street-scene-tenement-stories
-https://filmforum.org/film/the-window-tenement-stories
-...
-```
-
-## Step 2: HTML Scraping
-
-### Download Film Pages
-
-Film pages are downloaded and saved to `movie-pages/`:
-
-```bash
-# Example: Download all URLs
-while read url; do
-  slug=$(basename "$url")
-  curl -sL "$url" -o "movie-pages/${slug}.html"
-done < movie-urls.txt
-```
-
-Each HTML file contains:
-- `og:image` meta tag → poster URL
-- `<link rel="canonical">` → film URL
-- Film metadata in page content
-
-## Step 3: Data Processing
-
-### Parse Showtimes (`parse_showtimes.py`)
-
-Extracts showtimes from a downloaded HTML page:
-
-```python
-# Pattern matches: title, schedule, ticket URL
-pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?'
-          r'<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?'
-          r'<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
-```
-
-Output: `tenement-stories.csv`
-```csv
-Movie,Date,Time,Tickets
-STREET SCENE,Friday February 6,6:10,https://my.filmforum.org/events/street-scene
-```
-
-### Download Posters (`process_posters.py`)
-
-1. **Extract poster URLs** from `og:image` meta tags
-2. **Download images** to `public/posters/`
-3. **Update JSON** with local poster paths
-
-```python
-# Extract from HTML
-poster_match = re.search(r'property="og:image"\s+content="([^"]+)"', content)
-film_url_match = re.search(r'<link rel="canonical" href="([^"]+)"', content)
-```
-
-### Final JSON Structure
-
-`public/tenement-stories-full.json`:
+### JSON Structure (`tenement-stories-full.json`)
 
 ```json
-[
-  {
-    "Movie": "STREET SCENE",
-    "Date": "Friday, February 6",
-    "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/street-scene",
-    "Datetime": "2026-02-06T18:10:00",
-    "country": "U.S.",
-    "year": "1931",
-    "director": "King Vidor",
-    "actors": "Sylvia Sidney, William Collier Jr., ...",
-    "runtime": "80 minutes",
-    "description": "The film depicts life at a working-class...",
-    "film_url": "https://filmforum.org/film/street-scene-tenement-stories",
-    "poster_url": "/posters/street-scene.png"
-  }
-]
-```
-
-### Required Fields
-
-| Field | Source | Description |
-|-------|--------|-------------|
-| `Movie` | Schedule TXT | Film title (uppercase) |
-| `Date` | Schedule TXT | Human-readable date |
-| `Time` | Schedule TXT | Showtime (e.g., "6:10") |
-| `Tickets` | Schedule TXT | Ticketing URL |
-| `Datetime` | Computed | ISO 8601 datetime |
-| `year` | Film page | Release year |
-| `director` | Film page | Director name |
-| `actors` | Film page | Cast list |
-| `runtime` | Film page | Duration in minutes |
-| `description` | Film page | Synopsis |
-| `film_url` | Film page | Film Forum page URL |
-| `poster_url` | Film page | Local poster path |
-
-## Step 4: Frontend Rendering
-
-### Astro Application
-
-The Astro app (`src/pages/index.astro`) fetches JSON client-side:
-
-```javascript
-fetch('/tenement-stories-full.json')
-  .then(res => res.json())
-  .then((movies) => {
-    // Group by date
-    movies.forEach(movie => {
-      const date = movie.Datetime.split('T')[0];
-      moviesByDate[date].push(movie);
-    });
-    renderAllDays();
-  });
-```
-
-### View Modes
-
-1. **List View**: Movies listed chronologically within each day
-2. **Timeline View**: Movies positioned by time, scaled to runtime
-
-### Filtering Options
-
-- **Availability**: All / After 5pm & weekends / Weekends only
-- **Single Showtimes**: Off / Highlight unique / Only show unique
-
-### Time Parsing
-
-```javascript
-function parseTimeToMins(timeStr) {
-  const match = timeStr.match(/(\d{1,2}):(\d{2})/);
-  let h = parseInt(match[1]);
-  const m = parseInt(match[2]);
-  // FF Jr. shows are morning (AM)
-  const isMorning = timeStr.includes('FF Jr');
-  // 12:XX is always noon (PM), 1-11 without FF Jr are PM
-  if (!isMorning && h !== 12 && h < 12) h += 12;
-  return h * 60 + m;
+{
+  "Movie": "STREET SCENE",
+  "Date": "Friday, February 6",
+  "Time": "6:10",
+  "Tickets": "https://my.filmforum.org/events/street-scene",
+  "Datetime": "2026-02-06T18:10:00",
+  "country": "U.S.",
+  "year": "1931",
+  "director": "King Vidor",
+  "actors": "Sylvia Sidney, William Collier Jr., Beulah Bondi...",
+  "runtime": "80 minutes",
+  "description": "The film depicts life at a working-class...",
+  "film_url": "https://filmforum.org/film/street-scene-tenement-stories",
+  "poster_url": "/posters/street-scene.png"
 }
 ```
 
-## Running the Pipeline
+### Field Reference
 
-### Full Refresh
+| Field | Source | Format | Example |
+|-------|--------|--------|---------|
+| `Movie` | Series page | Uppercase title | `"STREET SCENE"` |
+| `Date` | Series page | `{Day}, {Month} {Date}` | `"Friday, February 6"` |
+| `Time` | Series page | 12-hour, no AM/PM | `"6:10"` or `"11:00 – FF Jr."` |
+| `Tickets` | Series page | Full URL | `"https://my.filmforum.org/..."` |
+| `Datetime` | Computed | ISO 8601 | `"2026-02-06T18:10:00"` |
+| `year` | Film page | 4-digit year | `"1931"` |
+| `director` | Film page | Name(s) | `"King Vidor"` |
+| `actors` | Film page | Comma-separated | `"Sylvia Sidney, ..."` |
+| `runtime` | Film page | `{N} minutes` | `"80 minutes"` |
+| `description` | Film page | Synopsis text | `"The film depicts..."` |
+| `film_url` | Film page | Canonical URL | `"https://filmforum.org/film/..."` |
+| `poster_url` | Film page | Local path | `"/posters/street-scene.png"` |
+
+## Pipeline Steps
+
+### 1. Download Series Page
 
 ```bash
-# 1. Download film pages (if URLs changed)
-cd data-processing
+curl -s "https://filmforum.org/series/tenement-stories" -o tenement-stories.html
+```
+
+### 2. Parse Showtimes
+
+The `parse_showtimes.py` script extracts movie blocks from HTML:
+
+```python
+# Regex pattern for movie blocks
+pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?' \
+          r'<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?' \
+          r'<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
+```
+
+Run:
+```bash
+python3 parse_showtimes.py
+# Output: Extracted 97 showtimes for 49 movies
+```
+
+### 3. Filter Evening/Weekend Showtimes
+
+Keep only accessible showtimes (weekends + weekday evenings):
+
+```bash
+qsv luau filter '
+  local day = col.Date:match("^(%w+)")
+  local hour = tonumber(col.Time:match("^(%d+)"))
+  local weekdays = {Monday=true, Tuesday=true, Wednesday=true, Thursday=true, Friday=true}
+
+  if not weekdays[day] then
+    return true  -- weekend: keep all
+  else
+    return hour >= 5 and hour < 12  -- weekday: 5pm+ only
+  end
+' tenement-stories.csv > tenement-stories-evenings.csv
+```
+
+Result: 97 → 57 showtimes
+
+### 4. Add ISO Datetime
+
+Convert 12-hour times to ISO 8601 datetime:
+
+```bash
+qsv luau map Datetime '
+  local day = tonumber(col.Date:match("February (%d+)"))
+  local hour = tonumber(col.Time:match("^(%d+)"))
+  local min = tonumber(col.Time:match(":(%d+)"))
+  local is_ffjr = col.Time:match("FF Jr")
+
+  -- Convert to 24-hour
+  if is_ffjr and hour == 11 then
+    -- 11 AM stays 11
+  elseif hour == 12 then
+    -- noon stays 12
+  elseif hour >= 1 and hour <= 10 then
+    hour = hour + 12
+  end
+
+  return string.format("2026-02-%02dT%02d:%02d:00", day, hour, min)
+' tenement-stories-evenings.csv | qsv sort -s Datetime | qsv tojsonl > tenement-stories-evenings.json
+```
+
+### 5. Extract Film Page URLs
+
+```bash
+grep -oE 'https://filmforum.org/film/[^"]+tenement-stories' tenement-stories.html | sort -u > movie-urls.txt
+```
+
+### 6. Download Film Pages
+
+```bash
 while read url; do
   slug=$(basename "$url")
   curl -sL "$url" -o "movie-pages/${slug}.html"
   sleep 1
 done < movie-urls.txt
-
-# 2. Process posters and update JSON
-python3 process_posters.py
-
-# 3. Copy final JSON to public
-cp tenement-stories-evenings.json ../public/tenement-stories-full.json
-
-# 4. Build and preview
-cd ..
-pnpm build
-pnpm preview
 ```
 
-### Incremental Update
+### 7. Scrape Film Metadata
 
-For schedule changes only (no new films):
+Extract from each film page:
+- `og:image` meta tag → poster URL
+- `<link rel="canonical">` → film URL
+- Page content → year, director, actors, runtime, description
 
-1. Update `tenement-stories-schedule.txt`
-2. Re-run `parse_showtimes.py`
-3. Merge new showtimes with existing metadata
-4. Copy to `public/`
+### 8. Merge Metadata into Showtimes
 
-## Data Validation
+```bash
+jq -s '
+  (.[1] | map({key: (.title | ascii_upcase), value: .}) | from_entries) as $details |
+  .[0] | map(
+    ($details[.Movie | ascii_upcase] // {}) as $d |
+    . + {country: $d.country, year: $d.year, director: $d.director,
+         actors: $d.actors, runtime: $d.runtime, description: $d.description,
+         film_url: $d.url}
+  )
+' <(jq -s '.' tenement-stories-evenings.json) <(jq -s '.' movie-details.jsonl) \
+  | jq -c '.[]' > tenement-stories-evenings.json
+```
 
-### Checklist
+### 9. Download Posters
 
-- [ ] All showtimes have valid ISO datetime
-- [ ] All films have poster images downloaded
-- [ ] No duplicate showtimes (same film, same datetime)
-- [ ] Ticket URLs are valid
-- [ ] Runtime is in "XX minutes" format
+```bash
+python3 process_posters.py
+```
 
-### Common Issues
+This script:
+1. Extracts poster URLs from `og:image` in each HTML file
+2. Downloads images to `public/posters/`
+3. Updates JSON with local `poster_url` paths
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Missing poster | og:image not found | Check HTML structure |
-| Wrong time (AM/PM) | FF Jr. detection failed | Check time string format |
-| Broken ticket link | URL truncated | Check schedule TXT |
+### 10. Deploy to Frontend
 
-## Future Improvements
+```bash
+cp tenement-stories-evenings.json ../public/tenement-stories-full.json
+pnpm build
+```
 
-- [ ] Automate scraping from Film Forum website
-- [ ] Add JSON schema validation
-- [ ] Implement incremental poster downloads
-- [ ] Add data freshness timestamps
-- [ ] Support multiple series (not just Tenement Stories)
+## Time Handling
+
+Times in the source data are 12-hour format without AM/PM indicators.
+
+| Time Format | Interpretation |
+|-------------|----------------|
+| `11:00 – FF Jr.` | 11:00 AM (kids' show) |
+| `12:xx` | 12:00 PM (noon) |
+| `1:xx` - `10:xx` | PM (add 12 for 24-hour) |
+
+Frontend time parsing:
+```javascript
+function parseTimeToMins(timeStr) {
+  const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+  let h = parseInt(match[1]);
+  const m = parseInt(match[2]);
+  const isMorning = timeStr.includes('FF Jr');
+  if (!isMorning && h !== 12 && h < 12) h += 12;
+  return h * 60 + m;
+}
+```
+
+## Useful Commands
+
+### View schedule grouped by day
+```bash
+jq -rs 'sort_by(.Datetime) | group_by(.Date) | .[] |
+  "\n" + .[0].Date + "\n" + (map("  " + .Time + "  " + .Movie) | join("\n"))
+' tenement-stories-evenings.json
+```
+
+### Filter by director
+```bash
+jq '[.[] | select(.director | test("Scorsese"))]' tenement-stories-full.json
+```
+
+### List unique movies
+```bash
+jq -s '[.[] | {movie: .Movie, year: .year, director: .director}] | unique_by(.movie)' \
+  tenement-stories-evenings.json
+```
+
+### Pretty print CSV
+```bash
+qsv table tenement-stories-evenings.csv
+```
+
+### Generate human-readable schedule
+```bash
+jq -rs 'sort_by(.Datetime) | to_entries | reduce .[] as $e (
+  {last: "", out: []};
+  if .last == $e.value.Date then
+    .out += ["  " + $e.value.Time[0:15] + "  " + $e.value.Movie + "  " + $e.value.Tickets]
+  else
+    .out += ["", $e.value.Date, "  " + $e.value.Time[0:15] + "  " + $e.value.Movie + "  " + $e.value.Tickets]
+    | .last = $e.value.Date
+  end
+) | .out | join("\n")' tenement-stories-evenings.json
+```
+
+## Frontend Features
+
+### View Modes
+- **List View**: Movies listed chronologically within each day
+- **Timeline View**: Movies positioned vertically by time, height scaled to runtime
+
+### Filtering
+- **Availability**: All / After 5pm & weekends / Weekends only
+- **Single Showtimes**: Off / Highlight unique (★) / Only show unique
+
+### Components
+
+| Component | Purpose |
+|-----------|---------|
+| `Header.astro` | Series title, venue, date range |
+| `CalendarGrid.astro` | 7-column grid with day headers |
+| `DayCell.astro` | Day container with date label |
+| `MovieModal.astro` | Film detail popup with poster |
+| `Switch.astro` | Toggle controls |
+| `ToggleGroup.astro` | Radio button groups |
+
+### Typography
+- **Primary font**: IBM Plex Sans (excellent small-size rendering)
+- **Condensed titles**: Barlow Semi Condensed (mobile)
+
+## Data Validation Checklist
+
+- [ ] All showtimes have valid ISO `Datetime`
+- [ ] All films have `poster_url` (downloaded to `public/posters/`)
+- [ ] No duplicate showtimes (same film + datetime)
+- [ ] Ticket URLs resolve correctly
+- [ ] Runtime format is `"XX minutes"`
+- [ ] Date format is consistent (`"Day, Month Date"`)
+
+## Known Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Missing poster | `og:image` not in HTML | Check film page structure |
+| Wrong AM/PM | FF Jr. detection failed | Verify time string includes "FF Jr" |
+| Broken ticket link | URL truncated in source | Check series page HTML |
+| Inconsistent dates | Source formatting varies | Run sed fix (see below) |
+
+Fix date inconsistency:
+```bash
+sed -i '' 's/Sunday February 15/Sunday, February 15/g' *.csv *.json
+```
+
+## Notes
+
+- FF Jr. screenings (11:00 AM) are Sunday morning kids' shows
+- Some entries are double features (e.g., "Pull My Daisy / George Kuchar's Bronx")
+- The ticketing system (`my.filmforum.org`) has bot protection; scraping requires browser headers
