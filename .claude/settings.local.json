@@ -29,7 +29,11 @@
       "Bash(pnpm add:*)",
       "Bash(tr:*)",
       "Bash(ls:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "Bash(xargs:*)",
+      "Bash(pnpm exec playwright install:*)",
+      "Bash(node:*)",
+      "Bash(find:*)"
     ]
   }
 }
