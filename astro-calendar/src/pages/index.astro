@@ -28,8 +28,42 @@ for (let i = 1; i <= 28; i++) {
     <div class="control-group">
       <span class="control-group-label">Filtering</span>
       <div class="control-group-toggles">
-        <Switch id="hide-work-hours-toggle" label="Hide weekday 9-5 showtimes" small />
+        <div class="radio-toggle-group">
+          <span class="radio-toggle-label">Availability:</span>
+          <div class="toggle-group">
+            <label class="toggle-item">
+              <input type="radio" name="hours-filter-mode" value="none" checked />
+              <span>All</span>
+            </label>
+            <label class="toggle-item">
+              <input type="radio" name="hours-filter-mode" value="afterhours" />
+              <span>After 5pm & weekends</span>
+            </label>
+            <label class="toggle-item">
+              <input type="radio" name="hours-filter-mode" value="weekends" />
+              <span>Weekends only</span>
+            </label>
+          </div>
+          <span id="hours-filter-status" class="hidden-status"></span>
+        </div>
         <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes" small />
+        <div class="radio-toggle-group">
+          <span class="radio-toggle-label">Single showings:</span>
+          <div class="toggle-group">
+            <label class="toggle-item">
+              <input type="radio" name="single-showtimes-mode" value="none" checked />
+              <span>Off</span>
+            </label>
+            <label class="toggle-item">
+              <input type="radio" name="single-showtimes-mode" value="highlight" />
+              <span>★ Highlight unique</span>
+            </label>
+            <label class="toggle-item">
+              <input type="radio" name="single-showtimes-mode" value="only" />
+              <span>Only show unique</span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -43,6 +77,28 @@ for (let i = 1; i <= 28; i++) {
   <p class="legend">Click any movie for details. Times are PM unless marked "FF Jr."</p>
 
   <MovieModal />
+
+  <!-- Hidden Movies Modal -->
+  <div id="hidden-movies-modal" class="hidden-modal" data-show="">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" data-id="close" aria-label="Close">&times;</button>
+      <h2>Hidden Weekday 9-5 Showtimes</h2>
+      <p class="hidden-modal-subtitle">These showtimes are hidden because they fall during weekday work hours (9am-5pm).</p>
+      <div id="hidden-movies-list" class="hidden-movies-list"></div>
+    </div>
+  </div>
+
+  <!-- Weekday Movies Modal (for weekends-only filter) -->
+  <div id="weekday-movies-modal" class="hidden-modal" data-show="">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" data-id="close" aria-label="Close">&times;</button>
+      <h2>Hidden Weekday Showtimes</h2>
+      <p class="hidden-modal-subtitle">These showtimes are hidden because they fall on weekdays (Mon-Fri).</p>
+      <div id="weekday-movies-list" class="hidden-movies-list"></div>
+    </div>
+  </div>
 </Layout>
 
 <script>
@@ -70,6 +126,7 @@ for (let i = 1; i <= 28; i++) {
   let globalRange = { start: Infinity, end: 0, range: 0 };
   let uniformHeight = 0;
   let movieShowtimeCounts: Record<string, number> = {};
+  let allMovies: Movie[] = [];
 
   function toTitleCase(str: string) {
     return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
@@ -119,7 +176,7 @@ for (let i = 1; i <= 28; i++) {
     return sorted;
   }
 
-  function createMovieElement(movie: Movie, isTimeline: boolean, topPx?: number, heightPx?: number) {
+  function createMovieElement(movie: Movie, isTimeline: boolean, topPx?: number, heightPx?: number, filteredCounts?: Record<string, number>, singleMode?: string) {
     const el = document.createElement('div');
     const classes = ['movie'];
     if (isTimeline) {
@@ -143,7 +200,13 @@ for (let i = 1; i <= 28; i++) {
     el.setAttribute('tabindex', '0');
     el.setAttribute('role', 'button');
 
+    const isSingleShowtime = filteredCounts && filteredCounts[movie.Movie] === 1;
+    const badgeHtml = (singleMode === 'highlight' && isSingleShowtime)
+      ? '<span class="single-showtime-badge" title="Only showtime with current filters">★</span>'
+      : '';
+
     el.innerHTML = `
+      ${badgeHtml}
       <div class="movie-clickable">
         <span class="movie-time">${movie.Time}</span>
         <span class="movie-title">${toTitleCase(movie.Movie)}</span>
@@ -156,30 +219,103 @@ for (let i = 1; i <= 28; i++) {
     return el;
   }
 
+  function getHiddenWorkHoursMovies(): Movie[] {
+    const WORK_START = 9 * 60;
+    const WORK_END = 17 * 60;
+    return allMovies.filter(movie => {
+      const date = movie.Datetime.split('T')[0];
+      const dayOfWeek = new Date(date + 'T12:00:00').getDay();
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+      if (!isWeekday) return false;
+      const mins = parseTimeToMins(movie.Time);
+      return mins >= WORK_START && mins < WORK_END;
+    });
+  }
+
+  function getWeekdayMovies(): Movie[] {
+    return allMovies.filter(movie => {
+      const date = movie.Datetime.split('T')[0];
+      const dayOfWeek = new Date(date + 'T12:00:00').getDay();
+      return dayOfWeek >= 1 && dayOfWeek <= 5;
+    });
+  }
+
+  function updateHoursFilterStatus(mode: string) {
+    const statusEl = document.getElementById('hours-filter-status');
+    if (!statusEl) return;
+
+    if (mode === 'none') {
+      statusEl.textContent = '';
+      statusEl.style.display = 'none';
+      return;
+    }
+
+    const hiddenMovies = mode === 'weekends' ? getWeekdayMovies() : getHiddenWorkHoursMovies();
+    const uniqueTitles = new Set(hiddenMovies.map(m => m.Movie));
+    statusEl.textContent = `(${hiddenMovies.length} showtimes, ${uniqueTitles.size} films hidden)`;
+    statusEl.style.display = 'inline';
+  }
+
   function renderAllDays() {
     const durationMode = (document.getElementById('duration-mode-toggle') as HTMLInputElement).checked;
-    const hideWorkHoursEl = document.getElementById('hide-work-hours-toggle');
-    const hideWorkHours = hideWorkHoursEl?.tagName === 'INPUT'
-      ? (hideWorkHoursEl as HTMLInputElement).checked
-      : (hideWorkHoursEl?.querySelector('input') as HTMLInputElement)?.checked;
     const WORK_START = 9 * 60;   // 9:00 AM = 540 mins
     const WORK_END = 17 * 60;    // 5:00 PM = 1020 mins
 
-    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      // Apply work hours filter if enabled (only on weekdays)
-      let filteredMovies = dayMovies;
-      if (hideWorkHours) {
-        // Check if this date is a weekday (Mon-Fri = 1-5, Sat = 6, Sun = 0)
-        const dayOfWeek = new Date(date + 'T12:00:00').getDay();
-        const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+    // Get hours filter mode
+    const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
+    const hoursFilterMode = hoursFilterRadio?.value || 'none';
 
-        if (isWeekday) {
-          filteredMovies = dayMovies.filter(m => {
-            const mins = parseTimeToMins(m.Time);
-            return mins < WORK_START || mins >= WORK_END;
-          });
-        }
+    // Get single showtimes mode
+    const singleShowtimesRadio = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
+    const singleShowtimesMode = singleShowtimesRadio?.value || 'none';
+
+    updateHoursFilterStatus(hoursFilterMode);
+
+    // Build count of filtered showtimes per movie title
+    const filteredShowtimeCounts: Record<string, number> = {};
+    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      // Apply same filter logic to count
+      const dayOfWeek = new Date(date + 'T12:00:00').getDay();
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+      let filtered = dayMovies;
+      if (hoursFilterMode === 'weekends' && isWeekday) {
+        filtered = [];
+      } else if (hoursFilterMode === 'afterhours' && isWeekday) {
+        filtered = dayMovies.filter(m => {
+          const mins = parseTimeToMins(m.Time);
+          return mins < WORK_START || mins >= WORK_END;
+        });
       }
+      filtered.forEach(m => {
+        filteredShowtimeCounts[m.Movie] = (filteredShowtimeCounts[m.Movie] || 0) + 1;
+      });
+    });
+
+    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      // Check if this date is a weekday (Mon-Fri = 1-5, Sat = 6, Sun = 0)
+      const dayOfWeek = new Date(date + 'T12:00:00').getDay();
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+      // Apply filters
+      let filteredMovies = dayMovies;
+
+      // Weekends only filter - hide all weekday movies
+      if (hoursFilterMode === 'weekends' && isWeekday) {
+        filteredMovies = [];
+      }
+      // After 5pm filter - hide 9-5 on weekdays
+      else if (hoursFilterMode === 'afterhours' && isWeekday) {
+        filteredMovies = dayMovies.filter(m => {
+          const mins = parseTimeToMins(m.Time);
+          return mins < WORK_START || mins >= WORK_END;
+        });
+      }
+
+      // If "only show" mode, filter to single-showtime movies only
+      if (singleShowtimesMode === 'only') {
+        filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
+      }
+
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
       if (!dayCell) return;
 
@@ -210,11 +346,11 @@ for (let i = 1; i <= 28; i++) {
           const runtime = parseInt(movie.runtime || '90');
           const topPx = (start - globalRange.start) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
-          dayCell.appendChild(createMovieElement(movie, true, topPx, heightPx));
+          dayCell.appendChild(createMovieElement(movie, true, topPx, heightPx, filteredShowtimeCounts, singleShowtimesMode));
         });
       } else {
         filteredMovies.forEach(movie => {
-          dayCell.appendChild(createMovieElement(movie, false));
+          dayCell.appendChild(createMovieElement(movie, false, undefined, undefined, filteredShowtimeCounts, singleShowtimesMode));
         });
       }
     });
@@ -236,19 +372,23 @@ for (let i = 1; i <= 28; i++) {
     document.body.classList.toggle('natural-width', !checked);
   });
 
-  const hideWorkHoursToggle = document.getElementById('hide-work-hours-toggle');
-  const hideWorkHoursInput = hideWorkHoursToggle?.tagName === 'INPUT'
-    ? hideWorkHoursToggle
-    : hideWorkHoursToggle?.querySelector('input');
-  hideWorkHoursInput?.addEventListener('change', () => {
-    renderAllDays();
+  document.querySelectorAll('input[name="hours-filter-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      renderAllDays();
+    });
   });
 
+  document.querySelectorAll('input[name="single-showtimes-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      renderAllDays();
+    });
+  });
 
   // Fetch and render
   fetch('/tenement-stories-full.json')
     .then(res => res.json())
     .then((movies: Movie[]) => {
+      allMovies = movies;
       movies.forEach(movie => {
         const date = movie.Datetime.split('T')[0];
         if (!moviesByDate[date]) moviesByDate[date] = [];
@@ -463,9 +603,102 @@ for (let i = 1; i <= 28; i++) {
     URL.revokeObjectURL(url);
   }
 
+  // Hidden movies modal management
+  let hiddenModalDOM: HTMLElement | null = null;
+  let weekdayModalDOM: HTMLElement | null = null;
+
+  function initHiddenModals() {
+    // Work hours modal
+    hiddenModalDOM = document.getElementById('hidden-movies-modal');
+    if (hiddenModalDOM) {
+      const overlay = hiddenModalDOM.querySelector('.modal-overlay');
+      const closeBtn = hiddenModalDOM.querySelector('[data-id="close"]');
+      closeBtn?.addEventListener('click', () => closeHiddenModal(hiddenModalDOM!));
+      overlay?.addEventListener('click', () => closeHiddenModal(hiddenModalDOM!));
+    }
+
+    // Weekday modal
+    weekdayModalDOM = document.getElementById('weekday-movies-modal');
+    if (weekdayModalDOM) {
+      const overlay = weekdayModalDOM.querySelector('.modal-overlay');
+      const closeBtn = weekdayModalDOM.querySelector('[data-id="close"]');
+      closeBtn?.addEventListener('click', () => closeHiddenModal(weekdayModalDOM!));
+      overlay?.addEventListener('click', () => closeHiddenModal(weekdayModalDOM!));
+    }
+
+    // Escape key handler for both modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (hiddenModalDOM?.dataset.show === 'true') closeHiddenModal(hiddenModalDOM);
+        if (weekdayModalDOM?.dataset.show === 'true') closeHiddenModal(weekdayModalDOM);
+      }
+    });
+
+    // Status click handler
+    document.getElementById('hours-filter-status')?.addEventListener('click', () => {
+      const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
+      const mode = hoursFilterRadio?.value || 'none';
+      if (mode === 'weekends') {
+        openWeekdayModal();
+      } else if (mode === 'afterhours') {
+        openWorkHoursModal();
+      }
+    });
+  }
+
+  function renderMovieList(movies: Movie[]): string {
+    // Group by movie title
+    const byTitle: Record<string, Movie[]> = {};
+    movies.forEach(m => {
+      if (!byTitle[m.Movie]) byTitle[m.Movie] = [];
+      byTitle[m.Movie].push(m);
+    });
+
+    // Sort by title
+    const sortedTitles = Object.keys(byTitle).sort();
+
+    return sortedTitles.map(title => {
+      const titleMovies = byTitle[title];
+      const showtimes = titleMovies.map(m => {
+        const date = new Date(m.Datetime);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return `<span class="hidden-showtime">${dayName} ${dateStr} ${m.Time}</span>`;
+      }).join('');
+      const meta = [titleMovies[0].year, titleMovies[0].director].filter(Boolean).join(', ');
+      return `<div class="hidden-movie-item"><span class="hidden-movie-title">${toTitleCase(title)}</span>${meta ? `<span class="hidden-movie-meta">(${meta})</span>` : ''}<span class="hidden-movie-showtimes">— ${showtimes}</span></div>`;
+    }).join('');
+  }
+
+  function openWorkHoursModal() {
+    if (!hiddenModalDOM) return;
+    const listEl = document.getElementById('hidden-movies-list');
+    if (!listEl) return;
+
+    listEl.innerHTML = renderMovieList(getHiddenWorkHoursMovies());
+    hiddenModalDOM.dataset.show = 'true';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function openWeekdayModal() {
+    if (!weekdayModalDOM) return;
+    const listEl = document.getElementById('weekday-movies-list');
+    if (!listEl) return;
+
+    listEl.innerHTML = renderMovieList(getWeekdayMovies());
+    weekdayModalDOM.dataset.show = 'true';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeHiddenModal(modal: HTMLElement) {
+    modal.dataset.show = '';
+    document.body.style.overflow = '';
+  }
+
   // Event delegation for movie clicks
   document.addEventListener('DOMContentLoaded', () => {
     initModal();
+    initHiddenModals();
 
     document.querySelector('.calendar')?.addEventListener('click', (e) => {
       const movieEl = (e.target as HTMLElement).closest('[data-movie]');
@@ -557,6 +790,7 @@ for (let i = 1; i <= 28; i++) {
 
   /* Client-side injected movie styles */
   :global(.movie) {
+    position: relative;
     background: var(--bg-movie);
     border-radius: 0;
     margin: 0 0 4px 0;
@@ -680,5 +914,194 @@ for (let i = 1; i <= 28; i++) {
   :global(.movie.alternate-highlight) {
     outline: 2px solid var(--accent);
     outline-offset: -2px;
+  }
+
+  /* Toggle with status wrapper */
+  .toggle-with-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .hidden-status {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+
+  .hidden-status:hover {
+    color: var(--accent);
+  }
+
+  /* Radio toggle group */
+  .radio-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .radio-toggle-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .toggle-group {
+    display: inline-flex;
+    border: 1px solid var(--text-tertiary);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: transparent;
+    border-right: 1px solid var(--text-tertiary);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .toggle-item:last-child {
+    border-right: none;
+  }
+
+  .toggle-item:hover {
+    background: var(--bg-movie);
+  }
+
+  .toggle-item:has(input:checked) {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .toggle-item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-item span {
+    white-space: nowrap;
+  }
+
+  /* Hidden movies modal */
+  :global(.hidden-modal) {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+  }
+
+  :global(.hidden-modal[data-show="true"]) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  :global(.hidden-modal .modal-overlay) {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  :global(.hidden-modal .modal-content) {
+    position: relative;
+    background: var(--bg-day);
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    margin: 16px;
+    width: 100%;
+  }
+
+  :global(.hidden-modal .modal-close) {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+  }
+
+  :global(.hidden-modal .modal-close:hover) {
+    color: var(--text-primary);
+  }
+
+  :global(.hidden-modal h2) {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+
+  :global(.hidden-modal-subtitle) {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  :global(.hidden-movies-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  :global(.hidden-movie-item) {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--bg-movie);
+  }
+
+  :global(.hidden-movie-item:last-child) {
+    border-bottom: none;
+  }
+
+  :global(.hidden-movie-title) {
+    font-weight: 500;
+    color: var(--text-primary);
+    display: inline;
+  }
+
+  :global(.hidden-movie-meta) {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    display: inline;
+    margin-left: 6px;
+  }
+
+  :global(.hidden-movie-showtimes) {
+    display: inline;
+    margin-left: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  :global(.hidden-showtime) {
+    color: var(--text-secondary);
+  }
+
+  :global(.hidden-showtime:not(:last-child)::after) {
+    content: ', ';
+  }
+
+  :global(.single-showtime-badge) {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 10px;
+    color: var(--accent);
+    z-index: 5;
   }
 </style>
