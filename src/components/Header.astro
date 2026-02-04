@@ -2,18 +2,16 @@
 interface Props {
   seriesName: string;
   seriesUrl: string;
-  venueUrl: string;
   venueName: string;
-  location: string;
-  date: string;
+  dateRange: string;
 }
 
-const { seriesName, seriesUrl, venueUrl, venueName, location, date } = Astro.props;
+const { seriesName, seriesUrl, venueName, dateRange } = Astro.props;
 ---
 
 <header class="site-header">
-  <h1><a href={seriesUrl}>{seriesName}</a></h1>
-  <p class="subtitle"><a href={venueUrl}>{venueName}</a> · {location} · {date}</p>
+  <h1>{seriesName}</h1>
+  <p class="subtitle">A <a href={seriesUrl}>{venueName} series</a> · {dateRange}</p>
 </header>
 
 <style>
@@ -49,10 +47,6 @@ const { seriesName, seriesUrl, venueUrl, venueName, location, date } = Astro.pro
 
   .subtitle a {
     color: inherit;
-    text-decoration: none;
-  }
-
-  .subtitle a:hover {
     text-decoration: underline;
   }
 </style>
