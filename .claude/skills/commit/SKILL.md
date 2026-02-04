@@ -2,6 +2,7 @@
 name: commit
 description: Create atomic commits with clear messages. Use when committing code changes.
 disable-model-invocation: true
+model: haiku
 ---
 
 # Atomic Commit Helper
