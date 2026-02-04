@@ -1,0 +1,71 @@
+---
+interface Props {
+  variant?: 'primary' | 'secondary' | 'danger';
+  class?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  form?: string;
+}
+
+const { variant = 'primary', class: className = '', type = 'button', disabled = false, form } = Astro.props;
+---
+
+<button
+  type={type}
+  class:list={['btn', `btn--${variant}`, className]}
+  {disabled}
+  {form}
+>
+  <slot />
+</button>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  .btn--secondary {
+    background: var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  .btn--secondary:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .btn--primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn--primary:hover {
+    background: var(--accent-bg);
+  }
+
+  .btn--danger {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  .btn--danger:hover {
+    background: #b91c1c;
+  }
+</style>

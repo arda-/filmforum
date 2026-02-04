@@ -1,0 +1,263 @@
+/* Movie Tile Styles - Shared between index and demo pages */
+
+/* ===== Base Movie Tile Styles ===== */
+
+.movie {
+  position: relative;
+  background: var(--bg-movie);
+  border-radius: 0;
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  line-height: 1;
+  border-left: none;
+  cursor: pointer;
+}
+
+.movie:hover,
+.movie:focus {
+  background: var(--bg-movie-hover);
+  outline: none;
+}
+
+.movie:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.movie-clickable {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 4px;
+  color: var(--text-primary);
+}
+
+.movie-header {
+  display: inline;
+}
+
+.movie-time {
+  color: var(--accent);
+  font-weight: 400;
+  margin-right: 3px;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.movie-title {
+  font-weight: 400;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+/* 480px+: Barlow Semi Condensed (slightly smaller to match x-height) */
+@media (min-width: 480px) {
+  .movie {
+    font-size: 13px;
+  }
+  .movie-time,
+  .movie-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* 640px+: IBM Plex Sans */
+@media (min-width: 640px) {
+  .movie {
+    line-height: 1;
+  }
+  .movie-time,
+  .movie-title {
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: normal;
+    font-weight: 500;
+    text-transform: none;
+  }
+}
+
+.movie-meta {
+  color: var(--text-tertiary);
+  font-size: 0.85em;
+  margin-top: 0.25em;
+  line-height: 1.05;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .movie-meta {
+    display: block;
+  }
+}
+
+.movie-actors {
+  display: none;
+  font-style: italic;
+  margin-top: 0.3em;
+}
+
+/* Movie meta element base styles */
+.movie-year-director,
+.movie-runtime {
+  display: none;
+}
+
+/* Only show comma after year-director when runtime is also shown */
+body.show-year-director.show-runtime .movie-year-director::after {
+  content: ', ';
+}
+
+/* ===== Body class controlled visibility ===== */
+
+/* Show classes - when checkboxes are checked */
+body.show-year-director .movie-meta,
+body.show-runtime .movie-meta,
+body.show-actors .movie-meta {
+  display: block !important;
+}
+
+body.show-year-director .movie-year-director {
+  display: inline !important;
+}
+
+body.show-runtime .movie-runtime {
+  display: inline !important;
+}
+
+body.show-actors .movie-actors {
+  display: block !important;
+}
+
+/* ===== Timeline Mode ===== */
+
+.movie--timeline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  z-index: 1;
+  margin-bottom: 0;
+}
+
+@media (min-width: 1024px) {
+  .movie--timeline {
+    left: 4px;
+    right: 4px;
+  }
+}
+
+.movie--timeline .movie-clickable {
+  height: 100%;
+}
+
+/* ===== Poster as Background (all modes) ===== */
+
+/* Only show background when show-image is enabled */
+body.show-image .movie.has-poster {
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+/* Minimum height for non-timeline mode with images */
+body.show-image .movie.has-poster:not(.movie--timeline) {
+  min-height: 80px;
+}
+
+/* Hide background when show-image is not enabled */
+body:not(.show-image) .movie.has-poster {
+  background-image: none !important;
+}
+
+/* Clear background when showing poster */
+body.show-image .movie.has-poster .movie-clickable {
+  position: relative;
+  background: none;
+}
+
+/* Content-based gradient overlay for readability (darken blend mode) */
+body.show-image .movie.has-poster .movie-clickable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  height: var(--text-height, 60px);
+  mix-blend-mode: darken;
+  background: linear-gradient(
+    to bottom,
+    rgba(17, 17, 17, 1) 0%,
+    rgba(15, 15, 15, 0.7) 60%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* Ensure text sits above gradient */
+body.show-image .movie.has-poster .movie-header,
+body.show-image .movie.has-poster .movie-meta {
+  position: relative;
+  z-index: 1;
+}
+
+/* Text shadow for readability on poster background */
+body.show-image .movie.has-poster .movie-time {
+  color: #06b6d4;
+  font-weight: 400;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+body.show-image .movie.has-poster .movie-title {
+  color: #fff;
+  font-weight: 400;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+body.show-image .movie.has-poster .movie-meta {
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 300;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== Timeline Mode: Overlap Columns ===== */
+
+/* Overlap columns for overlapping showtimes */
+.movie--timeline.overlap-col-1 {
+  left: 52% !important;
+  right: 4px !important;
+}
+
+.movie--timeline.overlap-col-0.has-overlap {
+  right: 52% !important;
+  left: 4px !important;
+}
+
+/* ===== Alternate Highlight ===== */
+
+.movie.alternate-highlight {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* ===== Single Showtime Badge ===== */
+
+.single-showtime-badge {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: var(--accent);
+  z-index: 5;
+}

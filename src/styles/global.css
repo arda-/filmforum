@@ -71,6 +71,15 @@ body {
   }
 }
 
+/* Desktop-only elements (hover features don't work on touch devices) */
+/* Hidden by default, shown via JS when pointer device detected */
+.desktop-only {
+  display: none;
+}
+
+.desktop-only.has-pointer {
+  display: block;
+}
 
 .controls {
   display: flex;
@@ -120,9 +129,9 @@ body {
   font-size: 12px;
 }
 
-/* Natural width mode - allows horizontal scrolling */
+/* Natural width mode - prevent page from shrinking/scrolling */
 body.natural-width {
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 /* Styles for JS-injected modal content */

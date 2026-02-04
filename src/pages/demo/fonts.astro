@@ -1,0 +1,640 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ToggleGroup from '../../components/ToggleGroup.astro';
+---
+
+<Layout title="Font Responsiveness Demo">
+  <h1>Font Responsiveness Demo</h1>
+  <p class="subtitle">Testing typography at various viewport widths and configurations</p>
+
+  <div class="demo-controls">
+    <div class="control-group">
+      <span class="control-label">Display</span>
+      <div class="control-grid-2x2">
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-images-toggle" />
+          <span>Images</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-year-director" checked />
+          <span>Year/Director</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-runtime" checked />
+          <span>Runtime</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-actors" />
+          <span>Actors</span>
+        </label>
+      </div>
+    </div>
+    <ToggleGroup
+      label="Font family:"
+      name="font-family"
+      options={[
+        { label: 'Auto (responsive)', value: 'auto', checked: true },
+        { label: 'Barlow Condensed', value: 'barlow' },
+        { label: 'IBM Plex Sans', value: 'plex' }
+      ]}
+    />
+    <ToggleGroup
+      label="Text transform:"
+      name="text-transform"
+      options={[
+        { label: 'Auto', value: 'auto', checked: true },
+        { label: 'Uppercase', value: 'uppercase' },
+        { label: 'Normal', value: 'normal' }
+      ]}
+    />
+  </div>
+
+  <div class="demo-section">
+    <h2>Simulated Column Widths</h2>
+    <p class="demo-note">Movie tiles at various column widths (calendar width ÷ 7 columns)</p>
+    <div class="viewport-grid" id="viewport-tiles"></div>
+  </div>
+
+  <div class="demo-section full-width">
+    <div class="section-header">
+      <div>
+        <h2>7-Day Calendar View</h2>
+        <p class="demo-note">Full week layout to test how fonts look in actual calendar context</p>
+      </div>
+      <ToggleGroup
+        label="Mode:"
+        name="tile-mode"
+        options={[
+          { label: 'List', value: 'list', checked: true },
+          { label: 'Timeline', value: 'timeline' }
+        ]}
+      />
+    </div>
+    <div class="week-grid" id="week-view"></div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Font Comparison</h2>
+    <p class="demo-note">Side-by-side comparison of font treatments</p>
+    <div class="comparison-grid" id="font-comparison"></div>
+  </div>
+
+</Layout>
+
+<script>
+  import type { Movie } from '../../utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
+  import { PX_PER_MIN } from '../../constants';
+
+  let allMovies: Movie[] = [];
+
+  function parseTimeToMins(timeStr: string) {
+    const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return 0;
+    let h = parseInt(match[1]);
+    const m = parseInt(match[2]);
+    const isMorning = timeStr.includes('FF Jr');
+    if (!isMorning && h !== 12 && h < 12) h += 12;
+    return h * 60 + m;
+  }
+
+  // Fetch real movie data
+  fetch('/tenement-stories-full.json')
+    .then(res => res.json())
+    .then((movies: Movie[]) => {
+      allMovies = movies;
+      renderViewportTiles();
+      renderWeekView();
+      renderFontComparison();
+      setTimeout(updateTextHeights, 10);
+    });
+
+  function renderViewportTiles() {
+    const viewportGrid = document.getElementById('viewport-tiles');
+    if (!viewportGrid || allMovies.length === 0) return;
+
+    viewportGrid.innerHTML = '';
+
+    // Simulated column widths (calendar width / 7 columns)
+    // Matches actual MovieTile breakpoints: Condensed (<480) → Semi Condensed (480-640) → Plex (640+)
+    const widthConfigs = [
+      { col: 46, total: 320, font: 'condensed' },        // Barlow Condensed
+      { col: 69, total: 480, font: 'semi' },             // Barlow Semi Condensed (480 breakpoint)
+      { col: 91, total: 640, font: 'plex' },             // IBM Plex (640 breakpoint)
+      { col: 110, total: 768, font: 'plex' },
+      { col: 146, total: 1024, font: 'plex' },
+      { col: 183, total: 1280, font: 'plex' },
+    ];
+
+    // Pick a movie with medium-length title
+    const movie = allMovies.find(m => m.Movie.length > 15 && m.Movie.length < 30) || allMovies[0];
+
+    widthConfigs.forEach(({ col, total, font }) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'viewport-wrapper';
+      wrapper.style.width = `${col}px`;
+
+      const label = document.createElement('div');
+      label.className = 'viewport-label';
+      // Show which font style applies at this breakpoint
+      const fontLabels: Record<string, string> = {
+        'condensed': 'Barlow Condensed',
+        'semi': 'Barlow Semi',
+        'plex': 'IBM Plex'
+      };
+      label.innerHTML = `<strong>${col}px</strong> (${total}px) <span class="breakpoint-note">${fontLabels[font]}</span>`;
+      wrapper.appendChild(label);
+
+      const tileContainer = document.createElement('div');
+      tileContainer.className = 'viewport-container';
+      tileContainer.setAttribute('data-width', String(col));
+
+      // Apply font classes based on config (matches actual MovieTile breakpoints)
+      if (font === 'condensed') {
+        tileContainer.classList.add('force-barlow-condensed');
+      } else if (font === 'semi') {
+        tileContainer.classList.add('force-barlow-semi');
+      } else {
+        tileContainer.classList.add('force-plex');
+      }
+
+      const tile = createMovieElement(movie, { isTimeline: false });
+      tile.classList.add('demo-tile');
+      tileContainer.appendChild(tile);
+
+      wrapper.appendChild(tileContainer);
+      viewportGrid.appendChild(wrapper);
+    });
+  }
+
+  function renderWeekView() {
+    const weekGrid = document.getElementById('week-view');
+    if (!weekGrid || allMovies.length === 0) return;
+
+    weekGrid.innerHTML = '';
+
+    const isTimeline = document.querySelector('input[name="tile-mode"]:checked')?.value === 'timeline';
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    // Group movies by day of week
+    const moviesByDay: Movie[][] = [[], [], [], [], [], [], []];
+    allMovies.forEach(m => {
+      const date = new Date(m.Datetime);
+      const dayOfWeek = date.getDay();
+      if (moviesByDay[dayOfWeek].length < 4) { // Limit to 4 movies per day for demo
+        moviesByDay[dayOfWeek].push(m);
+      }
+    });
+
+    // Calculate global time range for timeline mode
+    let globalStart = Infinity, globalEnd = 0;
+    if (isTimeline) {
+      allMovies.forEach(m => {
+        const start = parseTimeToMins(m.Time);
+        const runtime = parseInt(m.runtime || '90');
+        const end = start + runtime;
+        if (start < globalStart) globalStart = start;
+        if (end > globalEnd) globalEnd = end;
+      });
+    }
+    const uniformHeight = Math.max((globalEnd - globalStart) * PX_PER_MIN, 100) + 32;
+
+    dayNames.forEach((dayName, i) => {
+      const dayMovies = moviesByDay[i];
+      const hasMovies = dayMovies.length > 0;
+
+      const dayColumn = document.createElement('div');
+      dayColumn.className = 'week-day-column';
+      if (hasMovies) dayColumn.classList.add('has-movies');
+      if (isTimeline) dayColumn.classList.add('timeline-view');
+
+      const dayHeader = document.createElement('div');
+      dayHeader.className = 'week-day-header';
+      dayHeader.textContent = dayName;
+      dayColumn.appendChild(dayHeader);
+
+      const dayContent = document.createElement('div');
+      dayContent.className = isTimeline ? 'week-day-content timeline-container' : 'week-day-content';
+
+      if (isTimeline) {
+        dayContent.style.height = `${uniformHeight}px`;
+      }
+
+      if (hasMovies) {
+        // Sort by time for timeline mode
+        const sorted = [...dayMovies].sort((a, b) => parseTimeToMins(a.Time) - parseTimeToMins(b.Time));
+
+        sorted.forEach(movie => {
+          if (isTimeline) {
+            const start = parseTimeToMins(movie.Time);
+            const runtime = parseInt(movie.runtime || '90');
+            const topPx = (start - globalStart) * PX_PER_MIN;
+            const heightPx = Math.max(runtime * PX_PER_MIN, 24);
+            const tile = createMovieElement(movie, { isTimeline: true, heightPx, topPx });
+            tile.classList.add('demo-tile');
+            dayContent.appendChild(tile);
+          } else {
+            const tile = createMovieElement(movie, { isTimeline: false });
+            tile.classList.add('demo-tile');
+            dayContent.appendChild(tile);
+          }
+        });
+      }
+
+      dayColumn.appendChild(dayContent);
+      weekGrid.appendChild(dayColumn);
+    });
+  }
+
+  function renderFontComparison() {
+    const comparisonGrid = document.getElementById('font-comparison');
+    if (!comparisonGrid || allMovies.length === 0) return;
+
+    comparisonGrid.innerHTML = '';
+
+    const movie = allMovies.find(m => m.Movie.length > 15 && m.Movie.length < 30) || allMovies[0];
+
+    const configs = [
+      { label: 'Barlow 400 + Uppercase (mobile)', fontClass: 'force-barlow', transformClass: 'force-uppercase' },
+      { label: 'IBM Plex 500 + Normal (desktop)', fontClass: 'force-plex', transformClass: 'force-normal-case' },
+      { label: 'Barlow 400 + Normal', fontClass: 'force-barlow', transformClass: 'force-normal-case' },
+      { label: 'IBM Plex 500 + Uppercase', fontClass: 'force-plex', transformClass: 'force-uppercase' },
+    ];
+
+    configs.forEach(config => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'comparison-wrapper';
+
+      const label = document.createElement('div');
+      label.className = 'comparison-label';
+      label.textContent = config.label;
+      wrapper.appendChild(label);
+
+      const container = document.createElement('div');
+      container.className = `comparison-container ${config.fontClass} ${config.transformClass}`;
+
+      const tile = createMovieElement(movie, { isTimeline: false });
+      tile.classList.add('demo-tile');
+      container.appendChild(tile);
+
+      wrapper.appendChild(container);
+      comparisonGrid.appendChild(wrapper);
+    });
+  }
+
+  function rerenderWeekView() {
+    renderWeekView();
+    setTimeout(updateTextHeights, 10);
+  }
+
+  // Control toggles
+  const showImagesToggle = document.getElementById('show-images-toggle') as HTMLInputElement;
+  const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
+  const showActors = document.getElementById('show-actors') as HTMLInputElement;
+
+  showImagesToggle?.addEventListener('change', () => {
+    document.body.classList.toggle('show-image', showImagesToggle.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  showYearDirector?.addEventListener('change', () => {
+    document.body.classList.toggle('show-year-director', showYearDirector.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  showRuntime?.addEventListener('change', () => {
+    document.body.classList.toggle('show-runtime', showRuntime.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  showActors?.addEventListener('change', () => {
+    document.body.classList.toggle('show-actors', showActors.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  // Font family toggle
+  document.querySelectorAll('input[name="font-family"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('demo-font-barlow', 'demo-font-plex');
+      if (value === 'barlow') {
+        document.body.classList.add('demo-font-barlow');
+      } else if (value === 'plex') {
+        document.body.classList.add('demo-font-plex');
+      }
+    });
+  });
+
+  // Text transform toggle
+  document.querySelectorAll('input[name="text-transform"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('demo-uppercase', 'demo-normal-case');
+      if (value === 'uppercase') {
+        document.body.classList.add('demo-uppercase');
+      } else if (value === 'normal') {
+        document.body.classList.add('demo-normal-case');
+      }
+    });
+  });
+
+  // Tile mode toggle (only affects week view)
+  document.querySelectorAll('input[name="tile-mode"]').forEach(radio => {
+    radio.addEventListener('change', rerenderWeekView);
+  });
+
+  // Initialize with year/director and runtime checked
+  document.body.classList.add('show-year-director', 'show-runtime');
+</script>
+
+<style>
+  h1 {
+    margin-top: 20px;
+  }
+
+  .demo-controls {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    flex-wrap: wrap;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .control-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .control-grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  .demo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .demo-section {
+    margin: 32px auto;
+    max-width: 1200px;
+    padding: 0 16px;
+  }
+
+  .demo-section h2 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .demo-note {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  /* Viewport grid */
+  .viewport-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  :global(.viewport-wrapper) {
+    max-width: 100%;
+  }
+
+  :global(.viewport-label) {
+    font-size: 12px;
+    font-family: monospace;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+
+  :global(.viewport-label .breakpoint-note) {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    opacity: 0.7;
+  }
+
+  :global(.viewport-container) {
+  }
+
+  :global(.viewport-container.timeline-container) {
+    position: relative;
+    height: 96px;
+  }
+
+  /* Comparison grid */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  :global(.comparison-wrapper) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :global(.comparison-label) {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  :global(.comparison-container) {
+    background: var(--bg-day);
+    padding: 8px;
+    border-radius: 4px;
+  }
+
+  :global(.comparison-container.timeline-container) {
+    position: relative;
+    height: 96px;
+  }
+
+  /* Sample grid */
+  .sample-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  :global(.sample-tile) {
+    width: 100%;
+  }
+
+  :global(.sample-tile.movie--timeline) {
+    position: relative;
+    height: 80px;
+  }
+
+  /* Demo tile overrides */
+  :global(.demo-tile.movie) {
+    margin: 0;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .section-header h2 {
+    margin-bottom: 4px;
+  }
+
+  .section-header .demo-note {
+    margin-bottom: 0;
+  }
+
+  /* Week grid */
+  .demo-section.full-width {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .demo-section.full-width .section-header {
+    padding: 0 16px;
+  }
+
+  /* Match actual CalendarGrid styles */
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    background: var(--bg-grid);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  :global(.week-day-column) {
+    background: var(--bg-day);
+    min-height: 120px;
+    padding: 4px 0;
+    overflow: hidden;
+  }
+
+  :global(.week-day-column.has-movies) {
+    background: var(--bg-day-movies);
+  }
+
+  :global(.week-day-header) {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+    padding-left: 4px;
+  }
+
+  @media (min-width: 480px) {
+    :global(.week-day-header) {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: 400;
+    }
+  }
+
+  :global(.week-day-content) {
+    /* Movies have their own padding */
+  }
+
+  :global(.week-day-content.timeline-container) {
+    position: relative;
+    height: 290px;
+    padding-top: 0;
+  }
+
+  :global(.week-day-column.timeline-view) {
+    position: relative;
+    padding-top: 28px;
+  }
+
+  :global(.week-day-column.timeline-view .week-day-header) {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 20;
+    margin-bottom: 0;
+  }
+
+  /* ===== Font override classes ===== */
+  /* These match the actual MovieTile styles exactly */
+
+  /* Force Barlow Condensed - matches actual MovieTile base (<480px) */
+  :global(.force-barlow-condensed .movie-time),
+  :global(.force-barlow-condensed .movie-title) {
+    font-family: 'Barlow Condensed', sans-serif !important;
+    letter-spacing: -0.015em !important;
+    font-weight: 400 !important;
+    text-transform: uppercase !important;
+  }
+
+  /* Force Barlow Semi Condensed - matches actual MovieTile (480-640px) */
+  :global(.force-barlow-semi .movie) {
+    font-size: 13px !important;
+  }
+  :global(.force-barlow-semi .movie-time),
+  :global(.force-barlow-semi .movie-title) {
+    font-family: 'Barlow Semi Condensed', sans-serif !important;
+    letter-spacing: -0.01em !important;
+    font-weight: 400 !important;
+    text-transform: uppercase !important;
+  }
+
+  /* Force IBM Plex Sans - matches actual MovieTile (640px+) */
+  :global(body.demo-font-plex .movie-time),
+  :global(body.demo-font-plex .movie-title),
+  :global(.force-plex .movie-time),
+  :global(.force-plex .movie-title) {
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    letter-spacing: normal !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+  }
+
+  /* Force uppercase */
+  :global(body.demo-uppercase .movie-time),
+  :global(body.demo-uppercase .movie-title),
+  :global(.force-uppercase .movie-time),
+  :global(.force-uppercase .movie-title) {
+    text-transform: uppercase !important;
+  }
+
+  /* Force normal case */
+  :global(body.demo-normal-case .movie-time),
+  :global(body.demo-normal-case .movie-title),
+  :global(.force-normal-case .movie-time),
+  :global(.force-normal-case .movie-title) {
+    text-transform: none !important;
+  }
+</style>

@@ -1,0 +1,525 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ToggleGroup from '../../components/ToggleGroup.astro';
+---
+
+<Layout title="Timeline Tile Debug">
+  <h1>Timeline Tile Debug</h1>
+  <p class="subtitle">Testing gradient overlay on movie tiles at various heights</p>
+
+  <div class="demo-controls">
+    <div class="control-group">
+      <span class="control-label">Display</span>
+      <div class="control-grid-2x2">
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-images-toggle" />
+          <span>Images</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-year-director" />
+          <span>Year/Director</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-runtime" />
+          <span>Runtime</span>
+        </label>
+        <label class="demo-toggle">
+          <input type="checkbox" id="show-actors" />
+          <span>Actors</span>
+        </label>
+      </div>
+    </div>
+    <ToggleGroup
+      label="Gradient:"
+      name="content-gradient-mode"
+      options={[
+        { label: 'Off', value: 'off', checked: true },
+        { label: 'On', value: 'on' },
+        { label: 'Green', value: 'debug' }
+      ]}
+    />
+    <ToggleGroup
+      label="Blend mode:"
+      name="blend-mode"
+      options={[
+        { label: 'Normal', value: 'normal', checked: true },
+        { label: 'Darken', value: 'darken' }
+      ]}
+    />
+  </div>
+
+  <div class="demo-section">
+    <h2>Test Tiles with Poster Background</h2>
+    <p class="demo-note">Real movie data rendered at various fixed heights</p>
+    <div class="demo-grid" id="demo-tiles"></div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Gradient Comparison</h2>
+    <p class="demo-note">Drag the slider to compare</p>
+    <div class="blend-comparison-grid" id="comparison-tiles"></div>
+  </div>
+</Layout>
+
+<script>
+  import type { Movie } from '../../utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
+
+  // Fetch real movie data
+  fetch('/tenement-stories-full.json')
+    .then(res => res.json())
+    .then((movies: Movie[]) => {
+      // Filter to movies with posters
+      const moviesWithPosters = movies.filter(m => m.poster_url);
+
+      // Demo tile heights to test
+      const heights = [50, 75, 100, 150, 200, 300];
+
+      const demoGrid = document.getElementById('demo-tiles');
+      const comparisonGrid = document.getElementById('comparison-tiles');
+
+      if (demoGrid) {
+        heights.forEach((height, i) => {
+          const movie = moviesWithPosters[i % moviesWithPosters.length];
+          const wrapper = document.createElement('div');
+          wrapper.className = 'demo-tile-wrapper';
+          wrapper.innerHTML = `<span class="demo-label">${height}px</span>`;
+
+          const tile = createMovieElement(movie, { isTimeline: true, heightPx: height });
+          tile.classList.add('demo-tile');
+          wrapper.appendChild(tile);
+          demoGrid.appendChild(wrapper);
+        });
+      }
+
+      if (comparisonGrid) {
+        const movie = moviesWithPosters[3];
+
+        function createComparisonSlider(label: string, beforeClass: string, afterClass: string, beforeLabelText: string, afterLabelText: string) {
+          const container = document.createElement('div');
+          container.className = 'comparison-container';
+
+          const labelEl = document.createElement('span');
+          labelEl.className = 'comparison-label';
+          labelEl.textContent = label;
+          container.appendChild(labelEl);
+
+          const slider = document.createElement('div');
+          slider.className = 'comparison-slider';
+
+          const beforeTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
+          beforeTile.classList.add('comparison-tile', 'comparison-before', beforeClass);
+          slider.appendChild(beforeTile);
+
+          const afterWrapper = document.createElement('div');
+          afterWrapper.className = 'comparison-after-wrapper';
+          const afterTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
+          afterTile.classList.add('comparison-tile', 'comparison-after', afterClass);
+          afterWrapper.appendChild(afterTile);
+          slider.appendChild(afterWrapper);
+
+          const handle = document.createElement('div');
+          handle.className = 'comparison-handle';
+          handle.innerHTML = '<div class="handle-line"></div><div class="handle-grip">⋮</div><div class="handle-line"></div>';
+          slider.appendChild(handle);
+
+          const beforeLabel = document.createElement('span');
+          beforeLabel.className = 'comparison-side-label before';
+          beforeLabel.textContent = beforeLabelText;
+          slider.appendChild(beforeLabel);
+
+          const afterLabel = document.createElement('span');
+          afterLabel.className = 'comparison-side-label after';
+          afterLabel.textContent = afterLabelText;
+          slider.appendChild(afterLabel);
+
+          container.appendChild(slider);
+
+          let isDragging = false;
+          function updatePosition(x: number) {
+            const rect = slider.getBoundingClientRect();
+            let percent = ((x - rect.left) / rect.width) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+            afterWrapper.style.clipPath = `inset(0 0 0 ${percent}%)`;
+            handle.style.left = `${percent}%`;
+          }
+
+          handle.addEventListener('mousedown', () => { isDragging = true; });
+          slider.addEventListener('mousedown', (e) => { isDragging = true; updatePosition(e.clientX); });
+          document.addEventListener('mousemove', (e) => { if (isDragging) updatePosition(e.clientX); });
+          document.addEventListener('mouseup', () => { isDragging = false; });
+          handle.addEventListener('touchstart', () => { isDragging = true; });
+          slider.addEventListener('touchstart', (e) => { isDragging = true; updatePosition(e.touches[0].clientX); });
+          document.addEventListener('touchmove', (e) => { if (isDragging) updatePosition(e.touches[0].clientX); });
+          document.addEventListener('touchend', () => { isDragging = false; });
+
+          setTimeout(() => updatePosition(slider.getBoundingClientRect().left + slider.offsetWidth / 2), 100);
+
+          return container;
+        }
+
+        comparisonGrid.appendChild(createComparisonSlider('No Gradient vs Normal', 'no-gradient', 'force-blend-normal', 'None', 'Normal'));
+        comparisonGrid.appendChild(createComparisonSlider('No Gradient vs Darken', 'no-gradient', 'force-blend-darken', 'None', 'Darken'));
+        comparisonGrid.appendChild(createComparisonSlider('Normal vs Darken', 'force-blend-normal', 'force-blend-darken', 'Normal', 'Darken'));
+      }
+
+      // Initial height calculation
+      updateTextHeights();
+    });
+
+  // Control toggles
+  const showImagesToggle = document.getElementById('show-images-toggle') as HTMLInputElement;
+  const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
+  const showActors = document.getElementById('show-actors') as HTMLInputElement;
+
+  showImagesToggle?.addEventListener('change', () => {
+    document.body.classList.toggle('show-image', showImagesToggle.checked);
+  });
+
+  showYearDirector?.addEventListener('change', () => {
+    document.body.classList.toggle('show-year-director', showYearDirector.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  showRuntime?.addEventListener('change', () => {
+    document.body.classList.toggle('show-runtime', showRuntime.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  showActors?.addEventListener('change', () => {
+    document.body.classList.toggle('show-actors', showActors.checked);
+    setTimeout(updateTextHeights, 10);
+  });
+
+  // Content-based gradient mode toggle
+  document.querySelectorAll('input[name="content-gradient-mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('content-gradient', 'content-debug');
+      if (value === 'on') {
+        document.body.classList.add('content-gradient');
+      } else if (value === 'debug') {
+        document.body.classList.add('content-gradient', 'content-debug');
+      }
+    });
+  });
+
+
+  // Blend mode toggle
+  document.querySelectorAll('input[name="blend-mode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      document.body.classList.remove('blend-normal', 'blend-darken');
+      document.body.classList.add(`blend-${value}`);
+    });
+  });
+
+  // Start with images enabled
+  if (showImagesToggle) {
+    showImagesToggle.checked = true;
+    document.body.classList.add('show-image');
+  }
+</script>
+
+<style>
+  h1 {
+    margin-top: 20px;
+  }
+
+  .demo-controls {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    flex-wrap: wrap;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .control-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .control-grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+
+  .demo-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .demo-section {
+    margin: 32px auto;
+    max-width: 900px;
+    padding: 0 16px;
+  }
+
+  .demo-section h2 {
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  .demo-note {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .demo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+  }
+
+  .blend-comparison-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+
+  :global(.comparison-container) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  :global(.comparison-label) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  :global(.comparison-slider) {
+    position: relative;
+    width: 240px;
+    height: 200px;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  :global(.comparison-slider *) {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  :global(.comparison-tile) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.comparison-before) {
+    z-index: 1;
+  }
+
+  :global(.comparison-after-wrapper) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    clip-path: inset(0 0 0 50%);
+  }
+
+  :global(.comparison-after) {
+    width: 100%;
+    height: 100%;
+  }
+
+  :global(.comparison-handle) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+  }
+
+  :global(.handle-line) {
+    flex: 1;
+    width: 2px;
+    background: white;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  }
+
+  :global(.handle-grip) {
+    background: white;
+    color: #333;
+    font-size: 14px;
+    padding: 6px 4px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    line-height: 1;
+  }
+
+  :global(.comparison-side-label) {
+    position: absolute;
+    bottom: 8px;
+    font-size: 11px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  :global(.comparison-side-label.before) {
+    left: 8px;
+  }
+
+  :global(.comparison-side-label.after) {
+    right: 8px;
+  }
+
+  :global(.demo-tile-wrapper) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  :global(.demo-label) {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: monospace;
+  }
+
+  :global(.demo-tile) {
+    width: 120px;
+    position: relative;
+  }
+
+  /* ===== Demo-specific overrides ===== */
+
+  /* Demo tiles don't need margin */
+  :global(.demo-tile.movie) {
+    margin: 0;
+  }
+
+  /* Demo uses content-gradient class for togglable gradient */
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-clickable) {
+    position: relative;
+  }
+
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-clickable::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: var(--text-height, 60px);
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.9) 0%,
+      rgba(0, 0, 0, 0.75) 60%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    pointer-events: none;
+  }
+
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-header),
+  :global(body.show-image.content-gradient .movie--timeline.has-poster .movie-meta) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Debug mode: green gradient */
+  :global(body.show-image.content-gradient.content-debug .movie--timeline.has-poster .movie-clickable::before) {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 60, 0, 0.9) 0%,
+      rgba(0, 60, 0, 0.75) 60%,
+      rgba(0, 60, 0, 0) 100%
+    );
+  }
+
+  /* Darken blend mode */
+  :global(body.blend-darken.content-gradient .movie--timeline.has-poster .movie-clickable::before) {
+    mix-blend-mode: darken;
+    background: linear-gradient(
+      to bottom,
+      rgba(17, 17, 17, 1) 0%,
+      rgba(15, 15, 15, 0.7) 60%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  /* Force blend modes for static comparison tiles */
+  :global(body.show-image .force-blend-normal.movie--timeline.has-poster .movie-clickable::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+    mix-blend-mode: normal;
+  }
+
+  :global(body.show-image .force-blend-darken.movie--timeline.has-poster .movie-clickable::before) {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    height: 80px;
+    background: linear-gradient(to bottom, rgba(17,17,17,1) 0%, rgba(15,15,15,0.7) 60%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+    mix-blend-mode: darken;
+  }
+
+  :global(body.show-image .force-blend-normal .movie-header),
+  :global(body.show-image .force-blend-normal .movie-meta),
+  :global(body.show-image .force-blend-darken .movie-header),
+  :global(body.show-image .force-blend-darken .movie-meta),
+  :global(body.show-image .force-blend-multiply .movie-header),
+  :global(body.show-image .force-blend-multiply .movie-meta) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* No gradient class for comparison */
+  :global(body.show-image .movie--timeline.has-poster.no-gradient .movie-clickable) {
+    background: none !important;
+  }
+
+  :global(body.show-image .movie--timeline.has-poster.no-gradient .movie-clickable::before) {
+    display: none !important;
+  }
+</style>

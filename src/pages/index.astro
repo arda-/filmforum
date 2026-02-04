@@ -6,6 +6,8 @@ import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
 import ToggleGroup from '../components/ToggleGroup.astro';
 import Switch from '../components/Switch.astro';
+import Toggle from '../components/Toggle.astro';
+import Dialog from '../components/Dialog.astro';
 
 // Generate Feb 2026 dates
 const dates: string[] = [];
@@ -34,24 +36,12 @@ for (let i = 1; i <= 28; i++) {
     </div>
     <div class="control-group">
       <span class="control-group-label">Movie Tile Display</span>
-      <div class="checkbox-row disabled" id="tile-display-options">
-        <span class="checkbox-row-label">Show:</span>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-year-director" />
-          <span>Year / Director</span>
-        </label>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-runtime" />
-          <span>Runtime</span>
-        </label>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-actors" />
-          <span>Actors</span>
-        </label>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-image" />
-          <span>Image</span>
-        </label>
+      <div class="toggle-row disabled" id="tile-display-options">
+        <span class="toggle-row-label">Show:</span>
+        <Toggle id="show-year-director" label="Year / Director" variant="outline" size="sm" />
+        <Toggle id="show-runtime" label="Runtime" variant="outline" size="sm" />
+        <Toggle id="show-actors" label="Actors" variant="outline" size="sm" />
+        <Toggle id="show-image" label="Image" variant="outline" size="sm" />
       </div>
     </div>
     <div class="control-group">
@@ -67,7 +57,6 @@ for (let i = 1; i <= 28; i++) {
           ]}
           statusId="hours-filter-status"
         />
-        <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
         <ToggleGroup
           label="Single showings:"
           name="single-showtimes-mode"
@@ -77,15 +66,20 @@ for (let i = 1; i <= 28; i++) {
             { label: 'Only show unique', value: 'only' }
           ]}
         />
+        <div class="desktop-only">
+          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
+        </div>
       </div>
     </div>
   </div>
 
-  <CalendarGrid>
-    {dates.map(date => (
-      <DayCell date={date} />
-    ))}
-  </CalendarGrid>
+  <div class="calendar-scroll-container">
+    <CalendarGrid>
+      {dates.map(date => (
+        <DayCell date={date} />
+      ))}
+    </CalendarGrid>
+  </div>
 
   <p class="legend">Click any movie for details. Times are PM unless marked "FF Jr."</p>
 
@@ -113,18 +107,18 @@ for (let i = 1; i <= 28; i++) {
     </div>
   </div>
 
-  <!-- Confirm Disable Fit-Width Modal -->
-  <div id="confirm-fit-width-modal" class="hidden-modal" data-show="">
-    <div class="modal-overlay"></div>
-    <div class="modal-content confirm-modal-content">
-      <h2>Show Movie Details?</h2>
-      <p class="hidden-modal-subtitle">Disable "Fit to width" to show additional movie details like year, director, runtime, and images.</p>
-      <div class="confirm-buttons">
-        <button id="confirm-fit-width-cancel" class="confirm-btn confirm-btn-cancel">Cancel</button>
-        <button id="confirm-fit-width-ok" class="confirm-btn confirm-btn-ok">Disable Fit to Width</button>
-      </div>
+  <!-- Confirm Disable Fit-Width Dialog -->
+  <Dialog
+    id="confirm-fit-width-dialog"
+    title="Customize movie tile display?"
+    description="Disable "Fit to width" to show additional movie details like year, director, runtime, and images."
+    showCloseButton={false}
+  >
+    <div class="dialog-footer dialog-footer--center">
+      <button id="confirm-fit-width-cancel" class="dialog-btn dialog-btn--secondary">Cancel</button>
+      <button id="confirm-fit-width-ok" class="dialog-btn dialog-btn--primary">Disable Fit to Width</button>
     </div>
-  </div>
+  </Dialog>
 </Layout>
 
 <script>
@@ -139,23 +133,13 @@ for (let i = 1; i <= 28; i++) {
     type SingleShowtimesMode,
   } from '../constants';
   import { downloadICS, type Movie } from '../utils/icsGenerator';
+  import { createMovieElement, updateTextHeights, toTitleCase, processFFJr } from '../components/MovieTile';
 
   let moviesByDate: Record<string, Movie[]> = {};
   let globalRange = { start: Infinity, end: 0, range: 0 };
   let uniformHeight = 0;
   let movieShowtimeCounts: Record<string, number> = {};
   let allMovies: Movie[] = [];
-
-  function toTitleCase(str: string) {
-    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-  }
-
-  function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {
-    const isFFJr = time.includes('FF Jr');
-    const displayTime = isFFJr ? time.replace(/\s*[–-]?\s*FF Jr\.?/g, '').trim() : time;
-    const displayTitle = isFFJr ? `${toTitleCase(title)} (FF Jr.)` : toTitleCase(title);
-    return { displayTime, displayTitle };
-  }
 
   function parseTimeToMins(timeStr: string) {
     const match = timeStr.match(/(\d{1,2}):(\d{2})/);
@@ -199,66 +183,6 @@ for (let i = 1; i <= 28; i++) {
       }
     });
     return sorted;
-  }
-
-  function createMovieElement(movie: Movie, isTimeline: boolean, topPx?: number, heightPx?: number, filteredCounts?: Record<string, number>, singleMode?: SingleShowtimesMode) {
-    const el = document.createElement('div');
-    const classes = ['movie'];
-    if (isTimeline) {
-      classes.push('movie--timeline');
-      if (movie._col === 1) classes.push('overlap-col-1');
-      else if (movie._hasOverlap) classes.push('overlap-col-0', 'has-overlap');
-    }
-    el.className = classes.join(' ');
-
-    if (isTimeline && topPx !== undefined && heightPx !== undefined) {
-      el.style.top = `${topPx + 28}px`;
-      el.style.height = `${heightPx}px`;
-    }
-
-    // Set poster as background for timeline mode
-    if (isTimeline && movie.poster_url) {
-      el.style.backgroundImage = `url(${movie.poster_url})`;
-      el.classList.add('has-poster');
-    }
-
-    const yearDirector = [movie.year, movie.director].filter(Boolean).join(', ');
-    const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
-    const actors = movie.actors ? movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ') : '';
-
-    // Store movie data for modal
-    el.dataset.movie = JSON.stringify(movie);
-    el.setAttribute('tabindex', '0');
-    el.setAttribute('role', 'button');
-
-    const isSingleShowtime = filteredCounts && filteredCounts[movie.Movie] === 1;
-    const badgeHtml = (singleMode === SINGLE_SHOWTIMES_MODE.HIGHLIGHT && isSingleShowtime)
-      ? '<span class="single-showtime-badge" title="Only showtime with current filters">★</span>'
-      : '';
-
-    const posterHtml = movie.poster_url
-      ? `<img class="movie-poster" src="${movie.poster_url}" alt="" loading="lazy" />`
-      : '';
-
-    // Process FF Jr. designation: move from time to title prefix
-    const { displayTime, displayTitle } = processFFJr(movie.Time, movie.Movie);
-
-    el.innerHTML = `
-      ${badgeHtml}
-      <div class="movie-clickable">
-        ${posterHtml}
-        <div class="movie-header">
-          <span class="movie-time">${displayTime}</span>
-          <span class="movie-title">${displayTitle}</span>
-        </div>
-        <div class="movie-meta">
-          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
-          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
-          ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
-        </div>
-      </div>
-    `;
-    return el;
   }
 
   function getHiddenWorkHoursMovies(): Movie[] {
@@ -386,11 +310,21 @@ for (let i = 1; i <= 28; i++) {
           const runtime = parseInt(movie.runtime || '90');
           const topPx = (start - globalRange.start) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
-          dayCell.appendChild(createMovieElement(movie, true, topPx, heightPx, filteredShowtimeCounts, singleShowtimesMode));
+          dayCell.appendChild(createMovieElement(movie, {
+            isTimeline: true,
+            topPx,
+            heightPx,
+            filteredCounts: filteredShowtimeCounts,
+            singleShowtimeMode: singleShowtimesMode
+          }));
         });
       } else {
         filteredMovies.forEach(movie => {
-          dayCell.appendChild(createMovieElement(movie, false, undefined, undefined, filteredShowtimeCounts, singleShowtimesMode));
+          dayCell.appendChild(createMovieElement(movie, {
+            isTimeline: false,
+            filteredCounts: filteredShowtimeCounts,
+            singleShowtimeMode: singleShowtimesMode
+          }));
         });
       }
     });
@@ -407,15 +341,26 @@ for (let i = 1; i <= 28; i++) {
   document.getElementById('timeline-mode-toggle')?.addEventListener('change', () => {
     renderAllDays();
     updateUrlParams();
+    setTimeout(updateTextHeights, 10);
   });
 
-  // Movie Tile Display checkboxes - interdependent with fit-width
+  // Movie Tile Display toggles - interdependent with fit-width
   const fitWidthToggle = document.getElementById('fit-width-toggle');
   const tileDisplayOptions = document.getElementById('tile-display-options');
-  const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
-  const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
-  const showActors = document.getElementById('show-actors') as HTMLInputElement;
-  const showImage = document.getElementById('show-image') as HTMLInputElement;
+  const showYearDirector = document.getElementById('show-year-director') as HTMLButtonElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLButtonElement;
+  const showActors = document.getElementById('show-actors') as HTMLButtonElement;
+  const showImage = document.getElementById('show-image') as HTMLButtonElement;
+
+  function isTogglePressed(el: HTMLElement | null): boolean {
+    return el?.getAttribute('data-state') === 'on';
+  }
+
+  function setToggleState(el: HTMLElement | null, pressed: boolean) {
+    if (!el) return;
+    el.setAttribute('data-state', pressed ? 'on' : 'off');
+    el.setAttribute('aria-pressed', String(pressed));
+  }
 
   function getToggleInput(el: HTMLElement | null): HTMLInputElement | null {
     if (!el) return null;
@@ -437,18 +382,11 @@ for (let i = 1; i <= 28; i++) {
     const weekStartInput = getToggleInput(document.getElementById('week-start-toggle'));
     if (weekStartInput) params.set('week-start', weekStartInput.checked ? '1' : '0');
 
-    // Tile display checkboxes
-    const imageCheck = document.getElementById('show-image') as HTMLInputElement;
-    if (imageCheck?.checked) params.set('image', '1');
-
-    const ydCheck = document.getElementById('show-year-director') as HTMLInputElement;
-    if (ydCheck?.checked) params.set('year-director', '1');
-
-    const runtimeCheck = document.getElementById('show-runtime') as HTMLInputElement;
-    if (runtimeCheck?.checked) params.set('runtime', '1');
-
-    const actorsCheck = document.getElementById('show-actors') as HTMLInputElement;
-    if (actorsCheck?.checked) params.set('actors', '1');
+    // Tile display toggles
+    if (isTogglePressed(document.getElementById('show-image'))) params.set('image', '1');
+    if (isTogglePressed(document.getElementById('show-year-director'))) params.set('year-director', '1');
+    if (isTogglePressed(document.getElementById('show-runtime'))) params.set('runtime', '1');
+    if (isTogglePressed(document.getElementById('show-actors'))) params.set('actors', '1');
 
     // Filters
     const hoursFilter = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
@@ -466,15 +404,20 @@ for (let i = 1; i <= 28; i++) {
     const fitWidthEnabled = fitWidthInput?.checked ?? true;
 
     if (fitWidthEnabled) {
-      // Disable checkboxes and clear their state
+      // Visually disable toggles and force hide all optional content
       tileDisplayOptions?.classList.add('disabled');
-      [showYearDirector, showRuntime, showActors, showImage].forEach(cb => {
-        if (cb) cb.checked = false;
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+        if (toggle) {
+          setToggleState(toggle, false);
+          toggle.dataset.disabled = 'true';
+        }
       });
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image',
-        'hide-year-director', 'hide-runtime', 'hide-actors', 'hide-image');
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+        if (toggle) toggle.dataset.disabled = 'false';
+      });
     }
   }
 
@@ -485,21 +428,19 @@ for (let i = 1; i <= 28; i++) {
     updateUrlParams();
   });
 
-  // Handle click on disabled checkbox row - use custom modal
-  let pendingCheckbox: HTMLInputElement | null = null;
-  const confirmModal = document.getElementById('confirm-fit-width-modal');
+  // Handle click on disabled toggle row - use dialog
+  let pendingToggle: HTMLButtonElement | null = null;
   const confirmOkBtn = document.getElementById('confirm-fit-width-ok');
   const confirmCancelBtn = document.getElementById('confirm-fit-width-cancel');
-  const confirmOverlay = confirmModal?.querySelector('.modal-overlay');
 
-  function showConfirmModal(checkbox: HTMLInputElement) {
-    pendingCheckbox = checkbox;
-    if (confirmModal) confirmModal.dataset.show = 'true';
+  function showConfirmDialog(toggle: HTMLButtonElement) {
+    pendingToggle = toggle;
+    (window as any).openDialog('confirm-fit-width-dialog');
   }
 
-  function hideConfirmModal() {
-    if (confirmModal) confirmModal.dataset.show = '';
-    pendingCheckbox = null;
+  function hideConfirmDialog() {
+    (window as any).closeDialog('confirm-fit-width-dialog');
+    pendingToggle = null;
   }
 
   confirmOkBtn?.addEventListener('click', () => {
@@ -508,54 +449,45 @@ for (let i = 1; i <= 28; i++) {
       fitWidthInput.checked = false;
       fitWidthInput.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    // Now toggle the checkbox that was originally clicked
-    if (pendingCheckbox) {
-      pendingCheckbox.checked = true;
-      pendingCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+    // Now toggle the button that was originally clicked
+    if (pendingToggle) {
+      pendingToggle.click();
     }
-    hideConfirmModal();
+    hideConfirmDialog();
   });
 
-  confirmCancelBtn?.addEventListener('click', hideConfirmModal);
-  confirmOverlay?.addEventListener('click', hideConfirmModal);
+  confirmCancelBtn?.addEventListener('click', hideConfirmDialog);
 
   tileDisplayOptions?.addEventListener('click', (e) => {
-    if (tileDisplayOptions.classList.contains('disabled')) {
-      const fitWidthInput = getToggleInput(fitWidthToggle);
-      if (fitWidthInput?.checked) {
-        // Find which checkbox was clicked
-        const clickedLabel = (e.target as HTMLElement).closest('.checkbox-option');
-        const clickedCheckbox = clickedLabel?.querySelector('input') as HTMLInputElement;
-        if (clickedCheckbox) {
-          showConfirmModal(clickedCheckbox);
-        }
-      }
+    const clickedToggle = (e.target as HTMLElement).closest('.toggle') as HTMLButtonElement;
+    if (clickedToggle?.dataset.disabled === 'true') {
+      showConfirmDialog(clickedToggle);
     }
   });
 
-  // Checkbox change handlers - toggle both show and hide classes
+  // Toggle change handlers - toggle show classes
   showYearDirector?.addEventListener('change', () => {
-    document.body.classList.toggle('show-year-director', showYearDirector.checked);
-    document.body.classList.toggle('hide-year-director', !showYearDirector.checked);
+    document.body.classList.toggle('show-year-director', isTogglePressed(showYearDirector));
     updateUrlParams();
+    setTimeout(updateTextHeights, 10);
   });
 
   showRuntime?.addEventListener('change', () => {
-    document.body.classList.toggle('show-runtime', showRuntime.checked);
-    document.body.classList.toggle('hide-runtime', !showRuntime.checked);
+    document.body.classList.toggle('show-runtime', isTogglePressed(showRuntime));
     updateUrlParams();
+    setTimeout(updateTextHeights, 10);
   });
 
   showActors?.addEventListener('change', () => {
-    document.body.classList.toggle('show-actors', showActors.checked);
-    document.body.classList.toggle('hide-actors', !showActors.checked);
+    document.body.classList.toggle('show-actors', isTogglePressed(showActors));
     updateUrlParams();
+    setTimeout(updateTextHeights, 10);
   });
 
   showImage?.addEventListener('change', () => {
-    document.body.classList.toggle('show-image', showImage.checked);
-    document.body.classList.toggle('hide-image', !showImage.checked);
+    document.body.classList.toggle('show-image', isTogglePressed(showImage));
     updateUrlParams();
+    setTimeout(updateTextHeights, 10);
   });
 
   // Initialize tile display state
@@ -565,6 +497,7 @@ for (let i = 1; i <= 28; i++) {
     radio.addEventListener('change', () => {
       renderAllDays();
       updateUrlParams();
+      setTimeout(updateTextHeights, 10);
     });
   });
 
@@ -572,6 +505,7 @@ for (let i = 1; i <= 28; i++) {
     radio.addEventListener('change', () => {
       renderAllDays();
       updateUrlParams();
+      setTimeout(updateTextHeights, 10);
     });
   });
 
@@ -601,6 +535,7 @@ for (let i = 1; i <= 28; i++) {
       uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
       renderAllDays();
+      setTimeout(updateTextHeights, 10);
     });
 
   // Modal management
@@ -837,6 +772,13 @@ for (let i = 1; i <= 28; i++) {
     initModal();
     initHiddenModals();
 
+    // Detect pointer device (mouse) for hover-dependent features
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.querySelectorAll('.desktop-only').forEach(el => {
+        el.classList.add('has-pointer');
+      });
+    }
+
     // Parse URL parameters to set view state (enables reliable screenshot testing)
     const params = new URLSearchParams(window.location.search);
 
@@ -858,12 +800,17 @@ for (let i = 1; i <= 28; i++) {
       if (weekStartToggle && weekStartToggle.checked !== wantWeekStart) weekStartToggle.click();
     }
 
-    // For checkboxes: image, year-director, runtime, actors
+    // For toggles: image, year-director, runtime, actors
     ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
+      const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
+      const toggle = document.getElementById(id) as HTMLButtonElement;
       if (params.has(key)) {
-        const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
-        const cb = document.getElementById(id) as HTMLInputElement;
-        if (cb && cb.checked !== (params.get(key) === '1')) cb.click();
+        const wantPressed = params.get(key) === '1';
+        if (toggle && isTogglePressed(toggle) !== wantPressed) toggle.click();
+      } else if (toggle) {
+        // Initialize show classes based on toggle state
+        const className = key === 'year-director' ? 'year-director' : key;
+        document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
       }
     });
 
@@ -959,6 +906,16 @@ for (let i = 1; i <= 28; i++) {
 </script>
 
 <style>
+  /* Calendar scroll container - only scrolls horizontally in natural-width mode */
+  .calendar-scroll-container {
+    width: 100%;
+  }
+
+  :global(body.natural-width) .calendar-scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* Day number styles (for dynamically recreated elements) */
   :global(.day-number) {
     font-size: 12px;
@@ -991,231 +948,23 @@ for (let i = 1; i <= 28; i++) {
     margin-bottom: 0;
   }
 
-  /* Client-side injected movie styles */
-  :global(.movie) {
-    position: relative;
-    background: var(--bg-movie);
-    border-radius: 0;
-    margin: 0 0 4px 0;
-    font-size: 12px;
-    line-height: 1;
-    border-left: none;
-  }
-
-  @media (min-width: 480px) {
-    :global(.movie) {
-      font-size: 13px;
-    }
-  }
-
-  :global(.movie) {
-    cursor: pointer;
-  }
-
-  :global(.movie:hover),
-  :global(.movie:focus) {
-    background: var(--bg-movie-hover);
-    outline: none;
-  }
-
-  :global(.movie:focus-visible) {
-    box-shadow: 0 0 0 2px var(--accent);
-  }
-
-  :global(.movie-clickable) {
-    display: block;
-    padding: 4px;
-    color: var(--text-primary);
-  }
-
-  :global(.movie-header) {
-    display: inline;
-  }
-
-  :global(.movie-time) {
-    color: var(--accent);
-    font-weight: 400;
-    margin-right: 3px;
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    letter-spacing: -0.015em;
-    text-transform: uppercase;
-  }
-
-  :global(.movie-title) {
-    font-weight: 400;
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    letter-spacing: -0.005em;
-    text-transform: uppercase;
-  }
-
-  @media (min-width: 640px) {
-    :global(.movie) {
-      line-height: 1;
-    }
-    :global(.movie-time),
-    :global(.movie-title) {
-      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      letter-spacing: normal;
-      font-weight: 500;
-      text-transform: none;
-    }
-  }
-
-  :global(.movie-meta) {
-    color: var(--text-tertiary);
-    font-size: 0.85em;
-    margin-top: 0.25em;
-    line-height: 1.05;
-    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    :global(.movie-meta) {
-      display: block;
-    }
-  }
-
-  :global(.movie-actors) {
-    display: none;
-    font-style: italic;
-    margin-top: 0.3em;
-  }
-
-  @media (min-width: 1024px) {
-    :global(.movie-actors) {
-      display: block;
-    }
-  }
-
-  /* Movie meta element base styles */
-  :global(.movie-year-director),
-  :global(.movie-runtime) {
-    display: none;
-  }
-
-  /* Only show comma after year-director when runtime is also shown */
-  :global(body.show-year-director.show-runtime .movie-year-director)::after {
-    content: ', ';
-  }
-
-  /* Checkbox-controlled visibility for movie tile display */
-  :global(body.show-year-director .movie-meta),
-  :global(body.show-runtime .movie-meta),
-  :global(body.show-actors .movie-meta) {
-    display: block !important;
-  }
-
-  :global(body.show-year-director .movie-year-director) {
-    display: inline !important;
-  }
-
-  :global(body.show-runtime .movie-runtime) {
-    display: inline !important;
-  }
-
-  :global(body.show-actors .movie-actors) {
-    display: block !important;
-  }
-
-  /* Hide classes for when checkboxes are explicitly unchecked */
-  :global(body.hide-year-director .movie-year-director) {
-    display: none !important;
-  }
-
-  :global(body.hide-runtime .movie-runtime) {
-    display: none !important;
-  }
-
-  :global(body.hide-actors .movie-actors) {
-    display: none !important;
-  }
-
-  :global(body.hide-image .movie-poster) {
-    display: none !important;
-  }
-
-  :global(.movie-poster) {
-    display: none;
-    width: calc(100% + 8px);
-    margin: -4px -4px 4px -4px;
-    height: auto;
-    border-radius: 0;
-  }
-
-  :global(body.show-image .movie-poster) {
-    display: block !important;
-  }
-
-  /* Checkbox row styling */
-  .checkbox-row {
+  /* Toggle row styling */
+  .toggle-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
-  .checkbox-row-label {
+  .toggle-row-label {
     font-size: 14px;
     color: var(--text-secondary);
+    margin-right: 4px;
   }
 
-  .checkbox-option {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-
-  .checkbox-option input {
-    margin: 0;
-  }
-
-  /* Disabled checkbox row styling */
-  .checkbox-row.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .checkbox-row.disabled label {
-    pointer-events: none;
-  }
-
-  :global(.movie--timeline) {
-    position: absolute;
-    left: 0;
-    right: 0;
-    overflow: hidden;
-    z-index: 1;
-    margin-bottom: 0;
-  }
-
-  @media (min-width: 1024px) {
-    :global(.movie--timeline) {
-      left: 4px;
-      right: 4px;
-    }
-  }
-
-  :global(.movie--timeline .movie-clickable) {
-    height: 100%;
-  }
-
-  :global(.movie--timeline.overlap-col-1) {
-    left: 52% !important;
-    right: 4px !important;
-  }
-
-  :global(.movie--timeline.overlap-col-0.has-overlap) {
-    right: 52% !important;
-    left: 4px !important;
-  }
-
-  :global(.movie.alternate-highlight) {
-    outline: 2px solid var(--accent);
-    outline-offset: -2px;
+  /* Disabled toggle row styling - opacity handled by individual toggles */
+  .toggle-row.disabled .toggle-row-label {
+    opacity: 0.6;
   }
 
   /* Toggle with status wrapper */
@@ -1238,7 +987,6 @@ for (let i = 1; i <= 28; i++) {
   .hidden-status:hover {
     color: var(--accent);
   }
-
 
   /* Hidden movies modal */
   :global(.hidden-modal) {
@@ -1344,94 +1092,4 @@ for (let i = 1; i <= 28; i++) {
     content: ', ';
   }
 
-  :global(.single-showtime-badge) {
-    position: absolute;
-    top: 2px;
-    right: 4px;
-    font-size: 10px;
-    color: var(--accent);
-    z-index: 5;
-  }
-
-  /* Timeline mode: poster as background (only when show-image is enabled) */
-  :global(body.show-image .movie--timeline.has-poster) {
-    background-size: cover;
-    background-position: center top;
-  }
-
-  /* Hide background when show-image is not enabled */
-  :global(body:not(.show-image) .movie--timeline.has-poster) {
-    background-image: none !important;
-  }
-
-  /* Text at bottom with dark gradient for readability */
-  :global(body.show-image .movie--timeline.has-poster .movie-clickable) {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 40%,
-      rgba(0, 0, 0, 0.85) 100%
-    );
-  }
-
-  /* Hide the img element in timeline mode */
-  :global(.movie--timeline .movie-poster) {
-    display: none !important;
-  }
-
-  /* Ensure text is readable on poster background (only when showing images) */
-  :global(body.show-image .movie--timeline.has-poster .movie-time) {
-    color: var(--accent);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  }
-
-  :global(body.show-image .movie--timeline.has-poster .movie-title),
-  :global(body.show-image .movie--timeline.has-poster .movie-meta) {
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  }
-
-  /* Confirm modal styles */
-  :global(.confirm-modal-content) {
-    max-width: 380px;
-    text-align: center;
-  }
-
-  :global(.confirm-buttons) {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  :global(.confirm-btn) {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  :global(.confirm-btn-cancel) {
-    background: var(--bg-movie);
-    color: var(--text-secondary);
-  }
-
-  :global(.confirm-btn-cancel:hover) {
-    background: var(--bg-movie-hover);
-    color: var(--text-primary);
-  }
-
-  :global(.confirm-btn-ok) {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  :global(.confirm-btn-ok:hover) {
-    background: var(--accent-bg);
-  }
 </style>
