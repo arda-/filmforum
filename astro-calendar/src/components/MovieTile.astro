@@ -1,0 +1,146 @@
+---
+interface Props {
+  time: string;
+  title: string;
+  year?: string;
+  director?: string;
+  runtime?: string;
+  actors?: string;
+  ticketUrl: string;
+  isTimeline?: boolean;
+  style?: string;
+  overlapClass?: string;
+}
+
+const { time, title, year, director, runtime, actors, ticketUrl, isTimeline = false, style = '', overlapClass = '' } = Astro.props;
+
+function toTitleCase(str: string) {
+  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+
+const formattedRuntime = runtime ? runtime.replace(' minutes', 'min').replace(' ', '') : '';
+const formattedActors = actors ? actors.split(',').slice(0, 3).map(a => a.trim()).join(', ') : '';
+const metaText = [year, director, formattedRuntime].filter(Boolean).join(', ');
+
+const classes = ['movie', isTimeline ? 'movie--timeline' : '', overlapClass].filter(Boolean).join(' ');
+---
+
+<div class={classes} style={style}>
+  <a href={ticketUrl}>
+    <span class="movie-time">{time}</span>
+    <span class="movie-title">{toTitleCase(title)}</span>
+    <div class="movie-meta">
+      <span class="movie-info">{metaText}</span>
+      {formattedActors && <span class="movie-actors">{formattedActors}</span>}
+    </div>
+  </a>
+</div>
+
+<style>
+  /* Mobile-first styles */
+  .movie {
+    background: var(--bg-movie);
+    border-radius: 0;
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    line-height: 1;
+    border-left: none;
+  }
+
+  .movie a {
+    display: block;
+    padding: 4px;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .movie a:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  .movie-time,
+  .movie-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.005em;
+    font-weight: 200;
+    text-transform: uppercase;
+  }
+
+  .movie-time {
+    color: var(--accent);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    margin-right: 3px;
+  }
+
+  .movie-meta {
+    color: var(--text-tertiary);
+    font-size: 0.85em;
+    margin-top: 0.25em;
+    line-height: 1.05;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: none;
+  }
+
+  .movie-actors {
+    display: none;
+    font-style: italic;
+    margin-top: 0.3em;
+  }
+
+  /* ≥480px: restore font size */
+  @media (min-width: 480px) {
+    .movie {
+      font-size: 13px;
+    }
+  }
+
+  /* ≥640px: switch to IBM Plex Sans, show meta */
+  @media (min-width: 640px) {
+    .movie {
+      line-height: 1;
+    }
+    .movie-time,
+    .movie-title {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      letter-spacing: normal;
+      font-weight: 500;
+      text-transform: none;
+    }
+    .movie-meta {
+      display: block;
+    }
+  }
+
+  /* ≥1024px: show actors */
+  @media (min-width: 1024px) {
+    .movie-actors {
+      display: block;
+    }
+  }
+
+  /* Timeline-specific styles */
+  .movie--timeline {
+    position: absolute;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    z-index: 1;
+    margin-bottom: 0;
+  }
+
+  .movie--timeline a {
+    height: 100%;
+  }
+
+  /* Overlap handling */
+  .movie--timeline.overlap-col-1 {
+    left: 52% !important;
+    right: 4px !important;
+  }
+
+  .movie--timeline.overlap-col-0.has-overlap {
+    right: 52% !important;
+    left: 4px !important;
+  }
+</style>

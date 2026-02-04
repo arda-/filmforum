@@ -1,0 +1,89 @@
+---
+interface Props {
+  date: string;
+  hasMovies?: boolean;
+  isTimeline?: boolean;
+  style?: string;
+}
+
+const { date, hasMovies = false, isTimeline = false, style = '' } = Astro.props;
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function formatDayLabel(dateStr: string) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const day = d.getDate();
+  const dayName = DAYS[d.getDay()];
+  return `${day} ${dayName}`;
+}
+
+const label = formatDayLabel(date);
+const classes = [
+  'day',
+  hasMovies ? 'has-movies' : '',
+  isTimeline ? 'timeline-view' : ''
+].filter(Boolean).join(' ');
+---
+
+<div class={classes} data-date={date} data-day-number={label} style={style}>
+  <div class="day-number">{label}</div>
+  <slot />
+</div>
+
+<style>
+  .day {
+    background: var(--bg-day);
+    border-radius: 0;
+    min-height: 120px;
+    padding: 4px 0;
+    vertical-align: top;
+    overflow: hidden;
+    max-width: 100%;
+  }
+
+  .day.empty {
+    background: transparent;
+  }
+
+  .day.has-movies {
+    background: var(--bg-day-movies);
+  }
+
+  .day-number {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.005em;
+  }
+
+  @media (min-width: 480px) {
+    .day-number {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: 400;
+    }
+  }
+
+  .day.has-movies .day-number {
+    color: var(--text-secondary);
+  }
+
+  /* Timeline view */
+  .day.timeline-view {
+    position: relative;
+    padding-top: 28px;
+    overflow: hidden;
+  }
+
+  .day.timeline-view .day-number {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 20;
+    margin-bottom: 0;
+  }
+</style>
