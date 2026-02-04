@@ -172,16 +172,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
     <div class="demo-controls text-relative-controls section-controls">
       <div class="control-row">
-        <ToggleGroup
-          label="100% blur until:"
-          name="rel-full-mult"
-          options={[
-            { label: '0.25×', value: '0.25' },
-            { label: '0.5×', value: '0.5' },
-            { label: '0.8×', value: '0.8' },
-            { label: '1.0×', value: '1', checked: true }
-          ]}
-        />
+        <div class="slider-control">
+          <label>
+            <span class="slider-label">100% blur until: <span id="rel-full-mult-value">1.0×</span></span>
+            <input
+              type="range"
+              id="rel-full-mult-slider"
+              name="rel-full-mult"
+              min="0.25"
+              max="1.00"
+              step="0.05"
+              value="1.00"
+            />
+          </label>
+        </div>
         <label class="debug-toggle">
           <input type="checkbox" id="rel-debug-lines" />
           <span>Debug</span>
@@ -944,8 +948,12 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     if (emControls) emControls.style.display = relSizingMode === 'em' ? '' : 'none';
 
     // Full blur multiplier control (always used)
-    const fullMultRadio = document.querySelector(`input[name="rel-full-mult"][value="${relFullBlurMult}"]`) as HTMLInputElement;
-    if (fullMultRadio) fullMultRadio.checked = true;
+    const fullMultSlider = document.getElementById('rel-full-mult-slider') as HTMLInputElement;
+    const fullMultValue = document.getElementById('rel-full-mult-value') as HTMLElement;
+    if (fullMultSlider) {
+      fullMultSlider.value = String(relFullBlurMult);
+      if (fullMultValue) fullMultValue.textContent = `${relFullBlurMult.toFixed(2)}×`;
+    }
 
     // Blur end multiplier controls
     const endMultRadio = document.querySelector(`input[name="rel-end-mult"][value="${relBlurEndMult}"]`) as HTMLInputElement;
@@ -1073,12 +1081,14 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   });
 
   // Multiplier mode controls
-  document.querySelectorAll('input[name="rel-full-mult"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      relFullBlurMult = parseFloat((e.target as HTMLInputElement).value);
-      updateRelBlur();
-      updateRelURL();
-    });
+  const fullMultSlider = document.getElementById('rel-full-mult-slider') as HTMLInputElement;
+  const fullMultValue = document.getElementById('rel-full-mult-value') as HTMLElement;
+
+  fullMultSlider?.addEventListener('input', (e) => {
+    relFullBlurMult = parseFloat((e.target as HTMLInputElement).value);
+    if (fullMultValue) fullMultValue.textContent = `${relFullBlurMult.toFixed(2)}×`;
+    updateRelBlur();
+    updateRelURL();
   });
 
   document.querySelectorAll('input[name="rel-end-mult"]').forEach(radio => {
@@ -1509,6 +1519,64 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   .debug-toggle input {
     cursor: pointer;
+  }
+
+  .slider-control {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .slider-control label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .slider-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 200px;
+    height: 6px;
+    background: var(--bg-movie-hover);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.2);
   }
 
   /* Debug lines - hidden by default, shown with body.show-debug */
