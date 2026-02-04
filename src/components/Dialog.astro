@@ -237,44 +237,4 @@ const {
     padding: 0 24px;
   }
 
-  /* Button styles for dialog */
-  :global(.dialog-btn) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 16px;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease,
-      transform 0.1s ease;
-  }
-
-  :global(.dialog-btn:active) {
-    transform: scale(0.97);
-  }
-
-  :global(.dialog-btn--secondary) {
-    background: var(--bg-movie);
-    color: var(--text-secondary);
-  }
-
-  :global(.dialog-btn--secondary:hover) {
-    background: var(--bg-movie-hover);
-    color: var(--text-primary);
-  }
-
-  :global(.dialog-btn--primary) {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  :global(.dialog-btn--primary:hover) {
-    background: var(--accent-bg);
-  }
 </style>
