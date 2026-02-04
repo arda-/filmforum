@@ -208,6 +208,30 @@ const {
     justify-content: center;
   }
 
+  :global(.dialog-footer--sticky) {
+    position: sticky;
+    bottom: -24px;
+    margin: 24px -24px -24px -24px;
+    padding: 16px 24px;
+    background: var(--bg-day);
+    border-top: 1px solid var(--bg-movie);
+    border-radius: 0 0 12px 12px;
+  }
+
+  /* Scrollable body with sticky header */
+  :global(.dialog-body) {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  :global(.dialog-body--scroll) {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+
   /* Button styles for dialog */
   :global(.dialog-btn) {
     display: inline-flex;
