@@ -140,11 +140,23 @@
       display: inline-block;
     }
     .movie-actors.marquee .movie-actors-inner {
-      animation: marquee 20s linear infinite;
+      /* duration set dynamically via JS based on text width */
     }
-    @keyframes marquee {
+    @keyframes marquee-scroll {
       0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+      5% { transform: translateX(0); }
+      75% { transform: translateX(var(--scroll-distance)); }
+      80% { transform: translateX(var(--scroll-distance)); }
+      80.01% { transform: translateX(0); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes marquee-fade {
+      0% { opacity: 1; }
+      75% { opacity: 1; }
+      80% { opacity: 0; }
+      85% { opacity: 0; }
+      92% { opacity: 1; }
+      100% { opacity: 1; }
     }
     .legend {
       text-align: center;
@@ -429,8 +441,7 @@
       if (movie.actors) {
         const actors = movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ');
         const actorsInner = clone.querySelector('.movie-actors-inner');
-        // Duplicate text with separator for seamless loop
-        actorsInner.textContent = actors + '  ·  ' + actors + '  ·  ';
+        actorsInner.textContent = actors;
       }
 
       return container;
@@ -509,11 +520,20 @@
           }
         });
 
-        // Detect overflow and enable marquee
+        // Detect overflow and enable marquee with constant speed
         requestAnimationFrame(() => {
+          const PX_PER_SECOND = 30;
           document.querySelectorAll('.movie-actors').forEach(el => {
-            if (el.scrollWidth > el.clientWidth) {
+            const inner = el.querySelector('.movie-actors-inner');
+            if (!inner) return;
+            const overflow = inner.scrollWidth - el.clientWidth;
+            // Only enable marquee if there's significant overflow
+            if (overflow > 10) {
               el.classList.add('marquee');
+              const scrollTime = Math.max(overflow / PX_PER_SECOND, 2);
+              const totalDuration = scrollTime / 0.70;
+              inner.style.setProperty('--scroll-distance', `-${overflow}px`);
+              inner.style.animation = `marquee-scroll ${totalDuration}s linear infinite, marquee-fade ${totalDuration}s ease-out infinite`;
             }
           });
         });
