@@ -299,6 +299,11 @@ for (let i = 1; i <= 14; i++) {
     min-height: 80px;
   }
 
+  /* Make empty spacer cells match day cell background instead of transparent */
+  .scenario-content :global(.day.empty) {
+    background: var(--bg-day);
+  }
+
   /* Floating controls at bottom */
   .floating-controls {
     position: fixed;
