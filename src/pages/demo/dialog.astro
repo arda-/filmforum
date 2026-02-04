@@ -5,7 +5,8 @@ import Dialog from '../../components/Dialog.astro';
 
 <Layout title="Dialog Demo">
   <div class="demo-container">
-    <h1>Dialog Component Demo</h1>
+    <h1>Dialog Component</h1>
+    <p class="subtitle">A window overlaid on the primary window, rendering the content underneath inert.</p>
 
     <div class="demo-section">
       <h2>Sizes</h2>
@@ -17,51 +18,62 @@ import Dialog from '../../components/Dialog.astro';
     </div>
 
     <div class="demo-section">
-      <h2>Variants</h2>
+      <h2>Close Button</h2>
+      <p class="section-desc">Control the default close button visibility.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDialog('dialog-with-close')">With Close Button</button>
+        <button class="demo-btn" onclick="openDialog('dialog-no-close')">No Close Button</button>
+        <button class="demo-btn" onclick="openDialog('dialog-custom-close')">Custom Close Button</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Scrollable Content</h2>
+      <p class="section-desc">Long content can scroll while the header stays in view.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDialog('dialog-scroll')">Scrollable Content</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Sticky Footer</h2>
+      <p class="section-desc">Keep actions visible while the content scrolls.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDialog('dialog-sticky')">Sticky Footer</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Common Patterns</h2>
       <div class="button-row">
         <button class="demo-btn" onclick="openDialog('dialog-confirm')">Confirmation</button>
-        <button class="demo-btn" onclick="openDialog('dialog-info')">Info (No Close Button)</button>
-        <button class="demo-btn" onclick="openDialog('dialog-form')">With Form</button>
+        <button class="demo-btn" onclick="openDialog('dialog-form')">Form</button>
+        <button class="demo-btn" onclick="openDialog('dialog-alert')">Alert</button>
       </div>
     </div>
   </div>
 
-  <!-- Small Dialog -->
-  <Dialog
-    id="dialog-sm"
-    title="Small Dialog"
-    description="This is a small dialog with a max-width of 400px. Good for simple confirmations."
-    size="sm"
-  >
+  <!-- Size: Small -->
+  <Dialog id="dialog-sm" title="Small Dialog" description="This is a small dialog with a max-width of 400px." size="sm">
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-sm')">Cancel</button>
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-sm')">Confirm</button>
     </div>
   </Dialog>
 
-  <!-- Medium Dialog -->
-  <Dialog
-    id="dialog-md"
-    title="Medium Dialog"
-    description="This is a medium dialog with a max-width of 500px. Good for forms and detailed content."
-    size="md"
-  >
-    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-    </p>
+  <!-- Size: Medium -->
+  <Dialog id="dialog-md" title="Medium Dialog" description="This is a medium dialog with a max-width of 500px. Good for forms and detailed content." size="md">
+    <div class="dialog-body">
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+    </div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-md')">Cancel</button>
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-md')">Save Changes</button>
     </div>
   </Dialog>
 
-  <!-- Large Dialog -->
-  <Dialog
-    id="dialog-lg"
-    title="Large Dialog"
-    description="This is a large dialog with a max-width of 640px. Good for complex content or lists."
-    size="lg"
-  >
+  <!-- Size: Large -->
+  <Dialog id="dialog-lg" title="Large Dialog" description="This is a large dialog with a max-width of 640px." size="lg">
     <div class="demo-list">
       <div class="demo-list-item">Item 1 - Some content here</div>
       <div class="demo-list-item">Item 2 - More content</div>
@@ -73,40 +85,94 @@ import Dialog from '../../components/Dialog.astro';
     </div>
   </Dialog>
 
-  <!-- Confirmation Dialog -->
-  <Dialog
-    id="dialog-confirm"
-    title="Delete this item?"
-    description="This action cannot be undone. This will permanently delete the item from your collection."
-    size="sm"
-    showCloseButton={false}
-  >
+  <!-- With Close Button (default) -->
+  <Dialog id="dialog-with-close" title="With Close Button" description="Click the X button in the corner, press Escape, or click the backdrop to close." size="sm">
+    <div class="dialog-footer">
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-with-close')">Got it</button>
+    </div>
+  </Dialog>
+
+  <!-- No Close Button -->
+  <Dialog id="dialog-no-close" title="No Close Button" description="Use showCloseButton={false} to hide the close button. Users must use the action buttons." size="sm" showCloseButton={false}>
+    <div class="dialog-footer dialog-footer--center">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-no-close')">Cancel</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-no-close')">Continue</button>
+    </div>
+  </Dialog>
+
+  <!-- Custom Close Button -->
+  <Dialog id="dialog-custom-close" title="Custom Close Button" description="Replace the default close control with your own button in the footer." size="sm" showCloseButton={false}>
+    <div class="dialog-footer">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-custom-close')">
+        Close Dialog
+      </button>
+    </div>
+  </Dialog>
+
+  <!-- Scrollable Content -->
+  <Dialog id="dialog-scroll" title="Terms of Service" description="Please read the following terms carefully." size="md">
+    <div class="dialog-body dialog-body--scroll">
+      <p><strong>1. Acceptance of Terms</strong></p>
+      <p>By accessing and using this service, you accept and agree to be bound by the terms and provision of this agreement.</p>
+
+      <p><strong>2. Use License</strong></p>
+      <p>Permission is granted to temporarily download one copy of the materials (information or software) on this website for personal, non-commercial transitory viewing only.</p>
+
+      <p><strong>3. Disclaimer</strong></p>
+      <p>The materials on this website are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+
+      <p><strong>4. Limitations</strong></p>
+      <p>In no event shall we or our suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on this website.</p>
+
+      <p><strong>5. Accuracy of Materials</strong></p>
+      <p>The materials appearing on this website could include technical, typographical, or photographic errors. We do not warrant that any of the materials on its website are accurate, complete or current.</p>
+
+      <p><strong>6. Links</strong></p>
+      <p>We have not reviewed all of the sites linked to this website and are not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by us of the site.</p>
+
+      <p><strong>7. Modifications</strong></p>
+      <p>We may revise these terms of service for this website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
+    </div>
+    <div class="dialog-footer">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-scroll')">Decline</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-scroll')">Accept</button>
+    </div>
+  </Dialog>
+
+  <!-- Sticky Footer -->
+  <Dialog id="dialog-sticky" title="Sticky Footer Example" description="The footer stays visible as you scroll through the content." size="md">
+    <div class="dialog-body dialog-body--scroll">
+      <p><strong>Section 1</strong></p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.</p>
+
+      <p><strong>Section 2</strong></p>
+      <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+
+      <p><strong>Section 3</strong></p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+
+      <p><strong>Section 4</strong></p>
+      <p>Sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+
+      <p><strong>Section 5</strong></p>
+      <p>Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Sed do eiusmod tempor incididunt.</p>
+    </div>
+    <div class="dialog-footer dialog-footer--sticky">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-sticky')">Cancel</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-sticky')">Save Changes</button>
+    </div>
+  </Dialog>
+
+  <!-- Confirmation -->
+  <Dialog id="dialog-confirm" title="Delete this item?" description="This action cannot be undone. This will permanently delete the item from your collection." size="sm" showCloseButton={false}>
     <div class="dialog-footer dialog-footer--center">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-confirm')">Cancel</button>
       <button class="dialog-btn dialog-btn--danger" onclick="closeDialog('dialog-confirm')">Delete</button>
     </div>
   </Dialog>
 
-  <!-- Info Dialog (No Close Button) -->
-  <Dialog
-    id="dialog-info"
-    title="Welcome!"
-    description="Thanks for checking out this dialog component. Click anywhere outside or press the button below to close."
-    size="sm"
-    showCloseButton={false}
-  >
-    <div class="dialog-footer dialog-footer--center">
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-info')">Got it</button>
-    </div>
-  </Dialog>
-
-  <!-- Form Dialog -->
-  <Dialog
-    id="dialog-form"
-    title="Edit Profile"
-    description="Make changes to your profile here."
-    size="md"
-  >
+  <!-- Form -->
+  <Dialog id="dialog-form" title="Edit Profile" description="Make changes to your profile here." size="md">
     <form class="demo-form" onsubmit="event.preventDefault(); closeDialog('dialog-form');">
       <div class="form-group">
         <label for="name">Name</label>
@@ -122,6 +188,13 @@ import Dialog from '../../components/Dialog.astro';
       </div>
     </form>
   </Dialog>
+
+  <!-- Alert -->
+  <Dialog id="dialog-alert" title="Session Expired" description="Your session has expired. Please log in again to continue." size="sm" showCloseButton={false}>
+    <div class="dialog-footer dialog-footer--center">
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-alert')">Log In</button>
+    </div>
+  </Dialog>
 </Layout>
 
 <style>
@@ -135,7 +208,14 @@ import Dialog from '../../components/Dialog.astro';
     font-size: 28px;
     font-weight: 600;
     color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
     margin-bottom: 32px;
+    line-height: 1.5;
   }
 
   .demo-section {
@@ -144,8 +224,14 @@ import Dialog from '../../components/Dialog.astro';
 
   .demo-section h2 {
     font-size: 16px;
-    font-weight: 500;
-    color: var(--text-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
     margin-bottom: 12px;
   }
 
