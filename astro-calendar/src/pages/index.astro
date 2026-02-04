@@ -27,6 +27,17 @@ for (let i = 1; i <= 28; i++) {
       </div>
     </div>
     <div class="control-group">
+      <span class="control-group-label">Movie Tile Display</span>
+      <div class="control-group-toggles">
+        <div class="toggle-wrapper disabled" id="show-metadata-wrapper">
+          <Switch id="show-metadata-toggle" label="Show year/director/runtime" small />
+        </div>
+        <div class="toggle-wrapper disabled" id="show-actors-wrapper">
+          <Switch id="show-actors-toggle" label="Show actors" small />
+        </div>
+      </div>
+    </div>
+    <div class="control-group">
       <span class="control-group-label">Filtering</span>
       <div class="control-group-toggles">
         <ToggleGroup
@@ -340,10 +351,77 @@ for (let i = 1; i <= 28; i++) {
     renderAllDays();
   });
 
-  document.getElementById('fit-width-toggle')?.addEventListener('change', (e) => {
+  // Movie Tile Display toggles - interdependent with fit-width
+  const fitWidthToggle = document.getElementById('fit-width-toggle');
+  const showMetadataWrapper = document.getElementById('show-metadata-wrapper');
+  const showActorsWrapper = document.getElementById('show-actors-wrapper');
+  const showMetadataToggle = document.getElementById('show-metadata-toggle');
+  const showActorsToggle = document.getElementById('show-actors-toggle');
+
+  function getToggleInput(el: HTMLElement | null): HTMLInputElement | null {
+    if (!el) return null;
+    return el.tagName === 'INPUT' ? el as HTMLInputElement : el.querySelector('input');
+  }
+
+  function updateDisplayTogglesState() {
+    const fitWidthInput = getToggleInput(fitWidthToggle);
+    const fitWidthEnabled = fitWidthInput?.checked ?? true;
+
+    if (fitWidthEnabled) {
+      // Disable display toggles and clear their state
+      showMetadataWrapper?.classList.add('disabled');
+      showActorsWrapper?.classList.add('disabled');
+      const metadataInput = getToggleInput(showMetadataToggle);
+      const actorsInput = getToggleInput(showActorsToggle);
+      if (metadataInput) metadataInput.checked = false;
+      if (actorsInput) actorsInput.checked = false;
+      document.body.classList.remove('show-metadata', 'show-actors');
+    } else {
+      // Enable display toggles
+      showMetadataWrapper?.classList.remove('disabled');
+      showActorsWrapper?.classList.remove('disabled');
+    }
+  }
+
+  fitWidthToggle?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('natural-width', !checked);
+    updateDisplayTogglesState();
   });
+
+  // Handle click on disabled display toggles
+  function handleDisplayToggleClick(wrapper: HTMLElement | null, toggleEl: HTMLElement | null) {
+    wrapper?.addEventListener('click', () => {
+      const fitWidthInput = getToggleInput(fitWidthToggle);
+      if (fitWidthInput?.checked) {
+        if (confirm('Disable "Fit to width" to show additional movie details?')) {
+          fitWidthInput.checked = false;
+          fitWidthInput.dispatchEvent(new Event('change'));
+          // Enable and check the toggle they clicked
+          const input = getToggleInput(toggleEl);
+          if (input) {
+            input.checked = true;
+            input.dispatchEvent(new Event('change'));
+          }
+        }
+      }
+    });
+  }
+
+  handleDisplayToggleClick(showMetadataWrapper, showMetadataToggle);
+  handleDisplayToggleClick(showActorsWrapper, showActorsToggle);
+
+  // Display toggle change handlers
+  getToggleInput(showMetadataToggle)?.addEventListener('change', (e) => {
+    document.body.classList.toggle('show-metadata', (e.target as HTMLInputElement).checked);
+  });
+
+  getToggleInput(showActorsToggle)?.addEventListener('change', (e) => {
+    document.body.classList.toggle('show-actors', (e.target as HTMLInputElement).checked);
+  });
+
+  // Initialize display toggle state
+  updateDisplayTogglesState();
 
   document.querySelectorAll('input[name="hours-filter-mode"]').forEach(radio => {
     radio.addEventListener('change', () => {
@@ -636,7 +714,9 @@ for (let i = 1; i <= 28; i++) {
     });
 
     // Highlight alternate showtimes on hover
-    document.querySelector('.calendar')?.addEventListener('mouseenter', (e) => {
+    let currentHighlightedMovie: string | null = null;
+
+    document.querySelector('.calendar')?.addEventListener('mouseover', (e) => {
       const movieEl = (e.target as HTMLElement).closest('[data-movie]');
       if (!movieEl) return;
 
@@ -649,6 +729,15 @@ for (let i = 1; i <= 28; i++) {
       const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
       if (movieShowtimeCounts[movie.Movie] <= 1) return;
 
+      // Avoid re-processing if already highlighting this movie
+      if (currentHighlightedMovie === movie.Movie) return;
+      currentHighlightedMovie = movie.Movie;
+
+      // Remove existing highlights first
+      document.querySelectorAll('.alternate-highlight').forEach(el => {
+        el.classList.remove('alternate-highlight');
+      });
+
       // Highlight all movies with the same title
       document.querySelectorAll('[data-movie]').forEach(el => {
         const otherMovie = JSON.parse((el as HTMLElement).dataset.movie || '{}');
@@ -656,17 +745,21 @@ for (let i = 1; i <= 28; i++) {
           el.classList.add('alternate-highlight');
         }
       });
-    }, true);
+    });
 
-    document.querySelector('.calendar')?.addEventListener('mouseleave', (e) => {
+    document.querySelector('.calendar')?.addEventListener('mouseout', (e) => {
       const movieEl = (e.target as HTMLElement).closest('[data-movie]');
-      if (!movieEl) return;
+      const relatedTarget = (e as MouseEvent).relatedTarget as HTMLElement | null;
+      const relatedMovieEl = relatedTarget?.closest('[data-movie]');
 
-      // Remove all highlights
-      document.querySelectorAll('.alternate-highlight').forEach(el => {
-        el.classList.remove('alternate-highlight');
-      });
-    }, true);
+      // Only remove highlights if leaving the movie tile entirely
+      if (movieEl && (!relatedMovieEl || relatedMovieEl !== movieEl)) {
+        currentHighlightedMovie = null;
+        document.querySelectorAll('.alternate-highlight').forEach(el => {
+          el.classList.remove('alternate-highlight');
+        });
+      }
+    });
   });
 </script>
 
@@ -794,6 +887,25 @@ for (let i = 1; i <= 28; i++) {
     :global(.movie-actors) {
       display: block;
     }
+  }
+
+  /* Toggle-controlled visibility for movie tile display */
+  :global(body.show-metadata .movie-meta) {
+    display: block !important;
+  }
+
+  :global(body.show-actors .movie-actors) {
+    display: block !important;
+  }
+
+  /* Disabled toggle wrapper styling */
+  .toggle-wrapper.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .toggle-wrapper.disabled > * {
+    pointer-events: none;
   }
 
   :global(.movie--timeline) {
