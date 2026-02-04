@@ -5,3 +5,5 @@
 
 ## UI/Styling
 - [ ] ToggleGroup border colors too high contrast in dark mode - needs subtler border
+- [ ] Dim day cells in the calendar grid that are in the past
+- [ ] Make calendar color theme programmatic - support multiple primary color themes (e.g. blue for Feb, red for March) for series spanning multiple months
