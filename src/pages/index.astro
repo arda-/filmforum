@@ -6,6 +6,8 @@ import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
 import ToggleGroup from '../components/ToggleGroup.astro';
 import Switch from '../components/Switch.astro';
+import Toggle from '../components/Toggle.astro';
+import Dialog from '../components/Dialog.astro';
 
 // Generate Feb 2026 dates
 const dates: string[] = [];
@@ -34,24 +36,12 @@ for (let i = 1; i <= 28; i++) {
     </div>
     <div class="control-group">
       <span class="control-group-label">Movie Tile Display</span>
-      <div class="checkbox-row disabled" id="tile-display-options">
-        <span class="checkbox-row-label">Show:</span>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-year-director" />
-          <span>Year / Director</span>
-        </label>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-runtime" />
-          <span>Runtime</span>
-        </label>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-actors" />
-          <span>Actors</span>
-        </label>
-        <label class="checkbox-option">
-          <input type="checkbox" id="show-image" />
-          <span>Image</span>
-        </label>
+      <div class="toggle-row disabled" id="tile-display-options">
+        <span class="toggle-row-label">Show:</span>
+        <Toggle id="show-year-director" label="Year / Director" variant="outline" size="sm" />
+        <Toggle id="show-runtime" label="Runtime" variant="outline" size="sm" />
+        <Toggle id="show-actors" label="Actors" variant="outline" size="sm" />
+        <Toggle id="show-image" label="Image" variant="outline" size="sm" />
       </div>
     </div>
     <div class="control-group">
@@ -67,7 +57,6 @@ for (let i = 1; i <= 28; i++) {
           ]}
           statusId="hours-filter-status"
         />
-        <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
         <ToggleGroup
           label="Single showings:"
           name="single-showtimes-mode"
@@ -77,6 +66,9 @@ for (let i = 1; i <= 28; i++) {
             { label: 'Only show unique', value: 'only' }
           ]}
         />
+        <div class="desktop-only">
+          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
+        </div>
       </div>
     </div>
   </div>
@@ -115,18 +107,18 @@ for (let i = 1; i <= 28; i++) {
     </div>
   </div>
 
-  <!-- Confirm Disable Fit-Width Modal -->
-  <div id="confirm-fit-width-modal" class="hidden-modal" data-show="">
-    <div class="modal-overlay"></div>
-    <div class="modal-content confirm-modal-content">
-      <h2>Show Movie Details?</h2>
-      <p class="hidden-modal-subtitle">Disable "Fit to width" to show additional movie details like year, director, runtime, and images.</p>
-      <div class="confirm-buttons">
-        <button id="confirm-fit-width-cancel" class="confirm-btn confirm-btn-cancel">Cancel</button>
-        <button id="confirm-fit-width-ok" class="confirm-btn confirm-btn-ok">Disable Fit to Width</button>
-      </div>
+  <!-- Confirm Disable Fit-Width Dialog -->
+  <Dialog
+    id="confirm-fit-width-dialog"
+    title="Customize movie tile display?"
+    description="Disable "Fit to width" to show additional movie details like year, director, runtime, and images."
+    showCloseButton={false}
+  >
+    <div class="dialog-footer dialog-footer--center">
+      <button id="confirm-fit-width-cancel" class="dialog-btn dialog-btn--secondary">Cancel</button>
+      <button id="confirm-fit-width-ok" class="dialog-btn dialog-btn--primary">Disable Fit to Width</button>
     </div>
-  </div>
+  </Dialog>
 </Layout>
 
 <script>
@@ -352,13 +344,23 @@ for (let i = 1; i <= 28; i++) {
     setTimeout(updateTextHeights, 10);
   });
 
-  // Movie Tile Display checkboxes - interdependent with fit-width
+  // Movie Tile Display toggles - interdependent with fit-width
   const fitWidthToggle = document.getElementById('fit-width-toggle');
   const tileDisplayOptions = document.getElementById('tile-display-options');
-  const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
-  const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
-  const showActors = document.getElementById('show-actors') as HTMLInputElement;
-  const showImage = document.getElementById('show-image') as HTMLInputElement;
+  const showYearDirector = document.getElementById('show-year-director') as HTMLButtonElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLButtonElement;
+  const showActors = document.getElementById('show-actors') as HTMLButtonElement;
+  const showImage = document.getElementById('show-image') as HTMLButtonElement;
+
+  function isTogglePressed(el: HTMLElement | null): boolean {
+    return el?.getAttribute('data-state') === 'on';
+  }
+
+  function setToggleState(el: HTMLElement | null, pressed: boolean) {
+    if (!el) return;
+    el.setAttribute('data-state', pressed ? 'on' : 'off');
+    el.setAttribute('aria-pressed', String(pressed));
+  }
 
   function getToggleInput(el: HTMLElement | null): HTMLInputElement | null {
     if (!el) return null;
@@ -380,18 +382,11 @@ for (let i = 1; i <= 28; i++) {
     const weekStartInput = getToggleInput(document.getElementById('week-start-toggle'));
     if (weekStartInput) params.set('week-start', weekStartInput.checked ? '1' : '0');
 
-    // Tile display checkboxes
-    const imageCheck = document.getElementById('show-image') as HTMLInputElement;
-    if (imageCheck?.checked) params.set('image', '1');
-
-    const ydCheck = document.getElementById('show-year-director') as HTMLInputElement;
-    if (ydCheck?.checked) params.set('year-director', '1');
-
-    const runtimeCheck = document.getElementById('show-runtime') as HTMLInputElement;
-    if (runtimeCheck?.checked) params.set('runtime', '1');
-
-    const actorsCheck = document.getElementById('show-actors') as HTMLInputElement;
-    if (actorsCheck?.checked) params.set('actors', '1');
+    // Tile display toggles
+    if (isTogglePressed(document.getElementById('show-image'))) params.set('image', '1');
+    if (isTogglePressed(document.getElementById('show-year-director'))) params.set('year-director', '1');
+    if (isTogglePressed(document.getElementById('show-runtime'))) params.set('runtime', '1');
+    if (isTogglePressed(document.getElementById('show-actors'))) params.set('actors', '1');
 
     // Filters
     const hoursFilter = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
@@ -409,14 +404,20 @@ for (let i = 1; i <= 28; i++) {
     const fitWidthEnabled = fitWidthInput?.checked ?? true;
 
     if (fitWidthEnabled) {
-      // Disable checkboxes and force hide all optional content
+      // Visually disable toggles and force hide all optional content
       tileDisplayOptions?.classList.add('disabled');
-      [showYearDirector, showRuntime, showActors, showImage].forEach(cb => {
-        if (cb) cb.checked = false;
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+        if (toggle) {
+          setToggleState(toggle, false);
+          toggle.dataset.disabled = 'true';
+        }
       });
       document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+        if (toggle) toggle.dataset.disabled = 'false';
+      });
     }
   }
 
@@ -427,21 +428,19 @@ for (let i = 1; i <= 28; i++) {
     updateUrlParams();
   });
 
-  // Handle click on disabled checkbox row - use custom modal
-  let pendingCheckbox: HTMLInputElement | null = null;
-  const confirmModal = document.getElementById('confirm-fit-width-modal');
+  // Handle click on disabled toggle row - use dialog
+  let pendingToggle: HTMLButtonElement | null = null;
   const confirmOkBtn = document.getElementById('confirm-fit-width-ok');
   const confirmCancelBtn = document.getElementById('confirm-fit-width-cancel');
-  const confirmOverlay = confirmModal?.querySelector('.modal-overlay');
 
-  function showConfirmModal(checkbox: HTMLInputElement) {
-    pendingCheckbox = checkbox;
-    if (confirmModal) confirmModal.dataset.show = 'true';
+  function showConfirmDialog(toggle: HTMLButtonElement) {
+    pendingToggle = toggle;
+    (window as any).openDialog('confirm-fit-width-dialog');
   }
 
-  function hideConfirmModal() {
-    if (confirmModal) confirmModal.dataset.show = '';
-    pendingCheckbox = null;
+  function hideConfirmDialog() {
+    (window as any).closeDialog('confirm-fit-width-dialog');
+    pendingToggle = null;
   }
 
   confirmOkBtn?.addEventListener('click', () => {
@@ -450,52 +449,43 @@ for (let i = 1; i <= 28; i++) {
       fitWidthInput.checked = false;
       fitWidthInput.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    // Now toggle the checkbox that was originally clicked
-    if (pendingCheckbox) {
-      pendingCheckbox.checked = true;
-      pendingCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+    // Now toggle the button that was originally clicked
+    if (pendingToggle) {
+      pendingToggle.click();
     }
-    hideConfirmModal();
+    hideConfirmDialog();
   });
 
-  confirmCancelBtn?.addEventListener('click', hideConfirmModal);
-  confirmOverlay?.addEventListener('click', hideConfirmModal);
+  confirmCancelBtn?.addEventListener('click', hideConfirmDialog);
 
   tileDisplayOptions?.addEventListener('click', (e) => {
-    if (tileDisplayOptions.classList.contains('disabled')) {
-      const fitWidthInput = getToggleInput(fitWidthToggle);
-      if (fitWidthInput?.checked) {
-        // Find which checkbox was clicked
-        const clickedLabel = (e.target as HTMLElement).closest('.checkbox-option');
-        const clickedCheckbox = clickedLabel?.querySelector('input') as HTMLInputElement;
-        if (clickedCheckbox) {
-          showConfirmModal(clickedCheckbox);
-        }
-      }
+    const clickedToggle = (e.target as HTMLElement).closest('.toggle') as HTMLButtonElement;
+    if (clickedToggle?.dataset.disabled === 'true') {
+      showConfirmDialog(clickedToggle);
     }
   });
 
-  // Checkbox change handlers - toggle show classes
+  // Toggle change handlers - toggle show classes
   showYearDirector?.addEventListener('change', () => {
-    document.body.classList.toggle('show-year-director', showYearDirector.checked);
+    document.body.classList.toggle('show-year-director', isTogglePressed(showYearDirector));
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
   showRuntime?.addEventListener('change', () => {
-    document.body.classList.toggle('show-runtime', showRuntime.checked);
+    document.body.classList.toggle('show-runtime', isTogglePressed(showRuntime));
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
   showActors?.addEventListener('change', () => {
-    document.body.classList.toggle('show-actors', showActors.checked);
+    document.body.classList.toggle('show-actors', isTogglePressed(showActors));
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
   showImage?.addEventListener('change', () => {
-    document.body.classList.toggle('show-image', showImage.checked);
+    document.body.classList.toggle('show-image', isTogglePressed(showImage));
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
@@ -782,6 +772,13 @@ for (let i = 1; i <= 28; i++) {
     initModal();
     initHiddenModals();
 
+    // Detect pointer device (mouse) for hover-dependent features
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.querySelectorAll('.desktop-only').forEach(el => {
+        el.classList.add('has-pointer');
+      });
+    }
+
     // Parse URL parameters to set view state (enables reliable screenshot testing)
     const params = new URLSearchParams(window.location.search);
 
@@ -803,16 +800,17 @@ for (let i = 1; i <= 28; i++) {
       if (weekStartToggle && weekStartToggle.checked !== wantWeekStart) weekStartToggle.click();
     }
 
-    // For checkboxes: image, year-director, runtime, actors
+    // For toggles: image, year-director, runtime, actors
     ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
       const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
-      const cb = document.getElementById(id) as HTMLInputElement;
+      const toggle = document.getElementById(id) as HTMLButtonElement;
       if (params.has(key)) {
-        if (cb && cb.checked !== (params.get(key) === '1')) cb.click();
-      } else if (cb) {
-        // Initialize show classes based on checkbox state
+        const wantPressed = params.get(key) === '1';
+        if (toggle && isTogglePressed(toggle) !== wantPressed) toggle.click();
+      } else if (toggle) {
+        // Initialize show classes based on toggle state
         const className = key === 'year-director' ? 'year-director' : key;
-        document.body.classList.toggle(`show-${className}`, cb.checked);
+        document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
       }
     });
 
@@ -950,40 +948,23 @@ for (let i = 1; i <= 28; i++) {
     margin-bottom: 0;
   }
 
-  /* Checkbox row styling */
-  .checkbox-row {
+  /* Toggle row styling */
+  .toggle-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
   }
 
-  .checkbox-row-label {
+  .toggle-row-label {
     font-size: 14px;
     color: var(--text-secondary);
+    margin-right: 4px;
   }
 
-  .checkbox-option {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-
-  .checkbox-option input {
-    margin: 0;
-  }
-
-  /* Disabled checkbox row styling */
-  .checkbox-row.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .checkbox-row.disabled label {
-    pointer-events: none;
+  /* Disabled toggle row styling - opacity handled by individual toggles */
+  .toggle-row.disabled .toggle-row-label {
+    opacity: 0.6;
   }
 
   /* Toggle with status wrapper */
@@ -1111,44 +1092,4 @@ for (let i = 1; i <= 28; i++) {
     content: ', ';
   }
 
-  /* Confirm modal styles */
-  :global(.confirm-modal-content) {
-    max-width: 380px;
-    text-align: center;
-  }
-
-  :global(.confirm-buttons) {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  :global(.confirm-btn) {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  :global(.confirm-btn-cancel) {
-    background: var(--bg-movie);
-    color: var(--text-secondary);
-  }
-
-  :global(.confirm-btn-cancel:hover) {
-    background: var(--bg-movie-hover);
-    color: var(--text-primary);
-  }
-
-  :global(.confirm-btn-ok) {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  :global(.confirm-btn-ok:hover) {
-    background: var(--accent-bg);
-  }
 </style>
