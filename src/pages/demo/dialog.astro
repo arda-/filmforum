@@ -1,0 +1,240 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Dialog from '../../components/Dialog.astro';
+---
+
+<Layout title="Dialog Demo">
+  <div class="demo-container">
+    <h1>Dialog Component Demo</h1>
+
+    <div class="demo-section">
+      <h2>Sizes</h2>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDialog('dialog-sm')">Small (400px)</button>
+        <button class="demo-btn" onclick="openDialog('dialog-md')">Medium (500px)</button>
+        <button class="demo-btn" onclick="openDialog('dialog-lg')">Large (640px)</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Variants</h2>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDialog('dialog-confirm')">Confirmation</button>
+        <button class="demo-btn" onclick="openDialog('dialog-info')">Info (No Close Button)</button>
+        <button class="demo-btn" onclick="openDialog('dialog-form')">With Form</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Small Dialog -->
+  <Dialog
+    id="dialog-sm"
+    title="Small Dialog"
+    description="This is a small dialog with a max-width of 400px. Good for simple confirmations."
+    size="sm"
+  >
+    <div class="dialog-footer">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-sm')">Cancel</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-sm')">Confirm</button>
+    </div>
+  </Dialog>
+
+  <!-- Medium Dialog -->
+  <Dialog
+    id="dialog-md"
+    title="Medium Dialog"
+    description="This is a medium dialog with a max-width of 500px. Good for forms and detailed content."
+    size="md"
+  >
+    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    </p>
+    <div class="dialog-footer">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-md')">Cancel</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-md')">Save Changes</button>
+    </div>
+  </Dialog>
+
+  <!-- Large Dialog -->
+  <Dialog
+    id="dialog-lg"
+    title="Large Dialog"
+    description="This is a large dialog with a max-width of 640px. Good for complex content or lists."
+    size="lg"
+  >
+    <div class="demo-list">
+      <div class="demo-list-item">Item 1 - Some content here</div>
+      <div class="demo-list-item">Item 2 - More content</div>
+      <div class="demo-list-item">Item 3 - Even more content</div>
+    </div>
+    <div class="dialog-footer">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-lg')">Close</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-lg')">Done</button>
+    </div>
+  </Dialog>
+
+  <!-- Confirmation Dialog -->
+  <Dialog
+    id="dialog-confirm"
+    title="Delete this item?"
+    description="This action cannot be undone. This will permanently delete the item from your collection."
+    size="sm"
+    showCloseButton={false}
+  >
+    <div class="dialog-footer dialog-footer--center">
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-confirm')">Cancel</button>
+      <button class="dialog-btn dialog-btn--danger" onclick="closeDialog('dialog-confirm')">Delete</button>
+    </div>
+  </Dialog>
+
+  <!-- Info Dialog (No Close Button) -->
+  <Dialog
+    id="dialog-info"
+    title="Welcome!"
+    description="Thanks for checking out this dialog component. Click anywhere outside or press the button below to close."
+    size="sm"
+    showCloseButton={false}
+  >
+    <div class="dialog-footer dialog-footer--center">
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-info')">Got it</button>
+    </div>
+  </Dialog>
+
+  <!-- Form Dialog -->
+  <Dialog
+    id="dialog-form"
+    title="Edit Profile"
+    description="Make changes to your profile here."
+    size="md"
+  >
+    <form class="demo-form" onsubmit="event.preventDefault(); closeDialog('dialog-form');">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Enter your name" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email" />
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-form')">Cancel</button>
+        <button type="submit" class="dialog-btn dialog-btn--primary">Save</button>
+      </div>
+    </form>
+  </Dialog>
+</Layout>
+
+<style>
+  .demo-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 32px;
+  }
+
+  .demo-section {
+    margin-bottom: 32px;
+  }
+
+  .demo-section h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .demo-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--bg-movie);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+  }
+
+  .demo-btn:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  .demo-btn:active {
+    transform: scale(0.97);
+  }
+
+  .demo-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .demo-list-item {
+    padding: 12px;
+    background: var(--bg-movie);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .demo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  /* Danger button variant */
+  :global(.dialog-btn--danger) {
+    background: #dc2626;
+    color: #fff;
+  }
+
+  :global(.dialog-btn--danger:hover) {
+    background: #b91c1c;
+  }
+</style>
