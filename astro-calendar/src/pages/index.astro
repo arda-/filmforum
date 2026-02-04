@@ -28,13 +28,24 @@ for (let i = 1; i <= 28; i++) {
     </div>
     <div class="control-group">
       <span class="control-group-label">Movie Tile Display</span>
-      <div class="control-group-toggles">
-        <div class="toggle-wrapper disabled" id="show-metadata-wrapper">
-          <Switch id="show-metadata-toggle" label="Show year/director/runtime" small />
-        </div>
-        <div class="toggle-wrapper disabled" id="show-actors-wrapper">
-          <Switch id="show-actors-toggle" label="Show actors" small />
-        </div>
+      <div class="checkbox-row disabled" id="tile-display-options">
+        <span class="checkbox-row-label">Show:</span>
+        <label class="checkbox-option">
+          <input type="checkbox" id="show-year-director" />
+          <span>Year / Director</span>
+        </label>
+        <label class="checkbox-option">
+          <input type="checkbox" id="show-runtime" />
+          <span>Runtime</span>
+        </label>
+        <label class="checkbox-option">
+          <input type="checkbox" id="show-actors" />
+          <span>Actors</span>
+        </label>
+        <label class="checkbox-option">
+          <input type="checkbox" id="show-image" />
+          <span>Image</span>
+        </label>
       </div>
     </div>
     <div class="control-group">
@@ -179,8 +190,8 @@ for (let i = 1; i <= 28; i++) {
       el.style.height = `${heightPx}px`;
     }
 
+    const yearDirector = [movie.year, movie.director].filter(Boolean).join(', ');
     const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
-    const metaText = [movie.year, movie.director, runtime].filter(Boolean).join(', ');
     const actors = movie.actors ? movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ') : '';
 
     // Store movie data for modal
@@ -199,7 +210,8 @@ for (let i = 1; i <= 28; i++) {
         <span class="movie-time">${movie.Time}</span>
         <span class="movie-title">${toTitleCase(movie.Movie)}</span>
         <div class="movie-meta">
-          <span class="movie-info">${metaText}</span>
+          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
+          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
           ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
         </div>
       </div>
@@ -351,77 +363,73 @@ for (let i = 1; i <= 28; i++) {
     renderAllDays();
   });
 
-  // Movie Tile Display toggles - interdependent with fit-width
+  // Movie Tile Display checkboxes - interdependent with fit-width
   const fitWidthToggle = document.getElementById('fit-width-toggle');
-  const showMetadataWrapper = document.getElementById('show-metadata-wrapper');
-  const showActorsWrapper = document.getElementById('show-actors-wrapper');
-  const showMetadataToggle = document.getElementById('show-metadata-toggle');
-  const showActorsToggle = document.getElementById('show-actors-toggle');
+  const tileDisplayOptions = document.getElementById('tile-display-options');
+  const showYearDirector = document.getElementById('show-year-director') as HTMLInputElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLInputElement;
+  const showActors = document.getElementById('show-actors') as HTMLInputElement;
+  const showImage = document.getElementById('show-image') as HTMLInputElement;
 
   function getToggleInput(el: HTMLElement | null): HTMLInputElement | null {
     if (!el) return null;
     return el.tagName === 'INPUT' ? el as HTMLInputElement : el.querySelector('input');
   }
 
-  function updateDisplayTogglesState() {
+  function updateTileDisplayState() {
     const fitWidthInput = getToggleInput(fitWidthToggle);
     const fitWidthEnabled = fitWidthInput?.checked ?? true;
 
     if (fitWidthEnabled) {
-      // Disable display toggles and clear their state
-      showMetadataWrapper?.classList.add('disabled');
-      showActorsWrapper?.classList.add('disabled');
-      const metadataInput = getToggleInput(showMetadataToggle);
-      const actorsInput = getToggleInput(showActorsToggle);
-      if (metadataInput) metadataInput.checked = false;
-      if (actorsInput) actorsInput.checked = false;
-      document.body.classList.remove('show-metadata', 'show-actors');
+      // Disable checkboxes and clear their state
+      tileDisplayOptions?.classList.add('disabled');
+      [showYearDirector, showRuntime, showActors, showImage].forEach(cb => {
+        if (cb) cb.checked = false;
+      });
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
     } else {
-      // Enable display toggles
-      showMetadataWrapper?.classList.remove('disabled');
-      showActorsWrapper?.classList.remove('disabled');
+      tileDisplayOptions?.classList.remove('disabled');
     }
   }
 
   fitWidthToggle?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('natural-width', !checked);
-    updateDisplayTogglesState();
+    updateTileDisplayState();
   });
 
-  // Handle click on disabled display toggles
-  function handleDisplayToggleClick(wrapper: HTMLElement | null, toggleEl: HTMLElement | null) {
-    wrapper?.addEventListener('click', () => {
+  // Handle click on disabled checkbox row
+  tileDisplayOptions?.addEventListener('click', (e) => {
+    if (tileDisplayOptions.classList.contains('disabled')) {
       const fitWidthInput = getToggleInput(fitWidthToggle);
       if (fitWidthInput?.checked) {
         if (confirm('Disable "Fit to width" to show additional movie details?')) {
           fitWidthInput.checked = false;
           fitWidthInput.dispatchEvent(new Event('change'));
-          // Enable and check the toggle they clicked
-          const input = getToggleInput(toggleEl);
-          if (input) {
-            input.checked = true;
-            input.dispatchEvent(new Event('change'));
-          }
         }
       }
-    });
-  }
-
-  handleDisplayToggleClick(showMetadataWrapper, showMetadataToggle);
-  handleDisplayToggleClick(showActorsWrapper, showActorsToggle);
-
-  // Display toggle change handlers
-  getToggleInput(showMetadataToggle)?.addEventListener('change', (e) => {
-    document.body.classList.toggle('show-metadata', (e.target as HTMLInputElement).checked);
+    }
   });
 
-  getToggleInput(showActorsToggle)?.addEventListener('change', (e) => {
-    document.body.classList.toggle('show-actors', (e.target as HTMLInputElement).checked);
+  // Checkbox change handlers
+  showYearDirector?.addEventListener('change', () => {
+    document.body.classList.toggle('show-year-director', showYearDirector.checked);
   });
 
-  // Initialize display toggle state
-  updateDisplayTogglesState();
+  showRuntime?.addEventListener('change', () => {
+    document.body.classList.toggle('show-runtime', showRuntime.checked);
+  });
+
+  showActors?.addEventListener('change', () => {
+    document.body.classList.toggle('show-actors', showActors.checked);
+  });
+
+  showImage?.addEventListener('change', () => {
+    document.body.classList.toggle('show-image', showImage.checked);
+  });
+
+  // Initialize tile display state
+  updateTileDisplayState();
 
   document.querySelectorAll('input[name="hours-filter-mode"]').forEach(radio => {
     radio.addEventListener('change', () => {
@@ -889,22 +897,67 @@ for (let i = 1; i <= 28; i++) {
     }
   }
 
-  /* Toggle-controlled visibility for movie tile display */
-  :global(body.show-metadata .movie-meta) {
-    display: block !important;
+  /* Movie meta element base styles */
+  :global(.movie-year-director),
+  :global(.movie-runtime) {
+    display: none;
+  }
+
+  :global(.movie-year-director)::after {
+    content: ', ';
+  }
+
+  :global(.movie-runtime:last-of-type)::before,
+  :global(.movie-year-director:last-of-type)::after {
+    content: '';
+  }
+
+  /* Checkbox-controlled visibility for movie tile display */
+  :global(body.show-year-director .movie-year-director) {
+    display: inline !important;
+  }
+
+  :global(body.show-runtime .movie-runtime) {
+    display: inline !important;
   }
 
   :global(body.show-actors .movie-actors) {
     display: block !important;
   }
 
-  /* Disabled toggle wrapper styling */
-  .toggle-wrapper.disabled {
+  /* Checkbox row styling */
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .checkbox-row-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  .checkbox-option input {
+    margin: 0;
+  }
+
+  /* Disabled checkbox row styling */
+  .checkbox-row.disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
 
-  .toggle-wrapper.disabled > * {
+  .checkbox-row.disabled label {
     pointer-events: none;
   }
 
