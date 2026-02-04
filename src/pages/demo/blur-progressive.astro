@@ -12,27 +12,27 @@ import Layout from '../../layouts/Layout.astro';
       <div class="layer-buttons">
         <label class="layer-toggle">
           <input type="checkbox" data-layer="1" checked />
-          <span>1px</span>
-        </label>
-        <label class="layer-toggle">
-          <input type="checkbox" data-layer="2" checked />
           <span>2px</span>
         </label>
         <label class="layer-toggle">
-          <input type="checkbox" data-layer="3" checked />
+          <input type="checkbox" data-layer="2" checked />
           <span>4px</span>
         </label>
         <label class="layer-toggle">
-          <input type="checkbox" data-layer="4" checked />
+          <input type="checkbox" data-layer="3" checked />
           <span>8px</span>
         </label>
         <label class="layer-toggle">
-          <input type="checkbox" data-layer="5" checked />
+          <input type="checkbox" data-layer="4" checked />
           <span>16px</span>
         </label>
         <label class="layer-toggle">
-          <input type="checkbox" data-layer="6" checked />
+          <input type="checkbox" data-layer="5" checked />
           <span>32px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="6" checked />
+          <span>48px</span>
         </label>
         <label class="layer-toggle">
           <input type="checkbox" data-layer="7" checked />
@@ -65,12 +65,12 @@ import Layout from '../../layouts/Layout.astro';
     <div class="layer-visualization">
       <h3>Layer masks</h3>
       <div class="mask-preview">
-        <div class="mask-bar layer-1" data-layer="1"><span>1px</span></div>
-        <div class="mask-bar layer-2" data-layer="2"><span>2px</span></div>
-        <div class="mask-bar layer-3" data-layer="3"><span>4px</span></div>
-        <div class="mask-bar layer-4" data-layer="4"><span>8px</span></div>
-        <div class="mask-bar layer-5" data-layer="5"><span>16px</span></div>
-        <div class="mask-bar layer-6" data-layer="6"><span>32px</span></div>
+        <div class="mask-bar layer-1" data-layer="1"><span>2px</span></div>
+        <div class="mask-bar layer-2" data-layer="2"><span>4px</span></div>
+        <div class="mask-bar layer-3" data-layer="3"><span>8px</span></div>
+        <div class="mask-bar layer-4" data-layer="4"><span>16px</span></div>
+        <div class="mask-bar layer-5" data-layer="5"><span>32px</span></div>
+        <div class="mask-bar layer-6" data-layer="6"><span>48px</span></div>
         <div class="mask-bar layer-7" data-layer="7"><span>64px</span></div>
       </div>
       <div class="mask-labels">
@@ -118,15 +118,15 @@ import Layout from '../../layouts/Layout.astro';
 
   <div class="info-section">
     <h2>How it works</h2>
-    <p>Seven blur layers are stacked, each with increasing blur values (1px → 2px → 4px → 8px → 16px → 32px → 64px). Each layer is masked to cover a different vertical region, creating a smooth progression from sharp to heavily blurred.</p>
-    <pre><code>/* Each layer covers ~14% of the height */
-.layer-1 {'{'} backdrop-filter: blur(1px);  mask: linear-gradient(...0% to 14%...); {'}'}
-.layer-2 {'{'} backdrop-filter: blur(2px);  mask: linear-gradient(...14% to 28%...); {'}'}
-.layer-3 {'{'} backdrop-filter: blur(4px);  mask: linear-gradient(...28% to 42%...); {'}'}
-.layer-4 {'{'} backdrop-filter: blur(8px);  mask: linear-gradient(...42% to 57%...); {'}'}
-.layer-5 {'{'} backdrop-filter: blur(16px); mask: linear-gradient(...57% to 71%...); {'}'}
-.layer-6 {'{'} backdrop-filter: blur(32px); mask: linear-gradient(...71% to 85%...); {'}'}
-.layer-7 {'{'} backdrop-filter: blur(64px); mask: linear-gradient(...85% to 100%...); {'}'}</code></pre>
+    <p>Seven blur layers are stacked, each with increasing blur values (2px → 4px → 8px → 16px → 32px → 48px → 64px). Each layer is masked to cover a different vertical region with ~7% overlap, creating a smooth progression from sharp to heavily blurred.</p>
+    <pre><code>/* Layer 1 (lightest) at top, Layer 7 (heaviest) at bottom */
+.layer-1 {'{'} backdrop-filter: blur(2px);  mask: linear-gradient(to top, transparent 79%, black 86%, black 93%, transparent 100%); {'}'}
+.layer-2 {'{'} backdrop-filter: blur(4px);  mask: linear-gradient(to top, transparent 65%, black 72%, black 79%, transparent 86%); {'}'}
+.layer-3 {'{'} backdrop-filter: blur(8px);  mask: linear-gradient(to top, transparent 51%, black 58%, black 65%, transparent 72%); {'}'}
+.layer-4 {'{'} backdrop-filter: blur(16px); mask: linear-gradient(to top, transparent 36%, black 43%, black 51%, transparent 58%); {'}'}
+.layer-5 {'{'} backdrop-filter: blur(32px); mask: linear-gradient(to top, transparent 22%, black 29%, black 36%, transparent 43%); {'}'}
+.layer-6 {'{'} backdrop-filter: blur(48px); mask: linear-gradient(to top, transparent 8%, black 15%, black 22%, transparent 29%); {'}'}
+.layer-7 {'{'} backdrop-filter: blur(64px); mask: linear-gradient(to top, black 0%, black 8%, transparent 15%); {'}'}</code></pre>
     <p class="note"><strong>Trade-off:</strong> More DOM elements and potential performance impact, but creates a much smoother, more natural blur gradient than single-layer approaches.</p>
   </div>
 </Layout>
@@ -299,50 +299,57 @@ import Layout from '../../layouts/Layout.astro';
     transition: opacity 0.2s;
   }
 
-  /* 7 layers with doubling blur values: 1, 2, 4, 8, 16, 32, 64 */
+  /* 7 layers with doubling blur values: 2, 4, 8, 16, 32, 48, 64 */
   /* Blur increases toward BOTTOM where text overlay lives */
   /* Layer 1 (lightest) at top of blur zone, Layer 7 (heaviest) at bottom */
+  /* Explicit z-index to ensure proper stacking */
 
   .layer-1 {
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     mask-image: linear-gradient(to top, transparent 79%, black 86%, black 93%, transparent 100%);
     -webkit-mask-image: linear-gradient(to top, transparent 79%, black 86%, black 93%, transparent 100%);
+    z-index: 1;
   }
 
   .layer-2 {
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     mask-image: linear-gradient(to top, transparent 65%, black 72%, black 79%, transparent 86%);
     -webkit-mask-image: linear-gradient(to top, transparent 65%, black 72%, black 79%, transparent 86%);
+    z-index: 2;
   }
 
   .layer-3 {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     mask-image: linear-gradient(to top, transparent 51%, black 58%, black 65%, transparent 72%);
     -webkit-mask-image: linear-gradient(to top, transparent 51%, black 58%, black 65%, transparent 72%);
+    z-index: 3;
   }
 
   .layer-4 {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     mask-image: linear-gradient(to top, transparent 36%, black 43%, black 51%, transparent 58%);
     -webkit-mask-image: linear-gradient(to top, transparent 36%, black 43%, black 51%, transparent 58%);
+    z-index: 4;
   }
 
   .layer-5 {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
     mask-image: linear-gradient(to top, transparent 22%, black 29%, black 36%, transparent 43%);
     -webkit-mask-image: linear-gradient(to top, transparent 22%, black 29%, black 36%, transparent 43%);
+    z-index: 5;
   }
 
   .layer-6 {
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
     mask-image: linear-gradient(to top, transparent 8%, black 15%, black 22%, transparent 29%);
     -webkit-mask-image: linear-gradient(to top, transparent 8%, black 15%, black 22%, transparent 29%);
+    z-index: 6;
   }
 
   .layer-7 {
@@ -350,6 +357,7 @@ import Layout from '../../layouts/Layout.astro';
     -webkit-backdrop-filter: blur(64px);
     mask-image: linear-gradient(to top, black 0%, black 8%, transparent 15%);
     -webkit-mask-image: linear-gradient(to top, black 0%, black 8%, transparent 15%);
+    z-index: 7;
   }
 
   .text-overlay {
