@@ -133,6 +133,18 @@
       display: none;
       font-style: italic;
       margin-top: 0.3em;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .movie-actors-inner {
+      display: inline-block;
+    }
+    .movie-actors.marquee .movie-actors-inner {
+      animation: marquee 20s linear infinite;
+    }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
     .legend {
       text-align: center;
@@ -326,7 +338,7 @@
         <span class="movie-time"></span>
         <span class="movie-title"></span>
         <div class="movie-meta">
-          <span class="movie-info"></span><span class="movie-actors"></span>
+          <span class="movie-info"></span><span class="movie-actors"><span class="movie-actors-inner"></span></span>
         </div>
       </a>
     </div>
@@ -416,7 +428,9 @@
 
       if (movie.actors) {
         const actors = movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ');
-        clone.querySelector('.movie-actors').textContent = actors;
+        const actorsInner = clone.querySelector('.movie-actors-inner');
+        // Duplicate text with separator for seamless loop
+        actorsInner.textContent = actors + '  ·  ' + actors + '  ·  ';
       }
 
       return container;
@@ -493,6 +507,15 @@
           } else {
             renderDayStacked(dayCell, dayMovies);
           }
+        });
+
+        // Detect overflow and enable marquee
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.movie-actors').forEach(el => {
+            if (el.scrollWidth > el.clientWidth) {
+              el.classList.add('marquee');
+            }
+          });
         });
       });
   </script>
