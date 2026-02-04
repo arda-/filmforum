@@ -70,9 +70,55 @@ for (let i = 1; i <= 14; i++) {
       </div>
     </section>
 
+    <!-- Scenario B2: Flatten day cells + no grid color -->
+    <section class="scenario" id="scenario-flatten-no-grid">
+      <h2>B2. Flatten + No Grid Color</h2>
+      <p class="scenario-desc">Like B, but grid is also white. Only movies have color. Structure comes from day cell borders or spacing.</p>
+      <div class="color-swatches small">
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>all white</span></div>
+        <div class="swatch" style="background: #f1f5f9;"><span>movie</span></div>
+      </div>
+      <div class="scenario-content" style="
+        --bg-grid: #ffffff;
+        --bg-day: #ffffff;
+        --bg-day-movies: #ffffff;
+        --bg-movie: #f1f5f9;
+        --bg-movie-hover: #e2e8f0;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
+    <!-- Scenario B3: White base, subtle border for structure -->
+    <section class="scenario" id="scenario-border-structure">
+      <h2>B3. White + Border Structure</h2>
+      <p class="scenario-desc">All white, but day cells get a subtle border for structure instead of grid color.</p>
+      <div class="color-swatches small">
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>all white</span></div>
+        <div class="swatch" style="background: #f1f5f9;"><span>movie</span></div>
+      </div>
+      <div class="scenario-content with-borders" style="
+        --bg-grid: #ffffff;
+        --bg-day: #ffffff;
+        --bg-day-movies: #ffffff;
+        --bg-movie: #f1f5f9;
+        --bg-movie-hover: #e2e8f0;
+      ">
+        <CalendarGrid>
+          {dates.map(date => (
+            <DayCell date={date} />
+          ))}
+        </CalendarGrid>
+      </div>
+    </section>
+
     <!-- Scenario C: Two-tone - just background and movies -->
     <section class="scenario" id="scenario-twotone">
-      <h2>C. Two-Tone</h2>
+      <h2>C. Two-Tone (inverted)</h2>
       <p class="scenario-desc">Minimal: only 2 colors. Everything is the same light gray except movie tiles which are white.</p>
       <div class="color-swatches small">
         <div class="swatch" style="background: #f1f5f9;"><span>base (all)</span></div>
@@ -288,5 +334,10 @@ for (let i = 1; i <= 14; i++) {
 
   .scenario-content :global(.day) {
     min-height: 80px;
+  }
+
+  /* Border-based structure instead of grid color */
+  .scenario-content.with-borders :global(.day) {
+    border: 1px solid #e2e8f0;
   }
 </style>
