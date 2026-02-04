@@ -391,7 +391,8 @@ for (let i = 1; i <= 28; i++) {
       [showYearDirector, showRuntime, showActors, showImage].forEach(cb => {
         if (cb) cb.checked = false;
       });
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image',
+        'hide-year-director', 'hide-runtime', 'hide-actors', 'hide-image');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
     }
@@ -416,21 +417,25 @@ for (let i = 1; i <= 28; i++) {
     }
   });
 
-  // Checkbox change handlers
+  // Checkbox change handlers - toggle both show and hide classes
   showYearDirector?.addEventListener('change', () => {
     document.body.classList.toggle('show-year-director', showYearDirector.checked);
+    document.body.classList.toggle('hide-year-director', !showYearDirector.checked);
   });
 
   showRuntime?.addEventListener('change', () => {
     document.body.classList.toggle('show-runtime', showRuntime.checked);
+    document.body.classList.toggle('hide-runtime', !showRuntime.checked);
   });
 
   showActors?.addEventListener('change', () => {
     document.body.classList.toggle('show-actors', showActors.checked);
+    document.body.classList.toggle('hide-actors', !showActors.checked);
   });
 
   showImage?.addEventListener('change', () => {
     document.body.classList.toggle('show-image', showImage.checked);
+    document.body.classList.toggle('hide-image', !showImage.checked);
   });
 
   // Initialize tile display state
@@ -934,6 +939,23 @@ for (let i = 1; i <= 28; i++) {
 
   :global(body.show-actors .movie-actors) {
     display: block !important;
+  }
+
+  /* Hide classes for when checkboxes are explicitly unchecked */
+  :global(body.hide-year-director .movie-year-director) {
+    display: none !important;
+  }
+
+  :global(body.hide-runtime .movie-runtime) {
+    display: none !important;
+  }
+
+  :global(body.hide-actors .movie-actors) {
+    display: none !important;
+  }
+
+  :global(body.hide-image .movie-poster) {
+    display: none !important;
   }
 
   :global(.movie-poster) {
