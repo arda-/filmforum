@@ -184,7 +184,7 @@ body.show-image .movie.has-poster .movie-clickable {
   background: none;
 }
 
-/* Content-based gradient overlay for readability */
+/* Content-based gradient overlay for readability (darken blend mode) */
 body.show-image .movie.has-poster .movie-clickable::before {
   content: '';
   position: absolute;
@@ -193,10 +193,11 @@ body.show-image .movie.has-poster .movie-clickable::before {
   right: 0;
   z-index: 0;
   height: var(--text-height, 60px);
+  mix-blend-mode: darken;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 0, 0, 0.75) 60%,
+    rgba(17, 17, 17, 1) 0%,
+    rgba(15, 15, 15, 0.7) 60%,
     rgba(0, 0, 0, 0) 100%
   );
   pointer-events: none;
@@ -218,9 +219,16 @@ body.show-image .movie.has-poster .movie-time {
     0 0 8px rgba(0, 0, 0, 0.6);
 }
 
-body.show-image .movie.has-poster .movie-title,
-body.show-image .movie.has-poster .movie-meta {
+body.show-image .movie.has-poster .movie-title {
   color: #fff;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 1),
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+body.show-image .movie.has-poster .movie-meta {
+  color: rgba(255, 255, 255, 0.75);
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 1),
     0 2px 4px rgba(0, 0, 0, 0.8),
