@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import CalendarGrid from '../../components/CalendarGrid.astro';
 import DayCell from '../../components/DayCell.astro';
+import Toggle from '../../components/Toggle.astro';
 
 // Generate Feb 2026 dates (just first 2 weeks for demo)
 const dates: string[] = [];
@@ -11,7 +12,7 @@ for (let i = 1; i <= 14; i++) {
 ---
 
 <Layout title="Color Palette Demo">
-  <div class="colors-page" data-init-classes>
+  <div class="colors-page">
     <h1>Color Palette Refinement</h1>
     <p class="intro">Testing reduced color palettes for light mode. The current palette has too many distinct grays creating visual noise.</p>
 
@@ -117,14 +118,46 @@ for (let i = 1; i <= 14; i++) {
     </section>
 
   </div>
+
+  <div class="floating-controls">
+    <span class="controls-label">Show:</span>
+    <Toggle id="toggle-year-director" label="Year / Director" variant="outline" size="sm" pressed />
+    <Toggle id="toggle-image" label="Image" variant="outline" size="sm" pressed />
+    <Toggle id="toggle-runtime" label="Runtime" variant="outline" size="sm" />
+    <Toggle id="toggle-actors" label="Actors" variant="outline" size="sm" />
+  </div>
 </Layout>
 
 <script>
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
   import type { Movie } from '../../utils/icsGenerator';
 
-  // Enable meta text and images
-  document.body.classList.add('show-year-director', 'show-image');
+  // Toggle helpers
+  function isTogglePressed(el: HTMLElement | null): boolean {
+    return el?.getAttribute('data-state') === 'on';
+  }
+
+  function setupToggle(id: string, bodyClass: string) {
+    const toggle = document.getElementById(id);
+    if (!toggle) return;
+
+    // Initialize body class based on toggle state
+    if (isTogglePressed(toggle)) {
+      document.body.classList.add(bodyClass);
+    }
+
+    // Listen for changes
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle(bodyClass, isTogglePressed(toggle));
+      setTimeout(updateTextHeights, 10);
+    });
+  }
+
+  // Set up display toggles
+  setupToggle('toggle-year-director', 'show-year-director');
+  setupToggle('toggle-image', 'show-image');
+  setupToggle('toggle-runtime', 'show-runtime');
+  setupToggle('toggle-actors', 'show-actors');
 
   // Load movies and populate all scenarios
   fetch('/tenement-stories-full.json')
@@ -275,5 +308,33 @@ for (let i = 1; i <= 14; i++) {
   .scenario-content.with-borders :global(.day) {
     border-right: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0;
+  }
+
+  /* Floating controls at bottom */
+  .floating-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--bg-body);
+    border-top: 1px solid var(--bg-grid);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+
+  .controls-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+  }
+
+  /* Add padding to page bottom so content isn't hidden behind floating controls */
+  .colors-page {
+    padding-bottom: 80px;
   }
 </style>
