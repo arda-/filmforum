@@ -17,10 +17,20 @@ for (let i = 1; i <= 28; i++) {
   <p class="subtitle">Film Forum, NYC, February 2026</p>
 
   <div class="controls">
-    <Switch id="week-start-toggle" label="Start week on Monday" checked small />
-    <Switch id="duration-mode-toggle" label="Duration mode" checked small />
-    <Switch id="fit-width-toggle" label="Fit to width" checked small />
-    <Switch id="hide-work-hours-toggle" label="Hide weekday 9-5 showtimes" small />
+    <div class="control-group">
+      <span class="control-group-label">Calendar Display</span>
+      <div class="control-group-toggles">
+        <Switch id="week-start-toggle" label="Start week on Monday" checked small />
+        <Switch id="duration-mode-toggle" label="Duration mode" checked small />
+        <Switch id="fit-width-toggle" label="Fit to width" checked small />
+      </div>
+    </div>
+    <div class="control-group">
+      <span class="control-group-label">Filtering</span>
+      <div class="control-group-toggles">
+        <Switch id="hide-work-hours-toggle" label="Hide weekday 9-5 showtimes" small />
+      </div>
+    </div>
   </div>
 
   <CalendarGrid>
@@ -261,7 +271,7 @@ for (let i = 1; i <= 28; i++) {
   function initModal() {
     modalDOM = document.getElementById('movie-modal');
     if (modalDOM) {
-      overlayDOM = modalDOM.nextElementSibling as HTMLElement;
+      overlayDOM = modalDOM.querySelector('.modal-overlay') as HTMLElement;
 
       // Close button handler
       const closeBtn = modalDOM.querySelector('[data-id="close"]');
@@ -346,7 +356,7 @@ for (let i = 1; i <= 28; i++) {
     if (actorsEl) {
       if (movie.actors) {
         const actorSpans = movie.actors.split(',').map(a => `<span>${a.trim()}</span>`).join(', ');
-        actorsEl.innerHTML = actorSpans;
+        actorsEl.innerHTML = `<span class="starring-label">Starring:</span> ${actorSpans}`;
         actorsEl.style.display = 'block';
       } else {
         actorsEl.style.display = 'none';
@@ -365,7 +375,7 @@ for (let i = 1; i <= 28; i++) {
       const date = new Date(movie.Datetime);
       const showtime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      disclaimerEl.textContent = `When buying, select the ${showtime} showtime on ${dateStr}`;
+      disclaimerEl.textContent = `When buying, select the ${showtime} showtime on ${dateStr}:`;
     }
 
     // Set up calendar button

@@ -12,6 +12,7 @@
   --text-secondary: #64748b;
   --text-tertiary: #64748b;
   --accent: #0891b2;
+  --accent-bg: #0891b2;
 
   /* Webcoreui theme - light */
   --w-color-primary: #000;
@@ -40,7 +41,8 @@
     --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
     --text-tertiary: #94a3b8;
-    --accent: #0891b2;
+    --accent: #06b6d4;
+    --accent-bg: #0e7490;
 
     /* Webcoreui theme - dark (midnight) */
     --w-color-primary: #FFF;
@@ -85,9 +87,29 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 16px;
   margin-bottom: 20px;
   padding: 0 10px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+.control-group-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .toggle {
@@ -114,155 +136,14 @@ body.natural-width {
   overflow-x: auto;
 }
 
-/* Movie Modal Styles */
-.movie-modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 100%;
-  padding-top: 24px;
-}
-
-/* Make the modal itself scrollable on small screens */
-#movie-modal {
-  max-height: 90vh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
-.movie-poster {
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: var(--bg-movie);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.movie-poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.poster-placeholder {
-  color: var(--text-tertiary);
-  font-size: 14px;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.modal-meta {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.modal-actors {
-  font-size: 0.9rem;
-  color: var(--text-tertiary);
-  font-style: italic;
-  margin: 0;
-  word-spacing: 0.05em;
-}
-
+/* Styles for JS-injected modal content */
 .modal-actors span {
   white-space: nowrap;
 }
 
-.modal-description {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  margin: 8px 0;
-  padding-left: 1.5em;
-  position: relative;
-  font-style: italic;
-}
-
-.modal-description::before {
-  content: '\201C';
-  position: absolute;
-  left: 0;
-  top: -0.1em;
-  font-size: 2em;
-  font-family: Georgia, serif;
-  color: var(--accent);
-  line-height: 1;
-  font-style: normal;
-}
-
-.modal-citation {
-  font-size: 0.8rem;
-  color: var(--text-tertiary);
-  text-align: right;
-  margin: 0 0 8px 0;
-  font-style: italic;
-}
-
-.movie-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-/* Ensure all buttons in movie-actions are consistent */
-.movie-actions button,
-.movie-actions a {
-  width: 100%;
-  text-align: center;
-  justify-content: center;
-}
-
-/* Override WebcoreUI button to use accent color for primary */
-.movie-actions button:not([class*="secondary"]):not([class*="outline"]),
-.movie-actions a:not([class*="secondary"]):not([class*="outline"]) {
-  background: var(--accent) !important;
-  color: white !important;
-}
-
-.movie-actions button:not([class*="secondary"]):not([class*="outline"]):hover,
-.movie-actions a:not([class*="secondary"]):not([class*="outline"]):hover {
-  filter: brightness(1.1);
-}
-
-.ticket-disclaimer {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 4px 0 8px 0;
-  line-height: 1.4;
-  font-weight: 600;
-  font-style: italic;
-  text-align: center;
-}
-
-.movie-actions .btn-tertiary {
-  background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-}
-
-.movie-actions .btn-tertiary:hover {
-  background: var(--accent);
-  color: white;
-}
-
-/* Modal responsive adjustments */
-@media (max-width: 480px) {
-  .modal-title {
-    font-size: 1.25rem;
-  }
-
-  .modal-description {
-    font-size: 0.8rem;
-  }
+.starring-label {
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 0.75em;
+  letter-spacing: 0.05em;
 }

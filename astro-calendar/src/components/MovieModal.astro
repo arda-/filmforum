@@ -1,27 +1,239 @@
 ---
-import { Modal } from 'webcoreui/astro';
 ---
 
-<Modal id="movie-modal" showCloseIcon closeOnEsc closeOnOverlay>
-  <div class="movie-modal-content">
-    <div class="movie-poster">
-      <span class="poster-placeholder">No Image Available</span>
-    </div>
+<div id="movie-modal" class="modal-wrapper" data-show="">
+  <div class="modal-overlay"></div>
+  <div class="modal-content">
+    <button class="modal-close" data-id="close">&times;</button>
 
-    <h2 class="modal-title" id="modal-title"></h2>
-    <p class="modal-meta" id="modal-meta"></p>
-    <p class="modal-actors" id="modal-actors"></p>
-    <p class="modal-description" id="modal-description"></p>
+    <div class="movie-modal-inner">
+      <div class="movie-poster">
+        <img id="modal-poster" src="" alt="" />
+        <span class="poster-placeholder">No Image Available</span>
+      </div>
 
-    <div class="movie-actions">
-      <a href="#" class="btn btn-primary" id="modal-buy-tickets" target="_blank" rel="noopener">
-        Buy Tickets
-      </a>
-      <p class="ticket-disclaimer" id="modal-disclaimer"></p>
+      <h2 class="modal-title" id="modal-title"></h2>
+      <p class="modal-meta" id="modal-meta"></p>
+      <p class="modal-actors" id="modal-actors"></p>
+      <p class="modal-description" id="modal-description"></p>
+      <p class="modal-citation">— Film Forum</p>
 
-      <button type="button" class="btn btn-secondary" id="modal-add-calendar">
-        Add to Calendar
-      </button>
+      <div class="movie-actions">
+        <p class="ticket-disclaimer" id="modal-disclaimer"></p>
+        <a href="#" id="modal-buy-tickets" class="btn btn-primary" target="_blank">
+          Buy Tickets
+        </a>
+        <button id="modal-add-calendar" class="btn btn-secondary">
+          Add to Calendar
+        </button>
+        <a href="#" id="modal-film-page" class="btn btn-secondary" target="_blank">
+          View on Film Forum ↗
+        </a>
+      </div>
     </div>
   </div>
-</Modal>
+</div>
+
+<style>
+  .modal-wrapper {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-wrapper[data-show="true"] {
+    display: flex;
+  }
+
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-content {
+    position: relative;
+    background: var(--bg-day);
+    border-radius: 12px;
+    max-width: 500px;
+    width: calc(100% - 32px);
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    border-radius: 6px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+    z-index: 10;
+  }
+
+  .modal-close:hover {
+    color: var(--text-primary);
+  }
+
+  .movie-modal-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 28px;
+  }
+
+  .movie-poster {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg-movie);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .poster-placeholder {
+    color: var(--text-tertiary);
+    font-size: 14px;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 8px 0 0 0;
+    line-height: 1.2;
+  }
+
+  .modal-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .modal-actors {
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    margin: 0;
+    word-spacing: 0.05em;
+  }
+
+  .modal-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 8px 0 0 0;
+    padding-left: 1.5em;
+    position: relative;
+    font-style: italic;
+  }
+
+  .modal-description::before {
+    content: '\201C';
+    position: absolute;
+    left: 0;
+    top: -0.1em;
+    font-size: 2em;
+    font-family: Georgia, serif;
+    color: var(--accent);
+    line-height: 1;
+    font-style: normal;
+  }
+
+  .modal-citation {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin: -2px 0 4px 0;
+    font-style: italic;
+  }
+
+  .movie-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .ticket-disclaimer {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 4px 0 8px 0;
+    line-height: 1.4;
+    font-weight: 600;
+    font-style: italic;
+    text-align: center;
+  }
+
+  a.btn,
+  button.btn {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+  }
+
+  a.btn:hover,
+  button.btn:hover {
+    opacity: 0.8;
+  }
+
+  a.btn:active,
+  button.btn:active {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+
+  a.btn-primary,
+  button.btn-primary {
+    background-color: var(--accent-bg);
+    color: white;
+  }
+
+  a.btn-secondary,
+  button.btn-secondary {
+    background-color: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 480px) {
+    .modal-title {
+      font-size: 1.25rem;
+    }
+
+    .modal-description {
+      font-size: 0.8rem;
+    }
+  }
+</style>
