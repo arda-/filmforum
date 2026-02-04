@@ -1,5 +1,39 @@
 # Film Forum Development Log
 
+## 2026-02-04: Color Palette Demo & Iterative Refinement
+
+### Overview
+Created a new `/demo/colors` page to help refine the app's light mode color palette. The original palette had too many distinct grays (5 background colors) creating visual noise. Through iterative feedback, narrowed down to 3 focused scenarios.
+
+### Key Changes
+
+1. **Colors Demo Page**
+   - Shows multiple color palette scenarios side-by-side
+   - Loads actual movie data so hierarchy can be judged with real content
+   - Floating control bar at bottom for display toggles (Year/Director, Image, Runtime, Actors)
+   - URL state persistence for toggle settings
+
+2. **Iterative Scenario Refinement**
+   - Started with 5+ scenarios (A, B, B2, B3, C, D, E)
+   - User feedback drove removal: C, D, E rejected; B2 (no grid color) rejected
+   - Final scenarios: A (Original), B (Flatten Day Cells), B2 (Border Structure)
+
+3. **Technical Fixes**
+   - B2 border discontinuities fixed by setting `gap: 0` and using collapsed borders with negative margin
+   - Toggle state saved to URL params (`?meta=1&image=1`) for shareable configurations
+
+### Patterns & Learnings
+- **Demo pages are for exploration**: Creating multiple scenarios lets the user see options side-by-side and reject quickly
+- **Iterative refinement works**: Started broad, narrowed based on feedback rather than guessing the "right" answer upfront
+- **CSS grid gap + borders don't mix well**: When using borders for structure, set gap to 0 and collapse borders manually
+- **URL state for demos**: Makes it easy to share specific configurations and preserves state across refreshes
+
+### Files Modified
+- **Created**: `src/pages/demo/colors.astro` - Color palette comparison demo
+- **Updated**: `src/pages/demo/index.astro` - Added colors demo to hub
+
+---
+
 ## 2026-02-04: Unified MovieTile Layout & Visual Refinements
 
 ### Overview
