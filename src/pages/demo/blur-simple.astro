@@ -228,21 +228,21 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
     <div class="text-relative-grid">
       <div class="aspect-card-wrapper">
-        <span class="aspect-label">2:3 (poster)</span>
-        <div class="poster-card text-relative-card aspect-2-3" data-aspect="2-3">
-          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+        <span class="aspect-label">2:1 (ultra-wide)</span>
+        <div class="poster-card text-relative-card aspect-2-1" data-aspect="2-1">
+          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" />
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
           <div class="text-overlay rel-text-overlay">
-            <h3>Mean Streets</h3>
-            <p class="subtitle">Martin Scorsese • 1973</p>
-            <p class="description">A small-time hood struggles to reconcile his ambitions with his responsibilities to his neighborhood and his volatile friend.</p>
+            <h3>Taxi Driver</h3>
+            <p class="subtitle">Martin Scorsese • 1976</p>
+            <p class="description">A mentally unstable veteran works as a nighttime taxi driver in New York City.</p>
           </div>
         </div>
       </div>
       <div class="aspect-card-wrapper">
-        <span class="aspect-label">16:9 (wide)</span>
+        <span class="aspect-label">16:9 (widescreen)</span>
         <div class="poster-card text-relative-card aspect-16-9" data-aspect="16-9">
           <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
           <div class="blur-layer rel-blur-layer"></div>
@@ -252,6 +252,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <h3>Once Upon a Time in America</h3>
             <p class="subtitle">Sergio Leone • 1984</p>
             <p class="description">A former Prohibition-era Jewish gangster returns to the Lower East Side of Manhattan.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">4:3 (standard)</span>
+        <div class="poster-card text-relative-card aspect-4-3" data-aspect="4-3">
+          <img src="/posters/the-apartment.png" alt="The Apartment" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>The Apartment</h3>
+            <p class="subtitle">Billy Wilder • 1960</p>
+            <p class="description">A Manhattan insurance clerk tries to rise in his company by letting executives use his apartment.</p>
           </div>
         </div>
       </div>
@@ -270,6 +284,34 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         </div>
       </div>
       <div class="aspect-card-wrapper">
+        <span class="aspect-label">3:4 (portrait)</span>
+        <div class="poster-card text-relative-card aspect-3-4" data-aspect="3-4">
+          <img src="/posters/chinatown.png" alt="Chinatown" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>Chinatown</h3>
+            <p class="subtitle">Roman Polanski • 1974</p>
+            <p class="description">A private detective hired to expose an adulterer uncovers a web of conspiracy.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">2:3 (poster)</span>
+        <div class="poster-card text-relative-card aspect-2-3" data-aspect="2-3">
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>Mean Streets</h3>
+            <p class="subtitle">Martin Scorsese • 1973</p>
+            <p class="description">A small-time hood struggles to reconcile his ambitions with his responsibilities to his neighborhood and his volatile friend.</p>
+          </div>
+        </div>
+      </div>
+      <div class="aspect-card-wrapper">
         <span class="aspect-label">9:16 (vertical)</span>
         <div class="poster-card text-relative-card aspect-9-16" data-aspect="9-16">
           <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
@@ -283,6 +325,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
           </div>
         </div>
       </div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">1:2 (tall banner)</span>
+        <div class="poster-card text-relative-card aspect-1-2" data-aspect="1-2">
+          <img src="/posters/double-indemnity.png" alt="Double Indemnity" class="poster-image" />
+          <div class="blur-layer rel-blur-layer"></div>
+          <div class="debug-line rel-debug-line-text"></div>
+          <div class="debug-line rel-debug-line-blur"></div>
+          <div class="text-overlay rel-text-overlay">
+            <h3>Double Indemnity</h3>
+            <p class="subtitle">Billy Wilder • 1944</p>
+            <p class="description">An insurance representative lets himself be talked into a murder scheme by a seductive woman.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -292,40 +348,275 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     <p class="section-intro">Drag the slider to compare percentage-based (left) vs text-relative (right) blur sizing.</p>
 
     <div class="comparison-container">
-      <div class="comparison-card">
-        <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
-
-        <!-- Left side: Percentage-based -->
-        <div class="comparison-side comparison-left">
-          <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
-          <div class="blur-layer comparison-blur-left"></div>
-          <div class="debug-line comparison-debug-left-full"></div>
-          <div class="debug-line comparison-debug-left-end"></div>
-          <div class="text-overlay comparison-text-left">
-            <h3>Mean Streets</h3>
-            <p class="subtitle">Martin Scorsese • 1973</p>
-            <p class="description">A small-time hood struggles to reconcile his ambitions.</p>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">2:1 (ultra-wide)</span>
+        <div class="comparison-card aspect-2-1">
+          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>Taxi Driver</h3>
+              <p class="subtitle">Martin Scorsese • 1976</p>
+              <p class="description">A mentally unstable veteran works as a nighttime taxi driver.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
           </div>
-          <span class="comparison-label">Percent</span>
-        </div>
-
-        <!-- Right side: Text-relative -->
-        <div class="comparison-side comparison-right">
-          <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
-          <div class="blur-layer comparison-blur-right"></div>
-          <div class="debug-line comparison-debug-right-text"></div>
-          <div class="debug-line comparison-debug-right-blur"></div>
-          <div class="text-overlay comparison-text-right">
-            <h3>Mean Streets</h3>
-            <p class="subtitle">Martin Scorsese • 1973</p>
-            <p class="description">A small-time hood struggles to reconcile his ambitions.</p>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>Taxi Driver</h3>
+              <p class="subtitle">Martin Scorsese • 1976</p>
+              <p class="description">A mentally unstable veteran works as a nighttime taxi driver.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
           </div>
-          <span class="comparison-label">Text-Relative</span>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
         </div>
+      </div>
 
-        <!-- Slider -->
-        <div class="comparison-slider">
-          <div class="slider-handle"></div>
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">16:9 (widescreen)</span>
+        <div class="comparison-card aspect-16-9">
+          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>Once Upon a Time in America</h3>
+              <p class="subtitle">Sergio Leone • 1984</p>
+              <p class="description">A former gangster returns to the Lower East Side.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>Once Upon a Time in America</h3>
+              <p class="subtitle">Sergio Leone • 1984</p>
+              <p class="description">A former gangster returns to the Lower East Side.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">4:3 (standard)</span>
+        <div class="comparison-card aspect-4-3">
+          <img src="/posters/the-apartment.png" alt="The Apartment" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/the-apartment.png" alt="The Apartment" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>The Apartment</h3>
+              <p class="subtitle">Billy Wilder • 1960</p>
+              <p class="description">A clerk tries to rise by lending his apartment to executives.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/the-apartment.png" alt="The Apartment" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>The Apartment</h3>
+              <p class="subtitle">Billy Wilder • 1960</p>
+              <p class="description">A clerk tries to rise by lending his apartment to executives.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">1:1 (square)</span>
+        <div class="comparison-card aspect-1-1">
+          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>The Godfather Part II</h3>
+              <p class="subtitle">Francis Ford Coppola • 1974</p>
+              <p class="description">The saga tells parallel stories of Michael and Vito.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>The Godfather Part II</h3>
+              <p class="subtitle">Francis Ford Coppola • 1974</p>
+              <p class="description">The saga tells parallel stories of Michael and Vito.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">3:4 (portrait)</span>
+        <div class="comparison-card aspect-3-4">
+          <img src="/posters/chinatown.png" alt="Chinatown" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/chinatown.png" alt="Chinatown" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>Chinatown</h3>
+              <p class="subtitle">Roman Polanski • 1974</p>
+              <p class="description">A detective uncovers a web of conspiracy.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/chinatown.png" alt="Chinatown" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>Chinatown</h3>
+              <p class="subtitle">Roman Polanski • 1974</p>
+              <p class="description">A detective uncovers a web of conspiracy.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">2:3 (poster)</span>
+        <div class="comparison-card aspect-2-3">
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>Mean Streets</h3>
+              <p class="subtitle">Martin Scorsese • 1973</p>
+              <p class="description">A small-time hood struggles to reconcile his ambitions.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>Mean Streets</h3>
+              <p class="subtitle">Martin Scorsese • 1973</p>
+              <p class="description">A small-time hood struggles to reconcile his ambitions.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">9:16 (vertical)</span>
+        <div class="comparison-card aspect-9-16">
+          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/the-crowd.png" alt="The Crowd" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>The Crowd</h3>
+              <p class="subtitle">King Vidor • 1928</p>
+              <p class="description">Surviving in the anonymity of the big city.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/the-crowd.png" alt="The Crowd" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>The Crowd</h3>
+              <p class="subtitle">King Vidor • 1928</p>
+              <p class="description">Surviving in the anonymity of the big city.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="aspect-card-wrapper">
+        <span class="aspect-label">1:2 (tall banner)</span>
+        <div class="comparison-card aspect-1-2">
+          <img src="/posters/double-indemnity.png" alt="Double Indemnity" class="poster-image" />
+          <div class="comparison-side comparison-left">
+            <img src="/posters/double-indemnity.png" alt="Double Indemnity" class="comparison-image" />
+            <div class="blur-layer comparison-blur-left"></div>
+            <div class="debug-line comparison-debug-left-full"></div>
+            <div class="debug-line comparison-debug-left-end"></div>
+            <div class="text-overlay comparison-text-left">
+              <h3>Double Indemnity</h3>
+              <p class="subtitle">Billy Wilder • 1944</p>
+              <p class="description">An insurance rep falls into a murder scheme.</p>
+            </div>
+            <span class="comparison-label">Percent</span>
+          </div>
+          <div class="comparison-side comparison-right">
+            <img src="/posters/double-indemnity.png" alt="Double Indemnity" class="comparison-image" />
+            <div class="blur-layer comparison-blur-right"></div>
+            <div class="debug-line comparison-debug-right-text"></div>
+            <div class="debug-line comparison-debug-right-blur"></div>
+            <div class="text-overlay comparison-text-right">
+              <h3>Double Indemnity</h3>
+              <p class="subtitle">Billy Wilder • 1944</p>
+              <p class="description">An insurance rep falls into a murder scheme.</p>
+            </div>
+            <span class="comparison-label">Text-Relative</span>
+          </div>
+          <div class="comparison-slider">
+            <div class="slider-handle"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -813,198 +1104,277 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   // ========================================
 
   const comparisonContainer = document.querySelector('.comparison-container') as HTMLElement;
-  const comparisonCard = document.querySelector('.comparison-card') as HTMLElement;
-  const comparisonLeft = document.querySelector('.comparison-left') as HTMLElement;
-  const comparisonRight = document.querySelector('.comparison-right') as HTMLElement;
-  const comparisonSlider = document.querySelector('.comparison-slider') as HTMLElement;
-  const comparisonBlurLeft = document.querySelector('.comparison-blur-left') as HTMLElement;
-  const comparisonBlurRight = document.querySelector('.comparison-blur-right') as HTMLElement;
-  const comparisonTextLeft = document.querySelector('.comparison-text-left') as HTMLElement;
-  const comparisonTextRight = document.querySelector('.comparison-text-right') as HTMLElement;
-
-  let sliderPosition = 50; // percentage
-
-  function updateSliderPosition(percent: number) {
-    sliderPosition = Math.max(0, Math.min(100, percent));
-    if (comparisonLeft) comparisonLeft.style.clipPath = `inset(0 ${100 - sliderPosition}% 0 0)`;
-    if (comparisonRight) comparisonRight.style.clipPath = `inset(0 0 0 ${sliderPosition}%)`;
-    if (comparisonSlider) comparisonSlider.style.left = `${sliderPosition}%`;
-  }
+  const comparisonCards = document.querySelectorAll('.comparison-card') as NodeListOf<HTMLElement>;
 
   function applyComparisonTextLevel() {
-    [comparisonTextLeft, comparisonTextRight].forEach(overlay => {
-      if (!overlay) return;
-      const subtitle = overlay.querySelector('.subtitle') as HTMLElement;
-      const description = overlay.querySelector('.description') as HTMLElement;
+    comparisonCards.forEach(card => {
+      const textLeft = card.querySelector('.comparison-text-left') as HTMLElement;
+      const textRight = card.querySelector('.comparison-text-right') as HTMLElement;
 
-      if (relTextLevel === 'title') {
-        if (subtitle) subtitle.style.display = 'none';
-        if (description) description.style.display = 'none';
-      } else if (relTextLevel === 'subtitle') {
-        if (subtitle) subtitle.style.display = '';
-        if (description) description.style.display = 'none';
-      } else {
-        if (subtitle) subtitle.style.display = '';
-        if (description) description.style.display = '';
-      }
+      [textLeft, textRight].forEach(overlay => {
+        if (!overlay) return;
+        const subtitle = overlay.querySelector('.subtitle') as HTMLElement;
+        const description = overlay.querySelector('.description') as HTMLElement;
+
+        if (relTextLevel === 'title') {
+          if (subtitle) subtitle.style.display = 'none';
+          if (description) description.style.display = 'none';
+        } else if (relTextLevel === 'subtitle') {
+          if (subtitle) subtitle.style.display = '';
+          if (description) description.style.display = 'none';
+        } else {
+          if (subtitle) subtitle.style.display = '';
+          if (description) description.style.display = '';
+        }
+      });
     });
   }
 
   function updateComparisonBlur() {
-    if (!comparisonCard || !comparisonBlurLeft || !comparisonBlurRight) return;
-
     const config = directionConfig[direction];
-    const cardSize = config.isHorizontal ? comparisonCard.offsetWidth : comparisonCard.offsetHeight;
 
-    // Apply text positioning to both sides
-    if (comparisonTextLeft) applyTextPosition(comparisonTextLeft, config);
-    if (comparisonTextRight) applyTextPosition(comparisonTextRight, config);
+    comparisonCards.forEach(card => {
+      const blurLeft = card.querySelector('.comparison-blur-left') as HTMLElement;
+      const blurRight = card.querySelector('.comparison-blur-right') as HTMLElement;
+      const textLeft = card.querySelector('.comparison-text-left') as HTMLElement;
+      const textRight = card.querySelector('.comparison-text-right') as HTMLElement;
+      const debugLeftFull = card.querySelector('.comparison-debug-left-full') as HTMLElement;
+      const debugLeftEnd = card.querySelector('.comparison-debug-left-end') as HTMLElement;
+      const debugRightText = card.querySelector('.comparison-debug-right-text') as HTMLElement;
+      const debugRightBlur = card.querySelector('.comparison-debug-right-blur') as HTMLElement;
 
-    // Left side: percentage-based (uses main controls)
-    comparisonBlurLeft.style.backdropFilter = `blur(${blurAmount}px)`;
-    comparisonBlurLeft.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
-    comparisonBlurLeft.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlur}%, transparent ${blurEnd}%)`;
-    comparisonBlurLeft.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlur}%, transparent ${blurEnd}%)`;
+      if (!blurLeft || !blurRight) return;
 
-    // Right side: text-relative (uses global blurAmount)
-    if (comparisonTextRight) {
-      const textSize = config.isHorizontal ? comparisonTextRight.offsetWidth : comparisonTextRight.offsetHeight;
+      const cardSize = config.isHorizontal ? card.offsetWidth : card.offsetHeight;
 
-      // Calculate blur boundaries based on sizing mode
-      let fullBlurPx, blurEndPx;
+      // Apply text positioning to both sides
+      if (textLeft) applyTextPosition(textLeft, config);
+      if (textRight) applyTextPosition(textRight, config);
 
-      // Full blur is always multiplier-based
-      fullBlurPx = textSize * relFullBlurMult;
+      // Left side: percentage-based (uses main controls)
+      blurLeft.style.backdropFilter = `blur(${blurAmount}px)`;
+      blurLeft.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
+      blurLeft.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlur}%, transparent ${blurEnd}%)`;
+      blurLeft.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlur}%, transparent ${blurEnd}%)`;
 
-      // Blur end depends on mode
-      if (relSizingMode === 'multiplier') {
-        blurEndPx = textSize * relBlurEndMult;
-      } else {
-        // Em mode: based on title font size
-        const title = comparisonTextRight.querySelector('h3') as HTMLElement;
-        const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
-        blurEndPx = fullBlurPx + (titleFontSize * relBlurEndEm);
-      }
+      // Right side: text-relative (uses global blurAmount)
+      if (textRight) {
+        const textSize = config.isHorizontal ? textRight.offsetWidth : textRight.offsetHeight;
 
-      const fullBlurPct = (fullBlurPx / cardSize) * 100;
-      const blurEndPct = Math.min((blurEndPx / cardSize) * 100, 100);
+        // Calculate blur boundaries based on sizing mode
+        let fullBlurPx, blurEndPx;
 
-      comparisonBlurRight.style.backdropFilter = `blur(${blurAmount}px)`;
-      comparisonBlurRight.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
-      comparisonBlurRight.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
-      comparisonBlurRight.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+        // Full blur is always multiplier-based
+        fullBlurPx = textSize * relFullBlurMult;
 
-      // Debug lines for right side
-      const debugText = document.querySelector('.comparison-debug-right-text') as HTMLElement;
-      const debugBlur = document.querySelector('.comparison-debug-right-blur') as HTMLElement;
-      if (debugText) {
-        if (config.isHorizontal) {
-          // Vertical lines for left/right directions
-          debugText.style.left = direction === 'left' ? `${fullBlurPx}px` : 'auto';
-          debugText.style.right = direction === 'right' ? `${fullBlurPx}px` : 'auto';
-          debugText.style.top = '0';
-          debugText.style.bottom = '0';
-          debugText.style.width = '2px';
-          debugText.style.height = 'auto';
+        // Blur end depends on mode
+        if (relSizingMode === 'multiplier') {
+          blurEndPx = textSize * relBlurEndMult;
         } else {
-          // Horizontal lines for top/bottom directions
-          debugText.style.bottom = direction === 'bottom' ? `${fullBlurPx}px` : 'auto';
-          debugText.style.top = direction === 'top' ? `${fullBlurPx}px` : 'auto';
-          debugText.style.left = '0';
-          debugText.style.right = '0';
-          debugText.style.height = '2px';
-          debugText.style.width = 'auto';
+          // Em mode: based on title font size
+          const title = textRight.querySelector('h3') as HTMLElement;
+          const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
+          blurEndPx = fullBlurPx + (titleFontSize * relBlurEndEm);
+        }
+
+        const fullBlurPct = (fullBlurPx / cardSize) * 100;
+        const blurEndPct = Math.min((blurEndPx / cardSize) * 100, 100);
+
+        blurRight.style.backdropFilter = `blur(${blurAmount}px)`;
+        blurRight.style.webkitBackdropFilter = `blur(${blurAmount}px)`;
+        blurRight.style.maskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+        blurRight.style.webkitMaskImage = `linear-gradient(${config.gradientDir}, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+
+        // Debug lines for right side
+        if (debugRightText) {
+          if (config.isHorizontal) {
+            // Vertical lines for left/right directions
+            debugRightText.style.left = direction === 'left' ? `${fullBlurPx}px` : 'auto';
+            debugRightText.style.right = direction === 'right' ? `${fullBlurPx}px` : 'auto';
+            debugRightText.style.top = '0';
+            debugRightText.style.bottom = '0';
+            debugRightText.style.width = '2px';
+            debugRightText.style.height = 'auto';
+          } else {
+            // Horizontal lines for top/bottom directions
+            debugRightText.style.bottom = direction === 'bottom' ? `${fullBlurPx}px` : 'auto';
+            debugRightText.style.top = direction === 'top' ? `${fullBlurPx}px` : 'auto';
+            debugRightText.style.left = '0';
+            debugRightText.style.right = '0';
+            debugRightText.style.height = '2px';
+            debugRightText.style.width = 'auto';
+          }
+        }
+        if (debugRightBlur) {
+          if (config.isHorizontal) {
+            // Vertical lines for left/right directions
+            debugRightBlur.style.left = direction === 'left' ? `${blurEndPx}px` : 'auto';
+            debugRightBlur.style.right = direction === 'right' ? `${blurEndPx}px` : 'auto';
+            debugRightBlur.style.top = '0';
+            debugRightBlur.style.bottom = '0';
+            debugRightBlur.style.width = '2px';
+            debugRightBlur.style.height = 'auto';
+          } else {
+            // Horizontal lines for top/bottom directions
+            debugRightBlur.style.bottom = direction === 'bottom' ? `${blurEndPx}px` : 'auto';
+            debugRightBlur.style.top = direction === 'top' ? `${blurEndPx}px` : 'auto';
+            debugRightBlur.style.left = '0';
+            debugRightBlur.style.right = '0';
+            debugRightBlur.style.height = '2px';
+            debugRightBlur.style.width = 'auto';
+          }
         }
       }
-      if (debugBlur) {
-        if (config.isHorizontal) {
-          // Vertical lines for left/right directions
-          debugBlur.style.left = direction === 'left' ? `${blurEndPx}px` : 'auto';
-          debugBlur.style.right = direction === 'right' ? `${blurEndPx}px` : 'auto';
-          debugBlur.style.top = '0';
-          debugBlur.style.bottom = '0';
-          debugBlur.style.width = '2px';
-          debugBlur.style.height = 'auto';
-        } else {
-          // Horizontal lines for top/bottom directions
-          debugBlur.style.bottom = direction === 'bottom' ? `${blurEndPx}px` : 'auto';
-          debugBlur.style.top = direction === 'top' ? `${blurEndPx}px` : 'auto';
-          debugBlur.style.left = '0';
-          debugBlur.style.right = '0';
-          debugBlur.style.height = '2px';
-          debugBlur.style.width = 'auto';
-        }
+
+      // Debug lines for left side
+      if (debugLeftFull) {
+        debugLeftFull.style.bottom = direction === 'bottom' ? `${fullBlur}%` : 'auto';
+        debugLeftFull.style.top = direction === 'top' ? `${fullBlur}%` : 'auto';
       }
-    }
-
-    // Debug lines for left side
-    const debugFull = document.querySelector('.comparison-debug-left-full') as HTMLElement;
-    const debugEnd = document.querySelector('.comparison-debug-left-end') as HTMLElement;
-    if (debugFull) {
-      debugFull.style.bottom = direction === 'bottom' ? `${fullBlur}%` : 'auto';
-      debugFull.style.top = direction === 'top' ? `${fullBlur}%` : 'auto';
-    }
-    if (debugEnd) {
-      debugEnd.style.bottom = direction === 'bottom' ? `${blurEnd}%` : 'auto';
-      debugEnd.style.top = direction === 'top' ? `${blurEnd}%` : 'auto';
-    }
+      if (debugLeftEnd) {
+        debugLeftEnd.style.bottom = direction === 'bottom' ? `${blurEnd}%` : 'auto';
+        debugLeftEnd.style.top = direction === 'top' ? `${blurEnd}%` : 'auto';
+      }
+    });
   }
 
-  // Slider drag handling
-  let isDragging = false;
+  // Slider drag handling - Map to track each card's state
+  const sliderStates = new Map<HTMLElement, { position: number; isDragging: boolean }>();
+  let activeCard: HTMLElement | null = null;
 
-  function getSliderPercent(e: MouseEvent | TouchEvent) {
-    if (!comparisonCard) return 50;
-    const rect = comparisonCard.getBoundingClientRect();
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    return ((clientX - rect.left) / rect.width) * 100;
-  }
+  // Initialize all comparison cards with slider functionality
+  comparisonCards.forEach(card => {
+    const slider = card.querySelector('.comparison-slider') as HTMLElement;
+    const leftSide = card.querySelector('.comparison-left') as HTMLElement;
+    const rightSide = card.querySelector('.comparison-right') as HTMLElement;
 
-  comparisonSlider?.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    e.preventDefault();
+    if (!slider || !leftSide || !rightSide) return;
+
+    // Initialize state for this card
+    sliderStates.set(card, { position: 50, isDragging: false });
+
+    // Function to get slider percent for this specific card
+    function getSliderPercent(e: MouseEvent | TouchEvent, targetCard: HTMLElement): number {
+      const rect = targetCard.getBoundingClientRect();
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    }
+
+    // Function to update slider position for this specific card
+    function updateSliderPosition(percent: number) {
+      const state = sliderStates.get(card);
+      if (!state) return;
+
+      state.position = percent;
+
+      // Update slider position
+      slider.style.left = `${percent}%`;
+
+      // Update clip-path for both sides
+      leftSide.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+      rightSide.style.clipPath = `inset(0 0 0 ${percent}%)`;
+    }
+
+    // Mouse event handlers
+    slider.addEventListener('mousedown', (e) => {
+      const state = sliderStates.get(card);
+      if (!state) return;
+      state.isDragging = true;
+      activeCard = card;
+      e.preventDefault();
+    });
+
+    card.addEventListener('mousedown', (e) => {
+      if (e.target === slider || (e.target as HTMLElement).closest('.comparison-slider')) return;
+      const state = sliderStates.get(card);
+      if (!state) return;
+      state.isDragging = true;
+      activeCard = card;
+      updateSliderPosition(getSliderPercent(e, card));
+    });
+
+    // Touch event handlers
+    slider.addEventListener('touchstart', (e) => {
+      const state = sliderStates.get(card);
+      if (!state) return;
+      state.isDragging = true;
+      activeCard = card;
+      e.preventDefault();
+    });
+
+    card.addEventListener('touchstart', (e) => {
+      if (e.target === slider || (e.target as HTMLElement).closest('.comparison-slider')) return;
+      const state = sliderStates.get(card);
+      if (!state) return;
+      state.isDragging = true;
+      activeCard = card;
+      updateSliderPosition(getSliderPercent(e, card));
+    });
+
+    // Initialize position
+    updateSliderPosition(50);
   });
 
-  comparisonCard?.addEventListener('mousedown', (e) => {
-    if (e.target === comparisonSlider || (e.target as HTMLElement).closest('.comparison-slider')) return;
-    isDragging = true;
-    updateSliderPosition(getSliderPercent(e));
-  });
-
+  // Global mouse/touch move and up handlers
   document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    updateSliderPosition(getSliderPercent(e));
+    if (!activeCard) return;
+    const state = sliderStates.get(activeCard);
+    if (!state || !state.isDragging) return;
+
+    const slider = activeCard.querySelector('.comparison-slider') as HTMLElement;
+    const leftSide = activeCard.querySelector('.comparison-left') as HTMLElement;
+    const rightSide = activeCard.querySelector('.comparison-right') as HTMLElement;
+    if (!slider || !leftSide || !rightSide) return;
+
+    const rect = activeCard.getBoundingClientRect();
+    const clientX = e.clientX;
+    const percent = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+
+    state.position = percent;
+    slider.style.left = `${percent}%`;
+    leftSide.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+    rightSide.style.clipPath = `inset(0 0 0 ${percent}%)`;
   });
 
   document.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
-
-  // Touch support
-  comparisonSlider?.addEventListener('touchstart', (e) => {
-    isDragging = true;
-    e.preventDefault();
-  });
-
-  comparisonCard?.addEventListener('touchstart', (e) => {
-    if (e.target === comparisonSlider || (e.target as HTMLElement).closest('.comparison-slider')) return;
-    isDragging = true;
-    updateSliderPosition(getSliderPercent(e));
+    if (activeCard) {
+      const state = sliderStates.get(activeCard);
+      if (state) state.isDragging = false;
+      activeCard = null;
+    }
   });
 
   document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    updateSliderPosition(getSliderPercent(e));
+    if (!activeCard) return;
+    const state = sliderStates.get(activeCard);
+    if (!state || !state.isDragging) return;
+
+    const slider = activeCard.querySelector('.comparison-slider') as HTMLElement;
+    const leftSide = activeCard.querySelector('.comparison-left') as HTMLElement;
+    const rightSide = activeCard.querySelector('.comparison-right') as HTMLElement;
+    if (!slider || !leftSide || !rightSide) return;
+
+    const rect = activeCard.getBoundingClientRect();
+    const clientX = e.touches[0].clientX;
+    const percent = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+
+    state.position = percent;
+    slider.style.left = `${percent}%`;
+    leftSide.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+    rightSide.style.clipPath = `inset(0 0 0 ${percent}%)`;
   });
 
   document.addEventListener('touchend', () => {
-    isDragging = false;
+    if (activeCard) {
+      const state = sliderStates.get(activeCard);
+      if (state) state.isDragging = false;
+      activeCard = null;
+    }
   });
 
   // Initialize text-relative section
   initRelControls();
   updateRelBlur();
-  updateSliderPosition(50);
 </script>
 
 <style>
@@ -1367,19 +1737,71 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   }
 
   .comparison-container {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
     margin-top: 24px;
   }
 
   .comparison-card {
     position: relative;
-    width: 360px;
-    height: 540px;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     cursor: ew-resize;
+  }
+
+  /* Comparison card aspect ratio sizes - match text-relative-grid pattern */
+  .comparison-container .aspect-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .comparison-container .aspect-label {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-family: monospace;
+  }
+
+  .comparison-card.aspect-2-3 {
+    width: 240px;
+    height: 360px;
+  }
+
+  .comparison-card.aspect-1-1 {
+    width: 280px;
+    height: 280px;
+  }
+
+  .comparison-card.aspect-3-4 {
+    width: 240px;
+    height: 320px;
+  }
+
+  .comparison-card.aspect-4-3 {
+    width: 320px;
+    height: 240px;
+  }
+
+  .comparison-card.aspect-16-9 {
+    width: 400px;
+    height: 225px;
+  }
+
+  .comparison-card.aspect-2-1 {
+    width: 440px;
+    height: 220px;
+  }
+
+  .comparison-card.aspect-9-16 {
+    width: 200px;
+    height: 356px;
+  }
+
+  .comparison-card.aspect-1-2 {
+    width: 180px;
+    height: 360px;
   }
 
   .comparison-card > .poster-image {
