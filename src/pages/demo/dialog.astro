@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '../../components/Dialog/index';
+import Button from '../../components/Button.astro';
 ---
 
 <Layout title="Dialog Demo">
@@ -61,8 +62,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogHeader>
     <DialogSeparator />
     <DialogFooter>
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-sm')">Cancel</button>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-sm')">Confirm</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-sm')">Cancel</Button>
+      <Button variant="primary" onclick="closeDialog('dialog-sm')">Confirm</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -77,8 +78,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogBody>
     <DialogSeparator />
     <DialogFooter>
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-md')">Cancel</button>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-md')">Save Changes</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-md')">Cancel</Button>
+      <Button variant="primary" onclick="closeDialog('dialog-md')">Save Changes</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -97,8 +98,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogBody>
     <DialogSeparator />
     <DialogFooter>
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-lg')">Close</button>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-lg')">Done</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-lg')">Close</Button>
+      <Button variant="primary" onclick="closeDialog('dialog-lg')">Done</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -110,7 +111,7 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogHeader>
     <DialogSeparator />
     <DialogFooter>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-with-close')">Got it</button>
+      <Button variant="primary" onclick="closeDialog('dialog-with-close')">Got it</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -134,9 +135,9 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogHeader>
     <DialogSeparator />
     <DialogFooter>
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-custom-close')">
+      <Button variant="secondary" onclick="closeDialog('dialog-custom-close')">
         Close Dialog
-      </button>
+      </Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -170,8 +171,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogBody>
     <DialogSeparator />
     <DialogFooter>
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-scroll')">Decline</button>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-scroll')">Accept</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-scroll')">Decline</Button>
+      <Button variant="primary" onclick="closeDialog('dialog-scroll')">Accept</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -198,8 +199,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
       <p>Nullam euismod, nisl eget aliquam ultricies, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Sed do eiusmod tempor incididunt.</p>
     </DialogBody>
     <DialogFooter class="dialog-footer--sticky">
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-sticky')">Cancel</button>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-sticky')">Save Changes</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-sticky')">Cancel</Button>
+      <Button variant="primary" onclick="closeDialog('dialog-sticky')">Save Changes</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -210,8 +211,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
       <DialogDescription>This action cannot be undone. This will permanently delete the item from your collection.</DialogDescription>
     </DialogHeader>
     <DialogFooter align="center">
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-confirm')">Cancel</button>
-      <button class="dialog-btn dialog-btn--danger" onclick="closeDialog('dialog-confirm')">Delete</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-confirm')">Cancel</Button>
+      <Button variant="danger" onclick="closeDialog('dialog-confirm')">Delete</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -235,8 +236,8 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     </DialogBody>
     <DialogSeparator />
     <DialogFooter>
-      <button type="button" class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-form')">Cancel</button>
-      <button type="submit" form="dialog-form" class="dialog-btn dialog-btn--primary">Save</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-form')">Cancel</Button>
+      <Button variant="primary" type="submit" form="dialog-form">Save</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -247,7 +248,7 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
       <DialogDescription>Your session has expired. Please log in again to continue.</DialogDescription>
     </DialogHeader>
     <DialogFooter align="center">
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-alert')">Log In</button>
+      <Button variant="primary" onclick="closeDialog('dialog-alert')">Log In</Button>
     </DialogFooter>
   </DialogRoot>
 
@@ -370,13 +371,4 @@ import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, D
     color: var(--text-tertiary);
   }
 
-  /* Danger button variant */
-  :global(.dialog-btn--danger) {
-    background: #dc2626;
-    color: #fff;
-  }
-
-  :global(.dialog-btn--danger:hover) {
-    background: #b91c1c;
-  }
 </style>
