@@ -904,7 +904,15 @@ for (let i = 1; i <= 28; i++) {
       if (!highlightEnabled) return;
 
       const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
-      if (movieShowtimeCounts[movie.Movie] <= 1) return;
+
+      // Count visible showtimes for this movie (not total, since some may be filtered)
+      const visibleShowtimes = document.querySelectorAll('[data-movie]');
+      let visibleCount = 0;
+      visibleShowtimes.forEach(el => {
+        const m = JSON.parse((el as HTMLElement).dataset.movie || '{}');
+        if (m.Movie === movie.Movie) visibleCount++;
+      });
+      if (visibleCount <= 1) return;
 
       // Avoid re-processing if already highlighting this movie
       if (currentHighlightedMovie === movie.Movie) return;
