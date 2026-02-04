@@ -93,4 +93,10 @@ const hasHeader = Astro.slots.has('header');
     font-size: 13px;
     color: var(--text-tertiary);
   }
+
+  @media (max-width: 480px) {
+    .modal-wrapper .modal-content {
+      max-height: 85dvh;
+    }
+  }
 </style>
