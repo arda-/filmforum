@@ -8,6 +8,7 @@ import ToggleGroup from '../components/ToggleGroup.astro';
 import Switch from '../components/Switch.astro';
 import Toggle from '../components/Toggle.astro';
 import Dialog from '../components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../components/Dialog/index';
 
 // Generate Feb 2026 dates
 const dates: string[] = [];
@@ -86,26 +87,26 @@ for (let i = 1; i <= 28; i++) {
   <MovieModal />
 
   <!-- Hidden Movies Modal -->
-  <div id="hidden-movies-modal" class="hidden-modal" data-show="">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <button class="modal-close" data-id="close" aria-label="Close">&times;</button>
-      <h2>Hidden Weekday 9-5 Showtimes</h2>
-      <p class="hidden-modal-subtitle">These showtimes are hidden because they fall during weekday work hours (9am-5pm).</p>
+  <DialogRoot id="hidden-movies-modal" size="md">
+    <DialogHeader>
+      <DialogTitle>Hidden Weekday 9-5 Showtimes</DialogTitle>
+      <DialogDescription>These showtimes are hidden because they fall during weekday work hours (9am-5pm).</DialogDescription>
+    </DialogHeader>
+    <DialogBody scroll>
       <div id="hidden-movies-list" class="hidden-movies-list"></div>
-    </div>
-  </div>
+    </DialogBody>
+  </DialogRoot>
 
   <!-- Weekday Movies Modal (for weekends-only filter) -->
-  <div id="weekday-movies-modal" class="hidden-modal" data-show="">
-    <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <button class="modal-close" data-id="close" aria-label="Close">&times;</button>
-      <h2>Hidden Weekday Showtimes</h2>
-      <p class="hidden-modal-subtitle">These showtimes are hidden because they fall on weekdays (Mon-Fri).</p>
+  <DialogRoot id="weekday-movies-modal" size="md">
+    <DialogHeader>
+      <DialogTitle>Hidden Weekday Showtimes</DialogTitle>
+      <DialogDescription>These showtimes are hidden because they fall on weekdays (Mon-Fri).</DialogDescription>
+    </DialogHeader>
+    <DialogBody scroll>
       <div id="weekday-movies-list" class="hidden-movies-list"></div>
-    </div>
-  </div>
+    </DialogBody>
+  </DialogRoot>
 
   <!-- Confirm Disable Fit-Width Dialog -->
   <Dialog
@@ -637,49 +638,7 @@ for (let i = 1; i <= 28; i++) {
     openMovieDialog();
   }
 
-  // Hidden movies modal management
-  let hiddenModalDOM: HTMLElement | null = null;
-  let weekdayModalDOM: HTMLElement | null = null;
-
-  function initHiddenModals() {
-    // Work hours modal
-    hiddenModalDOM = document.getElementById('hidden-movies-modal');
-    if (hiddenModalDOM) {
-      const overlay = hiddenModalDOM.querySelector('.modal-overlay');
-      const closeBtn = hiddenModalDOM.querySelector('[data-id="close"]');
-      closeBtn?.addEventListener('click', () => closeHiddenModal(hiddenModalDOM!));
-      overlay?.addEventListener('click', () => closeHiddenModal(hiddenModalDOM!));
-    }
-
-    // Weekday modal
-    weekdayModalDOM = document.getElementById('weekday-movies-modal');
-    if (weekdayModalDOM) {
-      const overlay = weekdayModalDOM.querySelector('.modal-overlay');
-      const closeBtn = weekdayModalDOM.querySelector('[data-id="close"]');
-      closeBtn?.addEventListener('click', () => closeHiddenModal(weekdayModalDOM!));
-      overlay?.addEventListener('click', () => closeHiddenModal(weekdayModalDOM!));
-    }
-
-    // Escape key handler for both modals
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        if (hiddenModalDOM?.dataset.show === 'true') closeHiddenModal(hiddenModalDOM);
-        if (weekdayModalDOM?.dataset.show === 'true') closeHiddenModal(weekdayModalDOM);
-      }
-    });
-
-    // Status click handler
-    document.getElementById('hours-filter-status')?.addEventListener('click', () => {
-      const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
-      const mode = hoursFilterRadio?.value || 'none';
-      if (mode === 'weekends') {
-        openWeekdayModal();
-      } else if (mode === 'afterhours') {
-        openWorkHoursModal();
-      }
-    });
-  }
-
+  // Hidden movies modal management - using Dialog component's global API
   function renderMovieList(movies: Movie[]): string {
     // Group by movie title
     const byTitle: Record<string, Movie[]> = {};
@@ -709,33 +668,33 @@ for (let i = 1; i <= 28; i++) {
   }
 
   function openWorkHoursModal() {
-    if (!hiddenModalDOM) return;
     const listEl = document.getElementById('hidden-movies-list');
-    if (!listEl) return;
-
-    listEl.innerHTML = renderMovieList(getHiddenWorkHoursMovies());
-    hiddenModalDOM.dataset.show = 'true';
-    document.body.style.overflow = 'hidden';
+    if (listEl) {
+      listEl.innerHTML = renderMovieList(getHiddenWorkHoursMovies());
+    }
+    (window as any).openDialog('hidden-movies-modal');
   }
 
   function openWeekdayModal() {
-    if (!weekdayModalDOM) return;
     const listEl = document.getElementById('weekday-movies-list');
-    if (!listEl) return;
-
-    listEl.innerHTML = renderMovieList(getWeekdayMovies());
-    weekdayModalDOM.dataset.show = 'true';
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeHiddenModal(modal: HTMLElement) {
-    modal.dataset.show = '';
-    document.body.style.overflow = '';
+    if (listEl) {
+      listEl.innerHTML = renderMovieList(getWeekdayMovies());
+    }
+    (window as any).openDialog('weekday-movies-modal');
   }
 
   // Event delegation for movie clicks
   document.addEventListener('DOMContentLoaded', () => {
-    initHiddenModals();
+    // Status click handler for hidden showtimes modals
+    document.getElementById('hours-filter-status')?.addEventListener('click', () => {
+      const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
+      const mode = hoursFilterRadio?.value || 'none';
+      if (mode === 'weekends') {
+        openWeekdayModal();
+      } else if (mode === 'afterhours') {
+        openWorkHoursModal();
+      }
+    });
 
     // Detect pointer device (mouse) for hover-dependent features
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
@@ -953,67 +912,7 @@ for (let i = 1; i <= 28; i++) {
     color: var(--accent);
   }
 
-  /* Hidden movies modal */
-  :global(.hidden-modal) {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-  }
-
-  :global(.hidden-modal[data-show="true"]) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  :global(.hidden-modal .modal-overlay) {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-  }
-
-  :global(.hidden-modal .modal-content) {
-    position: relative;
-    background: var(--bg-day);
-    border-radius: 8px;
-    padding: 24px;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-    margin: 16px;
-    width: 100%;
-  }
-
-  :global(.hidden-modal .modal-close) {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    line-height: 1;
-    padding: 4px;
-  }
-
-  :global(.hidden-modal .modal-close:hover) {
-    color: var(--text-primary);
-  }
-
-  :global(.hidden-modal h2) {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    color: var(--text-primary);
-  }
-
-  :global(.hidden-modal-subtitle) {
-    margin: 0 0 16px 0;
-    font-size: 13px;
-    color: var(--text-tertiary);
-  }
-
+  /* Hidden movies list content styles */
   :global(.hidden-movies-list) {
     display: flex;
     flex-direction: column;
