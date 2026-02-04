@@ -20,6 +20,7 @@ for (let i = 1; i <= 28; i++) {
     <Switch id="week-start-toggle" label="Start week on Monday" checked small />
     <Switch id="duration-mode-toggle" label="Duration mode" checked small />
     <Switch id="fit-width-toggle" label="Fit to width" checked small />
+    <Switch id="hide-work-hours-toggle" label="Hide 9-5 showtimes" small />
   </div>
 
   <CalendarGrid>
@@ -49,6 +50,7 @@ for (let i = 1; i <= 28; i++) {
     description?: string;
     country?: string;
     film_url?: string;
+    poster_url?: string;
     _col?: number;
     _hasOverlap?: boolean;
   }
@@ -66,8 +68,10 @@ for (let i = 1; i <= 28; i++) {
     if (!match) return 0;
     let h = parseInt(match[1]);
     const m = parseInt(match[2]);
-    const isMorning = timeStr.includes('FF Jr') || h === 11;
-    if (!isMorning && h < 12) h += 12;
+    // FF Jr. shows are morning (AM)
+    const isMorning = timeStr.includes('FF Jr');
+    // 12:XX is always noon (PM), 1-11 without FF Jr are PM
+    if (!isMorning && h !== 12 && h < 12) h += 12;
     return h * 60 + m;
   }
 
@@ -142,8 +146,19 @@ for (let i = 1; i <= 28; i++) {
 
   function renderAllDays() {
     const durationMode = (document.getElementById('duration-mode-toggle') as HTMLInputElement).checked;
+    const hideWorkHours = (document.getElementById('hide-work-hours-toggle') as HTMLInputElement)?.checked;
+    const WORK_START = 9 * 60;   // 9:00 AM = 540 mins
+    const WORK_END = 17 * 60;    // 5:00 PM = 1020 mins
 
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      // Apply work hours filter if enabled
+      let filteredMovies = dayMovies;
+      if (hideWorkHours) {
+        filteredMovies = dayMovies.filter(m => {
+          const mins = parseTimeToMins(m.Time);
+          return mins < WORK_START || mins >= WORK_END;
+        });
+      }
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
       if (!dayCell) return;
 
@@ -160,10 +175,15 @@ for (let i = 1; i <= 28; i++) {
       dayNumDiv.textContent = dayNumber || '';
       dayCell.appendChild(dayNumDiv);
 
+      if (filteredMovies.length === 0) {
+        dayCell.classList.remove('has-movies');
+        return;
+      }
+
       if (durationMode) {
         dayCell.style.height = `${uniformHeight}px`;
         dayCell.classList.add('timeline-view');
-        const sorted = assignOverlapColumns(dayMovies);
+        const sorted = assignOverlapColumns(filteredMovies);
         sorted.forEach(movie => {
           const start = parseTimeToMins(movie.Time);
           const runtime = parseInt(movie.runtime || '90');
@@ -172,7 +192,7 @@ for (let i = 1; i <= 28; i++) {
           dayCell.appendChild(createMovieElement(movie, true, topPx, heightPx));
         });
       } else {
-        dayMovies.forEach(movie => {
+        filteredMovies.forEach(movie => {
           dayCell.appendChild(createMovieElement(movie, false));
         });
       }
@@ -195,8 +215,12 @@ for (let i = 1; i <= 28; i++) {
     document.body.classList.toggle('natural-width', !checked);
   });
 
+  document.getElementById('hide-work-hours-toggle')?.addEventListener('change', () => {
+    renderAllDays();
+  });
+
   // Fetch and render
-  fetch('/tenement-stories-evenings.json')
+  fetch('/tenement-stories-full.json')
     .then(res => res.json())
     .then((movies: Movie[]) => {
       movies.forEach(movie => {
@@ -283,17 +307,37 @@ for (let i = 1; i <= 28; i++) {
     const ticketsEl = document.getElementById('modal-buy-tickets') as HTMLAnchorElement;
     const disclaimerEl = document.getElementById('modal-disclaimer');
     const calendarBtn = document.getElementById('modal-add-calendar');
+    const posterEl = document.getElementById('modal-poster') as HTMLImageElement;
+    const posterPlaceholder = document.querySelector('.poster-placeholder') as HTMLElement;
+
+    // Set poster image
+    if (posterEl && posterPlaceholder) {
+      if (movie.poster_url) {
+        posterEl.src = movie.poster_url;
+        posterEl.alt = movie.Movie;
+        posterEl.style.display = 'block';
+        posterPlaceholder.style.display = 'none';
+      } else {
+        posterEl.style.display = 'none';
+        posterPlaceholder.style.display = 'block';
+      }
+    }
 
     if (titleEl) titleEl.textContent = toTitleCase(movie.Movie);
 
     if (metaEl) {
       const runtime = movie.runtime?.replace(' minutes', 'min') || '';
-      metaEl.textContent = [movie.year, movie.director, runtime].filter(Boolean).join(' | ');
+      metaEl.textContent = [movie.year, movie.director, runtime].filter(Boolean).join(' · ');
     }
 
     if (actorsEl) {
-      actorsEl.textContent = movie.actors || '';
-      actorsEl.style.display = movie.actors ? 'block' : 'none';
+      if (movie.actors) {
+        const actorSpans = movie.actors.split(',').map(a => `<span>${a.trim()}</span>`).join(', ');
+        actorsEl.innerHTML = actorSpans;
+        actorsEl.style.display = 'block';
+      } else {
+        actorsEl.style.display = 'none';
+      }
     }
 
     if (descEl) {
@@ -305,13 +349,26 @@ for (let i = 1; i <= 28; i++) {
     }
 
     if (disclaimerEl) {
-      const showtime = formatShowtime(movie.Datetime);
-      disclaimerEl.textContent = `You will have to choose a showtime. Be sure to select the ${showtime} showtime.`;
+      const date = new Date(movie.Datetime);
+      const showtime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      disclaimerEl.textContent = `When buying, select the ${showtime} showtime on ${dateStr}`;
     }
 
     // Set up calendar button
     if (calendarBtn) {
       calendarBtn.onclick = () => downloadICS(movie);
+    }
+
+    // Set up film page link
+    const filmPageEl = document.getElementById('modal-film-page') as HTMLAnchorElement;
+    if (filmPageEl) {
+      if (movie.film_url) {
+        filmPageEl.href = movie.film_url;
+        filmPageEl.style.display = 'block';
+      } else {
+        filmPageEl.style.display = 'none';
+      }
     }
 
     openModal();

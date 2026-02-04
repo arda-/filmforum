@@ -420,3 +420,30 @@ cd astro-calendar && pnpm install
 **Package Manager:** pnpm (faster, disk-efficient)
 
 **Output:** `astro-calendar/` directory with production-ready build
+
+---
+
+## Step 15: Extract Additional Movie Metadata from Film Pages
+
+Scraped individual film pages on the Film Forum website to extract additional movie metadata and merged the data into the JSON data files.
+
+**Metadata Extracted:**
+- `description` - Film synopsis/description
+- `director` - Film director(s)
+- `actors` - Cast list
+- `runtime` - Film duration
+- `year` - Release year
+- `country` - Country of origin
+- `film_url` - URL to the film's detail page on Film Forum
+- `poster_url` - URL to the film's poster image
+
+**Process:**
+1. Fetched each film's individual page from Film Forum (e.g., `https://filmforum.org/film/street-scene-tenement-stories`)
+2. Parsed HTML to extract metadata from structured elements
+3. Merged extracted data into existing JSON records by matching on movie title
+
+**Files Updated:**
+- `tenement-stories-evenings.json` - Root-level JSON with enriched metadata
+- `astro-calendar/public/tenement-stories-evenings.json` - Astro public data copy
+
+**Result:** All showtime records now include complete film metadata for display in the calendar UI and movie detail modals
