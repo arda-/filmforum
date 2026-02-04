@@ -39,7 +39,7 @@ for (let i = 1; i <= 28; i++) {
           ]}
           statusId="hours-filter-status"
         />
-        <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes" small />
+        <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
         <ToggleGroup
           label="Single showings:"
           name="single-showtimes-mode"
@@ -87,25 +87,17 @@ for (let i = 1; i <= 28; i++) {
 </Layout>
 
 <script>
-  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const PX_PER_MIN = 0.7;
-
-  interface Movie {
-    Movie: string;
-    Time: string;
-    Tickets: string;
-    Datetime: string;
-    year?: string;
-    director?: string;
-    runtime?: string;
-    actors?: string;
-    description?: string;
-    country?: string;
-    film_url?: string;
-    poster_url?: string;
-    _col?: number;
-    _hasOverlap?: boolean;
-  }
+  import {
+    DAYS,
+    PX_PER_MIN,
+    WORK_START,
+    WORK_END,
+    HOURS_FILTER_MODE,
+    SINGLE_SHOWTIMES_MODE,
+    type HoursFilterMode,
+    type SingleShowtimesMode,
+  } from '../constants';
+  import { downloadICS, type Movie } from '../utils/icsGenerator';
 
   let moviesByDate: Record<string, Movie[]> = {};
   let globalRange = { start: Infinity, end: 0, range: 0 };
@@ -161,7 +153,7 @@ for (let i = 1; i <= 28; i++) {
     return sorted;
   }
 
-  function createMovieElement(movie: Movie, isTimeline: boolean, topPx?: number, heightPx?: number, filteredCounts?: Record<string, number>, singleMode?: string) {
+  function createMovieElement(movie: Movie, isTimeline: boolean, topPx?: number, heightPx?: number, filteredCounts?: Record<string, number>, singleMode?: SingleShowtimesMode) {
     const el = document.createElement('div');
     const classes = ['movie'];
     if (isTimeline) {
@@ -186,7 +178,7 @@ for (let i = 1; i <= 28; i++) {
     el.setAttribute('role', 'button');
 
     const isSingleShowtime = filteredCounts && filteredCounts[movie.Movie] === 1;
-    const badgeHtml = (singleMode === 'highlight' && isSingleShowtime)
+    const badgeHtml = (singleMode === SINGLE_SHOWTIMES_MODE.HIGHLIGHT && isSingleShowtime)
       ? '<span class="single-showtime-badge" title="Only showtime with current filters">★</span>'
       : '';
 
@@ -205,8 +197,6 @@ for (let i = 1; i <= 28; i++) {
   }
 
   function getHiddenWorkHoursMovies(): Movie[] {
-    const WORK_START = 9 * 60;
-    const WORK_END = 17 * 60;
     return allMovies.filter(movie => {
       const date = movie.Datetime.split('T')[0];
       const dayOfWeek = new Date(date + 'T12:00:00').getDay();
@@ -225,17 +215,17 @@ for (let i = 1; i <= 28; i++) {
     });
   }
 
-  function updateHoursFilterStatus(mode: string) {
+  function updateHoursFilterStatus(mode: HoursFilterMode) {
     const statusEl = document.getElementById('hours-filter-status');
     if (!statusEl) return;
 
-    if (mode === 'none') {
+    if (mode === HOURS_FILTER_MODE.NONE) {
       statusEl.textContent = '';
       statusEl.style.display = 'none';
       return;
     }
 
-    const hiddenMovies = mode === 'weekends' ? getWeekdayMovies() : getHiddenWorkHoursMovies();
+    const hiddenMovies = mode === HOURS_FILTER_MODE.WEEKENDS ? getWeekdayMovies() : getHiddenWorkHoursMovies();
     const uniqueTitles = new Set(hiddenMovies.map(m => m.Movie));
     statusEl.textContent = `(${hiddenMovies.length} showtimes, ${uniqueTitles.size} films hidden)`;
     statusEl.style.display = 'inline';
@@ -243,16 +233,14 @@ for (let i = 1; i <= 28; i++) {
 
   function renderAllDays() {
     const timelineMode = (document.getElementById('timeline-mode-toggle') as HTMLInputElement).checked;
-    const WORK_START = 9 * 60;   // 9:00 AM = 540 mins
-    const WORK_END = 17 * 60;    // 5:00 PM = 1020 mins
 
     // Get hours filter mode
     const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
-    const hoursFilterMode = hoursFilterRadio?.value || 'none';
+    const hoursFilterMode = (hoursFilterRadio?.value || HOURS_FILTER_MODE.NONE) as HoursFilterMode;
 
     // Get single showtimes mode
     const singleShowtimesRadio = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
-    const singleShowtimesMode = singleShowtimesRadio?.value || 'none';
+    const singleShowtimesMode = (singleShowtimesRadio?.value || SINGLE_SHOWTIMES_MODE.NONE) as SingleShowtimesMode;
 
     updateHoursFilterStatus(hoursFilterMode);
 
@@ -263,9 +251,9 @@ for (let i = 1; i <= 28; i++) {
       const dayOfWeek = new Date(date + 'T12:00:00').getDay();
       const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
       let filtered = dayMovies;
-      if (hoursFilterMode === 'weekends' && isWeekday) {
+      if (hoursFilterMode === HOURS_FILTER_MODE.WEEKENDS && isWeekday) {
         filtered = [];
-      } else if (hoursFilterMode === 'afterhours' && isWeekday) {
+      } else if (hoursFilterMode === HOURS_FILTER_MODE.AFTERHOURS && isWeekday) {
         filtered = dayMovies.filter(m => {
           const mins = parseTimeToMins(m.Time);
           return mins < WORK_START || mins >= WORK_END;
@@ -285,11 +273,11 @@ for (let i = 1; i <= 28; i++) {
       let filteredMovies = dayMovies;
 
       // Weekends only filter - hide all weekday movies
-      if (hoursFilterMode === 'weekends' && isWeekday) {
+      if (hoursFilterMode === HOURS_FILTER_MODE.WEEKENDS && isWeekday) {
         filteredMovies = [];
       }
       // After 5pm filter - hide 9-5 on weekdays
-      else if (hoursFilterMode === 'afterhours' && isWeekday) {
+      else if (hoursFilterMode === HOURS_FILTER_MODE.AFTERHOURS && isWeekday) {
         filteredMovies = dayMovies.filter(m => {
           const mins = parseTimeToMins(m.Time);
           return mins < WORK_START || mins >= WORK_END;
@@ -297,7 +285,7 @@ for (let i = 1; i <= 28; i++) {
       }
 
       // If "only show" mode, filter to single-showtime movies only
-      if (singleShowtimesMode === 'only') {
+      if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
         filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
       }
 
@@ -528,64 +516,6 @@ for (let i = 1; i <= 28; i++) {
     }
 
     openModal();
-  }
-
-  function generateICS(movie: Movie): string {
-    const startDate = new Date(movie.Datetime);
-    const runtime = parseInt(movie.runtime || '90');
-    const endDate = new Date(startDate.getTime() + runtime * 60000);
-
-    const formatICSDate = (date: Date) => {
-      return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    };
-
-    const escapeICS = (str: string) => {
-      return str.replace(/[\\;,\n]/g, (match) => {
-        if (match === '\n') return '\\n';
-        return '\\' + match;
-      });
-    };
-
-    const title = `${toTitleCase(movie.Movie)} at Film Forum`;
-    const location = 'Film Forum, 209 W Houston St, New York, NY 10014';
-    const description = [
-      movie.director ? `Director: ${movie.director}` : '',
-      movie.year ? `Year: ${movie.year}` : '',
-      movie.description ? movie.description.substring(0, 200) + (movie.description.length > 200 ? '...' : '') : ''
-    ].filter(Boolean).join('\n');
-
-    const uid = `${startDate.getTime()}-${movie.Movie.replace(/\s+/g, '')}@filmforum`;
-
-    return [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Film Forum Calendar//EN',
-      'BEGIN:VEVENT',
-      `UID:${uid}`,
-      `DTSTAMP:${formatICSDate(new Date())}`,
-      `DTSTART:${formatICSDate(startDate)}`,
-      `DTEND:${formatICSDate(endDate)}`,
-      `SUMMARY:${escapeICS(title)}`,
-      `LOCATION:${escapeICS(location)}`,
-      `DESCRIPTION:${escapeICS(description)}`,
-      movie.Tickets ? `URL:${movie.Tickets}` : '',
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].filter(Boolean).join('\r\n');
-  }
-
-  function downloadICS(movie: Movie) {
-    const icsContent = generateICS(movie);
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${movie.Movie.replace(/\s+/g, '-').toLowerCase()}-film-forum.ics`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
   }
 
   // Hidden movies modal management
