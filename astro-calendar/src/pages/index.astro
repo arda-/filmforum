@@ -4,7 +4,7 @@ import CalendarGrid from '../components/CalendarGrid.astro';
 import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
 import ToggleGroup from '../components/ToggleGroup.astro';
-import { Switch } from 'webcoreui/astro';
+import Switch from '../components/Switch.astro';
 
 // Generate Feb 2026 dates
 const dates: string[] = [];
@@ -131,6 +131,13 @@ for (let i = 1; i <= 28; i++) {
     return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
   }
 
+  function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {
+    const isFFJr = time.includes('FF Jr');
+    const displayTime = isFFJr ? time.replace(/\s*FF Jr\.?/g, '').trim() : time;
+    const displayTitle = isFFJr ? `(FF Jr.) ${toTitleCase(title)}` : toTitleCase(title);
+    return { displayTime, displayTitle };
+  }
+
   function parseTimeToMins(timeStr: string) {
     const match = timeStr.match(/(\d{1,2}):(\d{2})/);
     if (!match) return 0;
@@ -190,6 +197,12 @@ for (let i = 1; i <= 28; i++) {
       el.style.height = `${heightPx}px`;
     }
 
+    // Set poster as background for timeline mode
+    if (isTimeline && movie.poster_url) {
+      el.style.backgroundImage = `url(${movie.poster_url})`;
+      el.classList.add('has-poster');
+    }
+
     const yearDirector = [movie.year, movie.director].filter(Boolean).join(', ');
     const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
     const actors = movie.actors ? movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ') : '';
@@ -208,12 +221,15 @@ for (let i = 1; i <= 28; i++) {
       ? `<img class="movie-poster" src="${movie.poster_url}" alt="" loading="lazy" />`
       : '';
 
+    // Process FF Jr. designation: move from time to title prefix
+    const { displayTime, displayTitle } = processFFJr(movie.Time, movie.Movie);
+
     el.innerHTML = `
       ${badgeHtml}
       <div class="movie-clickable">
         ${posterHtml}
-        <span class="movie-time">${movie.Time}</span>
-        <span class="movie-title">${toTitleCase(movie.Movie)}</span>
+        <span class="movie-time">${displayTime}</span>
+        <span class="movie-title">${displayTitle}</span>
         <div class="movie-meta">
           ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
           ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
@@ -362,10 +378,12 @@ for (let i = 1; i <= 28; i++) {
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('monday-start', checked);
     document.body.classList.toggle('sunday-start', !checked);
+    updateUrlParams();
   });
 
   document.getElementById('timeline-mode-toggle')?.addEventListener('change', () => {
     renderAllDays();
+    updateUrlParams();
   });
 
   // Movie Tile Display checkboxes - interdependent with fit-width
@@ -379,6 +397,38 @@ for (let i = 1; i <= 28; i++) {
   function getToggleInput(el: HTMLElement | null): HTMLInputElement | null {
     if (!el) return null;
     return el.tagName === 'INPUT' ? el as HTMLInputElement : el.querySelector('input');
+  }
+
+  function updateUrlParams() {
+    const params = new URLSearchParams();
+
+    // Timeline mode
+    const timelineInput = getToggleInput(document.getElementById('timeline-mode-toggle'));
+    if (timelineInput) params.set('timeline', timelineInput.checked ? '1' : '0');
+
+    // Fit to width
+    const fitWidthInput = getToggleInput(document.getElementById('fit-width-toggle'));
+    if (fitWidthInput) params.set('fit-width', fitWidthInput.checked ? '1' : '0');
+
+    // Week start
+    const weekStartInput = getToggleInput(document.getElementById('week-start-toggle'));
+    if (weekStartInput) params.set('week-start', weekStartInput.checked ? '1' : '0');
+
+    // Tile display checkboxes
+    const imageCheck = document.getElementById('show-image') as HTMLInputElement;
+    if (imageCheck?.checked) params.set('image', '1');
+
+    const ydCheck = document.getElementById('show-year-director') as HTMLInputElement;
+    if (ydCheck?.checked) params.set('year-director', '1');
+
+    const runtimeCheck = document.getElementById('show-runtime') as HTMLInputElement;
+    if (runtimeCheck?.checked) params.set('runtime', '1');
+
+    const actorsCheck = document.getElementById('show-actors') as HTMLInputElement;
+    if (actorsCheck?.checked) params.set('actors', '1');
+
+    const newUrl = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
+    history.replaceState(null, '', newUrl);
   }
 
   function updateTileDisplayState() {
@@ -674,10 +724,14 @@ for (let i = 1; i <= 28; i++) {
         const date = new Date(m.Datetime);
         const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
         const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        return `<span class="hidden-showtime">${dayName} ${dateStr} ${m.Time}</span>`;
+        const { displayTime } = processFFJr(m.Time, m.Movie);
+        return `<span class="hidden-showtime">${dayName} ${dateStr} ${displayTime}</span>`;
       }).join('');
       const meta = [titleMovies[0].year, titleMovies[0].director].filter(Boolean).join(', ');
-      return `<div class="hidden-movie-item"><span class="hidden-movie-title">${toTitleCase(title)}</span>${meta ? `<span class="hidden-movie-meta">(${meta})</span>` : ''}<span class="hidden-movie-showtimes">— ${showtimes}</span></div>`;
+      // Check if any showtime has FF Jr. to add prefix to title
+      const hasFFJr = titleMovies.some(m => m.Time.includes('FF Jr'));
+      const displayTitle = hasFFJr ? `(FF Jr.) ${toTitleCase(title)}` : toTitleCase(title);
+      return `<div class="hidden-movie-item"><span class="hidden-movie-title">${displayTitle}</span>${meta ? `<span class="hidden-movie-meta">(${meta})</span>` : ''}<span class="hidden-movie-showtimes">— ${showtimes}</span></div>`;
     }).join('');
   }
 
@@ -710,6 +764,30 @@ for (let i = 1; i <= 28; i++) {
   document.addEventListener('DOMContentLoaded', () => {
     initModal();
     initHiddenModals();
+
+    // Parse URL parameters to set view state (enables reliable screenshot testing)
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has('timeline')) {
+      const timelineToggle = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
+      const wantTimeline = params.get('timeline') === '1';
+      if (timelineToggle && timelineToggle.checked !== wantTimeline) timelineToggle.click();
+    }
+
+    if (params.has('fit-width')) {
+      const fitWidthToggle = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
+      const wantFitWidth = params.get('fit-width') === '1';
+      if (fitWidthToggle && fitWidthToggle.checked !== wantFitWidth) fitWidthToggle.click();
+    }
+
+    // For checkboxes: image, year-director, runtime, actors
+    ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
+      if (params.has(key)) {
+        const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
+        const cb = document.getElementById(id) as HTMLInputElement;
+        if (cb && cb.checked !== (params.get(key) === '1')) cb.click();
+      }
+    });
 
     document.querySelector('.calendar')?.addEventListener('click', (e) => {
       const movieEl = (e.target as HTMLElement).closest('[data-movie]');
@@ -1174,5 +1252,46 @@ for (let i = 1; i <= 28; i++) {
     font-size: 10px;
     color: var(--accent);
     z-index: 5;
+  }
+
+  /* Timeline mode: poster as background (only when show-image is enabled) */
+  :global(body.show-image .movie--timeline.has-poster) {
+    background-size: cover;
+    background-position: center top;
+  }
+
+  /* Hide background when show-image is not enabled */
+  :global(body:not(.show-image) .movie--timeline.has-poster) {
+    background-image: none !important;
+  }
+
+  /* Text at bottom with dark gradient for readability */
+  :global(body.show-image .movie--timeline.has-poster .movie-clickable) {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 40%,
+      rgba(0, 0, 0, 0.85) 100%
+    );
+  }
+
+  /* Hide the img element in timeline mode */
+  :global(.movie--timeline .movie-poster) {
+    display: none !important;
+  }
+
+  /* Ensure text is readable on poster background (only when showing images) */
+  :global(body.show-image .movie--timeline.has-poster .movie-time) {
+    color: var(--accent);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  :global(body.show-image .movie--timeline.has-poster .movie-title),
+  :global(body.show-image .movie--timeline.has-poster .movie-meta) {
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   }
 </style>

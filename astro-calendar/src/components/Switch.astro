@@ -1,0 +1,79 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  checked?: boolean;
+  small?: boolean;
+}
+
+const { id, label, checked = false, small = false } = Astro.props;
+---
+
+<label id={id} class:list={['switch', { small }]}>
+  <input type="checkbox" checked={checked} />
+  <span class="toggle"></span>
+  <span class="label">{label}</span>
+</label>
+
+<style>
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    border-radius: 15px;
+    background: var(--w-switch-off-color, var(--bg-movie));
+    transition: background 0.2s;
+  }
+
+  .toggle::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    bottom: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--w-color-primary-70, #fff);
+    transition: transform 0.2s;
+  }
+
+  .switch input:checked + .toggle {
+    background: var(--w-switch-on-color, var(--accent));
+  }
+
+  .switch input:checked + .toggle::before {
+    transform: translateX(20px);
+  }
+
+  .label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .switch.small .toggle {
+    width: 40px;
+    height: 20px;
+  }
+
+  .switch.small .toggle::before {
+    width: 14px;
+    height: 14px;
+  }
+
+  .switch.small .label {
+    font-size: 13px;
+  }
+</style>
