@@ -1,0 +1,104 @@
+---
+interface ToggleOption {
+  label: string;
+  value: string;
+  checked?: boolean;
+}
+
+interface Props {
+  label: string;
+  name: string;
+  options: ToggleOption[];
+  statusId?: string;
+}
+
+const { label, name, options, statusId } = Astro.props;
+---
+
+<div class="toggle-group-container">
+  <span class="toggle-group-label">{label}</span>
+  <div class="toggle-group">
+    {options.map(option => (
+      <label class="toggle-item">
+        <input type="radio" name={name} value={option.value} checked={option.checked} />
+        <span>{option.label}</span>
+      </label>
+    ))}
+  </div>
+  {statusId && <span id={statusId} class="toggle-status"></span>}
+</div>
+
+<style>
+  .toggle-group-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .toggle-group-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .toggle-group {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-day);
+  }
+
+  .toggle-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    font-size: 13px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    background: transparent;
+    border-right: 1px solid var(--bg-movie);
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .toggle-item:last-child {
+    border-right: none;
+  }
+
+  .toggle-item:hover {
+    color: var(--text-secondary);
+  }
+
+  .toggle-item:has(input:checked) {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .toggle-item input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .toggle-item span {
+    white-space: nowrap;
+  }
+
+  .toggle-status {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+    display: none;
+  }
+
+  .toggle-status:not(:empty) {
+    display: inline;
+  }
+
+  .toggle-status:hover {
+    color: var(--accent);
+  }
+</style>
