@@ -1,16 +1,7 @@
-// Composable Dialog components
-// Usage:
-// import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '@/components/Dialog'
-//
-// <DialogRoot id="my-dialog" size="md">
-//   <DialogHeader>
-//     <DialogTitle>Title</DialogTitle>
-//     <DialogDescription>Description</DialogDescription>
-//   </DialogHeader>
-//   <DialogBody scroll>Content</DialogBody>
-//   <DialogSeparator />
-//   <DialogFooter sticky>
-//     <button>Cancel</button>
-//     <button>Save</button>
-//   </DialogFooter>
-// </DialogRoot>
+export { default as DialogRoot } from './DialogRoot.astro';
+export { default as DialogHeader } from './DialogHeader.astro';
+export { default as DialogTitle } from './DialogTitle.astro';
+export { default as DialogDescription } from './DialogDescription.astro';
+export { default as DialogBody } from './DialogBody.astro';
+export { default as DialogFooter } from './DialogFooter.astro';
+export { default as DialogSeparator } from './DialogSeparator.astro';
