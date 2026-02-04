@@ -6,7 +6,7 @@
   <title>Font Comparison Demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Barlow+Semi+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Barlow+Semi+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Oswald:wght@300;400;500;600;700&family=Libre+Franklin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -38,7 +38,7 @@
       font-family: system-ui, sans-serif;
       background: var(--bg-body);
       color: var(--text-primary);
-      padding: 40px 20px;
+      padding: 10px 0;
     }
 
     h1 {
@@ -120,21 +120,44 @@
     .title-barlow-semi .movie-time,
     .title-barlow-semi .movie-title {
       font-family: 'Barlow Semi Condensed', sans-serif;
-      letter-spacing: 0.05em;
+      letter-spacing: -0.005em;
+      font-weight: 200;
     }
 
     .title-barlow-semi .movie-time {
-      font-weight: 600;
+      font-weight: 400;
+      letter-spacing: -0.015em;
     }
 
-    .title-barlow-cond .movie-time,
-    .title-barlow-cond .movie-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      letter-spacing: 0.07em;
+    .title-libre-franklin .movie-time,
+    .title-libre-franklin .movie-title {
+      font-family: 'Libre Franklin', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
     }
 
-    .title-barlow-cond .movie-time {
-      font-weight: 600;
+    .title-libre-franklin .movie-time {
+      font-weight: 500;
+    }
+
+    .title-libre-franklin .movie-meta {
+      font-family: 'Libre Franklin', sans-serif;
+    }
+
+    .title-ibm-plex .movie-time,
+    .title-ibm-plex .movie-title {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .title-ibm-plex .movie-time {
+      font-weight: 500;
+    }
+
+    /* Title case override */
+    .title-case .movie-title {
+      text-transform: none;
     }
   </style>
 </head>
@@ -143,10 +166,10 @@
   <p class="subtitle">Condensed titles + IBM Plex Sans meta text</p>
 
   <div class="grid">
-    <!-- Barlow Semi Condensed titles -->
+    <!-- Barlow Semi Condensed - ALL CAPS -->
     <div class="demo-tile">
-      <div class="font-label">Barlow Semi Condensed + IBM Plex</div>
-      <div class="font-category">Cinema vibe titles, legible meta</div>
+      <div class="font-label">Barlow Semi Condensed (ALL CAPS)</div>
+      <div class="font-category">Cinema vibe titles</div>
       <div class="movie title-barlow-semi">
         <a href="#">
           <span class="movie-time">7:00</span>
@@ -169,11 +192,11 @@
       </div>
     </div>
 
-    <!-- Barlow Condensed titles -->
+    <!-- Libre Franklin - Title Case -->
     <div class="demo-tile">
-      <div class="font-label">Barlow Condensed + IBM Plex</div>
-      <div class="font-category">Narrower condensed titles</div>
-      <div class="movie title-barlow-cond">
+      <div class="font-label">Libre Franklin (Title Case)</div>
+      <div class="font-category">Classic sans-serif</div>
+      <div class="movie title-libre-franklin title-case">
         <a href="#">
           <span class="movie-time">7:00</span>
           <span class="movie-title">Street Scene</span>
@@ -183,7 +206,33 @@
           </div>
         </a>
       </div>
-      <div class="movie title-barlow-cond">
+      <div class="movie title-libre-franklin title-case">
+        <a href="#">
+          <span class="movie-time">9:15</span>
+          <span class="movie-title">Dead End</span>
+          <div class="movie-meta">
+            <span class="movie-info">1937, William Wyler, 93min</span>
+            <span class="movie-actors">Sylvia Sidney, Joel McCrea, Humphrey Bogart</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- IBM Plex Sans - Title Case -->
+    <div class="demo-tile">
+      <div class="font-label">IBM Plex Sans (Title Case)</div>
+      <div class="font-category">Current default</div>
+      <div class="movie title-ibm-plex title-case">
+        <a href="#">
+          <span class="movie-time">7:00</span>
+          <span class="movie-title">Street Scene</span>
+          <div class="movie-meta">
+            <span class="movie-info">1931, King Vidor, 80min</span>
+            <span class="movie-actors">Sylvia Sidney, William Collier Jr., Estelle Taylor</span>
+          </div>
+        </a>
+      </div>
+      <div class="movie title-ibm-plex title-case">
         <a href="#">
           <span class="movie-time">9:15</span>
           <span class="movie-title">Dead End</span>
