@@ -1053,8 +1053,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       }
     });
 
-    // Also update comparison
-    updateComparisonBlur();
+    // Also update comparison (with RAF to ensure layout is complete)
+    requestAnimationFrame(() => {
+      updateComparisonBlur();
+    });
   }
 
   relDebugToggle?.addEventListener('change', () => {
@@ -1181,10 +1183,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         if (relSizingMode === 'multiplier') {
           blurEndPx = textSize * relBlurEndMult;
         } else {
-          // Em mode: based on title font size
+          // Em mode: textSize + (em units of title font size)
           const title = textRight.querySelector('h3') as HTMLElement;
           const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
-          blurEndPx = fullBlurPx + (titleFontSize * relBlurEndEm);
+          blurEndPx = textSize + (titleFontSize * relBlurEndEm);
         }
 
         const fullBlurPct = (fullBlurPx / cardSize) * 100;
