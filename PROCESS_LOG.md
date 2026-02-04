@@ -352,3 +352,37 @@ qsv table tenement-stories-evenings.csv
 - Times are in 12-hour format; FF Jr. screenings (11:00 AM) are morning kids' shows
 - Some movies are double features (e.g., "Pull My Daisy / George Kuchar's Bronx")
 - The series runs Feb 6-26, 2026 at Film Forum, NYC
+
+---
+
+## Step 12: Visual Differentiation for Movie Metadata
+
+Added visual differentiation between movie metadata (year/director/runtime) and actors:
+
+- Actors now display on their own line (block instead of inline) on larger screens
+- Actors styled in italic for classic film credit aesthetic
+- Removed the " · " separator prefix since actors are on a new line
+
+---
+
+## Step 13: Font Selection and Typography Updates
+
+Evaluated typefaces for the calendar UI using a font comparison demo page (`font-demo.html`).
+
+**Fonts evaluated:**
+- Libre Franklin
+- Barlow Semi Condensed
+- Roboto Condensed
+- Fira Sans Condensed
+- Inter
+- IBM Plex Sans
+- Source Sans 3
+- Oswald
+
+**Decision:** Selected **IBM Plex Sans** for its excellent small-size rendering.
+
+**Changes to calendar.html:**
+- Added IBM Plex Sans from Google Fonts as primary font
+- Increased movie title font size: 11px → 13px
+- Increased metadata font size: 10px → 11px
+- Changed actors display breakpoint: 768px → 1024px
