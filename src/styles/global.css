@@ -71,6 +71,15 @@ body {
   }
 }
 
+/* Desktop-only elements (hover features don't work on touch devices) */
+/* Hidden by default, shown via JS when pointer device detected */
+.desktop-only {
+  display: none;
+}
+
+.desktop-only.has-pointer {
+  display: block;
+}
 
 .controls {
   display: flex;
