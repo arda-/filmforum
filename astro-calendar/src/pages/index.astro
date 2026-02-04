@@ -106,6 +106,19 @@ for (let i = 1; i <= 28; i++) {
       <div id="weekday-movies-list" class="hidden-movies-list"></div>
     </div>
   </div>
+
+  <!-- Confirm Disable Fit-Width Modal -->
+  <div id="confirm-fit-width-modal" class="hidden-modal" data-show="">
+    <div class="modal-overlay"></div>
+    <div class="modal-content confirm-modal-content">
+      <h2>Show Movie Details?</h2>
+      <p class="hidden-modal-subtitle">Disable "Fit to width" to show additional movie details like year, director, runtime, and images.</p>
+      <div class="confirm-buttons">
+        <button id="confirm-fit-width-cancel" class="confirm-btn confirm-btn-cancel">Cancel</button>
+        <button id="confirm-fit-width-ok" class="confirm-btn confirm-btn-ok">Disable Fit to Width</button>
+      </div>
+    </div>
+  </div>
 </Layout>
 
 <script>
@@ -134,7 +147,7 @@ for (let i = 1; i <= 28; i++) {
   function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {
     const isFFJr = time.includes('FF Jr');
     const displayTime = isFFJr ? time.replace(/\s*[–-]?\s*FF Jr\.?/g, '').trim() : time;
-    const displayTitle = isFFJr ? `(FF Jr.) ${toTitleCase(title)}` : toTitleCase(title);
+    const displayTitle = isFFJr ? `${toTitleCase(title)} (FF Jr.)` : toTitleCase(title);
     return { displayTime, displayTitle };
   }
 
@@ -462,14 +475,49 @@ for (let i = 1; i <= 28; i++) {
     updateUrlParams();
   });
 
-  // Handle click on disabled checkbox row
+  // Handle click on disabled checkbox row - use custom modal
+  let pendingCheckbox: HTMLInputElement | null = null;
+  const confirmModal = document.getElementById('confirm-fit-width-modal');
+  const confirmOkBtn = document.getElementById('confirm-fit-width-ok');
+  const confirmCancelBtn = document.getElementById('confirm-fit-width-cancel');
+  const confirmOverlay = confirmModal?.querySelector('.modal-overlay');
+
+  function showConfirmModal(checkbox: HTMLInputElement) {
+    pendingCheckbox = checkbox;
+    if (confirmModal) confirmModal.dataset.show = 'true';
+  }
+
+  function hideConfirmModal() {
+    if (confirmModal) confirmModal.dataset.show = '';
+    pendingCheckbox = null;
+  }
+
+  confirmOkBtn?.addEventListener('click', () => {
+    const fitWidthInput = getToggleInput(fitWidthToggle);
+    if (fitWidthInput) {
+      fitWidthInput.checked = false;
+      fitWidthInput.dispatchEvent(new Event('change'));
+    }
+    // Now toggle the checkbox that was originally clicked
+    if (pendingCheckbox) {
+      pendingCheckbox.checked = true;
+      pendingCheckbox.dispatchEvent(new Event('change'));
+    }
+    hideConfirmModal();
+  });
+
+  confirmCancelBtn?.addEventListener('click', hideConfirmModal);
+  confirmOverlay?.addEventListener('click', hideConfirmModal);
+
   tileDisplayOptions?.addEventListener('click', (e) => {
     if (tileDisplayOptions.classList.contains('disabled')) {
       const fitWidthInput = getToggleInput(fitWidthToggle);
       if (fitWidthInput?.checked) {
-        if (confirm('Disable "Fit to width" to show additional movie details?')) {
-          fitWidthInput.checked = false;
-          fitWidthInput.dispatchEvent(new Event('change'));
+        // Find which checkbox was clicked
+        const clickedLabel = (e.target as HTMLElement).closest('.checkbox-option');
+        const clickedCheckbox = clickedLabel?.querySelector('input') as HTMLInputElement;
+        if (clickedCheckbox) {
+          showConfirmModal(clickedCheckbox);
         }
       }
     }
@@ -744,7 +792,7 @@ for (let i = 1; i <= 28; i++) {
       const meta = [titleMovies[0].year, titleMovies[0].director].filter(Boolean).join(', ');
       // Check if any showtime has FF Jr. to add prefix to title
       const hasFFJr = titleMovies.some(m => m.Time.includes('FF Jr'));
-      const displayTitle = hasFFJr ? `(FF Jr.) ${toTitleCase(title)}` : toTitleCase(title);
+      const displayTitle = hasFFJr ? `${toTitleCase(title)} (FF Jr.)` : toTitleCase(title);
       return `<div class="hidden-movie-item"><span class="hidden-movie-title">${displayTitle}</span>${meta ? `<span class="hidden-movie-meta">(${meta})</span>` : ''}<span class="hidden-movie-showtimes">— ${showtimes}</span></div>`;
     }).join('');
   }
@@ -1326,5 +1374,46 @@ for (let i = 1; i <= 28; i++) {
   :global(body.show-image .movie--timeline.has-poster .movie-meta) {
     color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  }
+
+  /* Confirm modal styles */
+  :global(.confirm-modal-content) {
+    max-width: 380px;
+    text-align: center;
+  }
+
+  :global(.confirm-buttons) {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  :global(.confirm-btn) {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  :global(.confirm-btn-cancel) {
+    background: var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  :global(.confirm-btn-cancel:hover) {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  :global(.confirm-btn-ok) {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  :global(.confirm-btn-ok:hover) {
+    background: var(--accent-bg);
   }
 </style>
