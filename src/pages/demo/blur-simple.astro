@@ -1737,14 +1737,25 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     font-family: monospace;
   }
 
-  .comparison-card.aspect-2-3 {
-    width: 240px;
-    height: 360px;
+  /* All comparison cards have uniform 320px height, widths adjusted for aspect ratio */
+  .comparison-card.aspect-2-1 {
+    width: 640px;
+    height: 320px;
+  }
+
+  .comparison-card.aspect-16-9 {
+    width: 569px;
+    height: 320px;
+  }
+
+  .comparison-card.aspect-4-3 {
+    width: 427px;
+    height: 320px;
   }
 
   .comparison-card.aspect-1-1 {
-    width: 280px;
-    height: 280px;
+    width: 320px;
+    height: 320px;
   }
 
   .comparison-card.aspect-3-4 {
@@ -1752,29 +1763,19 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     height: 320px;
   }
 
-  .comparison-card.aspect-4-3 {
-    width: 320px;
-    height: 240px;
-  }
-
-  .comparison-card.aspect-16-9 {
-    width: 400px;
-    height: 225px;
-  }
-
-  .comparison-card.aspect-2-1 {
-    width: 440px;
-    height: 220px;
+  .comparison-card.aspect-2-3 {
+    width: 213px;
+    height: 320px;
   }
 
   .comparison-card.aspect-9-16 {
-    width: 200px;
-    height: 356px;
+    width: 180px;
+    height: 320px;
   }
 
   .comparison-card.aspect-1-2 {
-    width: 180px;
-    height: 360px;
+    width: 160px;
+    height: 320px;
   }
 
   .comparison-card > .poster-image {
