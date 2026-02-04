@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Dialog from '../../components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '../../components/Dialog/index';
 ---
 
 <Layout title="Dialog Demo">
@@ -55,6 +56,8 @@ import Dialog from '../../components/Dialog.astro';
 
   <!-- Size: Small -->
   <Dialog id="dialog-sm" title="Small Dialog" description="This is a small dialog with a max-width of 400px." size="sm">
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-sm')">Cancel</button>
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-sm')">Confirm</button>
@@ -66,6 +69,7 @@ import Dialog from '../../components/Dialog.astro';
     <div class="dialog-body">
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
     </div>
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-md')">Cancel</button>
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-md')">Save Changes</button>
@@ -79,6 +83,7 @@ import Dialog from '../../components/Dialog.astro';
       <div class="demo-list-item">Item 2 - More content</div>
       <div class="demo-list-item">Item 3 - Even more content</div>
     </div>
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-lg')">Close</button>
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-lg')">Done</button>
@@ -87,6 +92,7 @@ import Dialog from '../../components/Dialog.astro';
 
   <!-- With Close Button (default) -->
   <Dialog id="dialog-with-close" title="With Close Button" description="Click the X button in the corner, press Escape, or click the backdrop to close." size="sm">
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-with-close')">Got it</button>
     </div>
@@ -102,6 +108,7 @@ import Dialog from '../../components/Dialog.astro';
 
   <!-- Custom Close Button -->
   <Dialog id="dialog-custom-close" title="Custom Close Button" description="Replace the default close control with your own button in the footer." size="sm" showCloseButton={false}>
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-custom-close')">
         Close Dialog
@@ -133,6 +140,7 @@ import Dialog from '../../components/Dialog.astro';
       <p><strong>7. Modifications</strong></p>
       <p>We may revise these terms of service for this website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
     </div>
+    <div class="dialog-separator" role="separator" aria-hidden="true"></div>
     <div class="dialog-footer">
       <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-scroll')">Decline</button>
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-scroll')">Accept</button>
@@ -182,7 +190,8 @@ import Dialog from '../../components/Dialog.astro';
         <label for="email">Email</label>
         <input type="email" id="email" placeholder="Enter your email" />
       </div>
-      <div class="dialog-footer">
+      <div class="dialog-separator" role="separator" aria-hidden="true"></div>
+    <div class="dialog-footer">
         <button type="button" class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-form')">Cancel</button>
         <button type="submit" class="dialog-btn dialog-btn--primary">Save</button>
       </div>
@@ -195,6 +204,31 @@ import Dialog from '../../components/Dialog.astro';
       <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-alert')">Log In</button>
     </div>
   </Dialog>
+
+  <!-- Composable Pattern Example -->
+  <div class="demo-section">
+    <h2>Composable Pattern</h2>
+    <p class="section-desc">Use the new composable components for more flexibility (DialogRoot, DialogHeader, DialogBody, DialogFooter, etc.)</p>
+    <div class="button-row">
+      <button class="demo-btn" onclick="openDialog('dialog-composable')">Composable Example</button>
+    </div>
+  </div>
+
+  <DialogRoot id="dialog-composable" size="md">
+    <DialogHeader>
+      <DialogTitle id="dialog-composable-title">Composable Dialog</DialogTitle>
+      <DialogDescription>This dialog uses the new composable component pattern for better flexibility.</DialogDescription>
+    </DialogHeader>
+    <DialogBody>
+      <p>Each part of the dialog can now be composed independently, similar to Base UI's pattern.</p>
+      <p>This makes it easier to build complex dialogs with custom layouts.</p>
+    </DialogBody>
+    <DialogSeparator />
+    <DialogFooter>
+      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-composable')">Cancel</button>
+      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-composable')">Confirm</button>
+    </DialogFooter>
+  </DialogRoot>
 </Layout>
 
 <style>
