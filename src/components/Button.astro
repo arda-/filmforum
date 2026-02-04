@@ -1,19 +1,27 @@
 ---
 interface Props {
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   class?: string;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   form?: string;
 }
 
-const { variant = 'primary', class: className = '', type = 'button', disabled = false, form } = Astro.props;
+const {
+  variant = 'primary',
+  size = 'default',
+  class: className = '',
+  type = 'button',
+  disabled = false,
+  form
+} = Astro.props;
 ---
 
 <button
   type={type}
-  class:list={['btn', `btn--${variant}`, className]}
-  {disabled}
+  class:list={['btn', `btn--${variant}`, `btn--${size}`, className]}
+  disabled={disabled}
   {form}
 >
   <slot />
@@ -24,7 +32,7 @@ const { variant = 'primary', class: className = '', type = 'button', disabled = 
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 16px;
+    gap: 8px;
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
@@ -34,11 +42,48 @@ const { variant = 'primary', class: className = '', type = 'button', disabled = 
     transition:
       background-color 0.15s ease,
       color 0.15s ease,
+      border-color 0.15s ease,
       transform 0.1s ease;
   }
 
-  .btn:active {
+  .btn:active:not(:disabled) {
     transform: scale(0.97);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Sizes */
+  .btn--default {
+    padding: 10px 16px;
+  }
+
+  .btn--sm {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .btn--lg {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+
+  .btn--icon {
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Variants */
+  .btn--primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn--primary:hover:not(:disabled) {
+    background: var(--accent-bg);
   }
 
   .btn--secondary {
@@ -46,18 +91,9 @@ const { variant = 'primary', class: className = '', type = 'button', disabled = 
     color: var(--text-secondary);
   }
 
-  .btn--secondary:hover {
+  .btn--secondary:hover:not(:disabled) {
     background: var(--bg-movie-hover);
     color: var(--text-primary);
-  }
-
-  .btn--primary {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .btn--primary:hover {
-    background: var(--accent-bg);
   }
 
   .btn--danger {
@@ -65,7 +101,45 @@ const { variant = 'primary', class: className = '', type = 'button', disabled = 
     color: #fff;
   }
 
-  .btn--danger:hover {
+  .btn--danger:hover:not(:disabled) {
     background: #b91c1c;
+  }
+
+  .btn--outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--bg-movie-hover);
+  }
+
+  .btn--outline:hover:not(:disabled) {
+    background: var(--bg-movie);
+    border-color: var(--bg-movie-hover);
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+  }
+
+  .btn--ghost:hover:not(:disabled) {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .btn--link {
+    background: transparent;
+    color: var(--accent);
+    padding: 0;
+    height: auto;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  .btn--link:hover:not(:disabled) {
+    color: var(--accent-bg);
+  }
+
+  .btn--link:active:not(:disabled) {
+    transform: none;
   }
 </style>
