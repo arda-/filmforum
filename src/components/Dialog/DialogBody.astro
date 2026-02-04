@@ -1,0 +1,26 @@
+---
+interface Props {
+  scroll?: boolean;
+}
+
+const { scroll = false } = Astro.props;
+---
+
+<div class:list={['dialog-body', { 'dialog-body--scroll': scroll }]}>
+  <slot />
+</div>
+
+<style>
+  .dialog-body {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .dialog-body--scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+</style>
