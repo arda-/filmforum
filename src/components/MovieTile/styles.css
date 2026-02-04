@@ -184,6 +184,10 @@ body.show-image .movie.has-poster:not(.movie--timeline) {
   body.show-image .movie.has-poster:not(.movie--timeline) {
     min-height: 120px;
   }
+
+  body.show-image .movie.has-poster:not(.movie--timeline) .movie-clickable {
+    justify-content: center;
+  }
 }
 
 /* Hide background when show-image is not enabled */
@@ -262,6 +266,10 @@ body.show-image .movie.has-poster .movie-meta {
 body.show-image .movie.has-poster:hover,
 body.show-image .movie.has-poster:focus {
   filter: brightness(1.15);
+}
+
+.movie:active {
+  transform: scale(0.98);
 }
 
 /* ===== Timeline Mode: Overlap Columns ===== */
