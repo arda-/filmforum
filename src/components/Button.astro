@@ -37,7 +37,8 @@ const {
     font-weight: 500;
     font-family: inherit;
     border-radius: 8px;
-    border: none;
+    border: 1px solid transparent;
+    background-color: transparent;
     cursor: pointer;
     transition:
       background-color 0.15s ease,
@@ -55,79 +56,79 @@ const {
     cursor: not-allowed;
   }
 
-  /* Sizes */
-  .btn--default {
-    padding: 10px 16px;
+  /* Sizes - use compound selectors for proper specificity with scoped styles */
+  .btn.btn--default {
+    padding: 8px 14px;
   }
 
-  .btn--sm {
+  .btn.btn--sm {
     padding: 6px 12px;
     font-size: 13px;
   }
 
-  .btn--lg {
-    padding: 12px 24px;
+  .btn.btn--lg {
+    padding: 10px 18px;
     font-size: 16px;
   }
 
-  .btn--icon {
+  .btn.btn--icon {
     padding: 10px;
     width: 40px;
     height: 40px;
   }
 
-  /* Variants */
-  .btn--primary {
-    background: var(--accent);
+  /* Variants - use compound selectors for proper specificity with scoped styles */
+  .btn.btn--primary {
+    background-color: var(--accent);
     color: #fff;
   }
 
-  .btn--primary:hover:not(:disabled) {
-    background: var(--accent-bg);
+  .btn.btn--primary:hover:not(:disabled) {
+    background-color: var(--accent-bg);
   }
 
-  .btn--secondary {
-    background: var(--bg-movie);
+  .btn.btn--secondary {
+    background-color: var(--bg-movie);
     color: var(--text-secondary);
   }
 
-  .btn--secondary:hover:not(:disabled) {
-    background: var(--bg-movie-hover);
+  .btn.btn--secondary:hover:not(:disabled) {
+    background-color: var(--bg-movie-hover);
     color: var(--text-primary);
   }
 
-  .btn--danger {
-    background: #dc2626;
+  .btn.btn--danger {
+    background-color: #dc2626;
     color: #fff;
   }
 
-  .btn--danger:hover:not(:disabled) {
-    background: #b91c1c;
+  .btn.btn--danger:hover:not(:disabled) {
+    background-color: #b91c1c;
   }
 
-  .btn--outline {
-    background: transparent;
+  .btn.btn--outline {
+    background-color: transparent;
     color: var(--text-primary);
-    border: 1px solid var(--bg-movie-hover);
-  }
-
-  .btn--outline:hover:not(:disabled) {
-    background: var(--bg-movie);
     border-color: var(--bg-movie-hover);
   }
 
-  .btn--ghost {
-    background: transparent;
+  .btn.btn--outline:hover:not(:disabled) {
+    background-color: var(--bg-movie);
+  }
+
+  .btn.btn--ghost {
+    background-color: transparent;
     color: var(--text-secondary);
   }
 
-  .btn--ghost:hover:not(:disabled) {
-    background: var(--bg-movie);
+  .btn.btn--ghost:hover:not(:disabled) {
+    background-color: var(--bg-movie);
     color: var(--text-primary);
   }
 
-  .btn--link {
-    background: transparent;
+  .btn.btn--link {
+    background-color: transparent;
+    border-color: transparent;
     color: var(--accent);
     padding: 0;
     height: auto;
@@ -135,11 +136,11 @@ const {
     text-underline-offset: 4px;
   }
 
-  .btn--link:hover:not(:disabled) {
+  .btn.btn--link:hover:not(:disabled) {
     color: var(--accent-bg);
   }
 
-  .btn--link:active:not(:disabled) {
+  .btn.btn--link:active:not(:disabled) {
     transform: none;
   }
 </style>
