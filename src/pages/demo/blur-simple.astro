@@ -988,10 +988,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       if (relSizingMode === 'multiplier') {
         blurEndPx = textSize * relBlurEndMult;
       } else {
-        // Em mode: based on title font size
+        // Em mode: textSize + (em units of title font size)
         const title = textOverlay.querySelector('h3') as HTMLElement;
         const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
-        blurEndPx = fullBlurPx + (titleFontSize * relBlurEndEm);
+        blurEndPx = textSize + (titleFontSize * relBlurEndEm);
       }
 
       // Convert to percentages
