@@ -29,6 +29,7 @@ for (let i = 1; i <= 28; i++) {
       <span class="control-group-label">Filtering</span>
       <div class="control-group-toggles">
         <Switch id="hide-work-hours-toggle" label="Hide weekday 9-5 showtimes" small />
+        <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes" small />
       </div>
     </div>
   </div>
@@ -68,6 +69,7 @@ for (let i = 1; i <= 28; i++) {
   let moviesByDate: Record<string, Movie[]> = {};
   let globalRange = { start: Infinity, end: 0, range: 0 };
   let uniformHeight = 0;
+  let movieShowtimeCounts: Record<string, number> = {};
 
   function toTitleCase(str: string) {
     return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
@@ -242,6 +244,7 @@ for (let i = 1; i <= 28; i++) {
     renderAllDays();
   });
 
+
   // Fetch and render
   fetch('/tenement-stories-full.json')
     .then(res => res.json())
@@ -250,6 +253,11 @@ for (let i = 1; i <= 28; i++) {
         const date = movie.Datetime.split('T')[0];
         if (!moviesByDate[date]) moviesByDate[date] = [];
         moviesByDate[date].push(movie);
+      });
+
+      // Build count of showtimes per movie title
+      movies.forEach(movie => {
+        movieShowtimeCounts[movie.Movie] = (movieShowtimeCounts[movie.Movie] || 0) + 1;
       });
 
       // Calculate global time range
@@ -478,6 +486,39 @@ for (let i = 1; i <= 28; i++) {
         }
       }
     });
+
+    // Highlight alternate showtimes on hover
+    document.querySelector('.calendar')?.addEventListener('mouseenter', (e) => {
+      const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+      if (!movieEl) return;
+
+      const highlightToggleEl = document.getElementById('highlight-alternate-toggle');
+      const highlightEnabled = highlightToggleEl?.tagName === 'INPUT'
+        ? (highlightToggleEl as HTMLInputElement).checked
+        : (highlightToggleEl?.querySelector('input') as HTMLInputElement)?.checked;
+      if (!highlightEnabled) return;
+
+      const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
+      if (movieShowtimeCounts[movie.Movie] <= 1) return;
+
+      // Highlight all movies with the same title
+      document.querySelectorAll('[data-movie]').forEach(el => {
+        const otherMovie = JSON.parse((el as HTMLElement).dataset.movie || '{}');
+        if (otherMovie.Movie === movie.Movie) {
+          el.classList.add('alternate-highlight');
+        }
+      });
+    }, true);
+
+    document.querySelector('.calendar')?.addEventListener('mouseleave', (e) => {
+      const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+      if (!movieEl) return;
+
+      // Remove all highlights
+      document.querySelectorAll('.alternate-highlight').forEach(el => {
+        el.classList.remove('alternate-highlight');
+      });
+    }, true);
   });
 </script>
 
@@ -634,5 +675,10 @@ for (let i = 1; i <= 28; i++) {
   :global(.movie--timeline.overlap-col-0.has-overlap) {
     right: 52% !important;
     left: 4px !important;
+  }
+
+  :global(.movie.alternate-highlight) {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
   }
 </style>
