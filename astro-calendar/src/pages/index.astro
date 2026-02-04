@@ -498,12 +498,12 @@ for (let i = 1; i <= 28; i++) {
     const fitWidthInput = getToggleInput(fitWidthToggle);
     if (fitWidthInput) {
       fitWidthInput.checked = false;
-      fitWidthInput.dispatchEvent(new Event('change'));
+      fitWidthInput.dispatchEvent(new Event('change', { bubbles: true }));
     }
     // Now toggle the checkbox that was originally clicked
     if (pendingCheckbox) {
       pendingCheckbox.checked = true;
-      pendingCheckbox.dispatchEvent(new Event('change'));
+      pendingCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
     }
     hideConfirmModal();
   });
