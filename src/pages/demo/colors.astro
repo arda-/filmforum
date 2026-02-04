@@ -71,29 +71,6 @@ for (let i = 1; i <= 14; i++) {
       </div>
     </section>
 
-    <!-- Scenario B2: White base, subtle border for structure -->
-    <section class="scenario" id="scenario-border-structure">
-      <h2>B2. White + Border Structure</h2>
-      <p class="scenario-desc">All white, but day cells get a subtle border for structure instead of grid color.</p>
-      <div class="color-swatches small">
-        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>all white</span></div>
-        <div class="swatch" style="background: #f1f5f9;"><span>movie</span></div>
-      </div>
-      <div class="scenario-content with-borders" style="
-        --bg-grid: #ffffff;
-        --bg-day: #ffffff;
-        --bg-day-movies: #ffffff;
-        --bg-movie: #f1f5f9;
-        --bg-movie-hover: #e2e8f0;
-      ">
-        <CalendarGrid>
-          {dates.map(date => (
-            <DayCell date={date} />
-          ))}
-        </CalendarGrid>
-      </div>
-    </section>
-
   </div>
 
   <div class="floating-controls">
@@ -320,18 +297,6 @@ for (let i = 1; i <= 14; i++) {
 
   .scenario-content :global(.day) {
     min-height: 80px;
-  }
-
-  /* Border-based structure - remove grid gap, use borders instead */
-  .scenario-content.with-borders :global(.calendar) {
-    gap: 0;
-    border-top: 1px solid #e2e8f0;
-    border-left: 1px solid #e2e8f0;
-  }
-
-  .scenario-content.with-borders :global(.day) {
-    border-right: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
   }
 
   /* Floating controls at bottom */
