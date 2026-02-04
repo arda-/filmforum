@@ -20,7 +20,7 @@ for (let i = 1; i <= 28; i++) {
     <Switch id="week-start-toggle" label="Start week on Monday" checked small />
     <Switch id="duration-mode-toggle" label="Duration mode" checked small />
     <Switch id="fit-width-toggle" label="Fit to width" checked small />
-    <Switch id="hide-work-hours-toggle" label="Hide 9-5 showtimes" small />
+    <Switch id="hide-work-hours-toggle" label="Hide weekday 9-5 showtimes" small />
   </div>
 
   <CalendarGrid>
@@ -146,18 +146,27 @@ for (let i = 1; i <= 28; i++) {
 
   function renderAllDays() {
     const durationMode = (document.getElementById('duration-mode-toggle') as HTMLInputElement).checked;
-    const hideWorkHours = (document.getElementById('hide-work-hours-toggle') as HTMLInputElement)?.checked;
+    const hideWorkHoursEl = document.getElementById('hide-work-hours-toggle');
+    const hideWorkHours = hideWorkHoursEl?.tagName === 'INPUT'
+      ? (hideWorkHoursEl as HTMLInputElement).checked
+      : (hideWorkHoursEl?.querySelector('input') as HTMLInputElement)?.checked;
     const WORK_START = 9 * 60;   // 9:00 AM = 540 mins
     const WORK_END = 17 * 60;    // 5:00 PM = 1020 mins
 
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      // Apply work hours filter if enabled
+      // Apply work hours filter if enabled (only on weekdays)
       let filteredMovies = dayMovies;
       if (hideWorkHours) {
-        filteredMovies = dayMovies.filter(m => {
-          const mins = parseTimeToMins(m.Time);
-          return mins < WORK_START || mins >= WORK_END;
-        });
+        // Check if this date is a weekday (Mon-Fri = 1-5, Sat = 6, Sun = 0)
+        const dayOfWeek = new Date(date + 'T12:00:00').getDay();
+        const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+
+        if (isWeekday) {
+          filteredMovies = dayMovies.filter(m => {
+            const mins = parseTimeToMins(m.Time);
+            return mins < WORK_START || mins >= WORK_END;
+          });
+        }
       }
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
       if (!dayCell) return;
@@ -215,7 +224,11 @@ for (let i = 1; i <= 28; i++) {
     document.body.classList.toggle('natural-width', !checked);
   });
 
-  document.getElementById('hide-work-hours-toggle')?.addEventListener('change', () => {
+  const hideWorkHoursToggle = document.getElementById('hide-work-hours-toggle');
+  const hideWorkHoursInput = hideWorkHoursToggle?.tagName === 'INPUT'
+    ? hideWorkHoursToggle
+    : hideWorkHoursToggle?.querySelector('input');
+  hideWorkHoursInput?.addEventListener('change', () => {
     renderAllDays();
   });
 
