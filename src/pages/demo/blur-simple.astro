@@ -215,11 +215,11 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             label=""
             name="rel-end-em"
             options={[
-              { label: '0.5em', value: '0.5' },
-              { label: '0.75em', value: '0.75' },
-              { label: '1em', value: '1', checked: true },
-              { label: '1.1em', value: '1.1' },
-              { label: '1.25em', value: '1.25' }
+              { label: '-1em', value: '-1' },
+              { label: '-0.5em', value: '-0.5' },
+              { label: '0em', value: '0', checked: true },
+              { label: '+0.5em', value: '0.5' },
+              { label: '+1em', value: '1' }
             ]}
           />
         </span>
@@ -898,7 +898,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   let relSizingMode = params.get('rel_mode') || 'multiplier';
   let relFullBlurMult = parseFloat(params.get('rel_full_mult') || '1');
   let relBlurEndMult = parseFloat(params.get('rel_end_mult') || '1.25');
-  let relBlurEndEm = parseFloat(params.get('rel_end_em') || '1');
+  let relBlurEndEm = parseFloat(params.get('rel_end_em') || '0');
   let relDebugEnabled = params.get('rel_debug') === '1';
 
   function updateRelURL() {
@@ -918,7 +918,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       else newParams.delete('rel_end_mult');
       newParams.delete('rel_end_em');
     } else {
-      if (relBlurEndEm !== 1) newParams.set('rel_end_em', String(relBlurEndEm));
+      if (relBlurEndEm !== 0) newParams.set('rel_end_em', String(relBlurEndEm));
       else newParams.delete('rel_end_em');
       newParams.delete('rel_end_mult');
     }
