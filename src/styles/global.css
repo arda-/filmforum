@@ -120,9 +120,9 @@ body {
   font-size: 12px;
 }
 
-/* Natural width mode - allows horizontal scrolling */
+/* Natural width mode - prevent page from shrinking/scrolling */
 body.natural-width {
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 /* Styles for JS-injected modal content */
