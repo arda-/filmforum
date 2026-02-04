@@ -1,0 +1,73 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Demos - Film Forum">
+  <style>
+    .demos-hub {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px 10px;
+    }
+
+    .intro {
+      margin-bottom: 40px;
+      padding: 0 10px;
+    }
+
+    .intro h2 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .demos-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .demo-card {
+      padding: 16px;
+      border-radius: 8px;
+      background: var(--bg-day);
+      border: 1px solid var(--bg-grid);
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+    }
+
+    .demo-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-movie);
+    }
+
+    .demo-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 0 0 6px 0;
+    }
+
+    .demo-description {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
+  </style>
+
+  <div class="demos-hub">
+    <div class="intro">
+      <h2>Demos</h2>
+      <p style="color: var(--text-secondary); margin: 0;">Explore different features and design variations.</p>
+    </div>
+
+    <div class="demos-list">
+      <a href="/demo/colors" class="demo-card">
+        <div class="demo-title">Color Palette Refinement</div>
+        <div class="demo-description">Compare different color palette scenarios to refine the app's visual design and address light/dark mode improvements.</div>
+      </a>
+    </div>
+  </div>
+</Layout>
