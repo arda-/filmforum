@@ -174,6 +174,9 @@ for (let i = 1; i <= 14; i++) {
   setupToggle('toggle-runtime', 'show-runtime', 'runtime');
   setupToggle('toggle-actors', 'show-actors', 'actors');
 
+  // Sync URL to match initial toggle state
+  updateUrlParams();
+
   // Load movies and populate all scenarios
   fetch('/tenement-stories-full.json')
     .then(res => res.json())
