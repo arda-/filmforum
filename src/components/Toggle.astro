@@ -1,0 +1,164 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  pressed?: boolean;
+  disabled?: boolean;
+  variant?: 'default' | 'outline';
+  size?: 'default' | 'sm' | 'lg';
+}
+
+const {
+  id,
+  label,
+  pressed = false,
+  disabled = false,
+  variant = 'default',
+  size = 'default'
+} = Astro.props;
+---
+
+<button
+  type="button"
+  id={id}
+  class:list={['toggle', `toggle--${variant}`, `toggle--${size}`]}
+  data-state={pressed ? 'on' : 'off'}
+  aria-pressed={pressed}
+  disabled={disabled}
+>
+  {label}
+</button>
+
+<script>
+  document.querySelectorAll('.toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const btn = toggle as HTMLButtonElement;
+      if (btn.disabled || btn.dataset.disabled === 'true') return;
+
+      const isPressed = toggle.getAttribute('data-state') === 'on';
+      const newState = !isPressed;
+
+      toggle.setAttribute('data-state', newState ? 'on' : 'off');
+      toggle.setAttribute('aria-pressed', String(newState));
+
+      // Dispatch a change event for consistency with other form elements
+      toggle.dispatchEvent(new CustomEvent('change', {
+        bubbles: true,
+        detail: { pressed: newState }
+      }));
+    });
+  });
+</script>
+
+<style>
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease,
+      transform 0.1s ease;
+  }
+
+  .toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .toggle:active {
+    transform: scale(0.97);
+  }
+
+  .toggle:disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Visual-only disabled state (allows clicks for modal triggers) */
+  .toggle[data-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .toggle[data-disabled="true"]:hover {
+    background: inherit;
+    color: inherit;
+    border-color: inherit;
+  }
+
+  .toggle[data-disabled="true"]:active {
+    transform: none;
+  }
+
+  /* Default variant */
+  .toggle--default {
+    background: var(--bg-movie);
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+  }
+
+  .toggle--default:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .toggle--default[data-state="on"] {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .toggle--default[data-state="on"]:hover {
+    background: var(--accent-bg);
+  }
+
+  /* Outline variant */
+  .toggle--outline {
+    background: transparent;
+    border: 1px solid var(--bg-movie-hover);
+    color: var(--text-secondary);
+  }
+
+  .toggle--outline:hover {
+    background: var(--bg-movie);
+    border-color: var(--text-tertiary);
+    color: var(--text-primary);
+  }
+
+  .toggle--outline[data-state="on"] {
+    background: var(--bg-movie);
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  .toggle--outline[data-state="on"]:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  /* Sizes */
+  .toggle--sm {
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .toggle--default.toggle--default {
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .toggle--lg {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+</style>
