@@ -6,7 +6,7 @@
   <title>Font Comparison Demo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=Roboto+Condensed:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=Barlow+Semi+Condensed:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -79,18 +79,6 @@
       margin-bottom: 8px;
     }
 
-    .variant-label {
-      font-size: 8px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 8px 0 4px;
-    }
-
-    .variant-label:first-of-type {
-      margin-top: 0;
-    }
-
     .movie {
       background: var(--bg-movie);
       margin-bottom: 4px;
@@ -119,6 +107,7 @@
       color: var(--text-tertiary);
       font-size: 10px;
       margin-top: 3px;
+      font-family: 'IBM Plex Sans', sans-serif; /* Always IBM Plex for meta */
     }
 
     .movie-actors {
@@ -126,26 +115,33 @@
       font-style: italic;
     }
 
-    /* Font-specific styles */
-    .font-ibm-plex { font-family: 'IBM Plex Sans', sans-serif; }
+    /* Title font options */
+    .title-ibm-plex .movie-time,
+    .title-ibm-plex .movie-title {
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
 
-    /* Weight variants */
-    .weight-light { font-weight: 300; }
-    .weight-light .movie-time { font-weight: 500; }
-    .weight-light .movie-title { font-weight: 400; }
+    .title-roboto-cond .movie-time,
+    .title-roboto-cond .movie-title {
+      font-family: 'Roboto Condensed', sans-serif;
+    }
+
+    .title-barlow-semi .movie-time,
+    .title-barlow-semi .movie-title {
+      font-family: 'Barlow Semi Condensed', sans-serif;
+    }
   </style>
 </head>
 <body>
-  <h1>Font Comparison</h1>
-  <p class="subtitle">IBM Plex Sans - Selected typeface</p>
+  <h1>Font Comparison Demo</h1>
+  <p class="subtitle">Condensed titles + IBM Plex Sans meta text</p>
 
   <div class="grid">
-    <!-- IBM Plex Sans -->
+    <!-- IBM Plex Sans (baseline) -->
     <div class="demo-tile">
-      <div class="font-label">IBM Plex Sans</div>
-      <div class="font-category">Excellent small-size rendering</div>
-      <div class="variant-label">Regular (400)</div>
-      <div class="movie font-ibm-plex">
+      <div class="font-label">IBM Plex Sans (Current)</div>
+      <div class="font-category">All IBM Plex — baseline comparison</div>
+      <div class="movie title-ibm-plex">
         <a href="#">
           <span class="movie-time">7:00</span>
           <span class="movie-title">Street Scene</span>
@@ -155,14 +151,65 @@
           </div>
         </a>
       </div>
-      <div class="variant-label">Light (300)</div>
-      <div class="movie font-ibm-plex weight-light">
+      <div class="movie title-ibm-plex">
+        <a href="#">
+          <span class="movie-time">9:15</span>
+          <span class="movie-title">Dead End</span>
+          <div class="movie-meta">
+            <span class="movie-info">1937, William Wyler, 93min</span>
+            <span class="movie-actors">Sylvia Sidney, Joel McCrea, Humphrey Bogart</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Roboto Condensed titles -->
+    <div class="demo-tile">
+      <div class="font-label">Roboto Condensed + IBM Plex</div>
+      <div class="font-category">Condensed titles, legible meta</div>
+      <div class="movie title-roboto-cond">
         <a href="#">
           <span class="movie-time">7:00</span>
           <span class="movie-title">Street Scene</span>
           <div class="movie-meta">
             <span class="movie-info">1931, King Vidor, 80min</span>
             <span class="movie-actors">Sylvia Sidney, William Collier Jr., Estelle Taylor</span>
+          </div>
+        </a>
+      </div>
+      <div class="movie title-roboto-cond">
+        <a href="#">
+          <span class="movie-time">9:15</span>
+          <span class="movie-title">Dead End</span>
+          <div class="movie-meta">
+            <span class="movie-info">1937, William Wyler, 93min</span>
+            <span class="movie-actors">Sylvia Sidney, Joel McCrea, Humphrey Bogart</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Barlow Semi Condensed titles -->
+    <div class="demo-tile">
+      <div class="font-label">Barlow Semi Condensed + IBM Plex</div>
+      <div class="font-category">Cinema vibe titles, legible meta</div>
+      <div class="movie title-barlow-semi">
+        <a href="#">
+          <span class="movie-time">7:00</span>
+          <span class="movie-title">Street Scene</span>
+          <div class="movie-meta">
+            <span class="movie-info">1931, King Vidor, 80min</span>
+            <span class="movie-actors">Sylvia Sidney, William Collier Jr., Estelle Taylor</span>
+          </div>
+        </a>
+      </div>
+      <div class="movie title-barlow-semi">
+        <a href="#">
+          <span class="movie-time">9:15</span>
+          <span class="movie-title">Dead End</span>
+          <div class="movie-meta">
+            <span class="movie-info">1937, William Wyler, 93min</span>
+            <span class="movie-actors">Sylvia Sidney, Joel McCrea, Humphrey Bogart</span>
           </div>
         </a>
       </div>
