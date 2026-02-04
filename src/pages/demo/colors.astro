@@ -309,20 +309,22 @@ const scenarios = [
     return el;
   }
 
-  function renderScenario(scenarioId: string) {
+  function renderScenarioMovies(scenarioId: string, scenarioEl: Element) {
     const data = scenarioData[scenarioId as keyof typeof scenarioData];
     if (!data) return;
 
-    const { moviesByDate, globalRange, uniformHeight } = data;
+    const { moviesByDate } = data;
 
-    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      const dayCell = document.querySelector(`[data-scenario="${scenarioId}"] [data-date="${date}"]`) as HTMLElement;
-      if (!dayCell) return;
+    const dayCells = scenarioEl.querySelectorAll('[data-date]') as NodeListOf<HTMLElement>;
+    dayCells.forEach(dayCell => {
+      const date = dayCell.getAttribute('data-date');
+      if (!date) return;
 
-      const dayNumber = dayCell.dataset.dayNumber;
+      const dayMovies = moviesByDate[date] || [];
+      const dayNumber = dayCell.getAttribute('data-day-number') || dayCell.textContent;
+
       dayCell.innerHTML = '';
       dayCell.classList.remove('timeline-view');
-      dayCell.classList.add('has-movies');
       dayCell.style.height = '';
 
       const dayNumDiv = document.createElement('div');
@@ -335,6 +337,7 @@ const scenarios = [
         return;
       }
 
+      dayCell.classList.add('has-movies');
       // Render list mode by default
       dayMovies.forEach(movie => {
         dayCell.appendChild(createMovieElement(movie, false));
@@ -347,8 +350,14 @@ const scenarios = [
     fetch('/tenement-stories-full.json')
       .then(res => res.json())
       .then((movies: Movie[]) => {
-        Object.keys(scenarioData).forEach(scenarioId => {
+        const scenarioIds = ['original', 'light-unified', 'light-minimal', 'light-subtle'];
+        const scenarioElements = document.querySelectorAll('.scenario-content');
+
+        scenarioIds.forEach((scenarioId, index) => {
           const data = scenarioData[scenarioId as keyof typeof scenarioData];
+          const scenarioEl = scenarioElements[index];
+
+          if (!data || !scenarioEl) return;
 
           data.allMovies = movies;
           movies.forEach(movie => {
@@ -365,13 +374,7 @@ const scenarios = [
           data.globalRange.range = data.globalRange.end - data.globalRange.start;
           data.uniformHeight = Math.max(data.globalRange.range * PX_PER_MIN, 100) + 32;
 
-          renderScenario(scenarioId);
-        });
-
-        // Add data-scenario attribute to scenario content divs - find all scenario-content divs
-        document.querySelectorAll('.scenario-content').forEach((el, index) => {
-          const scenarios = ['original', 'light-unified', 'light-minimal', 'light-subtle'];
-          el.setAttribute('data-scenario', scenarios[index]);
+          renderScenarioMovies(scenarioId, scenarioEl);
         });
 
         // Delegate click events to movie modals
