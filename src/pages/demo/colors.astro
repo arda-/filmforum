@@ -11,7 +11,7 @@ for (let i = 1; i <= 14; i++) {
 ---
 
 <Layout title="Color Palette Demo">
-  <div class="colors-page">
+  <div class="colors-page" data-init-classes>
     <h1>Color Palette Refinement</h1>
     <p class="intro">Testing reduced color palettes for light mode. The current palette has too many distinct grays creating visual noise.</p>
 
@@ -116,83 +116,15 @@ for (let i = 1; i <= 14; i++) {
       </div>
     </section>
 
-    <!-- Scenario C: Two-tone - just background and movies -->
-    <section class="scenario" id="scenario-twotone">
-      <h2>C. Two-Tone (inverted)</h2>
-      <p class="scenario-desc">Minimal: only 2 colors. Everything is the same light gray except movie tiles which are white.</p>
-      <div class="color-swatches small">
-        <div class="swatch" style="background: #f1f5f9;"><span>base (all)</span></div>
-        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>movie</span></div>
-      </div>
-      <div class="scenario-content" style="
-        --bg-grid: #f1f5f9;
-        --bg-day: #f1f5f9;
-        --bg-day-movies: #f1f5f9;
-        --bg-movie: #ffffff;
-        --bg-movie-hover: #e2e8f0;
-      ">
-        <CalendarGrid>
-          {dates.map(date => (
-            <DayCell date={date} />
-          ))}
-        </CalendarGrid>
-      </div>
-    </section>
-
-    <!-- Scenario D: White base, tinted movies -->
-    <section class="scenario" id="scenario-tinted">
-      <h2>D. White Base, Tinted Movies</h2>
-      <p class="scenario-desc">Clean white everywhere, movie tiles get subtle blue tint to pop.</p>
-      <div class="color-swatches small">
-        <div class="swatch" style="background: #e2e8f0;"><span>grid gaps</span></div>
-        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day (all)</span></div>
-        <div class="swatch" style="background: #e0f2fe;"><span>movie (blue)</span></div>
-      </div>
-      <div class="scenario-content" style="
-        --bg-grid: #e2e8f0;
-        --bg-day: #ffffff;
-        --bg-day-movies: #ffffff;
-        --bg-movie: #e0f2fe;
-        --bg-movie-hover: #bae6fd;
-      ">
-        <CalendarGrid>
-          {dates.map(date => (
-            <DayCell date={date} />
-          ))}
-        </CalendarGrid>
-      </div>
-    </section>
-
-    <!-- Scenario E: Minimal gaps -->
-    <section class="scenario" id="scenario-minimal-gaps">
-      <h2>E. Minimal Gaps</h2>
-      <p class="scenario-desc">Lighter grid gaps, flatten day cells. Movies slightly darker to stand out.</p>
-      <div class="color-swatches small">
-        <div class="swatch" style="background: #f1f5f9;"><span>grid (lighter)</span></div>
-        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day (all)</span></div>
-        <div class="swatch" style="background: #e2e8f0;"><span>movie</span></div>
-      </div>
-      <div class="scenario-content" style="
-        --bg-grid: #f1f5f9;
-        --bg-day: #ffffff;
-        --bg-day-movies: #ffffff;
-        --bg-movie: #e2e8f0;
-        --bg-movie-hover: #cbd5e1;
-      ">
-        <CalendarGrid>
-          {dates.map(date => (
-            <DayCell date={date} />
-          ))}
-        </CalendarGrid>
-      </div>
-    </section>
-
   </div>
 </Layout>
 
 <script>
-  import { createMovieElement } from '../../components/MovieTile';
+  import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
   import type { Movie } from '../../utils/icsGenerator';
+
+  // Enable meta text and images
+  document.body.classList.add('show-year-director', 'show-image');
 
   // Load movies and populate all scenarios
   fetch('/tenement-stories-full.json')
@@ -227,6 +159,9 @@ for (let i = 1; i <= 14; i++) {
           });
         });
       });
+
+      // Update text heights for proper gradient sizing with images
+      setTimeout(updateTextHeights, 10);
     });
 </script>
 
@@ -336,8 +271,9 @@ for (let i = 1; i <= 14; i++) {
     min-height: 80px;
   }
 
-  /* Border-based structure instead of grid color */
+  /* Border-based structure instead of grid color - single borders only */
   .scenario-content.with-borders :global(.day) {
-    border: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
   }
 </style>
