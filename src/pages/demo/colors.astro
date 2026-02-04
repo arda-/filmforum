@@ -114,9 +114,46 @@ for (let i = 1; i <= 14; i++) {
     return el?.getAttribute('data-state') === 'on';
   }
 
-  function setupToggle(id: string, bodyClass: string) {
+  function setToggleState(el: HTMLElement | null, pressed: boolean) {
+    if (!el) return;
+    el.setAttribute('data-state', pressed ? 'on' : 'off');
+    el.setAttribute('aria-pressed', String(pressed));
+  }
+
+  function updateUrlParams() {
+    const params = new URLSearchParams();
+
+    const toggles = [
+      { id: 'toggle-year-director', param: 'meta' },
+      { id: 'toggle-image', param: 'image' },
+      { id: 'toggle-runtime', param: 'runtime' },
+      { id: 'toggle-actors', param: 'actors' }
+    ];
+
+    toggles.forEach(({ id, param }) => {
+      const toggle = document.getElementById(id);
+      if (isTogglePressed(toggle)) {
+        params.set(param, '1');
+      }
+    });
+
+    const newUrl = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
+    history.replaceState(null, '', newUrl);
+  }
+
+  function setupToggle(id: string, bodyClass: string, urlParam: string) {
     const toggle = document.getElementById(id);
     if (!toggle) return;
+
+    // Check URL params for initial state
+    const params = new URLSearchParams(window.location.search);
+    const urlValue = params.get(urlParam);
+
+    if (urlValue !== null) {
+      // URL param exists - use it
+      const wantPressed = urlValue === '1';
+      setToggleState(toggle, wantPressed);
+    }
 
     // Initialize body class based on toggle state
     if (isTogglePressed(toggle)) {
@@ -126,15 +163,16 @@ for (let i = 1; i <= 14; i++) {
     // Listen for changes
     toggle.addEventListener('change', () => {
       document.body.classList.toggle(bodyClass, isTogglePressed(toggle));
+      updateUrlParams();
       setTimeout(updateTextHeights, 10);
     });
   }
 
   // Set up display toggles
-  setupToggle('toggle-year-director', 'show-year-director');
-  setupToggle('toggle-image', 'show-image');
-  setupToggle('toggle-runtime', 'show-runtime');
-  setupToggle('toggle-actors', 'show-actors');
+  setupToggle('toggle-year-director', 'show-year-director', 'meta');
+  setupToggle('toggle-image', 'show-image', 'image');
+  setupToggle('toggle-runtime', 'show-runtime', 'runtime');
+  setupToggle('toggle-actors', 'show-actors', 'actors');
 
   // Load movies and populate all scenarios
   fetch('/tenement-stories-full.json')
@@ -281,10 +319,14 @@ for (let i = 1; i <= 14; i++) {
     min-height: 80px;
   }
 
-  /* Border-based structure instead of grid color - single borders only */
+  /* Border-based structure - remove grid gap, use borders instead */
+  .scenario-content.with-borders :global(.calendar) {
+    gap: 0;
+  }
+
   .scenario-content.with-borders :global(.day) {
-    border-right: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
+    border: 1px solid #e2e8f0;
+    margin: -0.5px; /* collapse borders */
   }
 
   /* Floating controls at bottom */
