@@ -9,24 +9,34 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   <div class="demo-controls section-controls">
     <div class="control-row">
-      <ToggleGroup
-        label="100% blur until:"
-        name="mask-end"
-        options={[
-          { label: '0%', value: '0' },
-          { label: '15%', value: '15', checked: true },
-          { label: '30%', value: '30' }
-        ]}
-      />
-      <ToggleGroup
-        label="Blur ends at:"
-        name="mask-start"
-        options={[
-          { label: '30%', value: '30' },
-          { label: '50%', value: '50', checked: true },
-          { label: '70%', value: '70' }
-        ]}
-      />
+      <div class="slider-control">
+        <label>
+          <span class="slider-label">100% blur until: <span id="mask-end-value">15%</span></span>
+          <input
+            type="range"
+            id="mask-end-slider"
+            name="mask-end"
+            min="0"
+            max="100"
+            step="1"
+            value="15"
+          />
+        </label>
+      </div>
+      <div class="slider-control">
+        <label>
+          <span class="slider-label">Blur ends at: <span id="mask-start-value">50%</span></span>
+          <input
+            type="range"
+            id="mask-start-slider"
+            name="mask-start"
+            min="0"
+            max="100"
+            step="1"
+            value="50"
+          />
+        </label>
+      </div>
       <label class="debug-toggle">
         <input type="checkbox" id="debug-lines" />
         <span>Debug</span>
@@ -638,16 +648,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         { label: 'Right', value: 'right' }
       ]}
     />
-    <ToggleGroup
-      label="Radius (px):"
-      name="global-blur"
-      options={[
-        { label: '8', value: '8' },
-        { label: '16', value: '16', checked: true },
-        { label: '24', value: '24' },
-        { label: '32', value: '32' }
-      ]}
-    />
+    <div class="slider-control">
+      <label>
+        <span class="slider-label">Radius: <span id="global-blur-value">16px</span></span>
+        <input
+          type="range"
+          id="global-blur-slider"
+          name="global-blur"
+          min="0"
+          max="64"
+          step="1"
+          value="16"
+        />
+      </label>
+    </div>
     <ToggleGroup
       label="Text:"
       name="global-text"
@@ -732,12 +746,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     if (dirRadio) dirRadio.checked = true;
 
     // Blur end (where blur fades to 0)
-    const endRadio = document.querySelector(`input[name="mask-start"][value="${blurEnd}"]`) as HTMLInputElement;
-    if (endRadio) endRadio.checked = true;
+    const endSlider = document.getElementById('mask-start-slider') as HTMLInputElement;
+    const endValue = document.getElementById('mask-start-value') as HTMLElement;
+    if (endSlider) {
+      endSlider.value = String(blurEnd);
+      if (endValue) endValue.textContent = `${blurEnd}%`;
+    }
 
     // Full blur (where blur is 100%)
-    const fullRadio = document.querySelector(`input[name="mask-end"][value="${fullBlur}"]`) as HTMLInputElement;
-    if (fullRadio) fullRadio.checked = true;
+    const fullSlider = document.getElementById('mask-end-slider') as HTMLInputElement;
+    const fullValue = document.getElementById('mask-end-value') as HTMLElement;
+    if (fullSlider) {
+      fullSlider.value = String(fullBlur);
+      if (fullValue) fullValue.textContent = `${fullBlur}%`;
+    }
 
     // Debug toggle
     if (debugToggle) {
@@ -746,8 +768,12 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     }
 
     // Global blur amount
-    const blurRadio = document.querySelector(`input[name="global-blur"][value="${blurAmount}"]`) as HTMLInputElement;
-    if (blurRadio) blurRadio.checked = true;
+    const blurSlider = document.getElementById('global-blur-slider') as HTMLInputElement;
+    const blurValue = document.getElementById('global-blur-value') as HTMLElement;
+    if (blurSlider) {
+      blurSlider.value = String(blurAmount);
+      if (blurValue) blurValue.textContent = `${blurAmount}px`;
+    }
 
     // Global text level
     const textRadio = document.querySelector(`input[name="global-text"][value="${textLevel}"]`) as HTMLInputElement;
@@ -857,30 +883,38 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   });
 
   // Global blur amount
-  document.querySelectorAll('input[name="global-blur"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      blurAmount = parseInt((e.target as HTMLInputElement).value);
-      updateBlur();
-      updateRelBlur();
-      updateComparisonBlur();
-      updateURL();
-    });
+  const blurSlider = document.getElementById('global-blur-slider') as HTMLInputElement;
+  const blurValue = document.getElementById('global-blur-value') as HTMLElement;
+
+  blurSlider?.addEventListener('input', (e) => {
+    blurAmount = parseInt((e.target as HTMLInputElement).value);
+    if (blurValue) blurValue.textContent = `${blurAmount}px`;
+    updateBlur();
+    updateRelBlur();
+    updateComparisonBlur();
+    updateURL();
   });
 
-  document.querySelectorAll('input[name="mask-start"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      blurEnd = parseInt((e.target as HTMLInputElement).value);
-      updateBlur();
-      updateURL();
-    });
+  // Blur end slider (where blur fades to 0)
+  const endSlider = document.getElementById('mask-start-slider') as HTMLInputElement;
+  const endValue = document.getElementById('mask-start-value') as HTMLElement;
+
+  endSlider?.addEventListener('input', (e) => {
+    blurEnd = parseInt((e.target as HTMLInputElement).value);
+    if (endValue) endValue.textContent = `${blurEnd}%`;
+    updateBlur();
+    updateURL();
   });
 
-  document.querySelectorAll('input[name="mask-end"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      fullBlur = parseInt((e.target as HTMLInputElement).value);
-      updateBlur();
-      updateURL();
-    });
+  // Full blur slider (where blur is 100%)
+  const fullSlider = document.getElementById('mask-end-slider') as HTMLInputElement;
+  const fullValue = document.getElementById('mask-end-value') as HTMLElement;
+
+  fullSlider?.addEventListener('input', (e) => {
+    fullBlur = parseInt((e.target as HTMLInputElement).value);
+    if (fullValue) fullValue.textContent = `${fullBlur}%`;
+    updateBlur();
+    updateURL();
   });
 
   // Initialize controls from URL and apply blur
