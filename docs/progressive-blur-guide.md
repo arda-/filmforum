@@ -232,6 +232,34 @@ See the live demos in this project:
 - `/demo/blur-simple` - Single-layer technique with controls
 - `/demo/blur-progressive` - 7-layer technique with layer toggles
 
+## Lessons Learned (from building the demos)
+
+Building the demo pages required significant iteration. Common pitfalls to avoid:
+
+### 1. Blur Direction Mismatch
+The blur layer must be at the **same edge as the text**. If text is at the bottom, the blur gradient must go `to top` (opaque at bottom, transparent at top). Getting this backwards is an easy mistake.
+
+### 2. Confusing Percentage Labels
+When building controls, be explicit about what percentages mean:
+- ❌ "Mask start: 50%" - too technical, unclear reference point
+- ❌ "Blur start: 50%" - ambiguous (start of what?)
+- ✅ "100% blur until: 15%" - clear that bottom 15% is fully blurred
+- ✅ "Blur ends at: 50%" - clear that blur fades to nothing at 50%
+
+### 3. Inverted Value Storage
+Don't store values that require mental math. If the UI shows "15%", store `15`, not `85` (100-15). Direct mapping reduces bugs and confusion.
+
+### 4. Demo Page UX Matters
+For technical demos, invest in good controls:
+- Group related controls on same row
+- Use URL parameters so configurations can be shared
+- Add debug visualizations (like colored lines showing gradient boundaries)
+- Show multiple aspect ratios to test edge cases
+- Allow toggling text content to see how blur interacts with different amounts of text
+
+### 5. Test All Directions
+If supporting multiple blur directions (top/bottom/left/right), test each one. The math and positioning can break in subtle ways when direction changes.
+
 ## References
 
 - [Progressive blur in CSS](https://kennethnym.com/blog/progressive-blur-in-css/) - Original technique

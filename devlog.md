@@ -44,6 +44,33 @@ The blur must be at the **same edge as the text overlay**. Initial implementatio
 ### Files Modified
 - `src/pages/demo/index.astro` - Added links to blur demos
 
+### Iteration & Refinements
+The initial implementation required significant iteration to get right:
+
+1. **Blur direction mismatch**: First version had blur at TOP of image but text overlay at BOTTOM - completely backwards. Fixed by reversing gradient direction.
+
+2. **Confusing control labels**: Went through several iterations:
+   - "Mask start/end" → too technical
+   - "Blur start/end" → ambiguous
+   - "Clear above/Full effect" → still confusing
+   - Final: **"100% blur until"** and **"Blur ends at"** - describes what you see
+
+3. **Percentage direction confusion**: Initial values were inverted (stored 85 but meant 15%). Simplified to direct values that match what's displayed.
+
+4. **Control panel organization**: Took multiple passes to get logical grouping:
+   - Row 1: Direction (alone)
+   - Row 2: Blur radius (alone)
+   - Row 3: 100% blur until / Blur ends at / Debug
+   - Row 4: Text / Shadow
+
+5. **Removed hero card**: Originally had a large "main" Taxi Driver card above the aspect ratio grid - removed to show all demos equally.
+
+6. **Aspect ratio ordering**: Reordered from widest to tallest (2:1 → 16:9 → 4:3 → 1:1 → 3:4 → 2:3 → 9:16 → 1:2).
+
+7. **URL parameter persistence**: Added for all controls so configurations can be shared/bookmarked.
+
+**Lesson learned**: Demo pages benefit from extensive iteration on UX. What seems "obvious" in code often isn't obvious in the UI.
+
 ### Next Steps
 - Test performance impact on actual movie tiles
 - Consider reduced layer count (5 instead of 7) for better performance
