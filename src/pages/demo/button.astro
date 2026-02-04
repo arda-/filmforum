@@ -1,0 +1,267 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Button from '../../components/Button.astro';
+---
+
+<Layout title="Button Demo">
+  <div class="demo-container">
+    <h1>Button Component</h1>
+    <p class="subtitle">Versatile button component with multiple variants and states.</p>
+
+    <div class="demo-section">
+      <h2>Variants</h2>
+      <div class="button-group">
+        <Button variant="primary">Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="danger">Danger</Button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>States</h2>
+      <div class="states-grid">
+        <div class="state-column">
+          <h3>Default</h3>
+          <Button variant="primary">Clickable</Button>
+        </div>
+        <div class="state-column">
+          <h3>Disabled</h3>
+          <Button variant="primary" disabled>Disabled</Button>
+        </div>
+        <div class="state-column">
+          <h3>Hover</h3>
+          <p class="state-note">(Hover over the button above)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Primary Variants</h2>
+      <div class="button-group">
+        <Button variant="primary">Save</Button>
+        <Button variant="primary">Confirm</Button>
+        <Button variant="primary">Continue</Button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Secondary Variants</h2>
+      <div class="button-group">
+        <Button variant="secondary">Cancel</Button>
+        <Button variant="secondary">Back</Button>
+        <Button variant="secondary">Skip</Button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Danger Variants</h2>
+      <div class="button-group">
+        <Button variant="danger">Delete</Button>
+        <Button variant="danger">Remove</Button>
+        <Button variant="danger">Discard</Button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Form Integration</h2>
+      <form class="demo-form" onsubmit="event.preventDefault(); alert('Form submitted!');">
+        <div class="form-group">
+          <label for="demo-input">Example Input</label>
+          <input type="text" id="demo-input" placeholder="Enter something..." />
+        </div>
+        <div class="button-group">
+          <Button variant="secondary" type="button" onclick="document.getElementById('demo-input').value = ''">Clear</Button>
+          <Button variant="primary" type="submit">Submit</Button>
+        </div>
+      </form>
+    </div>
+
+    <div class="demo-section">
+      <h2>API</h2>
+      <table class="api-table">
+        <thead>
+          <tr>
+            <th>Prop</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>variant</code></td>
+            <td><code>primary | secondary | danger</code></td>
+            <td><code>primary</code></td>
+            <td>The visual style of the button</td>
+          </tr>
+          <tr>
+            <td><code>type</code></td>
+            <td><code>button | submit | reset</code></td>
+            <td><code>button</code></td>
+            <td>HTML button type attribute</td>
+          </tr>
+          <tr>
+            <td><code>disabled</code></td>
+            <td><code>boolean</code></td>
+            <td><code>false</code></td>
+            <td>Whether the button is disabled</td>
+          </tr>
+          <tr>
+            <td><code>form</code></td>
+            <td><code>string</code></td>
+            <td>—</td>
+            <td>Associates button with a form by ID</td>
+          </tr>
+          <tr>
+            <td><code>class</code></td>
+            <td><code>string</code></td>
+            <td>—</td>
+            <td>Additional CSS classes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .demo-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .demo-section {
+    margin-bottom: 40px;
+  }
+
+  .demo-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .demo-section h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .states-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 24px;
+  }
+
+  .state-column {
+    padding: 16px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .state-note {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+
+  .demo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-group input:focus {
+    border-color: var(--accent);
+  }
+
+  .form-group input::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .api-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .api-table thead {
+    background: var(--bg-movie);
+  }
+
+  .api-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--bg-movie-hover);
+  }
+
+  .api-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  .api-table code {
+    background: var(--bg-body);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+  }
+</style>
