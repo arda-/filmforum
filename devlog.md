@@ -55,7 +55,9 @@ The initial implementation required significant iteration to get right:
    - "Clear above/Full effect" → still confusing
    - Final: **"100% blur until"** and **"Blur ends at"** - describes what you see
 
-3. **Percentage direction confusion**: Initial values were inverted (stored 85 but meant 15%). Simplified to direct values that match what's displayed.
+3. **Percentage direction confusion**: Two separate issues:
+   - Initially stored inverted values (85 when we meant 15%). Fixed to store direct values matching display.
+   - Gradient percentages measure from the **origin** of the gradient direction, not from viewport edges. With `linear-gradient(to top, ...)`, 0% is at the BOTTOM, 100% at TOP. This is counterintuitive and caused bugs when switching blur directions. The lesson: always think of percentages as "distance from where the blur originates" (where the text lives).
 
 4. **Control panel organization**: Took multiple passes to get logical grouping:
    - Row 1: Direction (alone)
@@ -65,9 +67,29 @@ The initial implementation required significant iteration to get right:
 
 5. **Removed hero card**: Originally had a large "main" Taxi Driver card above the aspect ratio grid - removed to show all demos equally.
 
-6. **Aspect ratio ordering**: Reordered from widest to tallest (2:1 → 16:9 → 4:3 → 1:1 → 3:4 → 2:3 → 9:16 → 1:2).
+6. **Comprehensive aspect ratio testing**: Added 8 aspect ratios ordered widest to tallest to ensure blur settings work across all common formats:
+   - **2:1** - Ultra-wide (minimal vertical blur space)
+   - **16:9** - Widescreen video
+   - **4:3** - Standard photo/video
+   - **1:1** - Square (social media)
+   - **3:4** - Portrait photos
+   - **2:3** - Movie poster (our primary use case)
+   - **9:16** - Vertical video/Stories
+   - **1:2** - Tall banner (stress test)
 
-7. **URL parameter persistence**: Added for all controls so configurations can be shared/bookmarked.
+   This revealed that blur percentages that look good on 2:3 posters can cover too much on wider ratios like 16:9.
+
+7. **URL parameter persistence for reproducibility**: Every control writes to URL params, enabling:
+   - Shareable configurations (send `?blur=24&full=20&end=60&dir=bottom` to collaborators)
+   - Bookmarkable presets for future reference
+   - Consistent testing (page refresh returns to exact same state)
+   - A/B comparison (open two tabs with different params)
+
+   Key implementation details:
+   - Only non-default values are written (keeps URLs clean)
+   - Use `history.replaceState` not `pushState` (don't pollute back button)
+   - Parse with fallback defaults on page load
+   - Every control change handler calls `updateURL()`
 
 **Lesson learned**: Demo pages benefit from extensive iteration on UX. What seems "obvious" in code often isn't obvious in the UI.
 

@@ -249,15 +249,81 @@ When building controls, be explicit about what percentages mean:
 ### 3. Inverted Value Storage
 Don't store values that require mental math. If the UI shows "15%", store `15`, not `85` (100-15). Direct mapping reduces bugs and confusion.
 
-### 4. Demo Page UX Matters
-For technical demos, invest in good controls:
-- Group related controls on same row
-- Use URL parameters so configurations can be shared
-- Add debug visualizations (like colored lines showing gradient boundaries)
-- Show multiple aspect ratios to test edge cases
-- Allow toggling text content to see how blur interacts with different amounts of text
+### 4. Test Multiple Aspect Ratios
+Blur effects behave differently across aspect ratios. The demo includes 8 ratios ordered from widest to tallest:
+- **2:1** (ultra-wide) - Minimal vertical space for blur
+- **16:9** (widescreen) - Common video format
+- **4:3** (standard) - Classic photo/video format
+- **1:1** (square) - Social media common format
+- **3:4** (portrait) - Phone photos
+- **2:3** (movie poster) - Standard poster ratio
+- **9:16** (vertical video) - Phone video, Stories
+- **1:2** (tall banner) - Extreme vertical, stress test
 
-### 5. Test All Directions
+Wide ratios have less vertical real estate, so blur percentages that look good on 2:3 might cover too much on 16:9. Always test your blur settings across ratios.
+
+### 5. URL Parameters for Consistency and Programmability
+Every control persists to URL parameters, enabling:
+- **Shareable configurations**: Send `?blur=24&full=20&end=60&dir=bottom` to colleagues
+- **Bookmarkable presets**: Save specific configurations for reference
+- **Reproducible testing**: Return to exact same state after page refresh
+- **A/B comparison**: Open two tabs with different parameters to compare
+
+Implementation pattern:
+```javascript
+const params = new URLSearchParams(window.location.search);
+let blurAmount = parseInt(params.get('blur') || '16');
+let fullBlur = parseInt(params.get('full') || '15');
+let blurEnd = parseInt(params.get('end') || '50');
+let direction = params.get('dir') || 'bottom';
+
+function updateURL() {
+  const newParams = new URLSearchParams();
+  if (blurAmount !== 16) newParams.set('blur', blurAmount);
+  if (fullBlur !== 15) newParams.set('full', fullBlur);
+  if (blurEnd !== 50) newParams.set('end', blurEnd);
+  if (direction !== 'bottom') newParams.set('dir', direction);
+  // ... other params
+  const url = newParams.toString()
+    ? `${window.location.pathname}?${newParams}`
+    : window.location.pathname;
+  history.replaceState({}, '', url);
+}
+```
+
+Key practices:
+- Only write non-default values to URL (cleaner URLs)
+- Use `history.replaceState` instead of `pushState` (don't pollute back button)
+- Parse with fallback defaults on page load
+- Call `updateURL()` in every control's change handler
+
+### 6. Demo Page UX Matters
+For technical demos, invest in good controls:
+- Group related controls on same row (e.g., "100% blur until" and "Blur ends at" together)
+- Add debug visualizations (colored lines showing gradient boundaries)
+- Allow toggling text content levels (title only → + subtitle → + paragraph)
+- Include shadow toggle to test readability with/without text shadows
+
+### 7. Gradient Percentages Follow Direction
+CSS gradient percentages measure from the **origin** of the gradient direction, not from the viewport edges. This is a common source of confusion:
+
+```css
+/* "to top" means: 0% is at BOTTOM, 100% is at TOP */
+mask-image: linear-gradient(to top, black 0%, transparent 50%);
+/* Result: solid black at bottom edge, fading to transparent at middle */
+
+/* "to bottom" means: 0% is at TOP, 100% is at BOTTOM */
+mask-image: linear-gradient(to bottom, black 0%, transparent 50%);
+/* Result: solid black at top edge, fading to transparent at middle */
+```
+
+When building controls, always measure from the blur origin (where text lives). If text is at the bottom and blur direction is "to top":
+- "100% blur until: 15%" means the bottom 15% is fully blurred
+- "Blur ends at: 50%" means blur fades to nothing at the 50% mark from bottom
+
+Switching to "to bottom" (text at top) requires re-thinking all percentages from the opposite edge.
+
+### 8. Test All Directions
 If supporting multiple blur directions (top/bottom/left/right), test each one. The math and positioning can break in subtle ways when direction changes.
 
 ## References
