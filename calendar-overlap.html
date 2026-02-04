@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenement Stories - Timeline View</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* Light mode (default) */
+    :root {
+      --bg-body: #ffffff;
+      --bg-grid: #e2e8f0;
+      --bg-day: #ffffff;
+      --bg-day-movies: #f8fafc;
+      --bg-movie: #f1f5f9;
+      --bg-movie-hover: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-tertiary: #64748b;
+      --accent: #0891b2;
+    }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-body: #020617;
+        --bg-grid: #0f172a;
+        --bg-day: #0f172a;
+        --bg-day-movies: #1e293b;
+        --bg-movie: #334155;
+        --bg-movie-hover: #475569;
+        --text-primary: #e2e8f0;
+        --text-secondary: #94a3b8;
+        --text-tertiary: #94a3b8;
+        --accent: #06b6d4;
+      }
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      padding: 10px 0;
+    }
+    @media (min-width: 768px) {
+      body {
+        padding: 20px;
+      }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+    .subtitle {
+      text-align: center;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: var(--bg-grid);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .day-header {
+      text-align: center;
+      font-weight: 400;
+      padding: 10px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    .day {
+      background: var(--bg-day);
+      border-radius: 0;
+      min-height: 120px;
+      padding: 4px;
+      vertical-align: top;
+    }
+    .day.empty {
+      background: transparent;
+    }
+    .day.has-movies {
+      background: var(--bg-day-movies);
+    }
+    .day-number {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+    .day.has-movies .day-number {
+      color: var(--text-secondary);
+    }
+    .movie {
+      background: var(--bg-movie);
+      border-radius: 0;
+      margin-bottom: 4px;
+      font-size: 13px;
+      line-height: 1.25;
+      border-left: 0.2em solid var(--accent);
+    }
+    .movie a {
+      display: block;
+      padding: 4px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .movie a:hover {
+      background: var(--bg-movie-hover);
+    }
+    .movie-time {
+      color: var(--accent);
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .movie-title {
+      font-weight: 500;
+    }
+    .movie-meta {
+      color: var(--text-tertiary);
+      font-size: 0.85em;
+      margin-top: 0.25em;
+      line-height: 1.05;
+    }
+    .movie-actors {
+      display: none;
+      font-style: italic;
+      margin-top: 0.3em;
+    }
+    .legend {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .toggle input {
+      cursor: pointer;
+    }
+    /* Hide headers based on mode */
+    body.monday-start .day-header.sunday-start { display: none; }
+    body.monday-start .day-header.monday-start { display: block; }
+    .day-header.monday-start { display: none; }
+    /* Hide spacer cells based on mode */
+    body.sunday-start .spacer-mon { display: none; }
+    body.monday-start .spacer-sun { display: none; }
+
+    /* ========================================
+       TIMELINE VIEW (Desktop ≥1024px)
+       ======================================== */
+    @media (min-width: 1024px) {
+      .day.timeline-view {
+        position: relative;
+        padding-top: 28px; /* space for day number */
+      }
+
+      .day.timeline-view .day-number {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        z-index: 20;
+        margin-bottom: 0;
+      }
+
+      /* Timeline movie tile */
+      .movie--timeline {
+        position: absolute;
+        left: 4px;
+        right: 4px;
+        overflow: hidden;
+        transition: z-index 0s, box-shadow 0.15s ease;
+        z-index: 1;
+        margin-bottom: 0;
+      }
+
+      .movie--timeline a {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Collapsed: hide meta */
+      .movie--timeline .movie-meta {
+        display: none;
+      }
+
+      /* Hover: expand and show details */
+      .movie--timeline:hover {
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        height: auto !important;
+        min-height: 70px;
+      }
+
+      .movie--timeline:hover .movie-meta {
+        display: block;
+      }
+
+      .movie--timeline:hover .movie-actors {
+        display: block;
+      }
+
+      /* Overlap handling - side by side */
+      .movie--timeline.overlap-col-1 {
+        left: 52% !important;
+        right: 4px !important;
+      }
+      .movie--timeline.overlap-col-0.has-overlap {
+        right: 52% !important;
+        left: 4px !important;
+      }
+    }
+
+    /* Mobile/tablet: standard stacked view with actors on tap */
+    @media (max-width: 1023px) {
+      .movie-actors {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body class="monday-start">
+  <h1>Tenement Stories: Timeline View</h1>
+  <p class="subtitle">Film Forum, NYC, February 2026 — Hover over films to see details</p>
+
+  <div class="controls">
+    <label class="toggle">
+      <input type="checkbox" id="week-start-toggle" checked>
+      <span>Start week on Monday</span>
+    </label>
+  </div>
+
+  <div class="calendar">
+    <div class="day-header sunday-start">Sun</div>
+    <div class="day-header sunday-start">Mon</div>
+    <div class="day-header sunday-start">Tue</div>
+    <div class="day-header sunday-start">Wed</div>
+    <div class="day-header sunday-start">Thu</div>
+    <div class="day-header sunday-start">Fri</div>
+    <div class="day-header sunday-start">Sat</div>
+
+    <div class="day-header monday-start">Mon</div>
+    <div class="day-header monday-start">Tue</div>
+    <div class="day-header monday-start">Wed</div>
+    <div class="day-header monday-start">Thu</div>
+    <div class="day-header monday-start">Fri</div>
+    <div class="day-header monday-start">Sat</div>
+    <div class="day-header monday-start">Sun</div>
+
+    <!-- Spacers for Monday-start -->
+    <div class="day empty spacer-mon"></div>
+    <div class="day empty spacer-mon"></div>
+    <div class="day empty spacer-mon"></div>
+    <div class="day empty spacer-mon"></div>
+    <div class="day empty spacer-mon"></div>
+    <div class="day empty spacer-mon"></div>
+
+    <!-- Feb 2026 -->
+    <div class="day" data-date="2026-02-01"><div class="day-number">1</div></div>
+    <div class="day" data-date="2026-02-02"><div class="day-number">2</div></div>
+    <div class="day" data-date="2026-02-03"><div class="day-number">3</div></div>
+    <div class="day" data-date="2026-02-04"><div class="day-number">4</div></div>
+    <div class="day" data-date="2026-02-05"><div class="day-number">5</div></div>
+
+    <div class="day" data-date="2026-02-06"><div class="day-number">6 Fri</div></div>
+    <div class="day" data-date="2026-02-07"><div class="day-number">7 Sat</div></div>
+
+    <div class="day" data-date="2026-02-08"><div class="day-number">8 Sun</div></div>
+    <div class="day" data-date="2026-02-09"><div class="day-number">9 Mon</div></div>
+    <div class="day" data-date="2026-02-10"><div class="day-number">10 Tue</div></div>
+    <div class="day" data-date="2026-02-11"><div class="day-number">11 Wed</div></div>
+    <div class="day" data-date="2026-02-12"><div class="day-number">12 Thu</div></div>
+    <div class="day" data-date="2026-02-13"><div class="day-number">13 Fri</div></div>
+    <div class="day" data-date="2026-02-14"><div class="day-number">14 Sat</div></div>
+    <div class="day" data-date="2026-02-15"><div class="day-number">15 Sun</div></div>
+    <div class="day" data-date="2026-02-16"><div class="day-number">16 Mon</div></div>
+    <div class="day" data-date="2026-02-17"><div class="day-number">17 Tue</div></div>
+    <div class="day" data-date="2026-02-18"><div class="day-number">18 Wed</div></div>
+    <div class="day" data-date="2026-02-19"><div class="day-number">19 Thu</div></div>
+    <div class="day" data-date="2026-02-20"><div class="day-number">20 Fri</div></div>
+    <div class="day" data-date="2026-02-21"><div class="day-number">21 Sat</div></div>
+    <div class="day" data-date="2026-02-22"><div class="day-number">22 Sun</div></div>
+    <div class="day" data-date="2026-02-23"><div class="day-number">23 Mon</div></div>
+    <div class="day" data-date="2026-02-24"><div class="day-number">24 Tue</div></div>
+    <div class="day" data-date="2026-02-25"><div class="day-number">25 Wed</div></div>
+    <div class="day" data-date="2026-02-26"><div class="day-number">26 Thu</div></div>
+    <div class="day" data-date="2026-02-27"><div class="day-number">27</div></div>
+    <div class="day" data-date="2026-02-28"><div class="day-number">28</div></div>
+  </div>
+
+  <p class="legend">Click any movie to buy tickets. Hover to see full details. Times are PM unless marked "FF Jr."</p>
+
+  <template id="movie-template">
+    <div class="movie">
+      <a href="">
+        <span class="movie-time"></span>
+        <span class="movie-title"></span>
+        <div class="movie-meta">
+          <span class="movie-info"></span><span class="movie-actors"></span>
+        </div>
+      </a>
+    </div>
+  </template>
+
+  <script>
+    // Week toggle
+    document.getElementById('week-start-toggle').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        document.body.classList.add('monday-start');
+        document.body.classList.remove('sunday-start');
+      } else {
+        document.body.classList.add('sunday-start');
+        document.body.classList.remove('monday-start');
+      }
+    });
+
+    const movieTemplate = document.getElementById('movie-template');
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+    const PX_PER_MIN = 0.7; // pixels per minute of runtime
+
+    // Parse time string to minutes since midnight
+    function parseTimeToMins(timeStr) {
+      const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+      if (!match) return 0;
+      let h = parseInt(match[1]);
+      let m = parseInt(match[2]);
+      // FF Jr. screenings are morning (AM), everything else is PM
+      const isMorning = timeStr.includes('FF Jr') || h === 11;
+      if (!isMorning && h < 12) h += 12;
+      return h * 60 + m;
+    }
+
+    // Get time range for a day's movies
+    function getDayTimeRange(movies) {
+      let minStart = Infinity, maxEnd = 0;
+      movies.forEach(m => {
+        const start = parseTimeToMins(m.Time);
+        const runtime = parseInt(m.runtime) || 90;
+        const end = start + runtime;
+        if (start < minStart) minStart = start;
+        if (end > maxEnd) maxEnd = end;
+      });
+      return { start: minStart, end: maxEnd, range: maxEnd - minStart };
+    }
+
+    // Detect overlaps and assign columns
+    function assignOverlapColumns(movies) {
+      const sorted = [...movies].sort((a, b) =>
+        parseTimeToMins(a.Time) - parseTimeToMins(b.Time)
+      );
+
+      sorted.forEach((movie, i) => {
+        movie._col = 0;
+        movie._hasOverlap = false;
+        const myStart = parseTimeToMins(movie.Time);
+
+        for (let j = 0; j < i; j++) {
+          const prev = sorted[j];
+          const prevStart = parseTimeToMins(prev.Time);
+          const prevEnd = prevStart + (parseInt(prev.runtime) || 90);
+
+          if (prevEnd > myStart) {
+            // Overlap detected
+            movie._col = 1;
+            prev._hasOverlap = true;
+            movie._hasOverlap = true;
+            break;
+          }
+        }
+      });
+
+      return sorted;
+    }
+
+    function renderMovie(movie) {
+      const clone = movieTemplate.content.cloneNode(true);
+      const container = clone.querySelector('.movie');
+      const link = clone.querySelector('a');
+      link.href = movie.Tickets;
+
+      clone.querySelector('.movie-time').textContent = movie.Time;
+      clone.querySelector('.movie-title').textContent = toTitleCase(movie.Movie);
+
+      const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
+      clone.querySelector('.movie-info').textContent = `${movie.year || ''}, ${movie.director || ''}, ${runtime}`;
+
+      if (movie.actors) {
+        const actors = movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ');
+        clone.querySelector('.movie-actors').textContent = actors;
+      }
+
+      return container;
+    }
+
+    function toTitleCase(str) {
+      return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+    }
+
+    // Render movies in timeline view
+    function renderDayTimeline(dayCell, movies) {
+      const range = getDayTimeRange(movies);
+      const containerHeight = Math.max(range.range * PX_PER_MIN, 100);
+
+      dayCell.style.height = `${containerHeight + 32}px`; // +32 for day number
+      dayCell.classList.add('timeline-view');
+
+      const sortedMovies = assignOverlapColumns(movies);
+
+      sortedMovies.forEach(movie => {
+        const start = parseTimeToMins(movie.Time);
+        const runtime = parseInt(movie.runtime) || 90;
+        const topPx = (start - range.start) * PX_PER_MIN;
+        const heightPx = Math.max(runtime * PX_PER_MIN, 24);
+
+        const el = renderMovie(movie);
+        el.classList.add('movie--timeline');
+        el.style.top = `${topPx + 28}px`; // offset for day number
+        el.style.height = `${heightPx}px`;
+
+        if (movie._col === 1) {
+          el.classList.add('overlap-col-1');
+        } else if (movie._hasOverlap) {
+          el.classList.add('overlap-col-0', 'has-overlap');
+        }
+
+        dayCell.appendChild(el);
+      });
+    }
+
+    // Render movies in stacked view (mobile)
+    function renderDayStacked(dayCell, movies) {
+      movies.forEach(movie => {
+        dayCell.appendChild(renderMovie(movie));
+      });
+    }
+
+    // Fetch and render movies
+    fetch('tenement-stories-evenings.json')
+      .then(res => res.json())
+      .then(movies => {
+        const moviesByDate = {};
+        movies.forEach(movie => {
+          const date = movie.Datetime.split('T')[0];
+          if (!moviesByDate[date]) moviesByDate[date] = [];
+          moviesByDate[date].push(movie);
+        });
+
+        Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+          const dayCell = document.querySelector(`[data-date="${date}"]`);
+          if (!dayCell) return;
+
+          dayCell.classList.add('has-movies');
+
+          if (isDesktop) {
+            renderDayTimeline(dayCell, dayMovies);
+          } else {
+            renderDayStacked(dayCell, dayMovies);
+          }
+        });
+      });
+  </script>
+</body>
+</html>
