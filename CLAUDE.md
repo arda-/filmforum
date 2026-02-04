@@ -8,9 +8,18 @@
 - Don't guess or be vague about things that can be verified
 
 ## Git Commits
+- Use `/commit` skill for committing (uses haiku, ensures atomic commits)
 - Prefer atomic commits: one logical change per commit
 - Don't bundle unrelated changes together
 - Each commit should be independently meaningful
+
+## Development Log
+- Use `/devlog` skill after significant work to update devlog.md
+
+## Frontend Design
+- `/frontend-design` skill auto-loads for UI component work
+- Aims for distinctive, production-grade interfaces
+- Avoids generic "AI slop" aesthetics
 
 ## Package Manager
 Use `pnpm` (not npm) for all package management commands.
