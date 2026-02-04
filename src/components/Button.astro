@@ -1,28 +1,24 @@
 ---
-interface Props {
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'button'> {
   variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'link';
   size?: 'default' | 'sm' | 'lg' | 'icon';
-  class?: string;
-  type?: 'button' | 'submit' | 'reset';
-  disabled?: boolean;
-  form?: string;
 }
 
 const {
   variant = 'primary',
   size = 'default',
-  class: className = '',
+  class: className,
   type = 'button',
-  disabled = false,
-  form
+  ...rest
 } = Astro.props;
 ---
 
 <button
   type={type}
   class:list={['btn', `btn--${variant}`, `btn--${size}`, className]}
-  disabled={disabled}
-  {form}
+  {...rest}
 >
   <slot />
 </button>
