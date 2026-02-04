@@ -18,6 +18,7 @@ for (let i = 1; i <= 28; i++) {
   <div class="controls">
     <Switch id="week-start-toggle" label="Start week on Monday" checked small />
     <Switch id="duration-mode-toggle" label="Duration mode" checked small />
+    <Switch id="fit-width-toggle" label="Fit to width" checked small />
   </div>
 
   <CalendarGrid>
@@ -176,6 +177,11 @@ for (let i = 1; i <= 28; i++) {
 
   document.getElementById('duration-mode-toggle')?.addEventListener('change', () => {
     renderAllDays();
+  });
+
+  document.getElementById('fit-width-toggle')?.addEventListener('change', (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    document.body.classList.toggle('natural-width', !checked);
   });
 
   // Fetch and render

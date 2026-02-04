@@ -104,3 +104,8 @@ h1 {
   color: var(--text-secondary);
   font-size: 12px;
 }
+
+/* Natural width mode - allows horizontal scrolling */
+body.natural-width {
+  overflow-x: auto;
+}
