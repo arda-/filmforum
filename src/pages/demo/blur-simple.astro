@@ -204,39 +204,16 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="control-row">
         <ToggleGroup
           label="Blur ends at:"
-          name="rel-sizing-mode"
+          name="rel-end-mult"
           options={[
-            { label: '× (Mult)', value: 'multiplier', checked: true },
-            { label: 'em', value: 'em' }
+            { label: '0.75×', value: '0.75' },
+            { label: '0.85×', value: '0.85' },
+            { label: '0.9×', value: '0.9' },
+            { label: '1.0×', value: '1' },
+            { label: '1.1×', value: '1.1' },
+            { label: '1.25×', value: '1.25', checked: true }
           ]}
         />
-        <span class="rel-controls-multiplier">
-          <ToggleGroup
-            label=""
-            name="rel-end-mult"
-            options={[
-              { label: '0.75×', value: '0.75' },
-              { label: '0.85×', value: '0.85' },
-              { label: '0.9×', value: '0.9' },
-              { label: '1.0×', value: '1' },
-              { label: '1.1×', value: '1.1' },
-              { label: '1.25×', value: '1.25', checked: true }
-            ]}
-          />
-        </span>
-        <span class="rel-controls-em" style="display: none;">
-          <ToggleGroup
-            label=""
-            name="rel-end-em"
-            options={[
-              { label: '-1em', value: '-1' },
-              { label: '-0.5em', value: '-0.5' },
-              { label: '0em', value: '0', checked: true },
-              { label: '+0.5em', value: '0.5' },
-              { label: '+1em', value: '1' }
-            ]}
-          />
-        </span>
       </div>
     </div>
 
@@ -950,33 +927,21 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   const relDebugToggle = document.getElementById('rel-debug-lines') as HTMLInputElement;
 
   // Text-relative specific state (blur, text level, shadows use global values)
-  let relSizingMode = params.get('rel_mode') || 'multiplier';
   let relFullBlurMult = parseFloat(params.get('rel_full_mult') || '1');
   let relBlurEndMult = parseFloat(params.get('rel_end_mult') || '1.25');
-  let relBlurEndEm = parseFloat(params.get('rel_end_em') || '0');
   let relDebugEnabled = params.get('rel_debug') === '1';
 
   function updateRelURL() {
     // Merge with existing params
     const newParams = new URLSearchParams(window.location.search);
 
-    if (relSizingMode !== 'multiplier') newParams.set('rel_mode', relSizingMode);
-    else newParams.delete('rel_mode');
-
-    // Full blur is always multiplier-based
+    // Full blur multiplier
     if (relFullBlurMult !== 1) newParams.set('rel_full_mult', String(relFullBlurMult));
     else newParams.delete('rel_full_mult');
 
-    // Blur end depends on mode
-    if (relSizingMode === 'multiplier') {
-      if (relBlurEndMult !== 1.25) newParams.set('rel_end_mult', String(relBlurEndMult));
-      else newParams.delete('rel_end_mult');
-      newParams.delete('rel_end_em');
-    } else {
-      if (relBlurEndEm !== 0) newParams.set('rel_end_em', String(relBlurEndEm));
-      else newParams.delete('rel_end_em');
-      newParams.delete('rel_end_mult');
-    }
+    // Blur end multiplier
+    if (relBlurEndMult !== 1.25) newParams.set('rel_end_mult', String(relBlurEndMult));
+    else newParams.delete('rel_end_mult');
 
     if (relDebugEnabled) newParams.set('rel_debug', '1');
     else newParams.delete('rel_debug');
@@ -988,17 +953,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   }
 
   function initRelControls() {
-    // Sizing mode
-    const modeRadio = document.querySelector(`input[name="rel-sizing-mode"][value="${relSizingMode}"]`) as HTMLInputElement;
-    if (modeRadio) modeRadio.checked = true;
-
-    // Show/hide appropriate controls
-    const multControls = document.querySelector('.rel-controls-multiplier') as HTMLElement;
-    const emControls = document.querySelector('.rel-controls-em') as HTMLElement;
-    if (multControls) multControls.style.display = relSizingMode === 'multiplier' ? '' : 'none';
-    if (emControls) emControls.style.display = relSizingMode === 'em' ? '' : 'none';
-
-    // Full blur multiplier control (always used)
+    // Full blur multiplier control
     const fullMultSlider = document.getElementById('rel-full-mult-slider') as HTMLInputElement;
     const fullMultValue = document.getElementById('rel-full-mult-value') as HTMLElement;
     if (fullMultSlider) {
@@ -1006,13 +961,9 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       if (fullMultValue) fullMultValue.textContent = `${relFullBlurMult.toFixed(2)}×`;
     }
 
-    // Blur end multiplier controls
+    // Blur end multiplier control
     const endMultRadio = document.querySelector(`input[name="rel-end-mult"][value="${relBlurEndMult}"]`) as HTMLInputElement;
     if (endMultRadio) endMultRadio.checked = true;
-
-    // Blur end em controls
-    const endEmRadio = document.querySelector(`input[name="rel-end-em"][value="${relBlurEndEm}"]`) as HTMLInputElement;
-    if (endEmRadio) endEmRadio.checked = true;
 
     if (relDebugToggle) {
       relDebugToggle.checked = relDebugEnabled;
@@ -1037,21 +988,9 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       const cardSize = config.isHorizontal ? card.offsetWidth : card.offsetHeight;
       const textSize = config.isHorizontal ? textOverlay.offsetWidth : textOverlay.offsetHeight;
 
-      // Calculate blur boundaries based on sizing mode
-      let fullBlurPx, blurEndPx;
-
-      // Full blur is always multiplier-based
-      fullBlurPx = textSize * relFullBlurMult;
-
-      // Blur end depends on mode
-      if (relSizingMode === 'multiplier') {
-        blurEndPx = textSize * relBlurEndMult;
-      } else {
-        // Em mode: textSize + (em units of title font size)
-        const title = textOverlay.querySelector('h3') as HTMLElement;
-        const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
-        blurEndPx = textSize + (titleFontSize * relBlurEndEm);
-      }
+      // Calculate blur boundaries as multipliers of text size
+      const fullBlurPx = textSize * relFullBlurMult;
+      const blurEndPx = textSize * relBlurEndMult;
 
       // Convert to percentages
       const fullBlurPct = (fullBlurPx / cardSize) * 100;
@@ -1116,24 +1055,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     updateRelURL();
   });
 
-  // Sizing mode toggle
-  document.querySelectorAll('input[name="rel-sizing-mode"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      relSizingMode = (e.target as HTMLInputElement).value;
-
-      // Show/hide appropriate controls
-      const multControls = document.querySelector('.rel-controls-multiplier') as HTMLElement;
-      const emControls = document.querySelector('.rel-controls-em') as HTMLElement;
-      if (multControls) multControls.style.display = relSizingMode === 'multiplier' ? '' : 'none';
-      if (emControls) emControls.style.display = relSizingMode === 'em' ? '' : 'none';
-
-      updateRelBlur();
-      updateRelURL();
-      updateComparisonBlur();
-    });
-  });
-
-  // Multiplier mode controls
+  // Multiplier controls
   const fullMultSlider = document.getElementById('rel-full-mult-slider') as HTMLInputElement;
   const fullMultValue = document.getElementById('rel-full-mult-value') as HTMLElement;
 
@@ -1149,16 +1071,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       relBlurEndMult = parseFloat((e.target as HTMLInputElement).value);
       updateRelBlur();
       updateRelURL();
-    });
-  });
-
-  // Em mode control for blur end
-  document.querySelectorAll('input[name="rel-end-em"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      relBlurEndEm = parseFloat((e.target as HTMLInputElement).value);
-      updateRelBlur();
-      updateRelURL();
-      updateComparisonBlur();
     });
   });
 
@@ -1224,21 +1136,9 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       if (textRight) {
         const textSize = config.isHorizontal ? textRight.offsetWidth : textRight.offsetHeight;
 
-        // Calculate blur boundaries based on sizing mode
-        let fullBlurPx, blurEndPx;
-
-        // Full blur is always multiplier-based
-        fullBlurPx = textSize * relFullBlurMult;
-
-        // Blur end depends on mode
-        if (relSizingMode === 'multiplier') {
-          blurEndPx = textSize * relBlurEndMult;
-        } else {
-          // Em mode: textSize + (em units of title font size)
-          const title = textRight.querySelector('h3') as HTMLElement;
-          const titleFontSize = title ? parseFloat(getComputedStyle(title).fontSize) : 20;
-          blurEndPx = textSize + (titleFontSize * relBlurEndEm);
-        }
+        // Calculate blur boundaries as multipliers of text size
+        const fullBlurPx = textSize * relFullBlurMult;
+        const blurEndPx = textSize * relBlurEndMult;
 
         const fullBlurPct = (fullBlurPx / cardSize) * 100;
         const blurEndPct = Math.min((blurEndPx / cardSize) * 100, 100);
