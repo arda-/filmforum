@@ -10,13 +10,12 @@ import Button from '../../components/Button.astro';
 
     <section class="demo-section">
       <h2>Installation</h2>
-      <p>Copy and paste the following code into your project.</p>
       <pre><code>import Button from '@/components/Button.astro'</code></pre>
     </section>
 
     <section class="demo-section">
       <h2>Usage</h2>
-      <pre><code>&lt;Button variant="primary"&gt;Click me&lt;/Button&gt;</code></pre>
+      <pre><code>&lt;Button variant="outline"&gt;Button&lt;/Button&gt;</code></pre>
     </section>
 
     <section class="demo-section">
@@ -33,13 +32,55 @@ import Button from '../../components/Button.astro';
       </div>
 
       <div class="example">
+        <h3>Outline</h3>
+        <Button variant="outline">Outline</Button>
+      </div>
+
+      <div class="example">
+        <h3>Ghost</h3>
+        <Button variant="ghost">Ghost</Button>
+      </div>
+
+      <div class="example">
         <h3>Danger</h3>
-        <Button variant="danger">Delete</Button>
+        <Button variant="danger">Danger</Button>
+      </div>
+
+      <div class="example">
+        <h3>Link</h3>
+        <Button variant="link">Link</Button>
+      </div>
+
+      <div class="example">
+        <h3>Icon</h3>
+        <Button variant="outline" size="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        </Button>
+      </div>
+
+      <div class="example">
+        <h3>With Icon</h3>
+        <Button variant="primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          Add Item
+        </Button>
       </div>
 
       <div class="example">
         <h3>Disabled</h3>
         <Button variant="primary" disabled>Disabled</Button>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>Sizes</h2>
+      <div class="size-row">
+        <Button variant="outline" size="sm">Small</Button>
+        <Button variant="outline" size="default">Default</Button>
+        <Button variant="outline" size="lg">Large</Button>
+        <Button variant="outline" size="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        </Button>
       </div>
     </section>
 
@@ -56,8 +97,13 @@ import Button from '../../components/Button.astro';
         <tbody>
           <tr>
             <td><code>variant</code></td>
-            <td><code>"primary" | "secondary" | "danger"</code></td>
+            <td><code>"primary" | "secondary" | "danger" | "outline" | "ghost" | "link"</code></td>
             <td><code>"primary"</code></td>
+          </tr>
+          <tr>
+            <td><code>size</code></td>
+            <td><code>"default" | "sm" | "lg" | "icon"</code></td>
+            <td><code>"default"</code></td>
           </tr>
           <tr>
             <td><code>type</code></td>
@@ -111,12 +157,6 @@ import Button from '../../components/Button.astro';
     margin-bottom: 16px;
   }
 
-  .demo-section p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 16px;
-  }
-
   pre {
     background: var(--bg-movie);
     border: 1px solid var(--bg-movie-hover);
@@ -126,10 +166,18 @@ import Button from '../../components/Button.astro';
     margin-bottom: 16px;
   }
 
+  pre code {
+    background: none;
+    padding: 0;
+  }
+
   code {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 13px;
     color: var(--text-primary);
+    background: var(--bg-body);
+    padding: 2px 6px;
+    border-radius: 3px;
   }
 
   .example {
@@ -141,6 +189,13 @@ import Button from '../../components/Button.astro';
     font-weight: 500;
     color: var(--text-secondary);
     margin-bottom: 8px;
+  }
+
+  .size-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   table {
@@ -164,11 +219,5 @@ import Button from '../../components/Button.astro';
 
   td {
     color: var(--text-secondary);
-  }
-
-  code {
-    background: var(--bg-body);
-    padding: 2px 6px;
-    border-radius: 3px;
   }
 </style>
