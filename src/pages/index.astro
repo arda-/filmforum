@@ -111,7 +111,7 @@ for (let i = 1; i <= 28; i++) {
   <Dialog
     id="confirm-fit-width-dialog"
     title="Customize movie tile display?"
-    description="Disable "Fit to width" to show additional movie details like year, director, runtime, and images."
+    description='Disable "Fit to width" to show additional movie details like year, director, runtime, and images.'
     showCloseButton={false}
   >
     <div class="dialog-footer dialog-footer--center">
@@ -538,43 +538,9 @@ for (let i = 1; i <= 28; i++) {
       setTimeout(updateTextHeights, 10);
     });
 
-  // Modal management
-  let modalDOM: HTMLElement | null = null;
-  let overlayDOM: HTMLElement | null = null;
-
-  function initModal() {
-    modalDOM = document.getElementById('movie-modal');
-    if (modalDOM) {
-      overlayDOM = modalDOM.querySelector('.modal-overlay') as HTMLElement;
-
-      // Close button handler
-      const closeBtn = modalDOM.querySelector('[data-id="close"]');
-      closeBtn?.addEventListener('click', closeModal);
-
-      // Overlay click handler
-      overlayDOM?.addEventListener('click', closeModal);
-
-      // Escape key handler
-      document.addEventListener('keydown', (e) => {
-        if (modalDOM?.dataset.show === 'true' && e.key === 'Escape') {
-          closeModal();
-        }
-      });
-    }
-  }
-
-  function openModal() {
-    if (modalDOM) {
-      modalDOM.dataset.show = 'true';
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeModal() {
-    if (modalDOM) {
-      modalDOM.dataset.show = '';
-      document.body.style.overflow = '';
-    }
+  // Modal management - using Dialog component's global API
+  function openMovieDialog() {
+    (window as any).openDialog('movie-modal');
   }
 
   function formatDateTime(datetime: string) {
@@ -668,7 +634,7 @@ for (let i = 1; i <= 28; i++) {
       }
     }
 
-    openModal();
+    openMovieDialog();
   }
 
   // Hidden movies modal management
@@ -769,7 +735,6 @@ for (let i = 1; i <= 28; i++) {
 
   // Event delegation for movie clicks
   document.addEventListener('DOMContentLoaded', () => {
-    initModal();
     initHiddenModals();
 
     // Detect pointer device (mouse) for hover-dependent features

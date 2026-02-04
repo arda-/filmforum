@@ -1,8 +1,9 @@
 ---
-import Modal from './Modal.astro';
+import { DialogRoot } from './Dialog/index';
+import Button from './Button.astro';
 ---
 
-<Modal id="movie-modal">
+<DialogRoot id="movie-modal" size="md">
   <div class="movie-modal-inner">
     <div class="movie-poster">
       <img id="modal-poster" src="" alt="" />
@@ -17,18 +18,18 @@ import Modal from './Modal.astro';
 
     <div class="movie-actions">
       <p class="ticket-disclaimer" id="modal-disclaimer"></p>
-      <a href="#" id="modal-buy-tickets" class="btn btn-primary" target="_blank">
+      <a href="#" id="modal-buy-tickets" class="action-link action-link--primary" target="_blank">
         Buy Tickets
       </a>
-      <button id="modal-add-calendar" class="btn btn-secondary">
+      <Button id="modal-add-calendar" variant="secondary">
         Add to Calendar
-      </button>
-      <a href="#" id="modal-film-page" class="btn btn-secondary" target="_blank">
+      </Button>
+      <a href="#" id="modal-film-page" class="action-link action-link--secondary" target="_blank">
         View on Film Forum ↗
       </a>
     </div>
   </div>
-</Modal>
+</DialogRoot>
 
 <style>
   .movie-modal-inner {
@@ -128,43 +129,48 @@ import Modal from './Modal.astro';
     text-align: center;
   }
 
-  a.btn,
-  button.btn {
-    display: block;
+  /* Action links styled to match Button component */
+  .action-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 0.9rem;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 14px;
     font-weight: 500;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
-    border: none;
-    font-family: inherit;
     transition: background-color 0.15s ease, transform 0.1s ease;
   }
 
-  a.btn:active,
-  button.btn:active {
-    transform: scale(0.98);
+  .action-link:active {
+    transform: scale(0.97);
   }
 
-  .btn-primary {
-    background-color: var(--accent-bg);
-    color: white;
-  }
-
-  .btn-primary:hover {
+  .action-link--primary {
     background-color: var(--accent);
+    color: #fff;
   }
 
-  .btn-secondary {
+  .action-link--primary:hover {
+    background-color: var(--accent-bg);
+  }
+
+  .action-link--secondary {
     background-color: var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  .action-link--secondary:hover {
+    background-color: var(--bg-movie-hover);
     color: var(--text-primary);
   }
 
-  .btn-secondary:hover {
-    background-color: var(--bg-movie-hover);
+  /* Make Button component full-width in this context */
+  .movie-actions :global(.btn) {
+    width: 100%;
   }
 
   @media (max-width: 480px) {
