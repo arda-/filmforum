@@ -7,24 +7,6 @@ const { weekStartsMonday = true } = Astro.props;
 ---
 
 <div class="calendar">
-  <!-- Day headers for Sunday start -->
-  <div class="day-header sunday-start">Sun</div>
-  <div class="day-header sunday-start">Mon</div>
-  <div class="day-header sunday-start">Tue</div>
-  <div class="day-header sunday-start">Wed</div>
-  <div class="day-header sunday-start">Thu</div>
-  <div class="day-header sunday-start">Fri</div>
-  <div class="day-header sunday-start">Sat</div>
-
-  <!-- Day headers for Monday start -->
-  <div class="day-header monday-start">Mon</div>
-  <div class="day-header monday-start">Tue</div>
-  <div class="day-header monday-start">Wed</div>
-  <div class="day-header monday-start">Thu</div>
-  <div class="day-header monday-start">Fri</div>
-  <div class="day-header monday-start">Sat</div>
-  <div class="day-header monday-start">Sun</div>
-
   <!-- Spacers for Monday-start (6 empty cells before Feb 1 Sunday) -->
   <div class="day empty spacer-mon"></div>
   <div class="day empty spacer-mon"></div>
@@ -65,23 +47,10 @@ const { weekStartsMonday = true } = Astro.props;
     }
   }
 
-  .day-header {
-    text-align: center;
-    font-weight: 400;
-    padding: 10px;
-    color: var(--text-secondary);
-    font-size: 12px;
-  }
-
   .day.empty {
     background: transparent;
     min-height: 120px;
   }
-
-  /* Hide headers based on mode */
-  :global(body.monday-start) .day-header.sunday-start { display: none; }
-  :global(body.monday-start) .day-header.monday-start { display: block; }
-  .day-header.monday-start { display: none; }
 
   /* Hide spacer cells based on mode */
   :global(body.sunday-start) .spacer-mon { display: none; }

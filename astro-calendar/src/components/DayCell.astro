@@ -13,8 +13,9 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 function formatDayLabel(dateStr: string) {
   const d = new Date(dateStr + 'T12:00:00');
   const day = d.getDate();
+  const month = d.getMonth() + 1;
   const dayName = DAYS[d.getDay()];
-  return `${day} ${dayName}`;
+  return `${dayName} ${month}/${day}`;
 }
 
 const label = formatDayLabel(date);
