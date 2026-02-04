@@ -210,8 +210,8 @@ for (let i = 1; i <= 28; i++) {
 
     el.innerHTML = `
       ${badgeHtml}
-      ${posterHtml}
       <div class="movie-clickable">
+        ${posterHtml}
         <span class="movie-time">${movie.Time}</span>
         <span class="movie-title">${toTitleCase(movie.Movie)}</span>
         <div class="movie-meta">
@@ -960,10 +960,8 @@ for (let i = 1; i <= 28; i++) {
 
   :global(.movie-poster) {
     display: none;
-    width: 40px;
+    width: 100%;
     height: auto;
-    float: left;
-    margin-right: 6px;
     margin-bottom: 4px;
     border-radius: 2px;
   }
