@@ -7,16 +7,10 @@
   background: var(--bg-movie);
   border-radius: 0;
   margin: 0 0 4px 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1;
   border-left: none;
   cursor: pointer;
-}
-
-@media (min-width: 480px) {
-  .movie {
-    font-size: 13px;
-  }
 }
 
 .movie:hover,
@@ -91,12 +85,6 @@
   margin-top: 0.3em;
 }
 
-@media (min-width: 1024px) {
-  .movie-actors {
-    display: block;
-  }
-}
-
 /* Movie meta element base styles */
 .movie-year-director,
 .movie-runtime {
@@ -129,19 +117,6 @@ body.show-actors .movie-actors {
   display: block !important;
 }
 
-/* Hide classes - when checkboxes are explicitly unchecked */
-body.hide-year-director .movie-year-director {
-  display: none !important;
-}
-
-body.hide-runtime .movie-runtime {
-  display: none !important;
-}
-
-body.hide-actors .movie-actors {
-  display: none !important;
-}
-
 /* ===== Timeline Mode ===== */
 
 .movie--timeline {
@@ -171,6 +146,11 @@ body.show-image .movie.has-poster {
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
+}
+
+/* Minimum height for non-timeline mode with images */
+body.show-image .movie.has-poster:not(.movie--timeline) {
+  min-height: 80px;
 }
 
 /* Hide background when show-image is not enabled */
@@ -213,6 +193,7 @@ body.show-image .movie.has-poster .movie-meta {
 /* Text shadow for readability on poster background */
 body.show-image .movie.has-poster .movie-time {
   color: #06b6d4;
+  font-weight: 400;
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 1),
     0 2px 4px rgba(0, 0, 0, 0.8),
@@ -221,6 +202,7 @@ body.show-image .movie.has-poster .movie-time {
 
 body.show-image .movie.has-poster .movie-title {
   color: #fff;
+  font-weight: 400;
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 1),
     0 2px 4px rgba(0, 0, 0, 0.8),

@@ -407,13 +407,12 @@ for (let i = 1; i <= 28; i++) {
     const fitWidthEnabled = fitWidthInput?.checked ?? true;
 
     if (fitWidthEnabled) {
-      // Disable checkboxes and clear their state
+      // Disable checkboxes and force hide all optional content
       tileDisplayOptions?.classList.add('disabled');
       [showYearDirector, showRuntime, showActors, showImage].forEach(cb => {
         if (cb) cb.checked = false;
       });
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image',
-        'hide-year-director', 'hide-runtime', 'hide-actors', 'hide-image');
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
     }
@@ -474,31 +473,27 @@ for (let i = 1; i <= 28; i++) {
     }
   });
 
-  // Checkbox change handlers - toggle both show and hide classes
+  // Checkbox change handlers - toggle show classes
   showYearDirector?.addEventListener('change', () => {
     document.body.classList.toggle('show-year-director', showYearDirector.checked);
-    document.body.classList.toggle('hide-year-director', !showYearDirector.checked);
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
   showRuntime?.addEventListener('change', () => {
     document.body.classList.toggle('show-runtime', showRuntime.checked);
-    document.body.classList.toggle('hide-runtime', !showRuntime.checked);
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
   showActors?.addEventListener('change', () => {
     document.body.classList.toggle('show-actors', showActors.checked);
-    document.body.classList.toggle('hide-actors', !showActors.checked);
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
   showImage?.addEventListener('change', () => {
     document.body.classList.toggle('show-image', showImage.checked);
-    document.body.classList.toggle('hide-image', !showImage.checked);
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
@@ -808,10 +803,14 @@ for (let i = 1; i <= 28; i++) {
 
     // For checkboxes: image, year-director, runtime, actors
     ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
+      const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
+      const cb = document.getElementById(id) as HTMLInputElement;
       if (params.has(key)) {
-        const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
-        const cb = document.getElementById(id) as HTMLInputElement;
         if (cb && cb.checked !== (params.get(key) === '1')) cb.click();
+      } else if (cb) {
+        // Initialize show classes based on checkbox state
+        const className = key === 'year-director' ? 'year-director' : key;
+        document.body.classList.toggle(`show-${className}`, cb.checked);
       }
     });
 
