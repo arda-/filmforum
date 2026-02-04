@@ -83,3 +83,28 @@ Add Dialog composable components and demo updates
 - Create DialogRoot/DialogHeader/DialogBody/DialogFooter/DialogSeparator
 - Update all demo examples to use new components
 (These are inseparable - the demo shows the feature)
+```
+
+## IMPORTANT: Skill/Tool/Config Changes
+
+When updating Claude skills, tools, or configuration files (.claude/skills/*, config, SKILL.md, etc.):
+
+1. **Commit immediately** after making changes - don't wait or bundle with feature work
+2. **Always explicitly acknowledge** to the user that the commit was made
+3. **Include the commit hash** in your message so user can verify
+4. Never assume user knows changes were committed - be explicit
+
+### ❌ BAD: Silent commit without acknowledgment
+```
+User: "Update the commit skill with better guidance"
+[I update the file and commit it]
+[Later, when user asks /commit, I say "nothing to commit"]
+```
+
+### ✅ GOOD: Explicit acknowledgment
+```
+User: "Update the commit skill with better guidance"
+[I update the file]
+[I commit: git add ... && git commit -m "..."]
+Response: "✅ Updated commit skill with better guidance - committed in 6db93ac and pushed"
+```
