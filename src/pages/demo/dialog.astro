@@ -122,8 +122,8 @@ import Button from '../../components/Button.astro';
       <DialogDescription>Use showCloseButton={false} to hide the close button. Users must use the action buttons.</DialogDescription>
     </DialogHeader>
     <DialogFooter align="center">
-      <button class="dialog-btn dialog-btn--secondary" onclick="closeDialog('dialog-no-close')">Cancel</button>
-      <button class="dialog-btn dialog-btn--primary" onclick="closeDialog('dialog-no-close')">Continue</button>
+      <Button variant="secondary" onclick="closeDialog('dialog-no-close')">Cancel</Button>
+      <Button variant="primary" onclick="closeDialog('dialog-no-close')">Continue</Button>
     </DialogFooter>
   </DialogRoot>
 

@@ -88,7 +88,7 @@ const {
   .dialog-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5);
     animation: backdrop-in 0.15s ease-out;
   }
 
@@ -118,7 +118,7 @@ const {
     border-radius: 12px;
     padding: 24px;
     margin: 16px;
-    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
     overflow-y: auto;
     box-shadow:
       0 10px 25px rgba(0, 0, 0, 0.2),
@@ -165,5 +165,26 @@ const {
 
   .dialog-close:active {
     background: var(--bg-movie-hover);
+  }
+
+  /* Mobile responsive styles */
+  @media (max-width: 480px) {
+    .dialog-content {
+      margin: 8px;
+      padding: 20px;
+      border-radius: 10px;
+      max-height: calc(100dvh - 16px);
+    }
+
+    .dialog-content--sm,
+    .dialog-content--md,
+    .dialog-content--lg {
+      max-width: calc(100dvw - 16px);
+    }
+
+    .dialog-close {
+      top: 12px;
+      right: 12px;
+    }
   }
 </style>

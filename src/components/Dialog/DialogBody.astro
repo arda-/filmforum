@@ -1,12 +1,13 @@
 ---
 interface Props {
   scroll?: boolean;
+  class?: string;
 }
 
-const { scroll = false } = Astro.props;
+const { scroll = false, class: className } = Astro.props;
 ---
 
-<div class:list={['dialog-body', { 'dialog-body--scroll': scroll }]}>
+<div class:list={['dialog-body', { 'dialog-body--scroll': scroll }, className]}>
   <slot />
 </div>
 
@@ -18,9 +19,18 @@ const { scroll = false } = Astro.props;
   }
 
   .dialog-body--scroll {
-    max-height: 300px;
+    max-height: 60dvh;
     overflow-y: auto;
+    overscroll-behavior: contain;
     margin: 0 -24px;
     padding: 0 24px;
+  }
+
+  @media (max-width: 480px) {
+    .dialog-body--scroll {
+      max-height: 55dvh;
+      margin: 0 -20px;
+      padding: 0 20px;
+    }
   }
 </style>

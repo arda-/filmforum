@@ -13,6 +13,7 @@ const { sticky = false, align = 'end' } = Astro.props;
 
 <style>
   .dialog-footer {
+    flex-shrink: 0;
     display: flex;
     gap: 12px;
     justify-content: flex-end;
@@ -35,5 +36,17 @@ const { sticky = false, align = 'end' } = Astro.props;
     background: var(--bg-day);
     border-top: 1px solid var(--bg-movie);
     border-radius: 0 0 12px 12px;
+  }
+
+  @media (max-width: 480px) {
+    .dialog-footer {
+      gap: 8px;
+    }
+
+    .dialog-footer--sticky {
+      margin: 0 -20px -20px -20px;
+      padding: 12px 20px;
+      border-radius: 0 0 10px 10px;
+    }
   }
 </style>
