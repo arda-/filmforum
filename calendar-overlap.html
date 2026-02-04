@@ -140,23 +140,20 @@
       display: inline-block;
     }
     .movie-actors.marquee .movie-actors-inner {
-      /* duration set dynamically via JS based on text width */
+      transform: translateX(0);
+      opacity: 1;
     }
-    @keyframes marquee-scroll {
-      0% { transform: translateX(0); }
-      5% { transform: translateX(0); }
-      75% { transform: translateX(var(--scroll-distance)); }
-      80% { transform: translateX(var(--scroll-distance)); }
-      80.01% { transform: translateX(0); }
-      100% { transform: translateX(0); }
+    .movie-actors.marquee .movie-actors-inner.scrolling {
+      transform: translateX(var(--scroll-distance));
+      transition: transform var(--scroll-duration) cubic-bezier(0.1, 0, 0.9, 1);
     }
-    @keyframes marquee-fade {
-      0% { opacity: 1; }
-      75% { opacity: 1; }
-      80% { opacity: 0; }
-      85% { opacity: 0; }
-      92% { opacity: 1; }
-      100% { opacity: 1; }
+    .movie-actors.marquee .movie-actors-inner.fading {
+      opacity: 0;
+      transition: opacity 0.8s ease-out;
+    }
+    .movie-actors.marquee .movie-actors-inner.showing {
+      opacity: 1;
+      transition: opacity 0.8s ease-out;
     }
     .legend {
       text-align: center;
@@ -281,6 +278,10 @@
     <label class="toggle">
       <input type="checkbox" id="week-start-toggle" checked>
       <span>Start week on Monday</span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="marquee-toggle" checked>
+      <span>Animate marquees</span>
     </label>
   </div>
 
@@ -522,18 +523,55 @@
 
         // Detect overflow and enable marquee with constant speed
         requestAnimationFrame(() => {
-          const PX_PER_SECOND = 30;
+          const PX_PER_SECOND = 20; // slower to compensate for easing curve
+          const PAUSE_START = 2000;  // 2s pause at start
+          const PAUSE_END = 1500;    // 1.5s pause at end
+          const FADE_TIME = 800;     // 0.8s fade
+          const marqueeToggle = document.getElementById('marquee-toggle');
+
           document.querySelectorAll('.movie-actors').forEach(el => {
             const inner = el.querySelector('.movie-actors-inner');
             if (!inner) return;
             const overflow = inner.scrollWidth - el.clientWidth;
-            // Only enable marquee if there's significant overflow
             if (overflow > 10) {
               el.classList.add('marquee');
-              const scrollTime = Math.max(overflow / PX_PER_SECOND, 2);
-              const totalDuration = scrollTime / 0.70;
+              const scrollTime = Math.max(overflow / PX_PER_SECOND, 1);
               inner.style.setProperty('--scroll-distance', `-${overflow}px`);
-              inner.style.animation = `marquee-scroll ${totalDuration}s linear infinite, marquee-fade ${totalDuration}s ease-out infinite`;
+              inner.style.setProperty('--scroll-duration', `${scrollTime}s`);
+
+              function runCycle() {
+                if (!marqueeToggle.checked) {
+                  inner.classList.remove('scrolling', 'fading', 'showing');
+                  setTimeout(runCycle, 500); // check again later
+                  return;
+                }
+                // Start scrolling after initial pause
+                setTimeout(() => {
+                  if (!marqueeToggle.checked) { runCycle(); return; }
+                  inner.classList.add('scrolling');
+                  // After scroll completes, pause then fade out
+                  setTimeout(() => {
+                    setTimeout(() => {
+                      if (!marqueeToggle.checked) { runCycle(); return; }
+                      inner.classList.add('fading');
+                      // After fade out, reset position
+                      setTimeout(() => {
+                        inner.classList.remove('scrolling');
+                        // Small delay then fade back in
+                        setTimeout(() => {
+                          inner.classList.remove('fading');
+                          inner.classList.add('showing');
+                          setTimeout(() => {
+                            inner.classList.remove('showing');
+                            runCycle();
+                          }, FADE_TIME);
+                        }, 50);
+                      }, FADE_TIME);
+                    }, PAUSE_END);
+                  }, scrollTime * 1000);
+                }, PAUSE_START);
+              }
+              runCycle();
             }
           });
         });
