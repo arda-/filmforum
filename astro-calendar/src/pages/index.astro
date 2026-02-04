@@ -204,8 +204,13 @@ for (let i = 1; i <= 28; i++) {
       ? '<span class="single-showtime-badge" title="Only showtime with current filters">★</span>'
       : '';
 
+    const posterHtml = movie.poster_url
+      ? `<img class="movie-poster" src="${movie.poster_url}" alt="" loading="lazy" />`
+      : '';
+
     el.innerHTML = `
       ${badgeHtml}
+      ${posterHtml}
       <div class="movie-clickable">
         <span class="movie-time">${movie.Time}</span>
         <span class="movie-title">${toTitleCase(movie.Movie)}</span>
@@ -913,6 +918,12 @@ for (let i = 1; i <= 28; i++) {
   }
 
   /* Checkbox-controlled visibility for movie tile display */
+  :global(body.show-year-director .movie-meta),
+  :global(body.show-runtime .movie-meta),
+  :global(body.show-actors .movie-meta) {
+    display: block !important;
+  }
+
   :global(body.show-year-director .movie-year-director) {
     display: inline !important;
   }
@@ -922,6 +933,20 @@ for (let i = 1; i <= 28; i++) {
   }
 
   :global(body.show-actors .movie-actors) {
+    display: block !important;
+  }
+
+  :global(.movie-poster) {
+    display: none;
+    width: 40px;
+    height: auto;
+    float: left;
+    margin-right: 6px;
+    margin-bottom: 4px;
+    border-radius: 2px;
+  }
+
+  :global(body.show-image .movie-poster) {
     display: block !important;
   }
 
