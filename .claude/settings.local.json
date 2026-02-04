@@ -40,7 +40,14 @@
       "Bash(git config:*)",
       "Bash(npx playwright:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:base-ui.com)",
+      "Bash(gh api:*)",
+      "Bash(gh search code:*)",
+      "Bash(awk:*)"
     ]
   }
 }
