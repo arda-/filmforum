@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
 import CalendarGrid from '../components/CalendarGrid.astro';
 import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
@@ -14,10 +15,14 @@ for (let i = 1; i <= 28; i++) {
 ---
 
 <Layout title="Tenement Stories - Film Forum Feb 2026">
-  <header class="site-header">
-    <h1><a href="https://filmforum.org/series/tenement-stories">Tenement Stories</a></h1>
-    <p class="subtitle"><a href="https://filmforum.org">Film Forum</a> · NYC · February 2026</p>
-  </header>
+  <Header
+    seriesName="Tenement Stories"
+    seriesUrl="https://filmforum.org/series/tenement-stories"
+    venueName="Film Forum"
+    venueUrl="https://filmforum.org"
+    location="NYC"
+    date="February 2026"
+  />
 
   <div class="controls">
     <div class="control-group">
