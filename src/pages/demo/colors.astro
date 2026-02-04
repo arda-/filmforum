@@ -1,0 +1,392 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CalendarGrid from '../../components/CalendarGrid.astro';
+import DayCell from '../../components/DayCell.astro';
+import MovieModal from '../../components/MovieModal.astro';
+
+// Generate Feb 2026 dates
+const dates: string[] = [];
+for (let i = 1; i <= 28; i++) {
+  dates.push(`2026-02-${i.toString().padStart(2, '0')}`);
+}
+
+const scenarios = [
+  {
+    id: 'original',
+    name: 'Original',
+    description: 'Current color palette (reference)',
+    lightMode: {
+      '--bg-grid': '#e2e8f0',
+      '--bg-day': '#ffffff',
+      '--bg-day-movies': '#f8fafc',
+      '--bg-movie': '#f1f5f9',
+      '--bg-movie-hover': '#e2e8f0',
+    }
+  },
+  {
+    id: 'light-unified',
+    name: 'Light Mode - Unified',
+    description: 'Day cells use same color as grid background for cleaner look',
+    lightMode: {
+      '--bg-grid': '#e2e8f0',
+      '--bg-day': '#e2e8f0',      // Match grid, not white
+      '--bg-day-movies': '#d4dfe9', // Slightly darker when has movies
+      '--bg-movie': '#c5d4e0',      // Darker movies for better contrast
+      '--bg-movie-hover': '#b3c5d9',
+    }
+  },
+  {
+    id: 'light-minimal',
+    name: 'Light Mode - Minimal Colors',
+    description: 'Reduce colors: movie tiles in accent color for maximum contrast',
+    lightMode: {
+      '--bg-grid': '#f0f4f8',
+      '--bg-day': '#f0f4f8',        // Uniform light background
+      '--bg-day-movies': '#f0f4f8',  // No distinction for empty vs filled
+      '--bg-movie': '#0891b2',      // Accent color for movies
+      '--bg-movie-hover': '#06b0d4',
+    }
+  },
+  {
+    id: 'light-subtle',
+    name: 'Light Mode - Subtle Distinction',
+    description: 'Subtle differences: light gray for days, soft blue for movies',
+    lightMode: {
+      '--bg-grid': '#f5f7fa',
+      '--bg-day': '#ffffff',
+      '--bg-day-movies': '#f5f7fa',   // Subtle background
+      '--bg-movie': '#e3f2fd',        // Very light blue for movies
+      '--bg-movie-hover': '#bbdefb',
+    }
+  }
+];
+---
+
+<Layout title="Color Scenarios - Film Forum Feb 2026">
+  <style>
+    .colors-page {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px 10px;
+    }
+
+    .intro {
+      margin-bottom: 40px;
+      padding: 0 10px;
+    }
+
+    .intro h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .intro p {
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .scenario {
+      margin-bottom: 60px;
+      padding: 20px;
+      border-radius: 8px;
+      background: var(--bg-day);
+      border: 1px solid var(--bg-grid);
+    }
+
+    .scenario-header {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--bg-grid);
+    }
+
+    .scenario-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 4px 0;
+    }
+
+    .scenario-description {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin: 0;
+    }
+
+    .scenario-content {
+      --bg-grid: var(--scenario-bg-grid);
+      --bg-day: var(--scenario-bg-day);
+      --bg-day-movies: var(--scenario-bg-day-movies);
+      --bg-movie: var(--scenario-bg-movie);
+      --bg-movie-hover: var(--scenario-bg-movie-hover);
+    }
+
+    .comparison-note {
+      padding: 12px;
+      background: var(--bg-movie);
+      border-left: 3px solid var(--accent);
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-radius: 4px;
+    }
+
+    @media (max-width: 1024px) {
+      .scenario {
+        padding: 16px;
+      }
+    }
+  </style>
+
+  <div class="colors-page">
+    <div class="intro">
+      <h2>Color Palette Refinement</h2>
+      <p><strong>Purpose:</strong> Refining the color palette to address:</p>
+      <ul style="margin: 8px 0 0 20px; color: var(--text-secondary); font-size: 13px;">
+        <li><strong>Light Mode:</strong> Too many distinct colors (grid, day cells, movies). Day cells are a different color than the background, making movie tiles not stand out. Blank day backgrounds are too dark.</li>
+        <li><strong>Dark Mode:</strong> Multiple colors are less bothersome. Testing different approaches to simplify the palette.</li>
+      </ul>
+    </div>
+
+    {scenarios.map((scenario) => (
+      <div class="scenario">
+        <div class="scenario-header">
+          <div class="scenario-title">{scenario.name}</div>
+          <div class="scenario-description">{scenario.description}</div>
+        </div>
+
+        <div
+          class="scenario-content"
+          style={{
+            '--scenario-bg-grid': scenario.lightMode['--bg-grid'],
+            '--scenario-bg-day': scenario.lightMode['--bg-day'],
+            '--scenario-bg-day-movies': scenario.lightMode['--bg-day-movies'],
+            '--scenario-bg-movie': scenario.lightMode['--bg-movie'],
+            '--scenario-bg-movie-hover': scenario.lightMode['--bg-movie-hover'],
+          } as any}
+        >
+          <CalendarGrid>
+            {dates.map(date => (
+              <DayCell date={date} />
+            ))}
+          </CalendarGrid>
+
+          <div class="comparison-note">
+            <strong>Color Variables:</strong> Grid {scenario.lightMode['--bg-grid']} • Day {scenario.lightMode['--bg-day']} • Day w/ Movies {scenario.lightMode['--bg-day-movies']} • Movie {scenario.lightMode['--bg-movie']}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <MovieModal />
+</Layout>
+
+<script>
+  import {
+    DAYS,
+    PX_PER_MIN,
+    WORK_START,
+    WORK_END,
+    HOURS_FILTER_MODE,
+    SINGLE_SHOWTIMES_MODE,
+    type HoursFilterMode,
+    type SingleShowtimesMode,
+  } from '../../constants';
+  import { downloadICS, type Movie } from '../../utils/icsGenerator';
+
+  // Track movies for each scenario
+  const scenarioData: Record<string, {
+    moviesByDate: Record<string, Movie[]>;
+    globalRange: { start: number; end: number; range: number };
+    uniformHeight: number;
+    allMovies: Movie[];
+  }> = {
+    original: { moviesByDate: {}, globalRange: { start: Infinity, end: 0, range: 0 }, uniformHeight: 0, allMovies: [] },
+    'light-unified': { moviesByDate: {}, globalRange: { start: Infinity, end: 0, range: 0 }, uniformHeight: 0, allMovies: [] },
+    'light-minimal': { moviesByDate: {}, globalRange: { start: Infinity, end: 0, range: 0 }, uniformHeight: 0, allMovies: [] },
+    'light-subtle': { moviesByDate: {}, globalRange: { start: Infinity, end: 0, range: 0 }, uniformHeight: 0, allMovies: [] },
+  };
+
+  const dates = [
+    '2026-02-01', '2026-02-02', '2026-02-03', '2026-02-04', '2026-02-05', '2026-02-06', '2026-02-07',
+    '2026-02-08', '2026-02-09', '2026-02-10', '2026-02-11', '2026-02-12', '2026-02-13', '2026-02-14',
+    '2026-02-15', '2026-02-16', '2026-02-17', '2026-02-18', '2026-02-19', '2026-02-20', '2026-02-21',
+    '2026-02-22', '2026-02-23', '2026-02-24', '2026-02-25', '2026-02-26', '2026-02-27', '2026-02-28',
+  ];
+
+  function toTitleCase(str: string) {
+    return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  }
+
+  function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {
+    const isFFJr = time.includes('FF Jr');
+    const displayTime = isFFJr ? time.replace(/\s*[–-]?\s*FF Jr\.?/g, '').trim() : time;
+    const displayTitle = isFFJr ? `${toTitleCase(title)} (FF Jr.)` : toTitleCase(title);
+    return { displayTime, displayTitle };
+  }
+
+  function parseTimeToMins(timeStr: string) {
+    const match = timeStr.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return 0;
+    let h = parseInt(match[1]);
+    const m = parseInt(match[2]);
+    const isMorning = timeStr.includes('FF Jr');
+    if (!isMorning && h !== 12 && h < 12) h += 12;
+    return h * 60 + m;
+  }
+
+  function getDayTimeRange(movies: Movie[]) {
+    let minStart = Infinity, maxEnd = 0;
+    movies.forEach(m => {
+      const start = parseTimeToMins(m.Time);
+      const runtime = parseInt(m.runtime || '90');
+      const end = start + runtime;
+      if (start < minStart) minStart = start;
+      if (end > maxEnd) maxEnd = end;
+    });
+    return { start: minStart, end: maxEnd, range: maxEnd - minStart };
+  }
+
+  function assignOverlapColumns(movies: Movie[]) {
+    const sorted = [...movies].sort((a, b) => parseTimeToMins(a.Time) - parseTimeToMins(b.Time));
+    sorted.forEach((movie, i) => {
+      movie._col = 0;
+      movie._hasOverlap = false;
+      const myStart = parseTimeToMins(movie.Time);
+      for (let j = 0; j < i; j++) {
+        const prev = sorted[j];
+        const prevEnd = parseTimeToMins(prev.Time) + parseInt(prev.runtime || '90');
+        if (prevEnd > myStart) {
+          movie._col = 1;
+          prev._hasOverlap = true;
+          movie._hasOverlap = true;
+          break;
+        }
+      }
+    });
+    return sorted;
+  }
+
+  function createMovieElement(movie: Movie, isTimeline: boolean, topPx?: number, heightPx?: number) {
+    const el = document.createElement('div');
+    const classes = ['movie'];
+    if (isTimeline) {
+      classes.push('movie--timeline');
+      if (movie._col === 1) classes.push('overlap-col-1');
+      else if (movie._hasOverlap) classes.push('overlap-col-0', 'has-overlap');
+    }
+    el.className = classes.join(' ');
+
+    if (isTimeline && topPx !== undefined && heightPx !== undefined) {
+      el.style.top = `${topPx + 28}px`;
+      el.style.height = `${heightPx}px`;
+    }
+
+    const yearDirector = [movie.year, movie.director].filter(Boolean).join(', ');
+    const runtime = movie.runtime ? movie.runtime.replace(' minutes', 'min').replace(' ', '') : '';
+
+    el.dataset.movie = JSON.stringify(movie);
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+
+    const { displayTime, displayTitle } = processFFJr(movie.Time, movie.Movie);
+
+    el.innerHTML = `
+      <div class="movie-clickable">
+        <div class="movie-header">
+          <span class="movie-time">${displayTime}</span>
+          <span class="movie-title">${displayTitle}</span>
+        </div>
+        <div class="movie-meta">
+          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
+          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
+        </div>
+      </div>
+    `;
+    return el;
+  }
+
+  function renderScenario(scenarioId: string) {
+    const data = scenarioData[scenarioId as keyof typeof scenarioData];
+    if (!data) return;
+
+    const { moviesByDate, globalRange, uniformHeight } = data;
+
+    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      const dayCell = document.querySelector(`[data-scenario="${scenarioId}"] [data-date="${date}"]`) as HTMLElement;
+      if (!dayCell) return;
+
+      const dayNumber = dayCell.dataset.dayNumber;
+      dayCell.innerHTML = '';
+      dayCell.classList.remove('timeline-view');
+      dayCell.classList.add('has-movies');
+      dayCell.style.height = '';
+
+      const dayNumDiv = document.createElement('div');
+      dayNumDiv.className = 'day-number';
+      dayNumDiv.textContent = dayNumber || '';
+      dayCell.appendChild(dayNumDiv);
+
+      if (dayMovies.length === 0) {
+        dayCell.classList.remove('has-movies');
+        return;
+      }
+
+      // Render list mode by default
+      dayMovies.forEach(movie => {
+        dayCell.appendChild(createMovieElement(movie, false));
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Load and process movies, rendering for each scenario identically
+    fetch('/tenement-stories-full.json')
+      .then(res => res.json())
+      .then((movies: Movie[]) => {
+        Object.keys(scenarioData).forEach(scenarioId => {
+          const data = scenarioData[scenarioId as keyof typeof scenarioData];
+
+          data.allMovies = movies;
+          movies.forEach(movie => {
+            const date = movie.Datetime.split('T')[0];
+            if (!data.moviesByDate[date]) data.moviesByDate[date] = [];
+            data.moviesByDate[date].push(movie);
+          });
+
+          Object.values(data.moviesByDate).forEach(dayMovies => {
+            const range = getDayTimeRange(dayMovies);
+            if (range.start < data.globalRange.start) data.globalRange.start = range.start;
+            if (range.end > data.globalRange.end) data.globalRange.end = range.end;
+          });
+          data.globalRange.range = data.globalRange.end - data.globalRange.start;
+          data.uniformHeight = Math.max(data.globalRange.range * PX_PER_MIN, 100) + 32;
+
+          renderScenario(scenarioId);
+        });
+
+        // Add data-scenario attribute to scenario content divs - find all scenario-content divs
+        document.querySelectorAll('.scenario-content').forEach((el, index) => {
+          const scenarios = ['original', 'light-unified', 'light-minimal', 'light-subtle'];
+          el.setAttribute('data-scenario', scenarios[index]);
+        });
+
+        // Delegate click events to movie modals
+        document.addEventListener('click', (e) => {
+          const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+          if (movieEl) {
+            const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
+            const movieModal = document.getElementById('movie-modal');
+            if (movieModal) {
+              // Set modal data (simplified for demo)
+              movieModal.dataset.show = 'true';
+              document.body.style.overflow = 'hidden';
+            }
+          }
+        });
+      });
+  });
+</script>
