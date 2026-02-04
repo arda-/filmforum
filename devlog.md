@@ -1,5 +1,60 @@
 # Film Forum Development Log
 
+## 2026-02-04: Progressive Blur Demo Pages
+
+### Overview
+Created two standalone demo pages to prototype blur techniques for potential use on movie tile text overlays. The goal is to improve text readability over poster images with a more sophisticated blur effect than simple opacity gradients.
+
+### Two Techniques Explored
+
+1. **Simple Blur Fade** (`/demo/blur-simple`)
+   - Single `backdrop-filter: blur()` layer with `mask-image: linear-gradient()`
+   - Fades the blur layer to transparent, but blur intensity stays constant
+   - Simpler implementation, fewer DOM elements
+   - Limitation: Can't create true intensity gradient
+
+2. **Progressive Blur** (`/demo/blur-progressive`)
+   - 7 stacked layers with doubling blur values: 1px → 2px → 4px → 8px → 16px → 32px → 64px
+   - Each layer masked to a different vertical region with overlap for smoothness
+   - Creates true "Apple-style" blur where intensity increases gradually
+   - Trade-off: More DOM elements, potential performance impact
+
+### Key Technical Insights
+
+- **Mask processing order**: `mask-image` on `backdrop-filter` only affects opacity, not blur intensity
+- **Layer overlap is critical**: Each layer needs ~7% overlap with adjacent layers to avoid visible banding
+- **Safari support**: `-webkit-backdrop-filter` and `-webkit-mask-image` required for Safari
+- **Performance**: 7 layers with blur is GPU-intensive; may need to limit to hover states or reduce layer count
+
+### Demo Features
+- Interactive controls to adjust blur amount and mask positions (simple)
+- **Direction control** (simple): Bottom, Top, Left, Right - text overlay moves to match
+- Toggle individual layers on/off to see contribution (progressive)
+- Side-by-side comparison of both techniques
+- Visual layer mask diagram showing coverage regions
+
+### Important: Blur Direction
+The blur must be at the **same edge as the text overlay**. Initial implementation had blur at top but text at bottom - fixed by reversing gradient direction to `to top` (blur strongest at bottom where text lives).
+
+### Files Created
+- `src/pages/demo/blur-simple.astro` - Single-layer blur demo
+- `src/pages/demo/blur-progressive.astro` - 7-layer progressive blur demo
+- `docs/progressive-blur-guide.md` - Implementation guide
+
+### Files Modified
+- `src/pages/demo/index.astro` - Added links to blur demos
+
+### Next Steps
+- Test performance impact on actual movie tiles
+- Consider reduced layer count (5 instead of 7) for better performance
+- Evaluate whether effect is worth the complexity vs simpler gradient overlay
+
+### References
+- [Progressive blur in CSS](https://kennethnym.com/blog/progressive-blur-in-css/) - Multi-layer technique
+- [Josh Comeau: Backdrop-filter](https://www.joshwcomeau.com/css/backdrop-filter/) - Mask-image processing order
+
+---
+
 ## 2026-02-04: Color Palette Demo & Iterative Refinement
 
 ### Overview
