@@ -298,6 +298,10 @@
       <input type="checkbox" id="week-start-toggle" checked>
       <span>Start week on Monday</span>
     </label>
+    <label class="toggle">
+      <input type="checkbox" id="duration-mode-toggle" checked>
+      <span>Duration mode</span>
+    </label>
   </div>
 
   <div class="calendar">
@@ -499,36 +503,77 @@
       });
     }
 
+    // Store movies data globally for re-rendering
+    let moviesData = null;
+    let moviesByDate = null;
+    let globalRange = null;
+    let uniformHeight = 0;
+
+    // Render all days based on current mode
+    function renderAllDays() {
+      const durationMode = document.getElementById('duration-mode-toggle').checked;
+
+      Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+        const dayCell = document.querySelector(`[data-date="${date}"]`);
+        if (!dayCell) return;
+
+        // Clear existing movies
+        dayCell.innerHTML = '';
+        dayCell.classList.add('has-movies');
+
+        // Re-add day number
+        const dayNumber = dayCell.dataset.dayNumber;
+        const dayNumDiv = document.createElement('div');
+        dayNumDiv.className = 'day-number';
+        dayNumDiv.textContent = dayNumber;
+        dayCell.appendChild(dayNumDiv);
+
+        if (durationMode) {
+          dayCell.style.height = `${uniformHeight}px`;
+          renderDayTimeline(dayCell, dayMovies, globalRange);
+        } else {
+          dayCell.style.height = '';
+          renderDayStacked(dayCell, dayMovies);
+        }
+      });
+    }
+
+    // Duration mode toggle
+    document.getElementById('duration-mode-toggle').addEventListener('change', () => {
+      renderAllDays();
+    });
+
     // Fetch and render movies
     fetch('tenement-stories-evenings.json')
       .then(res => res.json())
       .then(movies => {
-        const moviesByDate = {};
+        moviesData = movies;
+        moviesByDate = {};
         movies.forEach(movie => {
           const date = movie.Datetime.split('T')[0];
           if (!moviesByDate[date]) moviesByDate[date] = [];
           moviesByDate[date].push(movie);
         });
 
+        // Store day numbers before clearing
+        document.querySelectorAll('[data-date]').forEach(cell => {
+          const dayNumEl = cell.querySelector('.day-number');
+          if (dayNumEl) {
+            cell.dataset.dayNumber = dayNumEl.textContent;
+          }
+        });
+
         // Calculate global time range across all days
-        const globalRange = { start: Infinity, end: 0 };
+        globalRange = { start: Infinity, end: 0 };
         Object.values(moviesByDate).forEach(dayMovies => {
           const range = getDayTimeRange(dayMovies);
           if (range.start < globalRange.start) globalRange.start = range.start;
           if (range.end > globalRange.end) globalRange.end = range.end;
         });
         globalRange.range = globalRange.end - globalRange.start;
-        const uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
+        uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
-        Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-          const dayCell = document.querySelector(`[data-date="${date}"]`);
-          if (!dayCell) return;
-
-          dayCell.classList.add('has-movies');
-
-          dayCell.style.height = `${uniformHeight}px`;
-          renderDayTimeline(dayCell, dayMovies, globalRange);
-        });
+        renderAllDays();
       });
   </script>
 </body>
