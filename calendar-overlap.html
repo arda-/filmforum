@@ -221,25 +221,12 @@
         height: 100%;
       }
 
-      /* Show meta text always in timeline */
+      /* Show meta and actors in timeline (follows breakpoint rules) */
       .movie--timeline .movie-meta {
         display: block;
       }
 
-      /* Hide actors by default */
       .movie--timeline .movie-actors {
-        display: none;
-      }
-
-      /* Hover: expand and show actors */
-      .movie--timeline:hover {
-        z-index: 100;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-        height: auto !important;
-        min-height: 70px;
-      }
-
-      .movie--timeline:hover .movie-actors {
         display: block;
       }
 
@@ -440,11 +427,7 @@
     }
 
     // Render movies in timeline view
-    function renderDayTimeline(dayCell, movies) {
-      const range = getDayTimeRange(movies);
-      const containerHeight = Math.max(range.range * PX_PER_MIN, 100);
-
-      dayCell.style.height = `${containerHeight + 32}px`; // +32 for day number
+    function renderDayTimeline(dayCell, movies, globalRange) {
       dayCell.classList.add('timeline-view');
 
       const sortedMovies = assignOverlapColumns(movies);
@@ -452,7 +435,7 @@
       sortedMovies.forEach(movie => {
         const start = parseTimeToMins(movie.Time);
         const runtime = parseInt(movie.runtime) || 90;
-        const topPx = (start - range.start) * PX_PER_MIN;
+        const topPx = (start - globalRange.start) * PX_PER_MIN;
         const heightPx = Math.max(runtime * PX_PER_MIN, 24);
 
         const el = renderMovie(movie);
@@ -488,6 +471,16 @@
           moviesByDate[date].push(movie);
         });
 
+        // Calculate global time range across all days
+        const globalRange = { start: Infinity, end: 0 };
+        Object.values(moviesByDate).forEach(dayMovies => {
+          const range = getDayTimeRange(dayMovies);
+          if (range.start < globalRange.start) globalRange.start = range.start;
+          if (range.end > globalRange.end) globalRange.end = range.end;
+        });
+        globalRange.range = globalRange.end - globalRange.start;
+        const uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
+
         Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
           const dayCell = document.querySelector(`[data-date="${date}"]`);
           if (!dayCell) return;
@@ -495,7 +488,8 @@
           dayCell.classList.add('has-movies');
 
           if (isDesktop) {
-            renderDayTimeline(dayCell, dayMovies);
+            dayCell.style.height = `${uniformHeight}px`;
+            renderDayTimeline(dayCell, dayMovies, globalRange);
           } else {
             renderDayStacked(dayCell, dayMovies);
           }
