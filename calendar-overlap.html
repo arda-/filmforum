@@ -133,27 +133,6 @@
       display: none;
       font-style: italic;
       margin-top: 0.3em;
-      white-space: nowrap;
-      overflow: hidden;
-    }
-    .movie-actors-inner {
-      display: inline-block;
-    }
-    .movie-actors.marquee .movie-actors-inner {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    .movie-actors.marquee .movie-actors-inner.scrolling {
-      transform: translateX(var(--scroll-distance));
-      transition: transform var(--scroll-duration) cubic-bezier(0.1, 0, 0.9, 1);
-    }
-    .movie-actors.marquee .movie-actors-inner.fading {
-      opacity: 0;
-      transition: opacity 0.8s ease-out;
-    }
-    .movie-actors.marquee .movie-actors-inner.showing {
-      opacity: 1;
-      transition: opacity 0.8s ease-out;
     }
     .legend {
       text-align: center;
@@ -211,61 +190,62 @@
     }
 
     /* ========================================
-       TIMELINE VIEW (Desktop ≥1024px)
+       TIMELINE VIEW (all breakpoints)
        ======================================== */
-    @media (min-width: 1024px) {
-      .day.timeline-view {
-        position: relative;
-        padding-top: 28px; /* space for day number */
-      }
+    .day.timeline-view {
+      position: relative;
+      padding-top: 28px; /* space for day number */
+    }
 
-      .day.timeline-view .day-number {
-        position: absolute;
-        top: 4px;
-        left: 4px;
-        z-index: 20;
-        margin-bottom: 0;
-      }
+    .day.timeline-view .day-number {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      z-index: 20;
+      margin-bottom: 0;
+    }
 
-      /* Timeline movie tile */
-      .movie--timeline {
-        position: absolute;
-        left: 4px;
-        right: 4px;
-        overflow: hidden;
-        transition: z-index 0s, box-shadow 0.15s ease;
-        z-index: 1;
-        margin-bottom: 0;
-      }
+    /* Timeline movie tile */
+    .movie--timeline {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      overflow: hidden;
+      z-index: 1;
+      margin-bottom: 0;
+    }
 
-      .movie--timeline a {
-        height: 100%;
-      }
+    .movie--timeline a {
+      height: 100%;
+    }
 
-      /* Show meta and actors in timeline (follows breakpoint rules) */
+    /* Hide meta until 768px */
+    .movie--timeline .movie-meta {
+      display: none;
+    }
+    @media (min-width: 768px) {
       .movie--timeline .movie-meta {
         display: block;
       }
-
-      .movie--timeline .movie-actors {
-        display: block;
-      }
-
-      /* Overlap handling - side by side */
-      .movie--timeline.overlap-col-1 {
-        left: 52% !important;
-        right: 4px !important;
-      }
-      .movie--timeline.overlap-col-0.has-overlap {
-        right: 52% !important;
-        left: 4px !important;
-      }
     }
 
-    /* Mobile/tablet: standard stacked view with actors on tap */
-    @media (max-width: 1023px) {
-      .movie-actors {
-        display: none;
+    /* Overlap handling - side by side */
+    .movie--timeline.overlap-col-1 {
+      left: 52% !important;
+      right: 4px !important;
+    }
+    .movie--timeline.overlap-col-0.has-overlap {
+      right: 52% !important;
+      left: 4px !important;
+    }
+
+    /* Show actors only on larger screens */
+    .movie-actors {
+      display: none;
+    }
+    @media (min-width: 1024px) {
+      .movie--timeline .movie-actors {
+        display: block;
       }
     }
   </style>
@@ -278,10 +258,6 @@
     <label class="toggle">
       <input type="checkbox" id="week-start-toggle" checked>
       <span>Start week on Monday</span>
-    </label>
-    <label class="toggle">
-      <input type="checkbox" id="marquee-toggle" checked>
-      <span>Animate marquees</span>
     </label>
   </div>
 
@@ -351,7 +327,7 @@
         <span class="movie-time"></span>
         <span class="movie-title"></span>
         <div class="movie-meta">
-          <span class="movie-info"></span><span class="movie-actors"><span class="movie-actors-inner"></span></span>
+          <span class="movie-info"></span><span class="movie-actors"></span>
         </div>
       </a>
     </div>
@@ -370,7 +346,6 @@
     });
 
     const movieTemplate = document.getElementById('movie-template');
-    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
     const PX_PER_MIN = 0.7; // pixels per minute of runtime
 
     // Parse time string to minutes since midnight
@@ -441,8 +416,7 @@
 
       if (movie.actors) {
         const actors = movie.actors.split(',').slice(0, 3).map(a => a.trim()).join(', ');
-        const actorsInner = clone.querySelector('.movie-actors-inner');
-        actorsInner.textContent = actors;
+        clone.querySelector('.movie-actors').textContent = actors;
       }
 
       return container;
@@ -513,67 +487,8 @@
 
           dayCell.classList.add('has-movies');
 
-          if (isDesktop) {
-            dayCell.style.height = `${uniformHeight}px`;
-            renderDayTimeline(dayCell, dayMovies, globalRange);
-          } else {
-            renderDayStacked(dayCell, dayMovies);
-          }
-        });
-
-        // Detect overflow and enable marquee with constant speed
-        requestAnimationFrame(() => {
-          const PX_PER_SECOND = 20; // slower to compensate for easing curve
-          const PAUSE_START = 2000;  // 2s pause at start
-          const PAUSE_END = 1500;    // 1.5s pause at end
-          const FADE_TIME = 800;     // 0.8s fade
-          const marqueeToggle = document.getElementById('marquee-toggle');
-
-          document.querySelectorAll('.movie-actors').forEach(el => {
-            const inner = el.querySelector('.movie-actors-inner');
-            if (!inner) return;
-            const overflow = inner.scrollWidth - el.clientWidth;
-            if (overflow > 10) {
-              el.classList.add('marquee');
-              const scrollTime = Math.max(overflow / PX_PER_SECOND, 1);
-              inner.style.setProperty('--scroll-distance', `-${overflow}px`);
-              inner.style.setProperty('--scroll-duration', `${scrollTime}s`);
-
-              function runCycle() {
-                if (!marqueeToggle.checked) {
-                  inner.classList.remove('scrolling', 'fading', 'showing');
-                  setTimeout(runCycle, 500); // check again later
-                  return;
-                }
-                // Start scrolling after initial pause
-                setTimeout(() => {
-                  if (!marqueeToggle.checked) { runCycle(); return; }
-                  inner.classList.add('scrolling');
-                  // After scroll completes, pause then fade out
-                  setTimeout(() => {
-                    setTimeout(() => {
-                      if (!marqueeToggle.checked) { runCycle(); return; }
-                      inner.classList.add('fading');
-                      // After fade out, reset position
-                      setTimeout(() => {
-                        inner.classList.remove('scrolling');
-                        // Small delay then fade back in
-                        setTimeout(() => {
-                          inner.classList.remove('fading');
-                          inner.classList.add('showing');
-                          setTimeout(() => {
-                            inner.classList.remove('showing');
-                            runCycle();
-                          }, FADE_TIME);
-                        }, 50);
-                      }, FADE_TIME);
-                    }, PAUSE_END);
-                  }, scrollTime * 1000);
-                }, PAUSE_START);
-              }
-              runCycle();
-            }
-          });
+          dayCell.style.height = `${uniformHeight}px`;
+          renderDayTimeline(dayCell, dayMovies, globalRange);
         });
       });
   </script>
