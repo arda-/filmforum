@@ -45,7 +45,7 @@ body.natural-width .calendar {
 }
 
 .day.has-movies {
-  background: var(--bg-day-movies);
+  background: var(--bg-day);  /* Flattened - same as regular day cells */
 }
 
 .day-number {
