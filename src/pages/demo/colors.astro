@@ -325,11 +325,13 @@ for (let i = 1; i <= 14; i++) {
   /* Border-based structure - remove grid gap, use borders instead */
   .scenario-content.with-borders :global(.calendar) {
     gap: 0;
+    border-top: 1px solid #e2e8f0;
+    border-left: 1px solid #e2e8f0;
   }
 
   .scenario-content.with-borders :global(.day) {
-    border: 1px solid #e2e8f0;
-    margin: -0.5px; /* collapse borders */
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
   }
 
   /* Floating controls at bottom */
