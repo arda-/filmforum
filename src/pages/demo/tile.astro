@@ -30,15 +30,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       </div>
     </div>
     <ToggleGroup
-      label="Fixed px:"
-      name="fixed-gradient-mode"
-      options={[
-        { label: 'Off', value: 'off', checked: true },
-        { label: 'On', value: 'on' },
-        { label: 'Red', value: 'debug' }
-      ]}
-    />
-    <ToggleGroup
       label="Content-based:"
       name="content-gradient-mode"
       options={[
@@ -196,19 +187,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   showActors?.addEventListener('change', () => {
     document.body.classList.toggle('show-actors', showActors.checked);
     setTimeout(updateTextHeights, 10);
-  });
-
-  // Fixed gradient mode toggle
-  document.querySelectorAll('input[name="fixed-gradient-mode"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      const value = (e.target as HTMLInputElement).value;
-      document.body.classList.remove('fixed-gradient', 'fixed-debug');
-      if (value === 'on') {
-        document.body.classList.add('fixed-gradient');
-      } else if (value === 'debug') {
-        document.body.classList.add('fixed-gradient', 'fixed-debug');
-      }
-    });
   });
 
   // Content-based gradient mode toggle
@@ -461,25 +439,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     flex-direction: column;
     justify-content: flex-start;
     background: none;
-  }
-
-  /* ===== FIXED PX GRADIENT ===== */
-  :global(body.show-image.fixed-gradient .movie--timeline.has-poster .movie-clickable) {
-    background: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.7) 0px,
-      rgba(0, 0, 0, 0.5) 24px,
-      rgba(0, 0, 0, 0) 48px
-    );
-  }
-
-  :global(body.show-image.fixed-gradient.fixed-debug .movie--timeline.has-poster .movie-clickable) {
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 0, 0, 0.7) 0px,
-      rgba(255, 0, 0, 0.5) 24px,
-      rgba(255, 0, 0, 0) 48px
-    );
   }
 
   /* ===== CONTENT-BASED GRADIENT ===== */
