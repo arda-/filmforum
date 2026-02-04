@@ -1,0 +1,27 @@
+---
+import { Modal } from 'webcoreui/astro';
+---
+
+<Modal id="movie-modal" showCloseIcon closeOnEsc closeOnOverlay>
+  <div class="movie-modal-content">
+    <div class="movie-poster">
+      <span class="poster-placeholder">No Image Available</span>
+    </div>
+
+    <h2 class="modal-title" id="modal-title"></h2>
+    <p class="modal-meta" id="modal-meta"></p>
+    <p class="modal-actors" id="modal-actors"></p>
+    <p class="modal-description" id="modal-description"></p>
+
+    <div class="movie-actions">
+      <a href="#" class="btn btn-primary" id="modal-buy-tickets" target="_blank" rel="noopener">
+        Buy Tickets
+      </a>
+      <p class="ticket-disclaimer" id="modal-disclaimer"></p>
+
+      <button type="button" class="btn btn-secondary" id="modal-add-calendar">
+        Add to Calendar
+      </button>
+    </div>
+  </div>
+</Modal>

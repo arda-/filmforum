@@ -18,7 +18,18 @@
       "Bash(git commit:*)",
       "Bash(brew search:*)",
       "Bash(git checkout:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(npm create:*)",
+      "Bash(pnpm install)",
+      "Bash(pnpm run build:*)",
+      "Bash(tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(pnpm build:*)",
+      "WebFetch(domain:webcoreui.dev)",
+      "Bash(pnpm add:*)",
+      "Bash(tr:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm list:*)"
     ]
   }
 }

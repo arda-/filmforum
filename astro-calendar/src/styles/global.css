@@ -82,8 +82,12 @@ h1 {
 }
 
 .controls {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin-bottom: 20px;
+  padding: 0 10px;
 }
 
 .toggle {
@@ -108,4 +112,133 @@ h1 {
 /* Natural width mode - allows horizontal scrolling */
 body.natural-width {
   overflow-x: auto;
+}
+
+/* Movie Modal Styles */
+.movie-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 100%;
+  padding-top: 24px;
+}
+
+.movie-poster {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--bg-movie);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.poster-placeholder {
+  color: var(--text-tertiary);
+  font-size: 14px;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.modal-meta {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.modal-actors {
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin: 0;
+}
+
+.modal-description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 8px 0;
+  padding-left: 1.5em;
+  position: relative;
+  font-style: italic;
+}
+
+.modal-description::before {
+  content: '\201C';
+  position: absolute;
+  left: 0;
+  top: -0.1em;
+  font-size: 2em;
+  font-family: Georgia, serif;
+  color: var(--accent);
+  line-height: 1;
+  font-style: normal;
+}
+
+.movie-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.movie-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 4px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s ease;
+}
+
+.movie-actions .btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.movie-actions .btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.movie-actions .btn-secondary {
+  background: var(--bg-movie);
+  color: var(--text-primary);
+  border: 1px solid var(--text-tertiary);
+}
+
+.movie-actions .btn-secondary:hover {
+  background: var(--bg-movie-hover);
+}
+
+.ticket-disclaimer {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 4px 0 8px 0;
+  line-height: 1.4;
+  font-weight: 600;
+  font-style: italic;
+  text-align: center;
+}
+
+/* Modal responsive adjustments */
+@media (max-width: 480px) {
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-description {
+    font-size: 0.8rem;
+  }
 }

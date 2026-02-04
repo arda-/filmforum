@@ -386,3 +386,37 @@ Evaluated typefaces for the calendar UI using a font comparison demo page (`font
 - Increased movie title font size: 11px → 13px
 - Increased metadata font size: 10px → 11px
 - Changed actors display breakpoint: 768px → 1024px
+
+---
+
+## Step 14: Astro Migration for Component-Based Architecture
+
+Migrated to Astro for component-based architecture with improved DRY principles.
+
+**Setup:**
+```bash
+npm create astro@latest astro-calendar -- --template minimal
+cd astro-calendar && pnpm install
+```
+
+**Components Created:**
+
+| Component | Purpose |
+|-----------|---------|
+| `MovieTile.astro` | Single movie display with all responsive typography |
+| `DayCell.astro` | Day container with date label formatting |
+| `CalendarGrid.astro` | 7-column grid with headers and spacers |
+| `Layout.astro` | Shared layout with font imports |
+
+**Shared Styles:** `src/styles/global.css`
+- CSS custom properties for colors (light/dark mode)
+- Base typography and layout
+
+**Reasons for Migration:**
+- **DRY Code:** Single MovieTile component replaces duplicated markup
+- **Toggle Complexity:** Adding view options easier with component props
+- **Consistent Styling:** Changes propagate automatically to all instances
+
+**Package Manager:** pnpm (faster, disk-efficient)
+
+**Output:** `astro-calendar/` directory with production-ready build
