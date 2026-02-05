@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import ToggleGroup from '../../components/ToggleGroup.astro';
 ---
 
 <Layout title="Progressive Blur Demo">
@@ -8,74 +7,40 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   <p class="subtitle">7-layer stacked blur with true intensity fade (Apple-style)</p>
 
   <div class="demo-controls">
-    <div class="control-row">
-      <div class="layer-toggles">
-        <span class="control-label">Layers:</span>
-        <div class="layer-buttons">
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="1" checked />
-            <span>1px</span>
-          </label>
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="2" checked />
-            <span>2px</span>
-          </label>
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="3" checked />
-            <span>4px</span>
-          </label>
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="4" checked />
-            <span>8px</span>
-          </label>
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="5" checked />
-            <span>16px</span>
-          </label>
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="6" checked />
-            <span>32px</span>
-          </label>
-          <label class="layer-toggle">
-            <input type="checkbox" data-layer="7" checked />
-            <span>64px</span>
-          </label>
-        </div>
-      </div>
-      <button class="toggle-all-btn" id="toggle-all">Toggle All</button>
-    </div>
-
-    <div class="control-row">
-      <div class="slider-control">
-        <label>
-          <span class="slider-label">100% blur until: <span id="full-blur-value">1.0×</span></span>
-          <input
-            type="range"
-            id="full-blur-slider"
-            min="0.25"
-            max="1.00"
-            step="0.05"
-            value="1.00"
-          />
+    <div class="layer-toggles">
+      <span class="control-label">Layers:</span>
+      <div class="layer-buttons">
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="1" checked />
+          <span>1px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="2" checked />
+          <span>2px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="3" checked />
+          <span>4px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="4" checked />
+          <span>8px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="5" checked />
+          <span>16px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="6" checked />
+          <span>32px</span>
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" data-layer="7" checked />
+          <span>64px</span>
         </label>
       </div>
-      <ToggleGroup
-        label="Blur ends at:"
-        name="blur-end-mult"
-        options={[
-          { label: '0.75×', value: '0.75' },
-          { label: '0.85×', value: '0.85' },
-          { label: '0.9×', value: '0.9' },
-          { label: '1.0×', value: '1' },
-          { label: '1.1×', value: '1.1' },
-          { label: '1.25×', value: '1.25', checked: true }
-        ]}
-      />
-      <label class="debug-toggle">
-        <input type="checkbox" id="debug-lines" />
-        <span>Debug</span>
-      </label>
     </div>
+    <button class="toggle-all-btn" id="toggle-all">Toggle All</button>
   </div>
 
   <div class="demo-container">
@@ -90,8 +55,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         <div class="blur-layer layer-6" data-layer="6"></div>
         <div class="blur-layer layer-7" data-layer="7"></div>
       </div>
-      <div class="debug-line debug-line-text"></div>
-      <div class="debug-line debug-line-blur"></div>
       <div class="text-overlay">
         <h3>Taxi Driver</h3>
         <p>Martin Scorsese • 1976</p>
@@ -113,164 +76,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="mask-labels">
         <span>0%</span>
         <span>100%</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="text-relative-section">
-    <h2>Text-Relative Progressive Blur</h2>
-    <p>Blur boundaries adapt to text overlay height across different aspect ratios</p>
-    <div class="text-relative-grid">
-      <!-- 2:1 - The Naked City -->
-      <div class="poster-card aspect-2-1">
-        <img src="/posters/taxi.png" alt="Taxi poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>Taxi!</h3>
-          <p>Roy Del Ruth • 1932</p>
-          <p class="description">A cocky NYC cab driver struggles in a union conflict and a complicated romance.</p>
-        </div>
-      </div>
-
-      <!-- 16:9 - Once Upon a Time in America -->
-      <div class="poster-card aspect-16-9">
-        <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>Once Upon a Time in America</h3>
-          <p>Sergio Leone • 1984</p>
-          <p class="description">An epic crime saga spanning decades in New York City.</p>
-        </div>
-      </div>
-
-      <!-- 4:3 - The Landlord -->
-      <div class="poster-card aspect-4-3">
-        <img src="/posters/the-landlord.png" alt="The Landlord poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>The Landlord</h3>
-          <p>Hal Ashby • 1970</p>
-          <p class="description">A wealthy heir's urban restoration project uncovers new perspectives.</p>
-        </div>
-      </div>
-
-      <!-- 1:1 - The Godfather Part II -->
-      <div class="poster-card aspect-1-1">
-        <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>The Godfather Part II</h3>
-          <p>Francis Ford Coppola • 1974</p>
-          <p class="description">The parallel rise and fall of two generations of mafia leaders.</p>
-        </div>
-      </div>
-
-      <!-- 3:4 - West Side Story -->
-      <div class="poster-card aspect-3-4">
-        <img src="/posters/west-side-story.png" alt="West Side Story poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>West Side Story</h3>
-          <p>Robert Wise, Jerome Robbins • 1961</p>
-          <p class="description">A modern take on Romeo and Juliet set in New York City.</p>
-        </div>
-      </div>
-
-      <!-- 2:3 - Mean Streets -->
-      <div class="poster-card aspect-2-3">
-        <img src="/posters/mean-streets.png" alt="Mean Streets poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>Mean Streets</h3>
-          <p>Martin Scorsese • 1973</p>
-          <p class="description">A film about a small-time crime operation in Little Italy.</p>
-        </div>
-      </div>
-
-      <!-- 9:16 - The Crowd -->
-      <div class="poster-card aspect-9-16">
-        <img src="/posters/the-crowd.png" alt="The Crowd poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>The Crowd</h3>
-          <p>King Vidor • 1928</p>
-          <p class="description">The life and struggles of an ordinary New York couple.</p>
-        </div>
-      </div>
-
-      <!-- 1:2 - A Raisin in the Sun -->
-      <div class="poster-card aspect-1-2">
-        <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun poster" class="poster-image" />
-        <div class="progressive-blur">
-          <div class="blur-layer layer-1" data-layer="1"></div>
-          <div class="blur-layer layer-2" data-layer="2"></div>
-          <div class="blur-layer layer-3" data-layer="3"></div>
-          <div class="blur-layer layer-4" data-layer="4"></div>
-          <div class="blur-layer layer-5" data-layer="5"></div>
-          <div class="blur-layer layer-6" data-layer="6"></div>
-          <div class="blur-layer layer-7" data-layer="7"></div>
-        </div>
-        <div class="text-overlay">
-          <h3>A Raisin in the Sun</h3>
-          <p>Daniel Petrie • 1961</p>
-          <p class="description">A family's dreams and struggles in Chicago's South Side.</p>
-        </div>
       </div>
     </div>
   </div>
@@ -327,14 +132,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 </Layout>
 
 <script>
-  // URL params
   const params = new URLSearchParams(window.location.search);
-
-  // Text-relative blur state
-  let relFullBlurMult = parseFloat(params.get('rel_full_mult') || '1');
-  let relBlurEndMult = parseFloat(params.get('rel_end_mult') || '1.25');
-  let relDebugEnabled = params.get('rel_debug') === '1';
-
   const layerToggles = document.querySelectorAll('.layer-toggle input');
   const blurLayers = document.querySelectorAll('.poster-card:first-of-type .blur-layer');
   const maskBars = document.querySelectorAll('.mask-bar');
@@ -374,106 +172,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     });
   });
 
-  // Text-relative blur functionality
-  function updateTextRelativeBlur() {
-    // Update main demo card
-    const mainCard = document.querySelector('.demo-container .poster-card') as HTMLElement;
-    if (mainCard) {
-      updateCardTextRelativeBlur(mainCard);
-    }
-
-    // Update all text-relative section cards
-    const relativeCards = document.querySelectorAll('.text-relative-grid .poster-card') as NodeListOf<HTMLElement>;
-    relativeCards.forEach(card => {
-      updateCardTextRelativeBlur(card);
-    });
-  }
-
-  function updateCardTextRelativeBlur(card: HTMLElement) {
-    const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
-    const debugText = card.querySelector('.debug-line-text') as HTMLElement;
-    const debugBlur = card.querySelector('.debug-line-blur') as HTMLElement;
-    const blurLayers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
-
-    if (!textOverlay) return;
-
-    const textHeight = textOverlay.offsetHeight;
-    const cardHeight = card.offsetHeight;
-
-    // Calculate blur boundaries as multipliers of text height
-    const fullBlurPx = textHeight * relFullBlurMult;
-    const blurEndPx = textHeight * relBlurEndMult;
-
-    // Convert to percentages
-    const fullBlurPct = (fullBlurPx / cardHeight) * 100;
-    const blurEndPct = Math.min((blurEndPx / cardHeight) * 100, 100);
-
-    // Calculate the range for progressive layers (from fullBlurPct to blurEndPct)
-    const blurRange = blurEndPct - fullBlurPct;
-    const layerCount = 7;
-    const layerSize = blurRange / layerCount;
-
-    // Update each layer's mask to fit within the text-relative range
-    blurLayers.forEach((layer, i) => {
-      const layerNum = i + 1;
-      const layerStart = fullBlurPct + (i * layerSize);
-      const layerEnd = Math.min(layerStart + layerSize * 1.5, 100); // 1.5x overlap
-
-      // Create gradient for this layer
-      const fadeInStart = Math.max(layerStart - layerSize * 0.5, 0);
-      const fadeInEnd = layerStart;
-      const fadeOutStart = layerEnd - layerSize * 0.5;
-      const fadeOutEnd = layerEnd;
-
-      const gradient = `linear-gradient(to top, transparent ${fadeInStart}%, black ${fadeInEnd}%, black ${fadeOutStart}%, transparent ${fadeOutEnd}%)`;
-
-      layer.style.maskImage = gradient;
-      layer.style.webkitMaskImage = gradient;
-    });
-
-    // Update debug lines
-    if (debugText) {
-      debugText.style.bottom = `${fullBlurPx}px`;
-    }
-    if (debugBlur) {
-      debugBlur.style.bottom = `${blurEndPx}px`;
-    }
-  }
-
-  // Text-relative controls
-  const fullBlurSlider = document.getElementById('full-blur-slider') as HTMLInputElement;
-  const fullBlurValue = document.getElementById('full-blur-value') as HTMLElement;
-  const debugToggle = document.getElementById('debug-lines') as HTMLInputElement;
-
-  fullBlurSlider?.addEventListener('input', (e) => {
-    relFullBlurMult = parseFloat((e.target as HTMLInputElement).value);
-    if (fullBlurValue) fullBlurValue.textContent = `${relFullBlurMult.toFixed(2)}×`;
-    updateTextRelativeBlur();
-    updateURL();
-  });
-
-  document.querySelectorAll('input[name="blur-end-mult"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      relBlurEndMult = parseFloat((e.target as HTMLInputElement).value);
-      updateTextRelativeBlur();
-      updateURL();
-    });
-  });
-
-  debugToggle?.addEventListener('change', () => {
-    relDebugEnabled = debugToggle.checked;
-    const debugLines = document.querySelectorAll('.debug-line');
-    debugLines.forEach(line => {
-      (line as HTMLElement).classList.toggle('visible', relDebugEnabled);
-    });
-    updateURL();
-  });
-
   // URL management
   function updateURL() {
     const newParams = new URLSearchParams(window.location.search);
 
-    // Layer toggles
     for (let i = 1; i <= 7; i++) {
       const toggle = document.querySelector(`input[data-layer="${i}"]`) as HTMLInputElement;
       if (toggle && !toggle.checked) {
@@ -483,16 +185,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       }
     }
 
-    // Text-relative
-    if (relFullBlurMult !== 1) newParams.set('rel_full_mult', relFullBlurMult.toString());
-    else newParams.delete('rel_full_mult');
-
-    if (relBlurEndMult !== 1.25) newParams.set('rel_end_mult', relBlurEndMult.toString());
-    else newParams.delete('rel_end_mult');
-
-    if (relDebugEnabled) newParams.set('rel_debug', '1');
-    else newParams.delete('rel_debug');
-
     const newURL = newParams.toString()
       ? `${window.location.pathname}?${newParams}`
       : window.location.pathname;
@@ -501,26 +193,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   // Initialize on load
   window.addEventListener('load', () => {
-    // Restore slider value
-    if (fullBlurSlider) {
-      fullBlurSlider.value = relFullBlurMult.toString();
-      if (fullBlurValue) fullBlurValue.textContent = `${relFullBlurMult.toFixed(2)}×`;
-    }
-
-    // Restore radio selection
-    const endMultRadio = document.querySelector(`input[name="blur-end-mult"][value="${relBlurEndMult}"]`) as HTMLInputElement;
-    if (endMultRadio) endMultRadio.checked = true;
-
-    // Restore debug toggle
-    if (debugToggle) {
-      debugToggle.checked = relDebugEnabled;
-      const debugLines = document.querySelectorAll('.debug-line');
-      debugLines.forEach(line => {
-        (line as HTMLElement).classList.toggle('visible', relDebugEnabled);
-      });
-    }
-
-    // Restore layer toggles
+    // Restore layer toggles from URL
     for (let i = 1; i <= 7; i++) {
       if (params.get(`layer${i}`) === '0') {
         const toggle = document.querySelector(`input[data-layer="${i}"]`) as HTMLInputElement;
@@ -530,12 +203,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         }
       }
     }
-
-    updateTextRelativeBlur();
   });
-
-  // Update on resize
-  window.addEventListener('resize', updateTextRelativeBlur);
 </script>
 
 <style>
@@ -556,14 +224,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
-  }
-
-  .control-row {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
   }
 
   .layer-toggles {
@@ -626,89 +286,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     color: white;
   }
 
-  .slider-control {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .slider-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 500;
-  }
-
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 200px;
-    height: 6px;
-    background: var(--bg-movie-hover);
-    border-radius: 3px;
-    cursor: pointer;
-  }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: var(--accent);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-  }
-
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
-  }
-
-  input[type="range"]::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    background: var(--accent);
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-  }
-
-  .debug-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-
-  .debug-toggle input {
-    cursor: pointer;
-  }
-
-  /* Text-relative section */
-  .text-relative-section {
-    max-width: 1400px;
-    margin: 32px auto;
-    padding: 0 16px;
-  }
-
-  .text-relative-section h2 {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    color: var(--text-primary);
-  }
-
-  .text-relative-section > p {
-    margin: 0 0 24px 0;
-    font-size: 14px;
-    color: var(--text-secondary);
-  }
-
-  .text-relative-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
-    margin-top: 24px;
-  }
-
   .demo-container {
     display: flex;
     justify-content: center;
@@ -730,47 +307,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   .poster-card.small {
     width: 200px;
     height: 300px;
-  }
-
-  /* Aspect ratio variants for text-relative section */
-  .poster-card.aspect-2-1 {
-    width: 400px;
-    height: 200px;
-  }
-
-  .poster-card.aspect-16-9 {
-    width: 480px;
-    height: 270px;
-  }
-
-  .poster-card.aspect-4-3 {
-    width: 360px;
-    height: 270px;
-  }
-
-  .poster-card.aspect-1-1 {
-    width: 280px;
-    height: 280px;
-  }
-
-  .poster-card.aspect-3-4 {
-    width: 210px;
-    height: 280px;
-  }
-
-  .poster-card.aspect-2-3 {
-    width: 240px;
-    height: 360px;
-  }
-
-  .poster-card.aspect-9-16 {
-    width: 202px;
-    height: 360px;
-  }
-
-  .poster-card.aspect-1-2 {
-    width: 200px;
-    height: 400px;
   }
 
   .poster-image {
@@ -901,31 +437,6 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     font-size: 13px;
     line-height: 1.4;
     color: rgba(255, 255, 255, 0.75);
-  }
-
-  /* Debug lines */
-  .debug-line {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: lime;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s;
-    z-index: 100;
-  }
-
-  .debug-line.visible {
-    opacity: 1;
-  }
-
-  .debug-line-text {
-    background: cyan;
-  }
-
-  .debug-line-blur {
-    background: magenta;
   }
 
   /* Layer visualization */
