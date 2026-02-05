@@ -68,14 +68,16 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
   el.innerHTML = `
     ${badge}
     <div class="movie-clickable">
-      <div class="movie-header">
-        <span class="movie-time">${displayTime}</span>
-        <span class="movie-title">${displayTitle}</span>
-      </div>
-      <div class="movie-meta">
-        ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
-        ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
-        ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
+      <div class="movie-text">
+        <div class="movie-header">
+          <span class="movie-time">${displayTime}</span>
+          <span class="movie-title">${displayTitle}</span>
+        </div>
+        <div class="movie-meta">
+          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
+          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
+          ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
+        </div>
       </div>
     </div>
   `;
@@ -91,14 +93,10 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
 export function updateTextHeights(): void {
   document.querySelectorAll('.movie.has-poster').forEach(tile => {
     const clickable = tile.querySelector('.movie-clickable') as HTMLElement;
-    const header = tile.querySelector('.movie-header') as HTMLElement;
-    const meta = tile.querySelector('.movie-meta') as HTMLElement;
+    const textWrapper = tile.querySelector('.movie-text') as HTMLElement;
 
-    if (clickable && header) {
-      let textHeight = header.offsetHeight + 8;
-      if (meta && getComputedStyle(meta).display !== 'none') {
-        textHeight += meta.offsetHeight + 4;
-      }
+    if (clickable && textWrapper) {
+      const textHeight = textWrapper.offsetHeight + 8;
       clickable.style.setProperty('--text-height', `${textHeight}px`);
     }
   });
