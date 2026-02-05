@@ -208,15 +208,15 @@ body.show-image.scrim-enabled .movie.has-poster .movie-clickable::before {
   top: 0;
   left: 0;
   right: 0;
-  height: var(--text-height, 60px);
+  height: calc(var(--text-height, 60px) * 1.25);
   z-index: 0;
   mix-blend-mode: darken;
   background: linear-gradient(
     to bottom,
     rgba(15, 15, 15, 0.9) 0%,
-    rgba(15, 15, 15, 0.8) 30%,
-    rgba(15, 15, 15, 0.55) 50%,
-    rgba(15, 15, 15, 0.25) 75%,
+    rgba(15, 15, 15, 0.85) 40%,
+    rgba(15, 15, 15, 0.65) 60%,
+    rgba(15, 15, 15, 0.35) 80%,
     transparent 95%
   );
   pointer-events: none;
@@ -229,26 +229,26 @@ body.show-image.blur-enabled .movie.has-poster .movie-clickable::after {
   top: 0;
   left: 0;
   right: 0;
-  height: calc(var(--text-height, 60px) * 1.1);
+  height: calc(var(--text-height, 60px) * 1.25);
   z-index: 0;
   backdrop-filter: blur(0.5rem);
   -webkit-backdrop-filter: blur(0.5rem);
-  /* Mask gradient: extends to 110% of text height, less aggressive ease-out */
+  /* Mask gradient: extends to 125% of text height, lighter ease-out */
   mask-image: linear-gradient(
     to bottom,
     #000 0%,
-    #000 35%,
-    #000b 55%,
-    #0007 75%,
-    #0000 91%
+    #000 30%,
+    #0009 50%,
+    #0005 70%,
+    #0000 90%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     #000 0%,
-    #000 35%,
-    #000b 55%,
-    #0007 75%,
-    #0000 91%
+    #000 30%,
+    #0009 50%,
+    #0005 70%,
+    #0000 90%
   );
   pointer-events: none;
 }
