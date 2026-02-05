@@ -179,6 +179,51 @@ Layer 7: ████████░░░░░░░░░░░░░░░�
 
 The gradient goes: `transparent → black → black → transparent`, creating a soft-edged "band" where that blur level is active.
 
+### Combining with Scrim (Darkening Layer)
+
+For enhanced text readability, combine blur with a scrim layer using `mix-blend-mode: darken`. The scrim darkens light areas of the image without affecting already-dark areas.
+
+**Important: Stacking Order**
+
+The scrim should be **below** the blur layer for better color mixing:
+
+1. **Background image** (original crisp colors)
+2. **Scrim layer** (`mix-blend-mode: darken`) - darkens the crisp image
+3. **Blur layer** (`backdrop-filter: blur()`) - softens the darkened result
+4. **Text content** - sits on top
+
+This order produces more natural results because:
+- The scrim darkens the original sharp colors first
+- The blur then softens those transitions, including the darkening edges
+- Result: smoother, more integrated look
+
+The alternative (blur → scrim) applies darkening to already-fuzzy pixels, which can look "muddy."
+
+```css
+/* Scrim FIRST (::before) - darkens crisp image */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: darken;
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 15, 15, 0.9) 0%,
+    rgba(15, 15, 15, 0.55) 50%,
+    transparent 95%
+  );
+}
+
+/* Blur SECOND (::after) - softens the darkened result */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(0.5rem);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 90%);
+}
+```
+
 ### Safari Compatibility
 
 Always include `-webkit-` prefixes:
