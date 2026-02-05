@@ -5,4 +5,4 @@
 
 ## UI/Styling
 - [ ] ToggleGroup border colors too high contrast in dark mode - needs subtler border
-- [ ] **Apple-style drawer modal** - Redesign MovieModal as bottom sheet with full-bleed hero image, drag handle, slide-up animation. See `plans/omdb-integration.md` for wireframe reference.
+- [ ] **Apple-style drawer modal** - Redesign MovieModal as bottom sheet with full-bleed hero image, drag handle, slide-up animation. See `plans/apple-drawer-modal.md`.
