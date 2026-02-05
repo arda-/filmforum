@@ -100,31 +100,87 @@ GET http://www.omdbapi.com/?apikey=KEY&t=MovieTitle&y=1931
 
 ### 3. Matching Strategy
 
-1. **Primary:** Match by title + year (auto)
-2. **Fallback:** Manually add `imdb_id` to movie data for edge cases that don't match
+1. **Primary:** Query OMDb with `?t={title}&y={year}`
+2. **Retry:** If no match, try `?t={title}` without year
 3. **Normalization:** Lowercase, strip punctuation, handle "The" prefix
+4. **Manual overrides:** Script maintains a dict of known problem titles → IMDB IDs
+5. **Failures:** Log unmatched films for manual review
 
-### 5. Cache Strategy
+### 4. Data Storage
 
-- Commit `omdb-cache.json` to repo
+- Commit `public/omdb-data.json` to repo
 - Small file size (~few KB per film)
 - Enables development without API key
 - Re-run fetch script only when adding new films
+- Film Forum data never touched
 
-### 6. UI Changes
+### 5. UI Changes
 
 **Location:** Modal only — tiles stay clean.
 
-**Layout (above/below fold):**
-- Above the fold: Film Forum description (primary)
-- Below the fold (on scroll): OMDb plot excerpt (secondary)
-
-**Scores display:**
-```
-IMDB 7.9  ·  RT 97%  ·  Metacritic 82
-```
-
 **No match handling:** Show succinct message like "Ratings unavailable" when OMDb has no data for a film.
+
+#### Modal Wireframe
+
+```
+┌─────────────────────────────────────────┐
+│                   ✕                     │  ← close button
+├─────────────────────────────────────────┤
+│  ┌───────────────────────────────────┐  │
+│  │                                   │  │
+│  │         [POSTER IMAGE]            │  │
+│  │                                   │  │
+│  └───────────────────────────────────┘  │
+│                                         │
+│  Street Scene                           │  ← title
+│  1931 · King Vidor · 80 min             │  ← meta (year, director, runtime)
+│  Sylvia Sidney, William Collier Jr.     │  ← actors
+│                                         │
+│  ┌───────────────────────────────────┐  │
+│  │ IMDB 7.2  ·  RT 88%  ·  Meta 70   │  │  ← NEW: scores row
+│  └───────────────────────────────────┘  │
+│                                         │
+│  ╭───────────────────────────────────╮  │
+│  │ "A slice-of-life drama set on a  │  │  ← Film Forum description
+│  │  single New York City block..."  │  │     (primary, above fold)
+│  ╰───────────────────────────────────╯  │
+│                                    — FF │
+│                                         │
+│  ┌─────────────────────────────────────┐│
+│  │         [ Buy Tickets ]             ││  ← actions
+│  │         [ Add to Calendar ]         ││
+│  │         [ View on Film Forum ↗ ]    ││
+│  └─────────────────────────────────────┘│
+│                                         │
+│ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │  ← fold (scroll to see below)
+│                                         │
+│  More about this film                   │  ← NEW: section header
+│  ┌───────────────────────────────────┐  │
+│  │ A symphony of life on a single   │  │  ← NEW: OMDb plot
+│  │ street in New York City...       │  │     (secondary, below fold)
+│  └───────────────────────────────────┘  │
+│                                    — OMDb│
+│                                         │
+│  [ View on IMDB ↗ ]                     │  ← NEW: optional IMDB link
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+#### Scores Row Detail
+
+```
+┌─────────────────────────────────────────┐
+│  IMDB 7.2  ·  RT 88%  ·  Meta 70        │  ← all scores present
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│  IMDB 7.2  ·  RT 88%                    │  ← metacritic missing
+└─────────────────────────────────────────┘
+
+┌─────────────────────────────────────────┐
+│  Ratings unavailable                    │  ← no OMDb match
+└─────────────────────────────────────────┘
+```
 
 ## Example OMDb Response
 
@@ -203,36 +259,31 @@ IMDB 7.9  ·  RT 97%  ·  Metacritic 82
 ### Phase 2: Create Fetch Script
 
 1. Create `data-processing/fetch_omdb.py`
-2. Load movies from `public/tenement-stories-full.json`
-3. For each unique film title:
-   - Check if already in `omdb-cache.json` → skip
+2. Load movies from `public/tenement-stories-full.json` (read-only)
+3. Extract unique title+year combinations
+4. For each unique film:
+   - Check if already in `public/omdb-data.json` → skip
    - Query OMDb: `GET /?apikey=KEY&t=TITLE&y=YEAR`
-   - Save response to cache
+   - If no match, try without year
+   - Transform to `OMDbEntry` format
    - Sleep 1 second (rate limit)
-4. Log any failures (no match found)
+5. Write all entries to `public/omdb-data.json`
+6. Log any failures (no match found) for manual review
 
-### Phase 3: Create Enrichment Script
-
-1. Create `data-processing/enrich_with_omdb.py`
-2. Load `tenement-stories-full.json` and `omdb-cache.json`
-3. For each movie, find matching cache entry by title
-4. Extract and add: `imdb_id`, `imdb_rating`, `rotten_tomatoes`, `metacritic`, `omdb_plot`
-5. Write updated JSON back
-
-### Phase 4: Update UI
+### Phase 3: Update UI
 
 1. Update `MovieModal.astro` to display scores
 2. Add scores row (IMDB · RT · Metacritic)
 3. Add OMDb plot section below the fold
 4. Handle missing data with "Ratings unavailable"
 
-### Phase 5: Test & Commit
+### Phase 4: Test & Commit
 
 1. Run fetch script: `python data-processing/fetch_omdb.py`
-2. Run enrich script: `python data-processing/enrich_with_omdb.py`
-3. Verify JSON has new fields
-4. Test modal displays correctly
-5. Commit `omdb-cache.json` and updated movie data
+2. Verify `public/omdb-data.json` has entries
+3. Test modal displays scores correctly
+4. Test "Ratings unavailable" fallback
+5. Commit `public/omdb-data.json`
 
 ---
 
@@ -240,14 +291,14 @@ IMDB 7.9  ·  RT 97%  ·  Metacritic 82
 
 | File | Type | Changes |
 |------|------|---------|
-| `data-processing/fetch_omdb.py` | New | Script to query OMDb API |
-| `data-processing/enrich_with_omdb.py` | New | Script to merge cache into movie data |
-| `data-processing/omdb-cache.json` | New | Cached API responses |
+| `data-processing/fetch_omdb.py` | New | Script to query OMDb API, output to omdb-data.json |
+| `public/omdb-data.json` | New | OMDb data keyed by title::year (committed) |
 | `.env` | New | API key storage (gitignored) |
 | `.gitignore` | Edit | Add `.env` |
-| `public/tenement-stories-full.json` | Edit | Add OMDb fields to movie objects |
-| `src/components/MovieModal.astro` | Edit | Display scores + OMDb plot |
-| `src/components/MovieModal.css` (if exists) | Edit | Style scores row + below-fold section |
+| `src/components/MovieModal.astro` | Edit | Load omdb-data.json, display scores + OMDb plot |
+| `src/pages/index.astro` | Edit | Fetch omdb-data.json alongside movie data |
+
+**Unchanged:** `public/tenement-stories-full.json` (Film Forum data stays isolated)
 
 ---
 
