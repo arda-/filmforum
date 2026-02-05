@@ -201,28 +201,53 @@ body.show-image .movie.has-poster .movie-clickable {
   background: none;
 }
 
-/* Content-based gradient overlay for readability (darken blend mode) */
+/* Backdrop-filter blur overlay for readability */
 body.show-image .movie.has-poster .movie-clickable::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 0;
   height: var(--text-height, 60px);
-  mix-blend-mode: darken;
-  background: linear-gradient(
+  z-index: 0;
+  backdrop-filter: blur(1.5rem);
+  -webkit-backdrop-filter: blur(1.5rem);
+  /* Mask gradient: 100% blur until 35% of text height, fades to transparent at 95% */
+  mask-image: linear-gradient(
     to bottom,
-    rgba(17, 17, 17, 1) 0%,
-    rgba(15, 15, 15, 0.7) 60%,
-    rgba(0, 0, 0, 0) 100%
+    black 0%,
+    black 35%,
+    transparent 95%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black 0%,
+    black 35%,
+    transparent 95%
   );
   pointer-events: none;
 }
 
-/* Ensure text sits above gradient */
-body.show-image .movie.has-poster .movie-header,
-body.show-image .movie.has-poster .movie-meta {
+/* Scrim layer with darken blend mode for enhanced text readability */
+body.show-image .movie.has-poster .movie-clickable::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--text-height, 60px);
+  z-index: 0;
+  mix-blend-mode: darken;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0.6) 0%,
+    transparent 95%
+  );
+  pointer-events: none;
+}
+
+/* Text wrapper sits above blur and scrim layers */
+body.show-image .movie.has-poster .movie-text {
   position: relative;
   z-index: 1;
 }
