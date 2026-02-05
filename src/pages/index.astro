@@ -36,8 +36,6 @@ import Button from '../components/Button.astro';
         <Toggle id="show-runtime" label="Runtime" variant="outline" size="sm" />
         <Toggle id="show-actors" label="Actors" variant="outline" size="sm" />
         <Toggle id="show-image" label="Image" variant="outline" size="sm" />
-        <Toggle id="enable-blur" label="Blur" variant="outline" size="sm" />
-        <Toggle id="enable-scrim" label="Scrim" variant="outline" size="sm" />
       </div>
     </div>
     <div class="control-group">
@@ -124,6 +122,9 @@ import Button from '../components/Button.astro';
     type HoursFilterMode,
     type SingleShowtimesMode,
   } from '../constants';
+
+  // Set to true to show blur/scrim toggles for debugging
+  const DEBUG_BLUR_SCRIM_TOGGLES = false;
   import { downloadICS, type Movie } from '../utils/icsGenerator';
   import { createMovieElement, updateTextHeights, toTitleCase, processFFJr } from '../components/MovieTile';
 
@@ -430,8 +431,6 @@ import Button from '../components/Button.astro';
   const showRuntime = document.getElementById('show-runtime') as HTMLButtonElement;
   const showActors = document.getElementById('show-actors') as HTMLButtonElement;
   const showImage = document.getElementById('show-image') as HTMLButtonElement;
-  const enableBlur = document.getElementById('enable-blur') as HTMLButtonElement;
-  const enableScrim = document.getElementById('enable-scrim') as HTMLButtonElement;
 
   function isTogglePressed(el: HTMLElement | null): boolean {
     return el?.getAttribute('data-state') === 'on';
@@ -463,13 +462,11 @@ import Button from '../components/Button.astro';
     const weekStartInput = getToggleInput(document.getElementById('week-start-toggle'));
     if (weekStartInput) params.set('week-start', weekStartInput.checked ? '1' : '0');
 
-    // Tile display toggles
+    // Tile display toggles (blur/scrim follow image mode automatically)
     if (isTogglePressed(document.getElementById('show-image'))) params.set('image', '1');
     if (isTogglePressed(document.getElementById('show-year-director'))) params.set('year-director', '1');
     if (isTogglePressed(document.getElementById('show-runtime'))) params.set('runtime', '1');
     if (isTogglePressed(document.getElementById('show-actors'))) params.set('actors', '1');
-    if (isTogglePressed(document.getElementById('enable-blur'))) params.set('blur', '1');
-    if (isTogglePressed(document.getElementById('enable-scrim'))) params.set('scrim', '1');
 
     // Filters
     const hoursFilter = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
@@ -489,7 +486,7 @@ import Button from '../components/Button.astro';
     if (fitWidthEnabled) {
       // Visually disable toggles and force hide all optional content
       tileDisplayOptions?.classList.add('disabled');
-      [showYearDirector, showRuntime, showActors, showImage, enableBlur, enableScrim].forEach(toggle => {
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
         if (toggle) {
           setToggleState(toggle, false);
           toggle.dataset.disabled = 'true';
@@ -498,7 +495,7 @@ import Button from '../components/Button.astro';
       document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'blur-enabled', 'scrim-enabled');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
-      [showYearDirector, showRuntime, showActors, showImage, enableBlur, enableScrim].forEach(toggle => {
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
         if (toggle) toggle.dataset.disabled = 'false';
       });
     }
@@ -568,19 +565,13 @@ import Button from '../components/Button.astro';
   });
 
   showImage?.addEventListener('change', () => {
-    document.body.classList.toggle('show-image', isTogglePressed(showImage));
+    const imageEnabled = isTogglePressed(showImage);
+    document.body.classList.toggle('show-image', imageEnabled);
+    // Blur and scrim automatically follow image mode
+    document.body.classList.toggle('blur-enabled', imageEnabled);
+    document.body.classList.toggle('scrim-enabled', imageEnabled);
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
-  });
-
-  enableBlur?.addEventListener('change', () => {
-    document.body.classList.toggle('blur-enabled', isTogglePressed(enableBlur));
-    updateUrlParams();
-  });
-
-  enableScrim?.addEventListener('change', () => {
-    document.body.classList.toggle('scrim-enabled', isTogglePressed(enableScrim));
-    updateUrlParams();
   });
 
   // Initialize tile display state
@@ -820,14 +811,9 @@ import Button from '../components/Button.astro';
       if (weekStartToggle && weekStartToggle.checked !== wantWeekStart) weekStartToggle.click();
     }
 
-    // For toggles: image, year-director, runtime, actors, blur, scrim
-    ['image', 'year-director', 'runtime', 'actors', 'blur', 'scrim'].forEach(key => {
-      let id: string;
-      if (key === 'year-director') id = 'show-year-director';
-      else if (key === 'blur') id = 'enable-blur';
-      else if (key === 'scrim') id = 'enable-scrim';
-      else id = `show-${key}`;
-
+    // For toggles: image, year-director, runtime, actors (blur/scrim follow image automatically)
+    ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
+      const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
       const toggle = document.getElementById(id) as HTMLButtonElement;
       if (params.has(key)) {
         const wantPressed = params.get(key) === '1';
@@ -836,6 +822,12 @@ import Button from '../components/Button.astro';
         // Initialize show classes based on toggle state
         const className = key === 'year-director' ? 'year-director' : key;
         document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
+        // For image toggle, also set blur/scrim
+        if (key === 'image') {
+          const imageEnabled = isTogglePressed(toggle);
+          document.body.classList.toggle('blur-enabled', imageEnabled);
+          document.body.classList.toggle('scrim-enabled', imageEnabled);
+        }
       }
     });
 
