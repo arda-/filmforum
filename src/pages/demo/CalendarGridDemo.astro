@@ -1,0 +1,12 @@
+---
+// Demo version of CalendarGrid - styles are in src/styles/calendar.css (global)
+interface Props {
+  weekStartsMonday?: boolean;
+}
+
+const { weekStartsMonday = true } = Astro.props;
+---
+
+<div class="calendar">
+  <slot />
+</div>

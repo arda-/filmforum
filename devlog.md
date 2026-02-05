@@ -1,5 +1,109 @@
 # Film Forum Development Log
 
+## 2026-02-04: Progressive Blur Demo Pages
+
+### Overview
+Created two standalone demo pages to prototype blur techniques for potential use on movie tile text overlays. The goal is to improve text readability over poster images with a more sophisticated blur effect than simple opacity gradients.
+
+### Two Techniques Explored
+
+1. **Simple Blur Fade** (`/demo/blur-simple`)
+   - Single `backdrop-filter: blur()` layer with `mask-image: linear-gradient()`
+   - Fades the blur layer to transparent, but blur intensity stays constant
+   - Simpler implementation, fewer DOM elements
+   - Limitation: Can't create true intensity gradient
+
+2. **Progressive Blur** (`/demo/blur-progressive`)
+   - 7 stacked layers with doubling blur values: 1px → 2px → 4px → 8px → 16px → 32px → 64px
+   - Each layer masked to a different vertical region with overlap for smoothness
+   - Creates true "Apple-style" blur where intensity increases gradually
+   - Trade-off: More DOM elements, potential performance impact
+
+### Key Technical Insights
+
+- **Mask processing order**: `mask-image` on `backdrop-filter` only affects opacity, not blur intensity
+- **Layer overlap is critical**: Each layer needs ~7% overlap with adjacent layers to avoid visible banding
+- **Safari support**: `-webkit-backdrop-filter` and `-webkit-mask-image` required for Safari
+- **Performance**: 7 layers with blur is GPU-intensive; may need to limit to hover states or reduce layer count
+
+### Demo Features
+- Interactive controls to adjust blur amount and mask positions (simple)
+- **Direction control** (simple): Bottom, Top, Left, Right - text overlay moves to match
+- Toggle individual layers on/off to see contribution (progressive)
+- Side-by-side comparison of both techniques
+- Visual layer mask diagram showing coverage regions
+
+### Important: Blur Direction
+The blur must be at the **same edge as the text overlay**. Initial implementation had blur at top but text at bottom - fixed by reversing gradient direction to `to top` (blur strongest at bottom where text lives).
+
+### Files Created
+- `src/pages/demo/blur-simple.astro` - Single-layer blur demo
+- `src/pages/demo/blur-progressive.astro` - 7-layer progressive blur demo
+- `docs/progressive-blur-guide.md` - Implementation guide
+
+### Files Modified
+- `src/pages/demo/index.astro` - Added links to blur demos
+
+### Iteration & Refinements
+The initial implementation required significant iteration to get right:
+
+1. **Blur direction mismatch**: First version had blur at TOP of image but text overlay at BOTTOM - completely backwards. Fixed by reversing gradient direction.
+
+2. **Confusing control labels**: Went through several iterations:
+   - "Mask start/end" → too technical
+   - "Blur start/end" → ambiguous
+   - "Clear above/Full effect" → still confusing
+   - Final: **"100% blur until"** and **"Blur ends at"** - describes what you see
+
+3. **Percentage direction confusion**: Two separate issues:
+   - Initially stored inverted values (85 when we meant 15%). Fixed to store direct values matching display.
+   - Gradient percentages measure from the **origin** of the gradient direction, not from viewport edges. With `linear-gradient(to top, ...)`, 0% is at the BOTTOM, 100% at TOP. This is counterintuitive and caused bugs when switching blur directions. The lesson: always think of percentages as "distance from where the blur originates" (where the text lives).
+
+4. **Control panel organization**: Took multiple passes to get logical grouping:
+   - Row 1: Direction (alone)
+   - Row 2: Blur radius (alone)
+   - Row 3: 100% blur until / Blur ends at / Debug
+   - Row 4: Text / Shadow
+
+5. **Removed hero card**: Originally had a large "main" Taxi Driver card above the aspect ratio grid - removed to show all demos equally.
+
+6. **Comprehensive aspect ratio testing**: Added 8 aspect ratios ordered widest to tallest to ensure blur settings work across all common formats:
+   - **2:1** - Ultra-wide (minimal vertical blur space)
+   - **16:9** - Widescreen video
+   - **4:3** - Standard photo/video
+   - **1:1** - Square (social media)
+   - **3:4** - Portrait photos
+   - **2:3** - Movie poster (our primary use case)
+   - **9:16** - Vertical video/Stories
+   - **1:2** - Tall banner (stress test)
+
+   This revealed that blur percentages that look good on 2:3 posters can cover too much on wider ratios like 16:9.
+
+7. **URL parameter persistence for reproducibility**: Every control writes to URL params, enabling:
+   - Shareable configurations (send `?blur=24&full=20&end=60&dir=bottom` to collaborators)
+   - Bookmarkable presets for future reference
+   - Consistent testing (page refresh returns to exact same state)
+   - A/B comparison (open two tabs with different params)
+
+   Key implementation details:
+   - Only non-default values are written (keeps URLs clean)
+   - Use `history.replaceState` not `pushState` (don't pollute back button)
+   - Parse with fallback defaults on page load
+   - Every control change handler calls `updateURL()`
+
+**Lesson learned**: Demo pages benefit from extensive iteration on UX. What seems "obvious" in code often isn't obvious in the UI.
+
+### Next Steps
+- Test performance impact on actual movie tiles
+- Consider reduced layer count (5 instead of 7) for better performance
+- Evaluate whether effect is worth the complexity vs simpler gradient overlay
+
+### References
+- [Progressive blur in CSS](https://kennethnym.com/blog/progressive-blur-in-css/) - Multi-layer technique
+- [Josh Comeau: Backdrop-filter](https://www.joshwcomeau.com/css/backdrop-filter/) - Mask-image processing order
+
+---
+
 ## 2026-02-04: Color Palette Demo & Iterative Refinement
 
 ### Overview

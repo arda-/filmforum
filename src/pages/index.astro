@@ -1,8 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
-import CalendarGrid from '../components/CalendarGrid.astro';
-import DayCell from '../components/DayCell.astro';
 import MovieModal from '../components/MovieModal.astro';
 import ToggleGroup from '../components/ToggleGroup.astro';
 import Switch from '../components/Switch.astro';
@@ -10,12 +8,6 @@ import Toggle from '../components/Toggle.astro';
 import Dialog from '../components/Dialog.astro';
 import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../components/Dialog/index';
 import Button from '../components/Button.astro';
-
-// Generate Feb 2026 dates
-const dates: string[] = [];
-for (let i = 1; i <= 28; i++) {
-  dates.push(`2026-02-${i.toString().padStart(2, '0')}`);
-}
 ---
 
 <Layout title="Tenement Stories - Film Forum Feb 2026">
@@ -76,11 +68,7 @@ for (let i = 1; i <= 28; i++) {
   </div>
 
   <div class="calendar-scroll-container">
-    <CalendarGrid>
-      {dates.map(date => (
-        <DayCell date={date} />
-      ))}
-    </CalendarGrid>
+    <div class="calendar"></div>
   </div>
 
   <p class="legend">Click any movie for details. Times are PM unless marked "FF Jr."</p>
@@ -142,6 +130,91 @@ for (let i = 1; i <= 28; i++) {
   let uniformHeight = 0;
   let movieShowtimeCounts: Record<string, number> = {};
   let allMovies: Movie[] = [];
+  let allMovieDates: string[] = [];
+
+  // Format day label like "Mon 2/10"
+  function formatDayLabel(dateStr: string): string {
+    const d = new Date(dateStr + 'T12:00:00');
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const dayName = DAYS[d.getDay()];
+    return `${dayName} ${month}/${day}`;
+  }
+
+  // Generate date range based on movie data and week start preference
+  function generateDateRange(movieDates: string[], mondayStart: boolean): string[] {
+    if (movieDates.length === 0) return [];
+
+    const sortedDates = [...movieDates].sort();
+    const firstMovieDate = new Date(sortedDates[0] + 'T12:00:00');
+    const lastMovieDate = new Date(sortedDates[sortedDates.length - 1] + 'T12:00:00');
+
+    // Find the start of the first week containing movies
+    const firstDayOfWeek = firstMovieDate.getDay(); // 0=Sun, 1=Mon, ...
+    const weekStartDay = mondayStart ? 1 : 0; // Monday=1, Sunday=0
+
+    // Calculate days to subtract to get to the start of the week
+    let daysToSubtract = firstDayOfWeek - weekStartDay;
+    if (daysToSubtract < 0) daysToSubtract += 7;
+
+    const firstDate = new Date(firstMovieDate);
+    firstDate.setDate(firstMovieDate.getDate() - daysToSubtract);
+
+    // Generate dates from first week start through last movie date
+    const dates: string[] = [];
+    const current = new Date(firstDate);
+
+    while (current <= lastMovieDate) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    // Pad to complete the last week
+    while (current.getDay() !== weekStartDay) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  }
+
+  // Create a day cell element
+  function createDayCell(date: string): HTMLElement {
+    const dayEl = document.createElement('div');
+    dayEl.className = 'day';
+    dayEl.dataset.date = date;
+    dayEl.dataset.dayNumber = formatDayLabel(date);
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'day-number';
+    labelEl.textContent = formatDayLabel(date);
+    dayEl.appendChild(labelEl);
+
+    return dayEl;
+  }
+
+  // Render calendar structure (day cells)
+  function renderCalendar() {
+    const weekStartToggle = document.getElementById('week-start-toggle');
+    const weekStartInput = weekStartToggle?.tagName === 'INPUT'
+      ? weekStartToggle as HTMLInputElement
+      : weekStartToggle?.querySelector('input') as HTMLInputElement;
+    const mondayStart = weekStartInput?.checked ?? true;
+
+    const dates = generateDateRange(allMovieDates, mondayStart);
+    const calendarEl = document.querySelector('.calendar');
+    if (!calendarEl) return;
+
+    calendarEl.innerHTML = '';
+
+    dates.forEach(date => {
+      const dayEl = createDayCell(date);
+      calendarEl.appendChild(dayEl);
+    });
+
+    // Now render the movies into the day cells
+    renderAllDays();
+  }
 
   function parseTimeToMins(timeStr: string) {
     const match = timeStr.match(/(\d{1,2}):(\d{2})/);
@@ -338,6 +411,8 @@ for (let i = 1; i <= 28; i++) {
     document.body.classList.toggle('monday-start', checked);
     document.body.classList.toggle('sunday-start', !checked);
     updateUrlParams();
+    renderCalendar();
+    setTimeout(updateTextHeights, 10);
   });
 
   document.getElementById('timeline-mode-toggle')?.addEventListener('change', () => {
@@ -522,6 +597,9 @@ for (let i = 1; i <= 28; i++) {
         moviesByDate[date].push(movie);
       });
 
+      // Get unique movie dates for calendar generation
+      allMovieDates = Object.keys(moviesByDate);
+
       // Build count of showtimes per movie title
       movies.forEach(movie => {
         movieShowtimeCounts[movie.Movie] = (movieShowtimeCounts[movie.Movie] || 0) + 1;
@@ -536,7 +614,8 @@ for (let i = 1; i <= 28; i++) {
       globalRange.range = globalRange.end - globalRange.start;
       uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
-      renderAllDays();
+      // Render calendar structure and movies
+      renderCalendar();
       setTimeout(updateTextHeights, 10);
     });
 

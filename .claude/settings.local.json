@@ -47,7 +47,12 @@
       "WebFetch(domain:base-ui.com)",
       "Bash(gh api:*)",
       "Bash(gh search code:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "WebFetch(domain:claude.ai)",
+      "Bash(git reset:*)",
+      "Bash(lsof:*)",
+      "WebFetch(domain:www.joshwcomeau.com)",
+      "Bash(npx astro check:*)"
     ]
   }
 }

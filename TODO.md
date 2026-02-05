@@ -6,3 +6,5 @@
 ## UI/Styling
 - [ ] ToggleGroup border colors too high contrast in dark mode - needs subtler border
 - [ ] **Apple-style drawer modal** - Redesign MovieModal as bottom sheet with full-bleed hero image, drag handle, slide-up animation. See `plans/apple-drawer-modal.md`.
+- [ ] Dim day cells in the calendar grid that are in the past
+- [ ] Make calendar color theme programmatic - support multiple primary color themes (e.g. blue for Feb, red for March) for series spanning multiple months

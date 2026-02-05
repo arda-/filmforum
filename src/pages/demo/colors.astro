@@ -1,14 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import CalendarGrid from '../../components/CalendarGrid.astro';
-import DayCell from '../../components/DayCell.astro';
 import Toggle from '../../components/Toggle.astro';
-
-// Generate Feb 2026 dates (just first 2 weeks for demo)
-const dates: string[] = [];
-for (let i = 1; i <= 14; i++) {
-  dates.push(`2026-02-${i.toString().padStart(2, '0')}`);
-}
+import Switch from '../../components/Switch.astro';
 ---
 
 <Layout title="Color Palette Demo">
@@ -28,52 +21,57 @@ for (let i = 1; i <= 14; i++) {
       <p class="problem">5 distinct background colors. bg-day vs bg-day-movies is barely visible but adds noise. Movie tiles don't stand out enough.</p>
     </div>
 
-    <!-- Scenario A: Original (Reference) -->
-    <section class="scenario" id="scenario-original">
-      <h2>A. Original (Reference)</h2>
-      <p class="scenario-desc">Current colors - for comparison</p>
-      <div class="scenario-content" style="
-        --bg-grid: #e2e8f0;
-        --bg-day: #ffffff;
-        --bg-day-movies: #f8fafc;
-        --bg-movie: #f1f5f9;
-        --bg-movie-hover: #e2e8f0;
-      ">
-        <CalendarGrid>
-          {dates.map(date => (
-            <DayCell date={date} />
-          ))}
-        </CalendarGrid>
-      </div>
-    </section>
-
-    <!-- Scenario B: Flatten day cells -->
-    <section class="scenario" id="scenario-flatten">
-      <h2>B. Flatten Day Cells</h2>
-      <p class="scenario-desc">Remove bg-day-movies distinction. All day cells same color (white). Grid gaps provide structure.</p>
+    <!-- Light Mode -->
+    <section class="scenario" id="scenario-light">
+      <h2>Light Mode</h2>
+      <p class="scenario-desc">Flattened day cells - all same color (white). Grid gaps provide structure.</p>
       <div class="color-swatches small">
         <div class="swatch" style="background: #e2e8f0;"><span>grid</span></div>
-        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day (all)</span></div>
+        <div class="swatch" style="background: #ffffff; border: 1px solid #ccc;"><span>day</span></div>
         <div class="swatch" style="background: #f1f5f9;"><span>movie</span></div>
       </div>
-      <div class="scenario-content" style="
+      <div class="scenario-content" data-scenario="light" style="
         --bg-grid: #e2e8f0;
         --bg-day: #ffffff;
         --bg-day-movies: #ffffff;
         --bg-movie: #f1f5f9;
         --bg-movie-hover: #e2e8f0;
       ">
-        <CalendarGrid>
-          {dates.map(date => (
-            <DayCell date={date} />
-          ))}
-        </CalendarGrid>
+        <div class="calendar"></div>
       </div>
     </section>
+
+    <!-- Dark Mode Section -->
+    <div class="dark-mode-section">
+      <section class="scenario" id="scenario-dark">
+        <h2>Dark Mode</h2>
+        <p class="scenario-desc">Flattened day cells with dark colors.</p>
+        <div class="color-swatches small dark-swatches">
+          <div class="swatch" style="background: #0f172a;"><span>grid</span></div>
+          <div class="swatch" style="background: #1e293b;"><span>day</span></div>
+          <div class="swatch" style="background: #334155;"><span>movie</span></div>
+        </div>
+        <div class="scenario-content" data-scenario="dark" style="
+          --bg-grid: #0f172a;
+          --bg-day: #1e293b;
+          --bg-day-movies: #1e293b;
+          --bg-movie: #334155;
+          --bg-movie-hover: #475569;
+          --text-primary: #e2e8f0;
+          --text-secondary: #94a3b8;
+          --text-tertiary: #94a3b8;
+          --accent: #06b6d4;
+        ">
+          <div class="calendar"></div>
+        </div>
+      </section>
+    </div>
 
   </div>
 
   <div class="floating-controls">
+    <Switch id="week-start-toggle" label="Start week on Monday" checked small />
+    <span class="controls-divider"></span>
     <span class="controls-label">Show:</span>
     <Toggle id="toggle-year-director" label="Year / Director" variant="outline" size="sm" />
     <Toggle id="toggle-image" label="Image" variant="outline" size="sm" />
@@ -86,6 +84,8 @@ for (let i = 1; i <= 14; i++) {
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
   import type { Movie } from '../../utils/icsGenerator';
 
+  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
   // Toggle helpers
   function isTogglePressed(el: HTMLElement | null): boolean {
     return el?.getAttribute('data-state') === 'on';
@@ -97,8 +97,19 @@ for (let i = 1; i <= 14; i++) {
     el.setAttribute('aria-pressed', String(pressed));
   }
 
+  function getWeekStartInput(): HTMLInputElement | null {
+    const toggle = document.getElementById('week-start-toggle');
+    return toggle?.tagName === 'INPUT' ? toggle as HTMLInputElement : toggle?.querySelector('input') as HTMLInputElement;
+  }
+
   function updateUrlParams() {
     const params = new URLSearchParams();
+
+    // Week start
+    const weekStartInput = getWeekStartInput();
+    if (weekStartInput && !weekStartInput.checked) {
+      params.set('week-start', '0'); // Only save if NOT Monday (default is Monday)
+    }
 
     const toggles = [
       { id: 'toggle-year-director', param: 'meta' },
@@ -145,6 +156,134 @@ for (let i = 1; i <= 14; i++) {
     });
   }
 
+  // Format day label like "Mon 2/10"
+  function formatDayLabel(dateStr: string): string {
+    const d = new Date(dateStr + 'T12:00:00');
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
+    const dayName = DAYS[d.getDay()];
+    return `${dayName} ${month}/${day}`;
+  }
+
+  // Generate date range based on movie data and week start preference
+  function generateDateRange(movieDates: string[], mondayStart: boolean): string[] {
+    if (movieDates.length === 0) return [];
+
+    const sortedDates = [...movieDates].sort();
+    const firstMovieDate = new Date(sortedDates[0] + 'T12:00:00');
+    const lastMovieDate = new Date(sortedDates[sortedDates.length - 1] + 'T12:00:00');
+
+    // Find the start of the first week containing movies
+    const firstDayOfWeek = firstMovieDate.getDay(); // 0=Sun, 1=Mon, ...
+    const weekStartDay = mondayStart ? 1 : 0; // Monday=1, Sunday=0
+
+    // Calculate days to subtract to get to the start of the week
+    let daysToSubtract = firstDayOfWeek - weekStartDay;
+    if (daysToSubtract < 0) daysToSubtract += 7;
+
+    const firstDate = new Date(firstMovieDate);
+    firstDate.setDate(firstMovieDate.getDate() - daysToSubtract);
+
+    // Generate dates from first week start through last movie date
+    const dates: string[] = [];
+    const current = new Date(firstDate);
+
+    while (current <= lastMovieDate) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    // Pad to complete the last week
+    const weekEndDay = mondayStart ? 0 : 6; // Sunday=0 for Monday start, Saturday=6 for Sunday start
+    while (current.getDay() !== weekStartDay) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  }
+
+  // Create a day cell element
+  function createDayCell(date: string): HTMLElement {
+    const dayEl = document.createElement('div');
+    dayEl.className = 'day';
+    dayEl.dataset.date = date;
+    dayEl.dataset.dayNumber = formatDayLabel(date);
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'day-number';
+    labelEl.textContent = formatDayLabel(date);
+    dayEl.appendChild(labelEl);
+
+    return dayEl;
+  }
+
+  // Render calendar for a scenario
+  function renderCalendar(
+    container: HTMLElement,
+    dates: string[],
+    moviesByDate: Record<string, Movie[]>
+  ) {
+    container.innerHTML = '';
+
+    dates.forEach(date => {
+      const dayEl = createDayCell(date);
+      const dayMovies = moviesByDate[date];
+
+      if (dayMovies && dayMovies.length > 0) {
+        dayEl.classList.add('has-movies');
+        dayMovies.forEach(movie => {
+          const movieEl = createMovieElement(movie, { isTimeline: false });
+          dayEl.appendChild(movieEl);
+        });
+      }
+
+      container.appendChild(dayEl);
+    });
+  }
+
+  // Main state
+  let moviesByDate: Record<string, Movie[]> = {};
+  let allMovieDates: string[] = [];
+
+  // Render all calendars
+  function renderAllCalendars() {
+    const weekStartInput = getWeekStartInput();
+    const mondayStart = weekStartInput?.checked ?? true;
+    const dates = generateDateRange(allMovieDates, mondayStart);
+
+    // Find all calendar containers and render
+    document.querySelectorAll('.scenario-content .calendar').forEach(calendar => {
+      renderCalendar(calendar as HTMLElement, dates, moviesByDate);
+    });
+
+    // Update text heights for proper gradient sizing
+    setTimeout(updateTextHeights, 10);
+  }
+
+  // Set up week start toggle
+  const weekStartInput = getWeekStartInput();
+  if (weekStartInput) {
+    // Check URL params for initial state
+    const params = new URLSearchParams(window.location.search);
+    const urlValue = params.get('week-start');
+    if (urlValue === '0') {
+      weekStartInput.checked = false;
+    }
+
+    // Initialize body class
+    document.body.classList.toggle('monday-start', weekStartInput.checked);
+    document.body.classList.toggle('sunday-start', !weekStartInput.checked);
+
+    // Listen for changes - re-render calendars
+    weekStartInput.addEventListener('change', () => {
+      document.body.classList.toggle('monday-start', weekStartInput.checked);
+      document.body.classList.toggle('sunday-start', !weekStartInput.checked);
+      updateUrlParams();
+      renderAllCalendars();
+    });
+  }
+
   // Set up display toggles
   setupToggle('toggle-year-director', 'show-year-director', 'meta');
   setupToggle('toggle-image', 'show-image', 'image');
@@ -154,63 +293,47 @@ for (let i = 1; i <= 14; i++) {
   // Sync URL to match initial toggle state
   updateUrlParams();
 
-  // Load movies and populate all scenarios
+  // Load movies and render calendars
   fetch('/tenement-stories-full.json')
     .then(res => res.json())
     .then((movies: Movie[]) => {
       // Group by date
-      const moviesByDate: Record<string, Movie[]> = {};
       movies.forEach(movie => {
         const date = movie.Datetime.split('T')[0];
         if (!moviesByDate[date]) moviesByDate[date] = [];
         moviesByDate[date].push(movie);
       });
 
-      // Find all scenario containers
-      const scenarios = document.querySelectorAll('.scenario-content');
+      // Get unique movie dates
+      allMovieDates = Object.keys(moviesByDate);
 
-      scenarios.forEach(scenario => {
-        // For each date in this scenario's calendar
-        const dayCells = scenario.querySelectorAll('[data-date]');
-
-        dayCells.forEach(dayCell => {
-          const date = (dayCell as HTMLElement).dataset.date;
-          if (!date || !moviesByDate[date]) return;
-
-          const dayMovies = moviesByDate[date];
-          dayCell.classList.add('has-movies');
-
-          // Add movie elements
-          dayMovies.forEach(movie => {
-            const movieEl = createMovieElement(movie, { isTimeline: false });
-            dayCell.appendChild(movieEl);
-          });
-        });
-      });
-
-      // Update text heights for proper gradient sizing with images
-      setTimeout(updateTextHeights, 10);
+      // Initial render
+      renderAllCalendars();
     });
 </script>
 
 <style>
+  /* Page layout */
   .colors-page {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 0;
   }
 
   h1 {
     margin-bottom: 8px;
+    padding: 0 10px;
   }
 
   .intro {
     color: var(--text-secondary);
     margin-bottom: 32px;
     max-width: 600px;
+    padding: 0 10px;
   }
 
   .current-colors {
+    margin: 0 10px;
     background: var(--bg-movie);
     padding: 16px 20px;
     border-radius: 8px;
@@ -277,12 +400,18 @@ for (let i = 1; i <= 14; i++) {
   .scenario h2 {
     font-size: 18px;
     margin-bottom: 4px;
+    padding: 0 10px;
   }
 
   .scenario-desc {
     color: var(--text-secondary);
     font-size: 14px;
     margin-bottom: 16px;
+    padding: 0 10px;
+  }
+
+  .scenario .color-swatches {
+    padding: 0 10px;
   }
 
   .scenario-content {
@@ -293,16 +422,10 @@ for (let i = 1; i <= 14; i++) {
   /* Override calendar sizing for demo - show compact view */
   .scenario-content :global(.calendar) {
     max-width: 100%;
-    border: 1px solid var(--bg-grid);
   }
 
   .scenario-content :global(.day) {
     min-height: 80px;
-  }
-
-  /* Make empty spacer cells match day cell background instead of transparent */
-  .scenario-content :global(.day.empty) {
-    background: var(--bg-day);
   }
 
   /* Floating controls at bottom */
@@ -328,8 +451,48 @@ for (let i = 1; i <= 14; i++) {
     margin-right: 4px;
   }
 
+  .controls-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--bg-grid);
+    margin: 0 8px;
+  }
+
   /* Add padding to page bottom so content isn't hidden behind floating controls */
   .colors-page {
     padding-bottom: 80px;
+  }
+
+  /* Dark mode section */
+  .dark-mode-section {
+    background: #020617;
+    margin: 0 -10px;
+    padding: 32px 10px;
+    margin-top: 40px;
+  }
+
+  .dark-mode-section h2 {
+    color: #e2e8f0;
+  }
+
+  .dark-mode-section .intro {
+    color: #94a3b8;
+  }
+
+  .dark-mode-section .scenario {
+    border-bottom-color: #1e293b;
+  }
+
+  .dark-mode-section .scenario h2 {
+    color: #e2e8f0;
+  }
+
+  .dark-mode-section .scenario-desc {
+    color: #94a3b8;
+  }
+
+  .dark-swatches .swatch span {
+    background: rgba(0, 0, 0, 0.6);
+    color: #94a3b8;
   }
 </style>
