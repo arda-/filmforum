@@ -105,13 +105,18 @@ Responsibilities:
 
 ### 6. UI Changes
 
-Display in `MovieModal.astro`, alongside existing movie details:
+**Location:** Modal only — tiles stay clean.
 
+**Layout (above/below fold):**
+- Above the fold: Film Forum description (primary)
+- Below the fold (on scroll): OMDb plot excerpt (secondary)
+
+**Scores display:**
 ```
 IMDB 7.9  ·  RT 97%  ·  Metacritic 82
 ```
 
-Show plot blurb if `omdb_plot` exists and differs from existing `description`.
+**No match handling:** Show succinct message like "Ratings unavailable" when OMDb has no data for a film.
 
 ## Example OMDb Response
 
@@ -131,11 +136,11 @@ Show plot blurb if `omdb_plot` exists and differs from existing `description`.
 }
 ```
 
-## Open Questions
+## Decisions
 
-- [ ] Should `omdb_plot` replace `description` or supplement it?
-- [ ] Display scores on tiles too, or modal only? (Current answer: modal only)
-- [ ] Handle films with no OMDb match — hide scores section or show "No data"?
+- [x] **OMDb plot vs description:** Show both. Film Forum description above the fold, OMDb plot below the fold on scroll.
+- [x] **Scores location:** Modal only. Tiles stay clean.
+- [x] **No OMDb match:** Show succinct "Ratings unavailable" message.
 
 ## Future Considerations
 
