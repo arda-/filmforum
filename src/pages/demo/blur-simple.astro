@@ -892,7 +892,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     const config = directionConfig[direction];
     const scrims = document.querySelectorAll('.scrim-layer') as NodeListOf<HTMLElement>;
     // Simple gradient from bottom (0%) to where blur ends (blurEnd%)
-    const gradient = `linear-gradient(${config.gradientDir}, rgba(15, 15, 15, 0.6) 0%, transparent ${blurEnd}%)`;
+    const gradient = `linear-gradient(${config.gradientDir}, rgba(10, 10, 10, 0.6) 0%, transparent ${blurEnd}%)`;
     scrims.forEach(scrim => { scrim.style.background = gradient; });
   }
 
