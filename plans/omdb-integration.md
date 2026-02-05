@@ -306,3 +306,22 @@ GET http://www.omdbapi.com/?apikey=KEY&t=MovieTitle&y=1931
 - Could add Letterboxd data if API access is ever granted
 - Could link IMDB ID to IMDB page for "more info"
 - Could show score badges on calendar tiles for highly-rated films
+- **Apple-style drawer modal** (see `TODO.md`) — redesign as bottom sheet with full-bleed poster:
+
+```
+┌─────────────────────────────────────────┐
+│              ───────────                │  ← drag handle
+│┌───────────────────────────────────────┐│
+││                                       ││
+││       [POSTER - FULL BLEED]           ││  ← edge-to-edge
+││                                       ││
+│└───────────────────────────────────────┘│
+│  ┌───────────────────────────────────┐  │
+│  │ Street Scene                      │  │  ← content with padding
+│  │ 1931 · King Vidor · 80 min        │  │
+│  │ ...                               │  │
+│  └───────────────────────────────────┘  │
+├─────────────────────────────────────────┤
+│  [ Buy Tickets ]  [ Add to Calendar ]   │  ← sticky footer
+└─────────────────────────────────────────┘
+```
