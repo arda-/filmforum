@@ -341,10 +341,40 @@ class MovieDrawer extends HTMLElement {
 customElements.define('movie-drawer', MovieDrawer);
 ```
 
-### Option 3: Use Existing Library
+### Option 3: Use js-bottomsheet
 
-- [side-drawer](https://side-drawer.goulet.dev/) — vanilla web component, zero dependencies
-- [js-bottomsheet](https://github.com/timelessco/js-bottomsheet) — pure JS, snappable, scrollable
+[js-bottomsheet](https://github.com/timelessco/js-bottomsheet) is a pure JS library with the features we need:
+
+**Features:**
+- Multiple snap points with spring animations
+- Scrollable content at final snap point
+- Gesture-based interaction (uses [use-gesture](https://use-gesture.netlify.app/))
+- Stacking support for layered sheets
+- Responsive: bottom sheet on mobile, modal on desktop
+
+**Key Props:**
+```javascript
+new BottomSheet({
+  trigger: 'open-btn',
+  content: '<div>...</div>',
+  snapPoints: [25, 50, 90],        // Percent of viewport
+  velocityThreshold: 0.9,          // Swipe momentum
+  distanceThreshold: 150,          // px to trigger snap
+  scrollableSheet: true,           // Scroll at final snap
+  dismissible: true,
+  displayOverlay: true,
+
+  // Lifecycle hooks
+  onOpen: () => {},
+  onClose: () => {},
+  onDragStart: () => {},
+  onDragEnd: () => {},
+});
+```
+
+**Dependencies:** use-gesture + anime.js (for spring animations)
+
+**Trade-off:** Adds ~15-20KB, but saves significant implementation time vs vanilla.
 
 ---
 
@@ -379,8 +409,8 @@ customElements.define('movie-drawer', MovieDrawer);
 - [Vaul GitHub](https://github.com/emilkowalski/vaul) — the reference implementation
 - [Building a Drawer Component](https://emilkowal.ski/ui/building-a-drawer-component) — Emil's blog post with implementation details
 - [shadcn/ui Drawer](https://ui.shadcn.com/docs/components/drawer) — Vaul wrapped with Tailwind styles
-- [side-drawer](https://side-drawer.goulet.dev/) — vanilla web component alternative
-- [js-bottomsheet](https://github.com/timelessco/js-bottomsheet) — pure JS alternative
+- [js-bottomsheet](https://github.com/timelessco/js-bottomsheet) — pure JS alternative with snap points + spring animations
+- [use-gesture](https://use-gesture.netlify.app/) — gesture library used by js-bottomsheet
 
 ## Related
 
