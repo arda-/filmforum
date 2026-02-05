@@ -49,11 +49,15 @@ import Layout from '../../layouts/Layout.astro';
       <input type="checkbox" id="enable-blur" checked />
       <span>Blur</span>
     </label>
+    <label class="debug-toggle">
+      <input type="checkbox" id="enable-scrim" />
+      <span>Scrim</span>
+    </label>
     <div class="height-toggle">
       <span class="toggle-label">Height:</span>
       <div class="toggle-buttons">
-        <button class="toggle-btn active" data-height="card">Card</button>
-        <button class="toggle-btn" data-height="textbox">Textbox</button>
+        <button class="toggle-btn" data-height="card">Card</button>
+        <button class="toggle-btn active" data-height="textbox">Textbox</button>
       </div>
     </div>
     <div class="height-toggle">
@@ -97,6 +101,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="blur-layer layer-6" data-layer="6"></div>
         <div class="blur-layer layer-7" data-layer="7"></div>
       </div>
+      <div class="scrim-layer"></div>
       <div class="text-overlay">
         <h3>Taxi Driver</h3>
         <p>Martin Scorsese • 1976</p>
@@ -121,6 +126,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Lonesome</h3>
           <p>Paul Fejos • 1928</p>
@@ -138,6 +144,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Street Scene</h3>
           <p>King Vidor • 1931</p>
@@ -155,6 +162,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>The Window</h3>
           <p>Ted Tetzlaff • 1949</p>
@@ -172,6 +180,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Hester Street</h3>
           <p>Joan Micklin Silver • 1975</p>
@@ -189,6 +198,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Taxi!</h3>
           <p>Roy Del Ruth • 1932</p>
@@ -206,6 +216,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Three on a Match</h3>
           <p>Mervyn LeRoy • 1932</p>
@@ -223,6 +234,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Mean Streets</h3>
           <p>Scorsese • 1973</p>
@@ -240,6 +252,7 @@ import Layout from '../../layouts/Layout.astro';
           <div class="blur-layer layer-6"></div>
           <div class="blur-layer layer-7"></div>
         </div>
+        <div class="scrim-layer"></div>
         <div class="text-overlay">
           <h3>Taxi Driver</h3>
           <p>Scorsese • 1976</p>
@@ -250,22 +263,25 @@ import Layout from '../../layouts/Layout.astro';
   </div>
 
   <div class="comparison-section">
-    <h2>Comparison</h2>
-    <div class="comparison-grid">
-      <div class="comparison-card">
-        <div class="poster-card small">
-          <img src="/posters/mean-streets.png" alt="Mean Streets poster" class="poster-image" />
+    <h2>Side-by-Side Comparison</h2>
+    <p class="section-desc">Drag slider to compare simple (left) vs progressive 7-layer (right) blur</p>
+
+    <div class="comparison-container">
+      <div class="sbs-card" data-aspect="2-1">
+        <img src="/posters/lonesome.png" alt="Lonesome" class="poster-image" />
+        <div class="comparison-side comparison-left">
+          <img src="/posters/lonesome.png" alt="Lonesome" class="comparison-image" />
           <div class="simple-blur-layer"></div>
-          <div class="text-overlay small">
-            <h3>Mean Streets</h3>
-            <p>Scorsese • 1973</p>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Lonesome</h3>
+            <p>Paul Fejos • 1928</p>
+            <p class="description">Two lonely New Yorkers meet at Coney Island.</p>
           </div>
+          <span class="side-label">Simple</span>
         </div>
-        <span class="comparison-label">Simple (single layer)</span>
-      </div>
-      <div class="comparison-card">
-        <div class="poster-card small">
-          <img src="/posters/mean-streets.png" alt="Mean Streets poster" class="poster-image" />
+        <div class="comparison-side comparison-right">
+          <img src="/posters/lonesome.png" alt="Lonesome" class="comparison-image" />
           <div class="progressive-blur">
             <div class="blur-layer layer-1"></div>
             <div class="blur-layer layer-2"></div>
@@ -275,12 +291,120 @@ import Layout from '../../layouts/Layout.astro';
             <div class="blur-layer layer-6"></div>
             <div class="blur-layer layer-7"></div>
           </div>
-          <div class="text-overlay small">
-            <h3>Mean Streets</h3>
-            <p>Scorsese • 1973</p>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Lonesome</h3>
+            <p>Paul Fejos • 1928</p>
+            <p class="description">Two lonely New Yorkers meet at Coney Island.</p>
           </div>
+          <span class="side-label">Progressive</span>
         </div>
-        <span class="comparison-label">Progressive (7 layers)</span>
+        <div class="comparison-slider"><div class="slider-handle"></div></div>
+      </div>
+
+      <div class="sbs-card" data-aspect="16-9">
+        <img src="/posters/street-scene.png" alt="Street Scene" class="poster-image" />
+        <div class="comparison-side comparison-left">
+          <img src="/posters/street-scene.png" alt="Street Scene" class="comparison-image" />
+          <div class="simple-blur-layer"></div>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Street Scene</h3>
+            <p>King Vidor • 1931</p>
+            <p class="description">Life at a working-class NYC apartment.</p>
+          </div>
+          <span class="side-label">Simple</span>
+        </div>
+        <div class="comparison-side comparison-right">
+          <img src="/posters/street-scene.png" alt="Street Scene" class="comparison-image" />
+          <div class="progressive-blur">
+            <div class="blur-layer layer-1"></div>
+            <div class="blur-layer layer-2"></div>
+            <div class="blur-layer layer-3"></div>
+            <div class="blur-layer layer-4"></div>
+            <div class="blur-layer layer-5"></div>
+            <div class="blur-layer layer-6"></div>
+            <div class="blur-layer layer-7"></div>
+          </div>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Street Scene</h3>
+            <p>King Vidor • 1931</p>
+            <p class="description">Life at a working-class NYC apartment.</p>
+          </div>
+          <span class="side-label">Progressive</span>
+        </div>
+        <div class="comparison-slider"><div class="slider-handle"></div></div>
+      </div>
+
+      <div class="sbs-card" data-aspect="3-4">
+        <img src="/posters/taxi.png" alt="Taxi!" class="poster-image" />
+        <div class="comparison-side comparison-left">
+          <img src="/posters/taxi.png" alt="Taxi!" class="comparison-image" />
+          <div class="simple-blur-layer"></div>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Taxi!</h3>
+            <p>Roy Del Ruth • 1932</p>
+            <p class="description">A cab driver battles a rival company.</p>
+          </div>
+          <span class="side-label">Simple</span>
+        </div>
+        <div class="comparison-side comparison-right">
+          <img src="/posters/taxi.png" alt="Taxi!" class="comparison-image" />
+          <div class="progressive-blur">
+            <div class="blur-layer layer-1"></div>
+            <div class="blur-layer layer-2"></div>
+            <div class="blur-layer layer-3"></div>
+            <div class="blur-layer layer-4"></div>
+            <div class="blur-layer layer-5"></div>
+            <div class="blur-layer layer-6"></div>
+            <div class="blur-layer layer-7"></div>
+          </div>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Taxi!</h3>
+            <p>Roy Del Ruth • 1932</p>
+            <p class="description">A cab driver battles a rival company.</p>
+          </div>
+          <span class="side-label">Progressive</span>
+        </div>
+        <div class="comparison-slider"><div class="slider-handle"></div></div>
+      </div>
+
+      <div class="sbs-card" data-aspect="2-3">
+        <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" />
+        <div class="comparison-side comparison-left">
+          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" />
+          <div class="simple-blur-layer"></div>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Taxi Driver</h3>
+            <p>Scorsese • 1976</p>
+            <p class="description">A troubled vet drives NYC's mean streets.</p>
+          </div>
+          <span class="side-label">Simple</span>
+        </div>
+        <div class="comparison-side comparison-right">
+          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" />
+          <div class="progressive-blur">
+            <div class="blur-layer layer-1"></div>
+            <div class="blur-layer layer-2"></div>
+            <div class="blur-layer layer-3"></div>
+            <div class="blur-layer layer-4"></div>
+            <div class="blur-layer layer-5"></div>
+            <div class="blur-layer layer-6"></div>
+            <div class="blur-layer layer-7"></div>
+          </div>
+          <div class="scrim-layer"></div>
+          <div class="text-overlay">
+            <h3>Taxi Driver</h3>
+            <p>Scorsese • 1976</p>
+            <p class="description">A troubled vet drives NYC's mean streets.</p>
+          </div>
+          <span class="side-label">Progressive</span>
+        </div>
+        <div class="comparison-slider"><div class="slider-handle"></div></div>
       </div>
     </div>
   </div>
@@ -344,9 +468,9 @@ import Layout from '../../layouts/Layout.astro';
       }
     }
 
-    // Height mode toggle
-    if (heightMode === 'textbox') {
-      newParams.set('height', 'textbox');
+    // Height mode toggle (default is textbox, so only store card)
+    if (heightMode === 'card') {
+      newParams.set('height', 'card');
     } else {
       newParams.delete('height');
     }
@@ -368,6 +492,13 @@ import Layout from '../../layouts/Layout.astro';
       newParams.set('debug', '1');
     } else {
       newParams.delete('debug');
+    }
+
+    // Scrim toggle
+    if (enableScrimToggle?.checked) {
+      newParams.set('scrim', '1');
+    } else {
+      newParams.delete('scrim');
     }
 
     // Direction
@@ -393,6 +524,7 @@ import Layout from '../../layouts/Layout.astro';
   // Debug color toggle
   const debugColorsToggle = document.getElementById('debug-colors') as HTMLInputElement;
   const enableBlurToggle = document.getElementById('enable-blur') as HTMLInputElement;
+  const enableScrimToggle = document.getElementById('enable-scrim') as HTMLInputElement;
   const heightToggleBtns = document.querySelectorAll('[data-height]') as NodeListOf<HTMLButtonElement>;
   const directionToggleBtns = document.querySelectorAll('[data-direction]') as NodeListOf<HTMLButtonElement>;
   const textToggleBtns = document.querySelectorAll('[data-text]') as NodeListOf<HTMLButtonElement>;
@@ -401,7 +533,7 @@ import Layout from '../../layouts/Layout.astro';
   const blurStartValue = document.getElementById('blur-start-value') as HTMLSpanElement;
   const blurEndValue = document.getElementById('blur-end-value') as HTMLSpanElement;
 
-  let heightMode: 'card' | 'textbox' = 'card';
+  let heightMode: 'card' | 'textbox' = 'textbox';
   let direction: 'bottom' | 'top' | 'left' | 'right' = 'bottom';
   let textLevel: 'title' | 'subtitle' | 'full' = 'full';
 
@@ -421,6 +553,38 @@ import Layout from '../../layouts/Layout.astro';
   enableBlurToggle?.addEventListener('change', () => {
     document.body.classList.toggle('blur-disabled', !enableBlurToggle.checked);
   });
+
+  enableScrimToggle?.addEventListener('change', () => {
+    document.body.classList.toggle('scrim-enabled', enableScrimToggle.checked);
+    updateURL();
+  });
+
+  // Update scrim gradients to match blur zone
+  function updateScrim(startPct: number, endPct: number, gradientDir: string) {
+    const scrims = document.querySelectorAll('.poster-card > .scrim-layer') as NodeListOf<HTMLElement>;
+    const midPct = startPct + (endPct - startPct) * 0.4;
+    const gradient = `linear-gradient(${gradientDir}, rgba(15, 15, 15, 0.4) ${startPct}%, rgba(15, 15, 15, 0.2) ${midPct}%, transparent ${endPct}%)`;
+    scrims.forEach(scrim => { scrim.style.background = gradient; });
+  }
+
+  function updateScrimTextRelative() {
+    const config = directionConfig[direction];
+    const cards = document.querySelectorAll('.demo-container .poster-card, .aspect-ratio-section .poster-card') as NodeListOf<HTMLElement>;
+    cards.forEach(card => {
+      const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
+      const scrim = card.querySelector('.scrim-layer') as HTMLElement;
+      if (!textOverlay || !scrim) return;
+      const cardSize = config.isHorizontal ? card.offsetWidth : card.offsetHeight;
+      const textSize = config.isHorizontal ? textOverlay.offsetWidth : textOverlay.offsetHeight;
+      const textSizePct = (textSize / cardSize) * 100;
+      const startPct = parseFloat(blurStartSlider.value) / 100 * textSizePct;
+      const endMult = parseFloat(blurEndSlider.value) / 100;
+      const endPct = Math.min(textSizePct * endMult, 100);
+      const midPct = startPct + (endPct - startPct) * 0.4;
+      const gradient = `linear-gradient(${config.gradientDir}, rgba(15, 15, 15, 0.4) ${startPct}%, rgba(15, 15, 15, 0.2) ${midPct}%, transparent ${endPct}%)`;
+      scrim.style.background = gradient;
+    });
+  }
 
   // Text-relative blur calculation
   function updateTextRelativeBlur() {
@@ -492,6 +656,7 @@ import Layout from '../../layouts/Layout.astro';
         layer.style.webkitMaskImage = gradient;
       });
     });
+    updateScrimTextRelative();
   }
 
   function resetToStaticMasks() {
@@ -782,12 +947,16 @@ import Layout from '../../layouts/Layout.astro';
       updateBlurFromSliders();
     }
 
-    // Restore height mode toggle
-    if (params.get('height') === 'textbox') {
-      heightMode = 'textbox';
+    // Restore height mode toggle (default is textbox)
+    const heightParam = params.get('height');
+    if (heightParam === 'card') {
+      heightMode = 'card';
       heightToggleBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.height === 'textbox');
+        btn.classList.toggle('active', btn.dataset.height === 'card');
       });
+    } else {
+      // Default to textbox mode
+      heightMode = 'textbox';
       updateSliderLabels();
       updateTextRelativeBlur();
     }
@@ -817,7 +986,127 @@ import Layout from '../../layouts/Layout.astro';
       });
       applyTextLevel();
     }
+
+    // Restore scrim toggle
+    if (params.get('scrim') === '1') {
+      enableScrimToggle.checked = true;
+      document.body.classList.add('scrim-enabled');
+    }
+
+    // Initialize SBS sliders
+    initSbsSliders();
+    updateComparisonBlur();
   });
+
+  // SBS Comparison Sliders
+  const sbsCards = document.querySelectorAll('.sbs-card') as NodeListOf<HTMLElement>;
+  let sbsIsDragging = false;
+  let sbsActiveCard: HTMLElement | null = null;
+
+  function updateAllSbsSliders(percent: number) {
+    sbsCards.forEach(card => {
+      const slider = card.querySelector('.comparison-slider') as HTMLElement;
+      const left = card.querySelector('.comparison-left') as HTMLElement;
+      const right = card.querySelector('.comparison-right') as HTMLElement;
+      if (!slider || !left || !right) return;
+      slider.style.left = `${percent}%`;
+      left.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+      right.style.clipPath = `inset(0 0 0 ${percent}%)`;
+    });
+  }
+
+  function initSbsSliders() {
+    sbsCards.forEach(card => {
+      const slider = card.querySelector('.comparison-slider') as HTMLElement;
+      if (!slider) return;
+      slider.addEventListener('mousedown', e => { sbsIsDragging = true; sbsActiveCard = card; e.preventDefault(); });
+      card.addEventListener('mousedown', e => {
+        if ((e.target as HTMLElement).closest('.comparison-slider')) return;
+        sbsIsDragging = true; sbsActiveCard = card;
+        const rect = card.getBoundingClientRect();
+        updateAllSbsSliders(Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)));
+      });
+      slider.addEventListener('touchstart', e => { sbsIsDragging = true; sbsActiveCard = card; e.preventDefault(); });
+      card.addEventListener('touchstart', e => {
+        if ((e.target as HTMLElement).closest('.comparison-slider')) return;
+        sbsIsDragging = true; sbsActiveCard = card;
+        const rect = card.getBoundingClientRect();
+        updateAllSbsSliders(Math.max(0, Math.min(100, ((e.touches[0].clientX - rect.left) / rect.width) * 100)));
+      });
+    });
+    document.addEventListener('mousemove', e => {
+      if (!sbsActiveCard || !sbsIsDragging) return;
+      const rect = sbsActiveCard.getBoundingClientRect();
+      updateAllSbsSliders(Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)));
+    });
+    document.addEventListener('mouseup', () => { sbsIsDragging = false; sbsActiveCard = null; });
+    document.addEventListener('touchmove', e => {
+      if (!sbsActiveCard || !sbsIsDragging) return;
+      const rect = sbsActiveCard.getBoundingClientRect();
+      updateAllSbsSliders(Math.max(0, Math.min(100, ((e.touches[0].clientX - rect.left) / rect.width) * 100)));
+    });
+    document.addEventListener('touchend', () => { sbsIsDragging = false; sbsActiveCard = null; });
+    updateAllSbsSliders(50);
+  }
+
+  function updateComparisonBlur() {
+    const config = directionConfig[direction];
+    const startVal = parseFloat(blurStartSlider.value);
+    const endVal = parseFloat(blurEndSlider.value);
+    sbsCards.forEach(card => {
+      const simpleBlur = card.querySelector('.simple-blur-layer') as HTMLElement;
+      const progressiveBlur = card.querySelector('.progressive-blur') as HTMLElement;
+      const textRight = card.querySelector('.comparison-right .text-overlay') as HTMLElement;
+      if (!simpleBlur || !progressiveBlur || !textRight) return;
+      const cardSize = config.isHorizontal ? card.offsetWidth : card.offsetHeight;
+      let startPct: number, endPct: number;
+      if (heightMode === 'textbox') {
+        const textSize = config.isHorizontal ? textRight.offsetWidth : textRight.offsetHeight;
+        const textSizePct = (textSize / cardSize) * 100;
+        startPct = (startVal / 100) * textSizePct;
+        endPct = Math.min(textSizePct * (endVal / 100), 100);
+      } else {
+        startPct = startVal;
+        endPct = endVal;
+      }
+      // Simple blur
+      const simpleGrad = `linear-gradient(${config.gradientDir}, black ${startPct}%, black ${startPct + (endPct - startPct) * 0.3}%, transparent ${endPct}%)`;
+      simpleBlur.style.maskImage = simpleGrad;
+      simpleBlur.style.webkitMaskImage = simpleGrad;
+      // Progressive blur layers
+      const layers = progressiveBlur.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+      const masks = [
+        { fadeIn: 65, solidStart: 80, solidEnd: 100 },
+        { fadeIn: 50, solidStart: 65, solidEnd: 85, fadeOut: 100 },
+        { fadeIn: 35, solidStart: 50, solidEnd: 70, fadeOut: 90 },
+        { fadeIn: 20, solidStart: 35, solidEnd: 55, fadeOut: 75 },
+        { fadeIn: 5, solidStart: 20, solidEnd: 40, fadeOut: 60 },
+        { fadeIn: 0, solidStart: 5, solidEnd: 25, fadeOut: 45 },
+        { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 30 }
+      ];
+      const range = endPct - startPct;
+      const scale = range / 100;
+      layers.forEach((layer, i) => {
+        const m = masks[i];
+        const fadeIn = startPct + m.fadeIn * scale;
+        const solidStart = startPct + m.solidStart * scale;
+        const solidEnd = Math.min(startPct + m.solidEnd * scale, endPct);
+        const fadeOut = m.fadeOut ? Math.min(startPct + m.fadeOut * scale, endPct) : endPct;
+        let grad: string;
+        if (i === 0) grad = `linear-gradient(${config.gradientDir}, transparent ${fadeIn}%, black ${solidStart}%, black ${endPct}%, transparent ${endPct}%)`;
+        else if (i === 6) grad = `linear-gradient(${config.gradientDir}, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+        else grad = `linear-gradient(${config.gradientDir}, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+        layer.style.maskImage = grad;
+        layer.style.webkitMaskImage = grad;
+      });
+
+      // Update SBS scrim gradients
+      const scrims = card.querySelectorAll('.comparison-side .scrim-layer') as NodeListOf<HTMLElement>;
+      const midPct = startPct + (endPct - startPct) * 0.4;
+      const scrimGrad = `linear-gradient(${config.gradientDir}, rgba(15, 15, 15, 0.4) ${startPct}%, rgba(15, 15, 15, 0.2) ${midPct}%, transparent ${endPct}%)`;
+      scrims.forEach(scrim => { scrim.style.background = scrimGrad; });
+    });
+  }
 </script>
 
 <style>
@@ -1125,6 +1414,20 @@ import Layout from '../../layouts/Layout.astro';
     display: none !important;
   }
 
+  /* Scrim layer */
+  .scrim-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    mix-blend-mode: darken;
+  }
+
+  body.scrim-enabled .scrim-layer {
+    opacity: 1;
+  }
+
   /* Text level visibility */
   :global(body.text-title-only) .text-overlay > p {
     display: none;
@@ -1322,43 +1625,135 @@ import Layout from '../../layouts/Layout.astro';
 
   /* Comparison section */
   .comparison-section {
-    max-width: 600px;
-    margin: 32px auto;
+    max-width: 1200px;
+    margin: 64px auto 48px;
     padding: 0 16px;
   }
 
   .comparison-section h2 {
-    margin: 0 0 16px 0;
-    font-size: 18px;
+    margin: 0 0 8px 0;
+    font-size: 24px;
     color: var(--text-primary);
   }
 
-  .comparison-grid {
+  .comparison-container {
     display: flex;
-    gap: 24px;
-    justify-content: center;
     flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 24px;
+    justify-content: center;
+    align-items: flex-end;
   }
 
-  .comparison-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+  .sbs-card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    cursor: ew-resize;
   }
 
-  .comparison-label {
-    font-size: 13px;
-    color: var(--text-secondary);
+  .sbs-card[data-aspect="2-1"] { width: 400px; height: 200px; }
+  .sbs-card[data-aspect="16-9"] { width: 356px; height: 200px; }
+  .sbs-card[data-aspect="3-4"] { width: 180px; height: 240px; }
+  .sbs-card[data-aspect="2-3"] { width: 160px; height: 240px; }
+
+  .sbs-card > .poster-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
   }
 
-  /* Simple blur for comparison */
-  .simple-blur-layer {
+  .comparison-side {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .comparison-left { clip-path: inset(0 50% 0 0); z-index: 1; }
+  .comparison-right { clip-path: inset(0 0 0 50%); z-index: 1; }
+
+  .comparison-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .comparison-side .simple-blur-layer,
+  .comparison-side .progressive-blur { position: absolute; inset: 0; z-index: 1; }
+  .comparison-side .scrim-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; mix-blend-mode: darken; }
+  :global(body.scrim-enabled) .comparison-side .scrim-layer { opacity: 1; }
+
+  .comparison-side .text-overlay {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 100%;
+    padding: 0.5rem 1rem 1rem;
+    color: white;
+    z-index: 10;
+  }
+
+  .comparison-side .text-overlay h3 { margin: 0 0 4px; font-size: 18px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  .comparison-side .text-overlay p { margin: 0; font-size: 12px; color: rgba(255,255,255,0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .comparison-side .text-overlay .description { margin-top: 4px; font-size: 11px; line-height: 1.3; color: rgba(255,255,255,0.75); }
+
+  .side-label {
+    position: absolute;
+    top: 8px;
+    padding: 3px 8px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 10px;
+    font-weight: 500;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    z-index: 15;
+  }
+
+  .comparison-left .side-label { left: 8px; }
+  .comparison-right .side-label { right: 8px; }
+
+  .comparison-slider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    background: white;
+    transform: translateX(-50%);
+    z-index: 20;
+    cursor: ew-resize;
+    box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  }
+
+  .slider-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slider-handle::before { content: '⟷'; font-size: 14px; color: #333; }
+
+  /* Simple blur for comparison */
+  .simple-blur-layer {
+    position: absolute;
+    inset: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     mask-image: linear-gradient(to top, black 15%, transparent 50%);
