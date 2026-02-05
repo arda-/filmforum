@@ -56,6 +56,23 @@ import Layout from '../../layouts/Layout.astro';
         <button class="toggle-btn" data-height="textbox">Textbox</button>
       </div>
     </div>
+    <div class="height-toggle">
+      <span class="toggle-label">Direction:</span>
+      <div class="toggle-buttons">
+        <button class="toggle-btn active" data-direction="bottom">Bottom</button>
+        <button class="toggle-btn" data-direction="top">Top</button>
+        <button class="toggle-btn" data-direction="left">Left</button>
+        <button class="toggle-btn" data-direction="right">Right</button>
+      </div>
+    </div>
+    <div class="height-toggle">
+      <span class="toggle-label">Text:</span>
+      <div class="toggle-buttons">
+        <button class="toggle-btn" data-text="title">Title</button>
+        <button class="toggle-btn" data-text="subtitle">+ Sub</button>
+        <button class="toggle-btn active" data-text="full">+ Desc</button>
+      </div>
+    </div>
     <div class="slider-group">
       <label class="slider-control">
         <span class="slider-label">Start: <span id="blur-start-value">0%</span></span>
@@ -107,6 +124,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Lonesome</h3>
           <p>Paul Fejos • 1928</p>
+          <p class="description">Two lonely New Yorkers meet at Coney Island and fall in love.</p>
         </div>
       </div>
       <div class="poster-card aspect-16-9">
@@ -123,6 +141,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Street Scene</h3>
           <p>King Vidor • 1931</p>
+          <p class="description">Life at a working-class New York apartment building.</p>
         </div>
       </div>
       <div class="poster-card aspect-4-3">
@@ -139,6 +158,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>The Window</h3>
           <p>Ted Tetzlaff • 1949</p>
+          <p class="description">A boy who cries wolf witnesses a real murder.</p>
         </div>
       </div>
       <div class="poster-card aspect-1-1">
@@ -155,6 +175,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Hester Street</h3>
           <p>Joan Micklin Silver • 1975</p>
+          <p class="description">Jewish immigrants adapt to life in 1890s New York.</p>
         </div>
       </div>
       <div class="poster-card aspect-3-4">
@@ -171,6 +192,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Taxi!</h3>
           <p>Roy Del Ruth • 1932</p>
+          <p class="description">A cab driver battles a rival taxi company.</p>
         </div>
       </div>
       <div class="poster-card aspect-2-3">
@@ -187,6 +209,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Three on a Match</h3>
           <p>Mervyn LeRoy • 1932</p>
+          <p class="description">Three childhood friends reunite with tragic consequences.</p>
         </div>
       </div>
       <div class="poster-card aspect-9-16">
@@ -203,6 +226,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Mean Streets</h3>
           <p>Scorsese • 1973</p>
+          <p class="description">Small-time hood tries to reconcile his faith with mob ties.</p>
         </div>
       </div>
       <div class="poster-card aspect-1-2">
@@ -219,6 +243,7 @@ import Layout from '../../layouts/Layout.astro';
         <div class="text-overlay">
           <h3>Taxi Driver</h3>
           <p>Scorsese • 1976</p>
+          <p class="description">A troubled vet drives NYC's mean streets at night.</p>
         </div>
       </div>
     </div>
@@ -345,6 +370,20 @@ import Layout from '../../layouts/Layout.astro';
       newParams.delete('debug');
     }
 
+    // Direction
+    if (direction !== 'bottom') {
+      newParams.set('dir', direction);
+    } else {
+      newParams.delete('dir');
+    }
+
+    // Text level
+    if (textLevel !== 'full') {
+      newParams.set('text', textLevel);
+    } else {
+      newParams.delete('text');
+    }
+
     const newURL = newParams.toString()
       ? `${window.location.pathname}?${newParams}`
       : window.location.pathname;
@@ -354,13 +393,25 @@ import Layout from '../../layouts/Layout.astro';
   // Debug color toggle
   const debugColorsToggle = document.getElementById('debug-colors') as HTMLInputElement;
   const enableBlurToggle = document.getElementById('enable-blur') as HTMLInputElement;
-  const heightToggleBtns = document.querySelectorAll('.height-toggle .toggle-btn') as NodeListOf<HTMLButtonElement>;
+  const heightToggleBtns = document.querySelectorAll('[data-height]') as NodeListOf<HTMLButtonElement>;
+  const directionToggleBtns = document.querySelectorAll('[data-direction]') as NodeListOf<HTMLButtonElement>;
+  const textToggleBtns = document.querySelectorAll('[data-text]') as NodeListOf<HTMLButtonElement>;
   const blurStartSlider = document.getElementById('blur-start') as HTMLInputElement;
   const blurEndSlider = document.getElementById('blur-end') as HTMLInputElement;
   const blurStartValue = document.getElementById('blur-start-value') as HTMLSpanElement;
   const blurEndValue = document.getElementById('blur-end-value') as HTMLSpanElement;
 
   let heightMode: 'card' | 'textbox' = 'card';
+  let direction: 'bottom' | 'top' | 'left' | 'right' = 'bottom';
+  let textLevel: 'title' | 'subtitle' | 'full' = 'full';
+
+  // Direction config for gradient directions and text positioning
+  const directionConfig: Record<string, { gradientDir: string; textPos: Record<string, string>; isHorizontal: boolean }> = {
+    bottom: { gradientDir: 'to top', textPos: { bottom: '0', top: 'auto', left: '0', right: '0' }, isHorizontal: false },
+    top: { gradientDir: 'to bottom', textPos: { top: '0', bottom: 'auto', left: '0', right: '0' }, isHorizontal: false },
+    left: { gradientDir: 'to right', textPos: { left: '0', right: 'auto', top: '0', bottom: '0' }, isHorizontal: true },
+    right: { gradientDir: 'to left', textPos: { right: '0', left: 'auto', top: '0', bottom: '0' }, isHorizontal: true }
+  };
 
   debugColorsToggle?.addEventListener('change', () => {
     document.body.classList.toggle('debug-colors', debugColorsToggle.checked);
@@ -374,6 +425,7 @@ import Layout from '../../layouts/Layout.astro';
   // Text-relative blur calculation
   function updateTextRelativeBlur() {
     const cards = document.querySelectorAll('.poster-card:has(.progressive-blur)') as NodeListOf<HTMLElement>;
+    const config = directionConfig[direction];
 
     // Smooth overlapping masks with ~20% overlap for smoother blending
     const layerMasks = [
@@ -391,17 +443,34 @@ import Layout from '../../layouts/Layout.astro';
       const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
       if (!textOverlay) return;
 
-      const cardHeight = card.offsetHeight;
-      const textHeight = textOverlay.offsetHeight;
-      const textHeightPct = (textHeight / cardHeight) * 100;
+      // Use width for horizontal directions, height for vertical
+      const cardSize = config.isHorizontal ? card.offsetWidth : card.offsetHeight;
+      const textSize = config.isHorizontal ? textOverlay.offsetWidth : textOverlay.offsetHeight;
+      const textSizePct = (textSize / cardSize) * 100;
 
       // Sliders act as multipliers when text-relative is on
-      const startPct = parseFloat(blurStartSlider.value) / 100 * textHeightPct;
+      const startPct = parseFloat(blurStartSlider.value) / 100 * textSizePct;
       const endMult = parseFloat(blurEndSlider.value) / 100;
-      const blurEndPct = Math.min(textHeightPct * endMult, 100);
+      const blurEndPct = Math.min(textSizePct * endMult, 100);
 
       const range = blurEndPct - startPct;
       const scale = range / 100;
+
+      // Apply text position
+      Object.assign(textOverlay.style, config.textPos);
+      if (config.isHorizontal) {
+        textOverlay.style.width = '50%';
+        textOverlay.style.height = '100%';
+        textOverlay.style.display = 'flex';
+        textOverlay.style.flexDirection = 'column';
+        textOverlay.style.justifyContent = 'flex-end';
+      } else {
+        textOverlay.style.width = '';
+        textOverlay.style.height = '';
+        textOverlay.style.display = '';
+        textOverlay.style.flexDirection = '';
+        textOverlay.style.justifyContent = '';
+      }
 
       layers.forEach((layer, i) => {
         const mask = layerMasks[i];
@@ -412,11 +481,11 @@ import Layout from '../../layouts/Layout.astro';
 
         let gradient: string;
         if (i === 0) {
-          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${blurEndPct}%, transparent ${blurEndPct}%)`;
+          gradient = `linear-gradient(${config.gradientDir}, transparent ${fadeIn}%, black ${solidStart}%, black ${blurEndPct}%, transparent ${blurEndPct}%)`;
         } else if (i === 6) {
-          gradient = `linear-gradient(to top, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+          gradient = `linear-gradient(${config.gradientDir}, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
         } else {
-          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+          gradient = `linear-gradient(${config.gradientDir}, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
         }
 
         layer.style.maskImage = gradient;
@@ -426,12 +495,47 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   function resetToStaticMasks() {
-    const layers = document.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+    const config = directionConfig[direction];
+    const cards = document.querySelectorAll('.poster-card:has(.progressive-blur)') as NodeListOf<HTMLElement>;
 
-    // Reset to CSS-defined masks by removing inline styles
-    layers.forEach(layer => {
-      layer.style.maskImage = '';
-      layer.style.webkitMaskImage = '';
+    // Static masks for full card height
+    const staticMasks = [
+      'transparent 65%, black 80%, black 100%',
+      'transparent 50%, black 65%, black 85%, transparent 100%',
+      'transparent 35%, black 50%, black 70%, transparent 90%',
+      'transparent 20%, black 35%, black 55%, transparent 75%',
+      'transparent 5%, black 20%, black 40%, transparent 60%',
+      'transparent 0%, black 5%, black 25%, transparent 45%',
+      'black 0%, black 10%, transparent 30%'
+    ];
+
+    cards.forEach(card => {
+      const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+      const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
+
+      // Apply text position
+      if (textOverlay) {
+        Object.assign(textOverlay.style, config.textPos);
+        if (config.isHorizontal) {
+          textOverlay.style.width = '50%';
+          textOverlay.style.height = '100%';
+          textOverlay.style.display = 'flex';
+          textOverlay.style.flexDirection = 'column';
+          textOverlay.style.justifyContent = 'flex-end';
+        } else {
+          textOverlay.style.width = '';
+          textOverlay.style.height = '';
+          textOverlay.style.display = '';
+          textOverlay.style.flexDirection = '';
+          textOverlay.style.justifyContent = '';
+        }
+      }
+
+      layers.forEach((layer, i) => {
+        const gradient = `linear-gradient(${config.gradientDir}, ${staticMasks[i]})`;
+        layer.style.maskImage = gradient;
+        layer.style.webkitMaskImage = gradient;
+      });
     });
   }
 
@@ -456,10 +560,94 @@ import Layout from '../../layouts/Layout.astro';
     });
   });
 
+  // Direction toggle
+  directionToggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      directionToggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      direction = btn.dataset.direction as 'bottom' | 'top' | 'left' | 'right';
+      applyDirection();
+      updateURL();
+    });
+  });
+
+  // Text level toggle
+  textToggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      textToggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      textLevel = btn.dataset.text as 'title' | 'subtitle' | 'full';
+      applyTextLevel();
+      // Recalculate blur since text height changed
+      if (heightMode === 'textbox') {
+        requestAnimationFrame(() => updateTextRelativeBlur());
+      }
+      updateURL();
+    });
+  });
+
+  function applyDirection() {
+    const config = directionConfig[direction];
+    const cards = document.querySelectorAll('.poster-card:has(.progressive-blur)') as NodeListOf<HTMLElement>;
+
+    cards.forEach(card => {
+      const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+      const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
+
+      // Update gradient direction for all layers
+      layers.forEach(layer => {
+        const currentMask = getComputedStyle(layer).maskImage || layer.style.maskImage;
+        if (currentMask && currentMask !== 'none') {
+          // Replace gradient direction in existing mask
+          const newMask = currentMask.replace(/linear-gradient\([^,]+,/, `linear-gradient(${config.gradientDir},`);
+          layer.style.maskImage = newMask;
+          layer.style.webkitMaskImage = newMask;
+        }
+      });
+
+      // Update text position
+      if (textOverlay) {
+        Object.assign(textOverlay.style, config.textPos);
+        if (config.isHorizontal) {
+          textOverlay.style.width = '50%';
+          textOverlay.style.height = '100%';
+          textOverlay.style.display = 'flex';
+          textOverlay.style.flexDirection = 'column';
+          textOverlay.style.justifyContent = 'flex-end';
+        } else {
+          textOverlay.style.width = '';
+          textOverlay.style.height = '';
+          textOverlay.style.display = '';
+          textOverlay.style.flexDirection = '';
+          textOverlay.style.justifyContent = '';
+        }
+      }
+    });
+
+    // Reapply blur calculations with new direction
+    if (heightMode === 'textbox') {
+      updateTextRelativeBlur();
+    } else if (blurStartSlider.value !== '0' || blurEndSlider.value !== '100') {
+      updateBlurFromSliders();
+    } else {
+      resetToStaticMasks();
+    }
+  }
+
+  function applyTextLevel() {
+    document.body.classList.remove('text-title-only', 'text-with-subtitle');
+    if (textLevel === 'title') {
+      document.body.classList.add('text-title-only');
+    } else if (textLevel === 'subtitle') {
+      document.body.classList.add('text-with-subtitle');
+    }
+  }
+
   // Slider-controlled blur zone
   function updateBlurFromSliders() {
     const startPct = parseFloat(blurStartSlider.value);
     const endPct = parseFloat(blurEndSlider.value);
+    const config = directionConfig[direction];
 
     // Ensure start < end
     if (startPct >= endPct) return;
@@ -481,6 +669,25 @@ import Layout from '../../layouts/Layout.astro';
     const cards = document.querySelectorAll('.poster-card:has(.progressive-blur)') as NodeListOf<HTMLElement>;
     cards.forEach(card => {
       const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+      const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
+
+      // Apply text position
+      if (textOverlay) {
+        Object.assign(textOverlay.style, config.textPos);
+        if (config.isHorizontal) {
+          textOverlay.style.width = '50%';
+          textOverlay.style.height = '100%';
+          textOverlay.style.display = 'flex';
+          textOverlay.style.flexDirection = 'column';
+          textOverlay.style.justifyContent = 'flex-end';
+        } else {
+          textOverlay.style.width = '';
+          textOverlay.style.height = '';
+          textOverlay.style.display = '';
+          textOverlay.style.flexDirection = '';
+          textOverlay.style.justifyContent = '';
+        }
+      }
 
       layers.forEach((layer, i) => {
         const mask = layerMasks[i];
@@ -491,11 +698,11 @@ import Layout from '../../layouts/Layout.astro';
 
         let gradient: string;
         if (i === 0) {
-          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${endPct}%, transparent ${endPct}%)`;
+          gradient = `linear-gradient(${config.gradientDir}, transparent ${fadeIn}%, black ${solidStart}%, black ${endPct}%, transparent ${endPct}%)`;
         } else if (i === 6) {
-          gradient = `linear-gradient(to top, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+          gradient = `linear-gradient(${config.gradientDir}, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
         } else {
-          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+          gradient = `linear-gradient(${config.gradientDir}, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
         }
 
         layer.style.maskImage = gradient;
@@ -589,6 +796,26 @@ import Layout from '../../layouts/Layout.astro';
     if (params.get('debug') === '1') {
       debugColorsToggle.checked = true;
       document.body.classList.add('debug-colors');
+    }
+
+    // Restore direction
+    const dirParam = params.get('dir');
+    if (dirParam && ['bottom', 'top', 'left', 'right'].includes(dirParam)) {
+      direction = dirParam as 'bottom' | 'top' | 'left' | 'right';
+      directionToggleBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.direction === direction);
+      });
+      applyDirection();
+    }
+
+    // Restore text level
+    const textParam = params.get('text');
+    if (textParam && ['title', 'subtitle', 'full'].includes(textParam)) {
+      textLevel = textParam as 'title' | 'subtitle' | 'full';
+      textToggleBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.text === textLevel);
+      });
+      applyTextLevel();
     }
   });
 </script>
@@ -896,6 +1123,15 @@ import Layout from '../../layouts/Layout.astro';
   body.blur-disabled .progressive-blur,
   body.blur-disabled .simple-blur-layer {
     display: none !important;
+  }
+
+  /* Text level visibility */
+  :global(body.text-title-only) .text-overlay > p {
+    display: none;
+  }
+
+  :global(body.text-with-subtitle) .text-overlay .description {
+    display: none;
   }
 
   .text-overlay {
