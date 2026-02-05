@@ -49,10 +49,13 @@ import Layout from '../../layouts/Layout.astro';
       <input type="checkbox" id="enable-blur" checked />
       <span>Blur</span>
     </label>
-    <label class="debug-toggle">
-      <input type="checkbox" id="text-relative" />
-      <span>Text-Relative</span>
-    </label>
+    <div class="height-toggle">
+      <span class="toggle-label">Height:</span>
+      <div class="toggle-buttons">
+        <button class="toggle-btn active" data-height="card">Card</button>
+        <button class="toggle-btn" data-height="textbox">Textbox</button>
+      </div>
+    </div>
     <div class="slider-group">
       <label class="slider-control">
         <span class="slider-label">Start: <span id="blur-start-value">0%</span></span>
@@ -84,6 +87,141 @@ import Layout from '../../layouts/Layout.astro';
       </div>
     </div>
 
+  </div>
+
+  <div class="aspect-ratio-section">
+    <h2>Aspect Ratios</h2>
+    <p class="section-desc">Progressive blur across different card shapes</p>
+    <div class="aspect-ratio-grid">
+      <div class="poster-card aspect-2-1">
+        <img src="/posters/lonesome.png" alt="Lonesome poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Lonesome</h3>
+          <p>Paul Fejos • 1928</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-16-9">
+        <img src="/posters/street-scene.png" alt="Street Scene poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Street Scene</h3>
+          <p>King Vidor • 1931</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-4-3">
+        <img src="/posters/the-window.png" alt="The Window poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>The Window</h3>
+          <p>Ted Tetzlaff • 1949</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-1-1">
+        <img src="/posters/hester-street.png" alt="Hester Street poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Hester Street</h3>
+          <p>Joan Micklin Silver • 1975</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-3-4">
+        <img src="/posters/taxi.png" alt="Taxi! poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Taxi!</h3>
+          <p>Roy Del Ruth • 1932</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-2-3">
+        <img src="/posters/three-on-a-match.png" alt="Three on a Match poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Three on a Match</h3>
+          <p>Mervyn LeRoy • 1932</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-9-16">
+        <img src="/posters/mean-streets.png" alt="Mean Streets poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Mean Streets</h3>
+          <p>Scorsese • 1973</p>
+        </div>
+      </div>
+      <div class="poster-card aspect-1-2">
+        <img src="/posters/taxi-driver.png" alt="Taxi Driver poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1"></div>
+          <div class="blur-layer layer-2"></div>
+          <div class="blur-layer layer-3"></div>
+          <div class="blur-layer layer-4"></div>
+          <div class="blur-layer layer-5"></div>
+          <div class="blur-layer layer-6"></div>
+          <div class="blur-layer layer-7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Taxi Driver</h3>
+          <p>Scorsese • 1976</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="comparison-section">
@@ -140,7 +278,6 @@ import Layout from '../../layouts/Layout.astro';
 <script>
   const params = new URLSearchParams(window.location.search);
   const layerToggles = document.querySelectorAll('.layer-toggle input');
-  const blurLayers = document.querySelectorAll('.poster-card:first-of-type .blur-layer');
   const toggleAllBtn = document.getElementById('toggle-all');
 
   // Layer toggle functionality
@@ -150,11 +287,10 @@ import Layout from '../../layouts/Layout.astro';
       const layerNum = input.dataset.layer;
       const isChecked = input.checked;
 
-      // Update blur layer visibility
-      blurLayers.forEach(layer => {
-        if ((layer as HTMLElement).dataset.layer === layerNum) {
-          (layer as HTMLElement).style.opacity = isChecked ? '1' : '0';
-        }
+      // Update blur layer visibility on ALL cards
+      const allLayers = document.querySelectorAll(`.blur-layer.layer-${layerNum}`);
+      allLayers.forEach(layer => {
+        (layer as HTMLElement).style.opacity = isChecked ? '1' : '0';
       });
 
       updateURL();
@@ -183,11 +319,11 @@ import Layout from '../../layouts/Layout.astro';
       }
     }
 
-    // Text-relative toggle
-    if (textRelativeToggle?.checked) {
-      newParams.set('text_rel', '1');
+    // Height mode toggle
+    if (heightMode === 'textbox') {
+      newParams.set('height', 'textbox');
     } else {
-      newParams.delete('text_rel');
+      newParams.delete('height');
     }
 
     // Slider values
@@ -218,11 +354,13 @@ import Layout from '../../layouts/Layout.astro';
   // Debug color toggle
   const debugColorsToggle = document.getElementById('debug-colors') as HTMLInputElement;
   const enableBlurToggle = document.getElementById('enable-blur') as HTMLInputElement;
-  const textRelativeToggle = document.getElementById('text-relative') as HTMLInputElement;
+  const heightToggleBtns = document.querySelectorAll('.height-toggle .toggle-btn') as NodeListOf<HTMLButtonElement>;
   const blurStartSlider = document.getElementById('blur-start') as HTMLInputElement;
   const blurEndSlider = document.getElementById('blur-end') as HTMLInputElement;
   const blurStartValue = document.getElementById('blur-start-value') as HTMLSpanElement;
   const blurEndValue = document.getElementById('blur-end-value') as HTMLSpanElement;
+
+  let heightMode: 'card' | 'textbox' = 'card';
 
   debugColorsToggle?.addEventListener('change', () => {
     document.body.classList.toggle('debug-colors', debugColorsToggle.checked);
@@ -235,60 +373,60 @@ import Layout from '../../layouts/Layout.astro';
 
   // Text-relative blur calculation
   function updateTextRelativeBlur() {
-    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
-    if (!card) return;
+    const cards = document.querySelectorAll('.poster-card:has(.progressive-blur)') as NodeListOf<HTMLElement>;
 
-    const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
-    const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
-    if (!textOverlay) return;
-
-    const cardHeight = card.offsetHeight;
-    const textHeight = textOverlay.offsetHeight;
-
-    // Blur zone extends from 0% to top of text overlay
-    const blurEndPct = (textHeight / cardHeight) * 100;
-    const scale = blurEndPct / 100;
-
-    // Original smooth overlapping masks - scale them proportionally
-    // These have ~15% overlap between adjacent layers for smooth blending
+    // Smooth overlapping masks with ~20% overlap for smoother blending
     const layerMasks = [
-      { fadeIn: 70, solidStart: 85, solidEnd: 100 },  // layer-1 (top, lightest)
-      { fadeIn: 55, solidStart: 70, solidEnd: 85, fadeOut: 100 },
-      { fadeIn: 40, solidStart: 55, solidEnd: 70, fadeOut: 85 },
-      { fadeIn: 25, solidStart: 40, solidEnd: 55, fadeOut: 70 },
-      { fadeIn: 10, solidStart: 25, solidEnd: 40, fadeOut: 55 },
-      { fadeIn: 0, solidStart: 10, solidEnd: 25, fadeOut: 40 },
-      { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 25 }   // layer-7 (bottom, heaviest)
+      { fadeIn: 65, solidStart: 80, solidEnd: 100 },  // layer-1 (top, lightest)
+      { fadeIn: 50, solidStart: 65, solidEnd: 85, fadeOut: 100 },
+      { fadeIn: 35, solidStart: 50, solidEnd: 70, fadeOut: 90 },
+      { fadeIn: 20, solidStart: 35, solidEnd: 55, fadeOut: 75 },
+      { fadeIn: 5, solidStart: 20, solidEnd: 40, fadeOut: 60 },
+      { fadeIn: 0, solidStart: 5, solidEnd: 25, fadeOut: 45 },
+      { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 30 }   // layer-7 (bottom, heaviest)
     ];
 
-    layers.forEach((layer, i) => {
-      const mask = layerMasks[i];
-      const fadeIn = mask.fadeIn * scale;
-      const solidStart = mask.solidStart * scale;
-      const solidEnd = Math.min(mask.solidEnd * scale, blurEndPct);
-      const fadeOut = mask.fadeOut ? Math.min(mask.fadeOut * scale, blurEndPct) : blurEndPct;
+    cards.forEach(card => {
+      const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
+      const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+      if (!textOverlay) return;
 
-      let gradient: string;
-      if (i === 0) {
-        // Layer 1 - top layer, cap at blur zone boundary
-        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${blurEndPct}%, transparent ${blurEndPct}%)`;
-      } else if (i === 6) {
-        // Layer 7 - bottom layer
-        gradient = `linear-gradient(to top, black 0%, black ${solidEnd}%, transparent ${fadeOut}%)`;
-      } else {
-        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
-      }
+      const cardHeight = card.offsetHeight;
+      const textHeight = textOverlay.offsetHeight;
+      const textHeightPct = (textHeight / cardHeight) * 100;
 
-      layer.style.maskImage = gradient;
-      layer.style.webkitMaskImage = gradient;
+      // Sliders act as multipliers when text-relative is on
+      const startPct = parseFloat(blurStartSlider.value) / 100 * textHeightPct;
+      const endMult = parseFloat(blurEndSlider.value) / 100;
+      const blurEndPct = Math.min(textHeightPct * endMult, 100);
+
+      const range = blurEndPct - startPct;
+      const scale = range / 100;
+
+      layers.forEach((layer, i) => {
+        const mask = layerMasks[i];
+        const fadeIn = startPct + mask.fadeIn * scale;
+        const solidStart = startPct + mask.solidStart * scale;
+        const solidEnd = Math.min(startPct + mask.solidEnd * scale, blurEndPct);
+        const fadeOut = mask.fadeOut ? Math.min(startPct + mask.fadeOut * scale, blurEndPct) : blurEndPct;
+
+        let gradient: string;
+        if (i === 0) {
+          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${blurEndPct}%, transparent ${blurEndPct}%)`;
+        } else if (i === 6) {
+          gradient = `linear-gradient(to top, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+        } else {
+          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+        }
+
+        layer.style.maskImage = gradient;
+        layer.style.webkitMaskImage = gradient;
+      });
     });
   }
 
   function resetToStaticMasks() {
-    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
-    if (!card) return;
-
-    const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+    const layers = document.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
 
     // Reset to CSS-defined masks by removing inline styles
     layers.forEach(layer => {
@@ -297,26 +435,29 @@ import Layout from '../../layouts/Layout.astro';
     });
   }
 
-  textRelativeToggle?.addEventListener('change', () => {
-    if (textRelativeToggle.checked) {
-      updateTextRelativeBlur();
-    } else {
-      // Check if sliders are at default (0-100), if so reset to static
-      if (blurStartSlider.value === '0' && blurEndSlider.value === '100') {
-        resetToStaticMasks();
+  heightToggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      heightToggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      heightMode = btn.dataset.height as 'card' | 'textbox';
+
+      updateSliderLabels();
+      if (heightMode === 'textbox') {
+        updateTextRelativeBlur();
       } else {
-        updateBlurFromSliders();
+        // When switching to card mode, use sliders as absolute percentages
+        if (blurStartSlider.value === '0' && blurEndSlider.value === '100') {
+          resetToStaticMasks();
+        } else {
+          updateBlurFromSliders();
+        }
       }
-    }
-    updateURL();
+      updateURL();
+    });
   });
 
   // Slider-controlled blur zone
   function updateBlurFromSliders() {
-    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
-    if (!card) return;
-
-    const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
     const startPct = parseFloat(blurStartSlider.value);
     const endPct = parseFloat(blurEndSlider.value);
 
@@ -326,63 +467,76 @@ import Layout from '../../layouts/Layout.astro';
     const range = endPct - startPct;
     const scale = range / 100;
 
-    // Original smooth overlapping masks - remap to startPct-endPct range
+    // Smooth overlapping masks with ~20% overlap for smoother blending
     const layerMasks = [
-      { fadeIn: 70, solidStart: 85, solidEnd: 100 },
-      { fadeIn: 55, solidStart: 70, solidEnd: 85, fadeOut: 100 },
-      { fadeIn: 40, solidStart: 55, solidEnd: 70, fadeOut: 85 },
-      { fadeIn: 25, solidStart: 40, solidEnd: 55, fadeOut: 70 },
-      { fadeIn: 10, solidStart: 25, solidEnd: 40, fadeOut: 55 },
-      { fadeIn: 0, solidStart: 10, solidEnd: 25, fadeOut: 40 },
-      { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 25 }
+      { fadeIn: 65, solidStart: 80, solidEnd: 100 },
+      { fadeIn: 50, solidStart: 65, solidEnd: 85, fadeOut: 100 },
+      { fadeIn: 35, solidStart: 50, solidEnd: 70, fadeOut: 90 },
+      { fadeIn: 20, solidStart: 35, solidEnd: 55, fadeOut: 75 },
+      { fadeIn: 5, solidStart: 20, solidEnd: 40, fadeOut: 60 },
+      { fadeIn: 0, solidStart: 5, solidEnd: 25, fadeOut: 45 },
+      { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 30 }
     ];
 
-    layers.forEach((layer, i) => {
-      const mask = layerMasks[i];
-      const fadeIn = startPct + mask.fadeIn * scale;
-      const solidStart = startPct + mask.solidStart * scale;
-      const solidEnd = Math.min(startPct + mask.solidEnd * scale, endPct);
-      const fadeOut = mask.fadeOut ? Math.min(startPct + mask.fadeOut * scale, endPct) : endPct;
+    const cards = document.querySelectorAll('.poster-card:has(.progressive-blur)') as NodeListOf<HTMLElement>;
+    cards.forEach(card => {
+      const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
 
-      let gradient: string;
-      if (i === 0) {
-        // Layer 1 - top layer, cap at blur zone boundary
-        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${endPct}%, transparent ${endPct}%)`;
-      } else if (i === 6) {
-        // Layer 7 - bottom layer
-        gradient = `linear-gradient(to top, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
-      } else {
-        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
-      }
+      layers.forEach((layer, i) => {
+        const mask = layerMasks[i];
+        const fadeIn = startPct + mask.fadeIn * scale;
+        const solidStart = startPct + mask.solidStart * scale;
+        const solidEnd = Math.min(startPct + mask.solidEnd * scale, endPct);
+        const fadeOut = mask.fadeOut ? Math.min(startPct + mask.fadeOut * scale, endPct) : endPct;
 
-      layer.style.maskImage = gradient;
-      layer.style.webkitMaskImage = gradient;
+        let gradient: string;
+        if (i === 0) {
+          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${endPct}%, transparent ${endPct}%)`;
+        } else if (i === 6) {
+          gradient = `linear-gradient(to top, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+        } else {
+          gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+        }
+
+        layer.style.maskImage = gradient;
+        layer.style.webkitMaskImage = gradient;
+      });
     });
   }
 
-  blurStartSlider?.addEventListener('input', () => {
-    blurStartValue.textContent = `${blurStartSlider.value}%`;
-    // Disable text-relative when using sliders
-    if (textRelativeToggle.checked) {
-      textRelativeToggle.checked = false;
+  function updateSliderLabels() {
+    if (heightMode === 'textbox') {
+      blurStartValue.textContent = `${blurStartSlider.value}%`;
+      blurEndValue.textContent = `${(parseFloat(blurEndSlider.value) / 100).toFixed(1)}×`;
+    } else {
+      blurStartValue.textContent = `${blurStartSlider.value}%`;
+      blurEndValue.textContent = `${blurEndSlider.value}%`;
     }
-    updateBlurFromSliders();
+  }
+
+  blurStartSlider?.addEventListener('input', () => {
+    updateSliderLabels();
+    if (heightMode === 'textbox') {
+      updateTextRelativeBlur();
+    } else {
+      updateBlurFromSliders();
+    }
     updateURL();
   });
 
   blurEndSlider?.addEventListener('input', () => {
-    blurEndValue.textContent = `${blurEndSlider.value}%`;
-    // Disable text-relative when using sliders
-    if (textRelativeToggle.checked) {
-      textRelativeToggle.checked = false;
+    updateSliderLabels();
+    if (heightMode === 'textbox') {
+      updateTextRelativeBlur();
+    } else {
+      updateBlurFromSliders();
     }
-    updateBlurFromSliders();
     updateURL();
   });
 
-  // Update on resize when text-relative is enabled
+  // Update on resize when textbox mode is enabled
   window.addEventListener('resize', () => {
-    if (textRelativeToggle?.checked) {
+    if (heightMode === 'textbox') {
       updateTextRelativeBlur();
     }
   });
@@ -395,7 +549,11 @@ import Layout from '../../layouts/Layout.astro';
         const toggle = document.querySelector(`input[data-layer="${i}"]`) as HTMLInputElement;
         if (toggle) {
           toggle.checked = false;
-          toggle.dispatchEvent(new Event('change'));
+          // Update ALL layers with this class
+          const allLayers = document.querySelectorAll(`.blur-layer.layer-${i}`);
+          allLayers.forEach(layer => {
+            (layer as HTMLElement).style.opacity = '0';
+          });
         }
       }
     }
@@ -417,9 +575,13 @@ import Layout from '../../layouts/Layout.astro';
       updateBlurFromSliders();
     }
 
-    // Restore text-relative toggle
-    if (params.get('text_rel') === '1') {
-      textRelativeToggle.checked = true;
+    // Restore height mode toggle
+    if (params.get('height') === 'textbox') {
+      heightMode = 'textbox';
+      heightToggleBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.height === 'textbox');
+      });
+      updateSliderLabels();
       updateTextRelativeBlur();
     }
 
@@ -436,19 +598,25 @@ import Layout from '../../layouts/Layout.astro';
     margin-top: 20px;
   }
 
+  /* Add padding for floating control bar */
+  :global(main) {
+    padding-bottom: 80px;
+  }
+
   .demo-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
     justify-content: center;
     align-items: center;
-    margin-bottom: 32px;
-    padding: 16px;
+    padding: 12px 16px;
     background: var(--bg-movie);
-    border-radius: 8px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+    border-top: 1px solid var(--bg-movie-hover);
+    z-index: 100;
   }
 
   .layer-toggles {
@@ -522,6 +690,43 @@ import Layout from '../../layouts/Layout.astro';
 
   .debug-toggle input {
     cursor: pointer;
+  }
+
+  .height-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toggle-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .toggle-buttons {
+    display: flex;
+    background: var(--bg-movie-hover);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .toggle-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .toggle-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .toggle-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.1);
   }
 
   .slider-group {
@@ -632,50 +837,50 @@ import Layout from '../../layouts/Layout.astro';
   .layer-1 {
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(1px);
-    mask-image: linear-gradient(to top, transparent 70%, black 85%, black 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 70%, black 85%, black 100%);
+    mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
   }
 
   .layer-2 {
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to top, transparent 55%, black 70%, black 85%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 55%, black 70%, black 85%, transparent 100%);
+    mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
   }
 
   .layer-3 {
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    mask-image: linear-gradient(to top, transparent 40%, black 55%, black 70%, transparent 85%);
-    -webkit-mask-image: linear-gradient(to top, transparent 40%, black 55%, black 70%, transparent 85%);
+    mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
+    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
   }
 
   .layer-4 {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    mask-image: linear-gradient(to top, transparent 25%, black 40%, black 55%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to top, transparent 25%, black 40%, black 55%, transparent 70%);
+    mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
+    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
   }
 
   .layer-5 {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, transparent 10%, black 25%, black 40%, transparent 55%);
-    -webkit-mask-image: linear-gradient(to top, transparent 10%, black 25%, black 40%, transparent 55%);
+    mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
   }
 
   .layer-6 {
     backdrop-filter: blur(32px);
     -webkit-backdrop-filter: blur(32px);
-    mask-image: linear-gradient(to top, transparent 0%, black 10%, black 25%, transparent 40%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 10%, black 25%, transparent 40%);
+    mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
   }
 
   .layer-7 {
     backdrop-filter: blur(64px);
     -webkit-backdrop-filter: blur(64px);
-    mask-image: linear-gradient(to top, black 0%, black 10%, transparent 25%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 10%, transparent 25%);
+    mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
   }
 
   /* Debug colors mode */
@@ -790,6 +995,93 @@ import Layout from '../../layouts/Layout.astro';
     font-size: 11px;
     color: var(--text-tertiary);
     font-family: monospace;
+  }
+
+  /* Aspect ratio section */
+  .aspect-ratio-section {
+    max-width: 1200px;
+    margin: 48px auto;
+    padding: 0 16px;
+  }
+
+  .aspect-ratio-section h2 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+
+  .section-desc {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .aspect-ratio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Aspect ratio variants */
+  .poster-card.aspect-2-1 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 1;
+  }
+
+  .poster-card.aspect-16-9 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .poster-card.aspect-4-3 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .poster-card.aspect-1-1 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .poster-card.aspect-3-4 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+  }
+
+  .poster-card.aspect-2-3 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+
+  .poster-card.aspect-9-16 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+  }
+
+  .poster-card.aspect-1-2 {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 2;
+  }
+
+  .aspect-ratio-grid .text-overlay {
+    padding: 12px;
+  }
+
+  .aspect-ratio-grid .text-overlay h3 {
+    font-size: 16px;
+  }
+
+  .aspect-ratio-grid .text-overlay p {
+    font-size: 11px;
   }
 
   /* Comparison section */
