@@ -117,6 +117,164 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     </div>
   </div>
 
+  <div class="text-relative-section">
+    <h2>Text-Relative Progressive Blur</h2>
+    <p>Blur boundaries adapt to text overlay height across different aspect ratios</p>
+    <div class="text-relative-grid">
+      <!-- 2:1 - The Naked City -->
+      <div class="poster-card aspect-2-1">
+        <img src="/posters/taxi.png" alt="Taxi poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Taxi!</h3>
+          <p>Roy Del Ruth • 1932</p>
+          <p class="description">A cocky NYC cab driver struggles in a union conflict and a complicated romance.</p>
+        </div>
+      </div>
+
+      <!-- 16:9 - Once Upon a Time in America -->
+      <div class="poster-card aspect-16-9">
+        <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Once Upon a Time in America</h3>
+          <p>Sergio Leone • 1984</p>
+          <p class="description">An epic crime saga spanning decades in New York City.</p>
+        </div>
+      </div>
+
+      <!-- 4:3 - The Landlord -->
+      <div class="poster-card aspect-4-3">
+        <img src="/posters/the-landlord.png" alt="The Landlord poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>The Landlord</h3>
+          <p>Hal Ashby • 1970</p>
+          <p class="description">A wealthy heir's urban restoration project uncovers new perspectives.</p>
+        </div>
+      </div>
+
+      <!-- 1:1 - The Godfather Part II -->
+      <div class="poster-card aspect-1-1">
+        <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>The Godfather Part II</h3>
+          <p>Francis Ford Coppola • 1974</p>
+          <p class="description">The parallel rise and fall of two generations of mafia leaders.</p>
+        </div>
+      </div>
+
+      <!-- 3:4 - West Side Story -->
+      <div class="poster-card aspect-3-4">
+        <img src="/posters/west-side-story.png" alt="West Side Story poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>West Side Story</h3>
+          <p>Robert Wise, Jerome Robbins • 1961</p>
+          <p class="description">A modern take on Romeo and Juliet set in New York City.</p>
+        </div>
+      </div>
+
+      <!-- 2:3 - Mean Streets -->
+      <div class="poster-card aspect-2-3">
+        <img src="/posters/mean-streets.png" alt="Mean Streets poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>Mean Streets</h3>
+          <p>Martin Scorsese • 1973</p>
+          <p class="description">A film about a small-time crime operation in Little Italy.</p>
+        </div>
+      </div>
+
+      <!-- 9:16 - The Crowd -->
+      <div class="poster-card aspect-9-16">
+        <img src="/posters/the-crowd.png" alt="The Crowd poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>The Crowd</h3>
+          <p>King Vidor • 1928</p>
+          <p class="description">The life and struggles of an ordinary New York couple.</p>
+        </div>
+      </div>
+
+      <!-- 1:2 - A Raisin in the Sun -->
+      <div class="poster-card aspect-1-2">
+        <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun poster" class="poster-image" />
+        <div class="progressive-blur">
+          <div class="blur-layer layer-1" data-layer="1"></div>
+          <div class="blur-layer layer-2" data-layer="2"></div>
+          <div class="blur-layer layer-3" data-layer="3"></div>
+          <div class="blur-layer layer-4" data-layer="4"></div>
+          <div class="blur-layer layer-5" data-layer="5"></div>
+          <div class="blur-layer layer-6" data-layer="6"></div>
+          <div class="blur-layer layer-7" data-layer="7"></div>
+        </div>
+        <div class="text-overlay">
+          <h3>A Raisin in the Sun</h3>
+          <p>Daniel Petrie • 1961</p>
+          <p class="description">A family's dreams and struggles in Chicago's South Side.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="comparison-section">
     <h2>Comparison</h2>
     <div class="comparison-grid">
@@ -218,9 +376,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
   // Text-relative blur functionality
   function updateTextRelativeBlur() {
-    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
-    if (!card) return;
+    // Update main demo card
+    const mainCard = document.querySelector('.demo-container .poster-card') as HTMLElement;
+    if (mainCard) {
+      updateCardTextRelativeBlur(mainCard);
+    }
 
+    // Update all text-relative section cards
+    const relativeCards = document.querySelectorAll('.text-relative-grid .poster-card') as NodeListOf<HTMLElement>;
+    relativeCards.forEach(card => {
+      updateCardTextRelativeBlur(card);
+    });
+  }
+
+  function updateCardTextRelativeBlur(card: HTMLElement) {
     const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
     const debugText = card.querySelector('.debug-line-text') as HTMLElement;
     const debugBlur = card.querySelector('.debug-line-blur') as HTMLElement;
@@ -514,6 +683,32 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     cursor: pointer;
   }
 
+  /* Text-relative section */
+  .text-relative-section {
+    max-width: 1400px;
+    margin: 32px auto;
+    padding: 0 16px;
+  }
+
+  .text-relative-section h2 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+
+  .text-relative-section > p {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .text-relative-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+  }
+
   .demo-container {
     display: flex;
     justify-content: center;
@@ -535,6 +730,47 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   .poster-card.small {
     width: 200px;
     height: 300px;
+  }
+
+  /* Aspect ratio variants for text-relative section */
+  .poster-card.aspect-2-1 {
+    width: 400px;
+    height: 200px;
+  }
+
+  .poster-card.aspect-16-9 {
+    width: 480px;
+    height: 270px;
+  }
+
+  .poster-card.aspect-4-3 {
+    width: 360px;
+    height: 270px;
+  }
+
+  .poster-card.aspect-1-1 {
+    width: 280px;
+    height: 280px;
+  }
+
+  .poster-card.aspect-3-4 {
+    width: 210px;
+    height: 280px;
+  }
+
+  .poster-card.aspect-2-3 {
+    width: 240px;
+    height: 360px;
+  }
+
+  .poster-card.aspect-9-16 {
+    width: 202px;
+    height: 360px;
+  }
+
+  .poster-card.aspect-1-2 {
+    width: 200px;
+    height: 400px;
   }
 
   .poster-image {
