@@ -10,7 +10,7 @@ Display all movies from a session in a browsable, actionable list. Users can rev
 
 - `/session/[sessionID]/list` — main list view
 - `/session/[sessionID]/list/[userRandId]/saved` — shareable saved list
-- `/session/[sessionID]/compare/listA/listB` — compare two lists
+- `/session/[sessionID]/compare/listA/listB` — compare two lists (2-person only)
 
 ---
 
@@ -63,13 +63,28 @@ Always visible (even with 0 saved):
 ## Card Actions
 
 Each card has quick-action buttons:
-- **"Want to see"** — strong interest, prioritized in showtimes
+- **"Want to see"** (Yes) — strong interest, prioritized in showtimes
 - **"Maybe"** — uncertain interest, secondary priority
+- **"No"** — explicit pass, visible to friends, recoverable
 - **"More info"** — opens detail modal
+
+### Reaction States
+Three states per movie:
+- **Yes** — "I want to see this"
+- **Maybe** — "I might be interested"
+- **No** — "I'll pass" (can be undone)
 
 ### Undo Behavior
 - Tap the same button again to toggle off (unmark)
+- "No" items are recoverable (filter to see them again)
 - Also removable from the saved list view
+
+### Button Feedback
+When tapping a reaction button:
+- Button fill/color change (outline → solid)
+- Brief animation (pulse/pop)
+- Card gets subtle border/glow in that state's color
+- Colors loosely different per state (TBD during implementation)
 
 ---
 
@@ -82,7 +97,7 @@ Each card has quick-action buttons:
 - External links (IMDB, Letterboxd, FF movie page)
 
 ### Actions
-- **"Want to see" / "Maybe"** buttons (same as card)
+- **"Want to see" / "Maybe" / "No"** buttons (same as card)
 - **Share this movie** — link opens directly to this modal
 - **Showtimes nudge**: No direct shortcut. If attempted, shows nudge modal: "Complete your watchlist first." Override option takes user to the FilmForum movie page (link already in JSON data).
 
@@ -131,9 +146,18 @@ Two sections:
 - Share button disabled until count > 0 (can't share empty lists)
 
 ### Recipient Experience
-- Sender's picks shown as **read-only overlay**
-- Recipient makes their own independent picks
-- Can then compare via the compare view
+
+When you receive a friend's shared list, you're **reacting to their picks**, not making a parallel list:
+- See friend's list with their Yes/Maybe selections
+- React with your own Yes/Maybe/No to each movie
+- Your reactions stored in local storage + can be encoded in URL
+- "No" reactions visible to friend as "you passed on this"
+
+### Sharing Flow
+1. Friend A shares their list URL
+2. Friend B opens it, reacts to movies
+3. Friend B shares compare link back
+4. Both can view the same comparison at `/session/[id]/compare/listA/listB`
 
 ---
 
@@ -141,14 +165,27 @@ Two sections:
 
 **Full page** (not modal): `/session/[sessionID]/compare/listA/listB`
 
+**2-person compare only** — N-way comparison is a future consideration (likely requires accounts).
+
 ### Entry Points
 - Direct link with two list IDs
 - Paste/enter multiple list URLs
 - "Compare with mine" button when viewing someone's shared list
 
-### Features
-- Shows overlap ("movies you both want to see")
-- Shows each person's unique picks
+### Sections (all expanded by default)
+
+1. **Strong overlap** — Both said Yes
+2. **Possible overlap** — One Yes + one Maybe, or both Maybe
+3. **Disagreements** — One Yes + one No
+4. **Mutual pass** — Both said No
+5. **Unreviewed** — One or both haven't reacted yet
+
+### Actions
+- Change your own reaction (Yes/Maybe/No) inline
+- Open More Info modal for a movie
+- "Find Showtimes" for overlap (Strong + Possible sections)
+- Share the comparison view itself
+- Go back to the full list
 
 ### Empty State (No Overlap)
 - Message explaining no overlap found
@@ -165,7 +202,7 @@ Two sections:
 - Vaul-style drawer (custom Astro, no React)
 - Badge count animation when saving
 - View toggle: simple swap, no transition
-- Card button feedback: **TBD**
+- Card button feedback: fill change + pulse/pop + card glow
 
 ---
 
@@ -178,24 +215,31 @@ Session List Page
        │   ├── Sort/filter as needed
        │   └── Toggle actors/blurb/images
        │
-       ├── Mark movies: "Want to see" / "Maybe"
+       ├── React to movies: "Want to see" / "Maybe" / "No"
        │   └── Tap again to unmark
        │
        ├── Open "More info" for details
        │   ├── Swipe through movies
-       │   ├── Mark/unmark from modal
+       │   ├── React from modal
        │   └── Share individual movie
        │
        └── Bottom toolbar actions
            │
            ├── Review saved list (drawer)
-           │   ├── Reorder between sections
+           │   ├── Change status between sections
            │   ├── Remove items
            │   ├── Share list → generates URL
            │   └── "Find Showtimes" → /session/[id]/showtimes
            │
            └── Compare with friend
                └── /session/[id]/compare/listA/listB
+
+Sharing Flow
+       │
+       ├── Friend A shares list URL
+       ├── Friend B opens, reacts to movies
+       ├── Friend B shares compare link
+       └── Both view comparison (overlap, disagreements, etc.)
 ```
 
 ---
@@ -208,7 +252,7 @@ Session List Page
 
 ---
 
-## Open Questions
+## Future Considerations
 
-- **Card button feedback**: What interaction/animation when tapping "Want to see" / "Maybe"?
-- **Compare UX details**: Exact flow for entering comparison mode
+- **N-way compare** (3+ people) — likely requires user accounts
+- **Button feedback colors** — finalize during implementation
