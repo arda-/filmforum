@@ -142,6 +142,107 @@ IMDB 7.9  ·  RT 97%  ·  Metacritic 82
 - [x] **Scores location:** Modal only. Tiles stay clean.
 - [x] **No OMDb match:** Show succinct "Ratings unavailable" message.
 
+---
+
+## OMDb API Reference
+
+**Documentation:** https://www.omdbapi.com/
+
+### Relevant Endpoints
+
+| Endpoint | Purpose | Example |
+|----------|---------|---------|
+| `?t={title}&y={year}` | Get by title + year | `?t=Street+Scene&y=1931` |
+| `?i={imdbId}` | Get by IMDB ID (more reliable) | `?i=tt0022448` |
+| `?s={query}` | Search (returns multiple results) | `?s=Street+Scene` |
+
+### Parameters We'll Use
+
+| Param | Required | Description |
+|-------|----------|-------------|
+| `apikey` | Yes | Your API key |
+| `t` | One of t/i/s | Title to search |
+| `i` | One of t/i/s | IMDB ID (preferred for exact match) |
+| `y` | No | Year (helps disambiguate titles) |
+| `plot` | No | `short` (default) or `full` |
+| `r` | No | `json` (default) or `xml` |
+
+### Response Fields We'll Extract
+
+| Field | Maps To | Example |
+|-------|---------|---------|
+| `imdbID` | `imdb_id` | `"tt0022448"` |
+| `imdbRating` | `imdb_rating` | `"7.2"` |
+| `Ratings[1].Value` | `rotten_tomatoes` | `"88%"` |
+| `Ratings[2].Value` | `metacritic` | `"70/100"` |
+| `Plot` | `omdb_plot` | `"A symphony of..."` |
+
+---
+
+## Step-by-Step Setup Guide
+
+### Phase 1: API Setup
+
+1. Go to https://www.omdbapi.com/apikey.aspx
+2. Request a free API key (1,000 daily requests)
+3. Verify via email
+4. Create `.env` in project root:
+   ```
+   OMDB_API_KEY=your_key_here
+   ```
+5. Ensure `.env` is in `.gitignore`
+
+### Phase 2: Create Fetch Script
+
+1. Create `data-processing/fetch_omdb.py`
+2. Load movies from `public/tenement-stories-full.json`
+3. For each unique film title:
+   - Check if already in `omdb-cache.json` → skip
+   - Query OMDb: `GET /?apikey=KEY&t=TITLE&y=YEAR`
+   - Save response to cache
+   - Sleep 1 second (rate limit)
+4. Log any failures (no match found)
+
+### Phase 3: Create Enrichment Script
+
+1. Create `data-processing/enrich_with_omdb.py`
+2. Load `tenement-stories-full.json` and `omdb-cache.json`
+3. For each movie, find matching cache entry by title
+4. Extract and add: `imdb_id`, `imdb_rating`, `rotten_tomatoes`, `metacritic`, `omdb_plot`
+5. Write updated JSON back
+
+### Phase 4: Update UI
+
+1. Update `MovieModal.astro` to display scores
+2. Add scores row (IMDB · RT · Metacritic)
+3. Add OMDb plot section below the fold
+4. Handle missing data with "Ratings unavailable"
+
+### Phase 5: Test & Commit
+
+1. Run fetch script: `python data-processing/fetch_omdb.py`
+2. Run enrich script: `python data-processing/enrich_with_omdb.py`
+3. Verify JSON has new fields
+4. Test modal displays correctly
+5. Commit `omdb-cache.json` and updated movie data
+
+---
+
+## Affected Files
+
+| File | Type | Changes |
+|------|------|---------|
+| `data-processing/fetch_omdb.py` | New | Script to query OMDb API |
+| `data-processing/enrich_with_omdb.py` | New | Script to merge cache into movie data |
+| `data-processing/omdb-cache.json` | New | Cached API responses |
+| `.env` | New | API key storage (gitignored) |
+| `.gitignore` | Edit | Add `.env` |
+| `public/tenement-stories-full.json` | Edit | Add OMDb fields to movie objects |
+| `src/components/MovieModal.astro` | Edit | Display scores + OMDb plot |
+| `src/components/MovieModal.css` (if exists) | Edit | Style scores row + below-fold section |
+
+---
+
 ## Future Considerations
 
 - Could add Letterboxd data if API access is ever granted
