@@ -241,3 +241,42 @@ The extracted `src/styles/movie-tile.css` includes:
 ```
 
 This ensures all pages using the Layout component have access to the shared movie tile styles without duplication.
+
+## 2026-02-05: Progressive Blur Demo Enhancement
+
+### Work Completed
+Restored and fixed the progressive blur demo (`/demo/blur-progressive`) with three major feature additions:
+
+1. **Scrim Toggle** - Dark overlay with `mix-blend-mode: darken` for Apple-style text readability
+   - Adds subtle darkening to match blur zones
+   - Opacity 0.4-0.2 gradient for smooth effect
+   - Works across main cards and SBS comparison cards
+
+2. **SBS Comparison Section** - Side-by-side sliders for simple vs progressive blur
+   - 4 aspect ratio cards: 2-1, 16-9, 3-4, 2-3
+   - Synchronized drag across all cards with 50% split at center
+   - Compact sizes (200px-400px wide) per user request
+   - Shows clear quality difference between techniques
+
+3. **Text-Relative Blur Mode** - Blur scales to text overlay height
+   - "Textbox" mode is now default (previously was "Card")
+   - Start/End sliders control blur zone boundaries
+   - Sliders now properly update all sections: main cards, aspect ratio grid, and SBS comparison
+   - URL params preserve all settings
+
+### Technical Changes
+- Fixed height mode default: stores `height=card` only when not default (textbox)
+- Initialize text-relative blur on page load
+- Added `updateComparisonBlur()` calls to all control listeners (sliders, toggles, direction)
+- Fixed scrim gradient updates in SBS comparison cards
+- Added noise texture base64 to scrim CSS for future banding reduction
+
+### Commits
+- `bc903a5` - Add git fsck permission
+- `7a52544` - Add scrim toggle, SBS comparison, fix textbox default
+- `a04ad0b` - Fix SBS comparison to update with slider and toggle changes
+
+### Known Issues / Future Work
+- Banding still visible in progressive blur; noise texture approach attempted but deferred
+- Performance on mobile with 7 blur layers + scrim not fully tested
+- Consider reducing layer count or disabling scrim on mobile if needed
