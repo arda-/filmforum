@@ -136,33 +136,32 @@ GET http://www.omdbapi.com/?apikey=KEY&t=MovieTitle&y=1931
 │  1931 · King Vidor · 80 min             │  ← meta (year, director, runtime)
 │  Sylvia Sidney, William Collier Jr.     │  ← actors
 │                                         │
+│  ╭───────────────────────────────────╮  │
+│  │ "A slice-of-life drama set on a  │  │  ← Film Forum description
+│  │  single New York City block..."  │  │     (primary)
+│  ╰───────────────────────────────────╯  │
+│                                    — FF │
+│                                         │
+│ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │  ← fold (scroll to see below)
+│                                         │
 │  ┌───────────────────────────────────┐  │
 │  │ IMDB 7.2  ·  RT 88%  ·  Meta 70   │  │  ← NEW: scores row
 │  └───────────────────────────────────┘  │
 │                                         │
-│  ╭───────────────────────────────────╮  │
-│  │ "A slice-of-life drama set on a  │  │  ← Film Forum description
-│  │  single New York City block..."  │  │     (primary, above fold)
-│  ╰───────────────────────────────────╯  │
-│                                    — FF │
-│                                         │
-│  ┌─────────────────────────────────────┐│
-│  │         [ Buy Tickets ]             ││  ← actions
-│  │         [ Add to Calendar ]         ││
-│  │         [ View on Film Forum ↗ ]    ││
-│  └─────────────────────────────────────┘│
-│                                         │
-│ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ │  ← fold (scroll to see below)
-│                                         │
-│  More about this film                   │  ← NEW: section header
 │  ┌───────────────────────────────────┐  │
 │  │ A symphony of life on a single   │  │  ← NEW: OMDb plot
-│  │ street in New York City...       │  │     (secondary, below fold)
+│  │ street in New York City...       │  │     (secondary)
 │  └───────────────────────────────────┘  │
 │                                    — OMDb│
 │                                         │
-│  [ View on IMDB ↗ ]                     │  ← NEW: optional IMDB link
+│  [ View on IMDB ↗ ]                     │  ← NEW: external link
+│  [ View on Film Forum ↗ ]               │  ← existing link (moved here)
 │                                         │
+├─────────────────────────────────────────┤
+│  ┌─────────────────────────────────────┐│
+│  │         [ Buy Tickets ]             ││  ← sticky footer
+│  │         [ Add to Calendar ]         ││
+│  └─────────────────────────────────────┘│
 └─────────────────────────────────────────┘
 ```
 
