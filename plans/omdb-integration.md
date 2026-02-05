@@ -17,43 +17,58 @@ OMDb is the only free way to get recognizable critic scores (RT, Metacritic).
 ## Data Flow
 
 ```
-tenement-stories-full.json (existing movie data)
-    ↓
-[fetch_omdb.py] — query OMDb API for each film
-    ↓
-omdb-cache.json (cached API responses)
-    ↓
-[enrich_with_omdb.py] — merge scores into movie data
-    ↓
-tenement-stories-full.json (enriched with scores)
-    ↓
-App displays scores in modal
+tenement-stories-full.json          omdb-data.json
+(Film Forum data - unchanged)       (OMDb data - separate)
+            ↓                              ↓
+            └──────────┬───────────────────┘
+                       ↓
+              UI joins by title+year
+                       ↓
+              Modal displays both sources
 ```
+
+**Key principle:** Film Forum data pipeline stays isolated. OMDb is a parallel data source joined at display time.
 
 ## Data Model Changes
 
-Add fields to existing Movie interface:
+**Film Forum Movie interface:** Unchanged.
+
+**New OMDb interface (separate file):**
 
 ```typescript
-interface Movie {
-  // ... existing fields ...
+interface OMDbEntry {
+  // Lookup key
+  title: string;              // Normalized title for matching
+  year: string;               // "1931"
 
-  // OMDb enrichment
-  imdb_id?: string;           // "tt1234567" - for reliable lookups
-  imdb_rating?: string;       // "7.9"
-  rotten_tomatoes?: string;   // "97%"
-  metacritic?: string;        // "82"
-  omdb_plot?: string;         // Short plot summary
+  // Scores
+  imdb_id: string;            // "tt0022448"
+  imdb_rating: string | null; // "7.2" or null if unavailable
+  rotten_tomatoes: string | null; // "88%" or null
+  metacritic: string | null;  // "70" or null
+
+  // Content
+  plot: string | null;        // Short plot summary
 }
+
+// omdb-data.json structure: keyed by "title::year" for fast lookup
+type OMDbData = Record<string, OMDbEntry>;
+```
+
+**Lookup example:**
+```typescript
+const key = `${movie.Movie.toLowerCase()}::${movie.year}`;
+const omdb = omdbData[key]; // may be undefined
 ```
 
 ## New Files
 
 ```
 data-processing/
-├── fetch_omdb.py        # Query OMDb API, save to cache
-├── enrich_with_omdb.py  # Merge cache into movie data
-└── omdb-cache.json      # Cached API responses (committed to repo)
+└── fetch_omdb.py        # Query OMDb API, output to public/omdb-data.json
+
+public/
+└── omdb-data.json       # OMDb data (committed, loaded by UI)
 
 .env                     # OMDB_API_KEY (gitignored)
 ```
@@ -69,11 +84,13 @@ data-processing/
 ### 2. fetch_omdb.py
 
 Responsibilities:
-- Load existing movie data from `tenement-stories-full.json`
+- Load movie list from `public/tenement-stories-full.json` (read-only)
+- Extract unique title+year combinations
 - For each film, query OMDb by title + year
-- Save full API response to `omdb-cache.json`
+- Transform response into `OMDbEntry` format
+- Write to `public/omdb-data.json` (keyed by `title::year`)
 - Rate limit: ~1 request/second (respect free tier)
-- Skip films already in cache (idempotent re-runs)
+- Skip films already in output file (idempotent re-runs)
 - Log any films that fail to match
 
 OMDb API call:
@@ -81,16 +98,7 @@ OMDb API call:
 GET http://www.omdbapi.com/?apikey=KEY&t=MovieTitle&y=1931
 ```
 
-### 3. enrich_with_omdb.py
-
-Responsibilities:
-- Load `tenement-stories-full.json`
-- Load `omdb-cache.json`
-- Match films by title (normalized) or IMDB ID if available
-- Extract and copy: `imdbRating`, `Ratings` array (RT, Meta), `Plot`
-- Write updated `tenement-stories-full.json`
-
-### 4. Matching Strategy
+### 3. Matching Strategy
 
 1. **Primary:** Match by title + year (auto)
 2. **Fallback:** Manually add `imdb_id` to movie data for edge cases that don't match
