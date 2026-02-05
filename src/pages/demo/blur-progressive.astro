@@ -453,8 +453,6 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   .mask-preview {
-    display: flex;
-    flex-direction: column-reverse; /* Layer 7 (heaviest) at bottom */
     width: 120px;
     height: 450px;
     background: var(--bg-movie);
@@ -464,12 +462,13 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   .mask-bar {
-    flex: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: opacity 0.2s;
-    position: relative;
   }
 
   .mask-bar span {
@@ -479,13 +478,15 @@ import Layout from '../../layouts/Layout.astro';
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
-  .mask-bar.layer-1 { background: hsl(200, 70%, 50%); }
-  .mask-bar.layer-2 { background: hsl(180, 70%, 45%); }
-  .mask-bar.layer-3 { background: hsl(160, 70%, 40%); }
-  .mask-bar.layer-4 { background: hsl(140, 70%, 35%); }
-  .mask-bar.layer-5 { background: hsl(120, 70%, 30%); }
-  .mask-bar.layer-6 { background: hsl(100, 70%, 28%); }
-  .mask-bar.layer-7 { background: hsl(80, 70%, 25%); }
+  /* Position each bar to show its zone - 7 layers spanning 450px */
+  /* Layer 7 at bottom (heaviest blur), Layer 1 at top (lightest) */
+  .mask-bar.layer-7 { bottom: 0; height: 64px; background: hsl(80, 70%, 25%); }
+  .mask-bar.layer-6 { bottom: 64px; height: 64px; background: hsl(100, 70%, 28%); }
+  .mask-bar.layer-5 { bottom: 128px; height: 64px; background: hsl(120, 70%, 30%); }
+  .mask-bar.layer-4 { bottom: 192px; height: 64px; background: hsl(140, 70%, 35%); }
+  .mask-bar.layer-3 { bottom: 256px; height: 64px; background: hsl(160, 70%, 40%); }
+  .mask-bar.layer-2 { bottom: 320px; height: 64px; background: hsl(180, 70%, 45%); }
+  .mask-bar.layer-1 { bottom: 384px; height: 66px; background: hsl(200, 70%, 50%); }
 
   .mask-labels {
     display: flex;
