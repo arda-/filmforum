@@ -49,6 +49,20 @@ import Layout from '../../layouts/Layout.astro';
       <input type="checkbox" id="enable-blur" checked />
       <span>Blur</span>
     </label>
+    <label class="debug-toggle">
+      <input type="checkbox" id="text-relative" />
+      <span>Text-Relative</span>
+    </label>
+    <div class="slider-group">
+      <label class="slider-control">
+        <span class="slider-label">Start: <span id="blur-start-value">0%</span></span>
+        <input type="range" id="blur-start" min="0" max="100" step="5" value="0" />
+      </label>
+      <label class="slider-control">
+        <span class="slider-label">End: <span id="blur-end-value">100%</span></span>
+        <input type="range" id="blur-end" min="0" max="100" step="5" value="100" />
+      </label>
+    </div>
   </div>
 
   <div class="demo-container">
@@ -169,6 +183,32 @@ import Layout from '../../layouts/Layout.astro';
       }
     }
 
+    // Text-relative toggle
+    if (textRelativeToggle?.checked) {
+      newParams.set('text_rel', '1');
+    } else {
+      newParams.delete('text_rel');
+    }
+
+    // Slider values
+    if (blurStartSlider?.value !== '0') {
+      newParams.set('start', blurStartSlider.value);
+    } else {
+      newParams.delete('start');
+    }
+    if (blurEndSlider?.value !== '100') {
+      newParams.set('end', blurEndSlider.value);
+    } else {
+      newParams.delete('end');
+    }
+
+    // Debug colors toggle
+    if (debugColorsToggle?.checked) {
+      newParams.set('debug', '1');
+    } else {
+      newParams.delete('debug');
+    }
+
     const newURL = newParams.toString()
       ? `${window.location.pathname}?${newParams}`
       : window.location.pathname;
@@ -178,13 +218,173 @@ import Layout from '../../layouts/Layout.astro';
   // Debug color toggle
   const debugColorsToggle = document.getElementById('debug-colors') as HTMLInputElement;
   const enableBlurToggle = document.getElementById('enable-blur') as HTMLInputElement;
+  const textRelativeToggle = document.getElementById('text-relative') as HTMLInputElement;
+  const blurStartSlider = document.getElementById('blur-start') as HTMLInputElement;
+  const blurEndSlider = document.getElementById('blur-end') as HTMLInputElement;
+  const blurStartValue = document.getElementById('blur-start-value') as HTMLSpanElement;
+  const blurEndValue = document.getElementById('blur-end-value') as HTMLSpanElement;
 
   debugColorsToggle?.addEventListener('change', () => {
     document.body.classList.toggle('debug-colors', debugColorsToggle.checked);
+    updateURL();
   });
 
   enableBlurToggle?.addEventListener('change', () => {
     document.body.classList.toggle('blur-disabled', !enableBlurToggle.checked);
+  });
+
+  // Text-relative blur calculation
+  function updateTextRelativeBlur() {
+    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
+    if (!card) return;
+
+    const textOverlay = card.querySelector('.text-overlay') as HTMLElement;
+    const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+    if (!textOverlay) return;
+
+    const cardHeight = card.offsetHeight;
+    const textHeight = textOverlay.offsetHeight;
+
+    // Blur zone extends from 0% to top of text overlay
+    const blurEndPct = (textHeight / cardHeight) * 100;
+    const scale = blurEndPct / 100;
+
+    // Original smooth overlapping masks - scale them proportionally
+    // These have ~15% overlap between adjacent layers for smooth blending
+    const layerMasks = [
+      { fadeIn: 70, solidStart: 85, solidEnd: 100 },  // layer-1 (top, lightest)
+      { fadeIn: 55, solidStart: 70, solidEnd: 85, fadeOut: 100 },
+      { fadeIn: 40, solidStart: 55, solidEnd: 70, fadeOut: 85 },
+      { fadeIn: 25, solidStart: 40, solidEnd: 55, fadeOut: 70 },
+      { fadeIn: 10, solidStart: 25, solidEnd: 40, fadeOut: 55 },
+      { fadeIn: 0, solidStart: 10, solidEnd: 25, fadeOut: 40 },
+      { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 25 }   // layer-7 (bottom, heaviest)
+    ];
+
+    layers.forEach((layer, i) => {
+      const mask = layerMasks[i];
+      const fadeIn = mask.fadeIn * scale;
+      const solidStart = mask.solidStart * scale;
+      const solidEnd = Math.min(mask.solidEnd * scale, blurEndPct);
+      const fadeOut = mask.fadeOut ? Math.min(mask.fadeOut * scale, blurEndPct) : blurEndPct;
+
+      let gradient: string;
+      if (i === 0) {
+        // Layer 1 - top layer, cap at blur zone boundary
+        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${blurEndPct}%, transparent ${blurEndPct}%)`;
+      } else if (i === 6) {
+        // Layer 7 - bottom layer
+        gradient = `linear-gradient(to top, black 0%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+      } else {
+        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+      }
+
+      layer.style.maskImage = gradient;
+      layer.style.webkitMaskImage = gradient;
+    });
+  }
+
+  function resetToStaticMasks() {
+    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
+    if (!card) return;
+
+    const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+
+    // Reset to CSS-defined masks by removing inline styles
+    layers.forEach(layer => {
+      layer.style.maskImage = '';
+      layer.style.webkitMaskImage = '';
+    });
+  }
+
+  textRelativeToggle?.addEventListener('change', () => {
+    if (textRelativeToggle.checked) {
+      updateTextRelativeBlur();
+    } else {
+      // Check if sliders are at default (0-100), if so reset to static
+      if (blurStartSlider.value === '0' && blurEndSlider.value === '100') {
+        resetToStaticMasks();
+      } else {
+        updateBlurFromSliders();
+      }
+    }
+    updateURL();
+  });
+
+  // Slider-controlled blur zone
+  function updateBlurFromSliders() {
+    const card = document.querySelector('.demo-container .poster-card') as HTMLElement;
+    if (!card) return;
+
+    const layers = card.querySelectorAll('.blur-layer') as NodeListOf<HTMLElement>;
+    const startPct = parseFloat(blurStartSlider.value);
+    const endPct = parseFloat(blurEndSlider.value);
+
+    // Ensure start < end
+    if (startPct >= endPct) return;
+
+    const range = endPct - startPct;
+    const scale = range / 100;
+
+    // Original smooth overlapping masks - remap to startPct-endPct range
+    const layerMasks = [
+      { fadeIn: 70, solidStart: 85, solidEnd: 100 },
+      { fadeIn: 55, solidStart: 70, solidEnd: 85, fadeOut: 100 },
+      { fadeIn: 40, solidStart: 55, solidEnd: 70, fadeOut: 85 },
+      { fadeIn: 25, solidStart: 40, solidEnd: 55, fadeOut: 70 },
+      { fadeIn: 10, solidStart: 25, solidEnd: 40, fadeOut: 55 },
+      { fadeIn: 0, solidStart: 10, solidEnd: 25, fadeOut: 40 },
+      { fadeIn: 0, solidStart: 0, solidEnd: 10, fadeOut: 25 }
+    ];
+
+    layers.forEach((layer, i) => {
+      const mask = layerMasks[i];
+      const fadeIn = startPct + mask.fadeIn * scale;
+      const solidStart = startPct + mask.solidStart * scale;
+      const solidEnd = Math.min(startPct + mask.solidEnd * scale, endPct);
+      const fadeOut = mask.fadeOut ? Math.min(startPct + mask.fadeOut * scale, endPct) : endPct;
+
+      let gradient: string;
+      if (i === 0) {
+        // Layer 1 - top layer, cap at blur zone boundary
+        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${endPct}%, transparent ${endPct}%)`;
+      } else if (i === 6) {
+        // Layer 7 - bottom layer
+        gradient = `linear-gradient(to top, black ${startPct}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+      } else {
+        gradient = `linear-gradient(to top, transparent ${fadeIn}%, black ${solidStart}%, black ${solidEnd}%, transparent ${fadeOut}%)`;
+      }
+
+      layer.style.maskImage = gradient;
+      layer.style.webkitMaskImage = gradient;
+    });
+  }
+
+  blurStartSlider?.addEventListener('input', () => {
+    blurStartValue.textContent = `${blurStartSlider.value}%`;
+    // Disable text-relative when using sliders
+    if (textRelativeToggle.checked) {
+      textRelativeToggle.checked = false;
+    }
+    updateBlurFromSliders();
+    updateURL();
+  });
+
+  blurEndSlider?.addEventListener('input', () => {
+    blurEndValue.textContent = `${blurEndSlider.value}%`;
+    // Disable text-relative when using sliders
+    if (textRelativeToggle.checked) {
+      textRelativeToggle.checked = false;
+    }
+    updateBlurFromSliders();
+    updateURL();
+  });
+
+  // Update on resize when text-relative is enabled
+  window.addEventListener('resize', () => {
+    if (textRelativeToggle?.checked) {
+      updateTextRelativeBlur();
+    }
   });
 
   // Initialize on load
@@ -199,6 +399,35 @@ import Layout from '../../layouts/Layout.astro';
         }
       }
     }
+
+    // Restore slider values from URL
+    const startParam = params.get('start');
+    const endParam = params.get('end');
+    if (startParam) {
+      blurStartSlider.value = startParam;
+      blurStartValue.textContent = `${startParam}%`;
+    }
+    if (endParam) {
+      blurEndSlider.value = endParam;
+      blurEndValue.textContent = `${endParam}%`;
+    }
+
+    // Apply slider values if not at defaults
+    if (startParam || endParam) {
+      updateBlurFromSliders();
+    }
+
+    // Restore text-relative toggle
+    if (params.get('text_rel') === '1') {
+      textRelativeToggle.checked = true;
+      updateTextRelativeBlur();
+    }
+
+    // Restore debug colors toggle
+    if (params.get('debug') === '1') {
+      debugColorsToggle.checked = true;
+      document.body.classList.add('debug-colors');
+    }
   });
 </script>
 
@@ -209,7 +438,7 @@ import Layout from '../../layouts/Layout.astro';
 
   .demo-controls {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 16px;
     justify-content: center;
     align-items: center;
@@ -292,6 +521,58 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   .debug-toggle input {
+    cursor: pointer;
+  }
+
+  .slider-group {
+    display: flex;
+    gap: 16px;
+    padding: 8px 12px;
+    background: var(--bg-movie-hover);
+    border-radius: 6px;
+  }
+
+  .slider-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .slider-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: monospace;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 120px;
+    height: 4px;
+    background: var(--bg-movie);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: none;
     cursor: pointer;
   }
 
@@ -406,10 +687,10 @@ import Layout from '../../layouts/Layout.astro';
   body.debug-colors .layer-6 { background: rgba(255, 150, 0, 0.5); }
   body.debug-colors .layer-7 { background: rgba(255, 50, 50, 0.5); }
 
-  /* Blur disabled mode */
-  body.blur-disabled .blur-layer {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+  /* Blur disabled mode - hide entire blur container */
+  body.blur-disabled .progressive-blur,
+  body.blur-disabled .simple-blur-layer {
+    display: none !important;
   }
 
   .text-overlay {
