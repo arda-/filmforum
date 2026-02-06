@@ -18,16 +18,15 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
-    {title && (
-      <div class="drawer-header">
-        <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
-        <button class="drawer-close-btn" data-drawer-close aria-label="Close">
-          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-            <path d="M11.78 4.03a.5.5 0 00-.71-.71L7.5 6.89 3.93 3.32a.5.5 0 10-.71.71L6.79 7.5l-3.57 3.47a.5.5 0 00.71.71L7.5 8.11l3.57 3.57a.5.5 0 00.71-.71L8.21 7.5l3.57-3.47z" fill="currentColor"/>
-          </svg>
-        </button>
-      </div>
-    )}
+    <div class="drawer-header">
+      {title && <h2 id={`${id}-title`} class="drawer-title">{title}</h2>}
+      {!title && <div></div>}
+      <button class="drawer-close-btn" aria-label="Close">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M11.78 4.03a.5.5 0 00-.71-.71L7.5 6.89 3.93 3.32a.5.5 0 10-.71.71L6.79 7.5l-3.57 3.47a.5.5 0 00.71.71L7.5 8.11l3.57 3.57a.5.5 0 00.71-.71L8.21 7.5l3.57-3.47z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
     <div class="drawer-body">
       <slot />
     </div>
@@ -97,7 +96,6 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     flex-direction: column;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     will-change: transform;
-    touch-action: none;
   }
 
   .drawer-handle-area {
@@ -168,11 +166,12 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
   document.querySelectorAll('.drawer').forEach(drawer => {
     const container = drawer.querySelector('.drawer-container') as HTMLElement;
     const handle = drawer.querySelector('[data-drawer-handle]') as HTMLElement;
-    const closeElements = drawer.querySelectorAll('[data-drawer-close]');
+    const body = drawer.querySelector('.drawer-body') as HTMLElement;
 
     let startY = 0;
     let currentY = 0;
     let isDragging = false;
+    let dragSource: 'handle' | 'body' | null = null;
 
     function closeDrawer() {
       drawer.classList.add('closing');
@@ -184,10 +183,17 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
       }, 250);
     }
 
-    // Close on backdrop/button click
-    closeElements.forEach(el => {
-      el.addEventListener('click', (e) => {
-        if (e.target === el) closeDrawer();
+    // Close on backdrop click
+    const backdrop = drawer.querySelector('.drawer-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', () => closeDrawer());
+    }
+
+    // Close on close button click (use closest to handle SVG children)
+    drawer.querySelectorAll('.drawer-close-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeDrawer();
       });
     });
 
@@ -198,10 +204,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
       }
     });
 
-    // Swipe-to-dismiss: works on handle always, and on body when scrolled to top
-    const body = drawer.querySelector('.drawer-body') as HTMLElement;
-    let dragSource: 'handle' | 'body' | null = null;
-
+    // --- Swipe-to-dismiss ---
     function onTouchStart(e: TouchEvent, source: 'handle' | 'body') {
       // For body drags, only start if scrolled to top
       if (source === 'body' && body && body.scrollTop > 0) return;
@@ -226,10 +229,8 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
         currentY = 0;
       } else {
         currentY = delta;
-        // Prevent scroll while dragging drawer down
-        if (dragSource === 'body' && currentY > 5) {
-          e.preventDefault();
-        }
+        // Prevent native scroll immediately when dragging down
+        e.preventDefault();
       }
       container.style.transform = `translateY(${currentY}px)`;
     }
@@ -258,14 +259,16 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
       body.addEventListener('touchstart', (e) => onTouchStart(e, 'body'), { passive: true });
     }
 
-    // Shared move/end on container
-    container.addEventListener('touchmove', (e) => onTouchMove(e), { passive: false });
-    container.addEventListener('touchend', onTouchEnd);
+    // Shared move/end — listen on the entire drawer element (not just container)
+    // so touches that start on body but move to container are captured
+    drawer.addEventListener('touchmove', (e) => onTouchMove(e as TouchEvent), { passive: false });
+    drawer.addEventListener('touchend', () => onTouchEnd());
 
     // Mouse drag support (handle only, for desktop)
     if (handle) {
       handle.addEventListener('mousedown', (e: MouseEvent) => {
         isDragging = true;
+        dragSource = 'handle';
         startY = e.clientY;
         container.style.transition = 'none';
 
@@ -278,6 +281,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
 
         const onMouseUp = () => {
           isDragging = false;
+          dragSource = null;
           container.style.transition = '';
           if (currentY > 80) {
             closeDrawer();
