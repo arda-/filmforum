@@ -43,7 +43,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 ---
 
 <Layout title={`${config.name} — Movie List`}>
-  <main class="session-list-page" data-session-id={id}>
+  <main class="session-list-page" data-session-id={id} data-drawer-wrapper>
     <header class="page-header">
       <a href="/" class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -167,6 +167,14 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     // Toggle: if same reaction, clear it; otherwise set new
     const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
     setReaction(sessionId, movieId, newReaction);
+
+    // Immediate visual feedback before full DOM sync
+    const card = document.querySelector(`.card[data-movie-id="${movieId}"]`) as HTMLElement;
+    if (card) {
+      card.classList.remove('card--yes', 'card--maybe', 'card--no');
+      if (newReaction !== 'none') card.classList.add(`card--${newReaction}`);
+    }
+
     loadReactions();
   });
 
@@ -239,17 +247,15 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   }
 
   // --- More Info Drawer ---
-  function openMovieDetail(movieId: string) {
+  function openMovieDetail(movieId: string, sourceEl?: HTMLElement) {
     const idx = allMovies.findIndex(m => m.id === movieId);
     if (idx === -1) return;
 
     // Use Apple-style drawer for card taps
     const ctrl = (window as any).singleCardController;
     if (ctrl) {
-      ctrl.currentIndex = idx;
       ctrl.reactions = getReactions(sessionId);
-      ctrl.render();
-      ctrl.open();
+      ctrl.open(idx, sourceEl);
     } else {
       showMovieDetail(idx);
       (window as any).openDrawer('movie-detail-drawer');
@@ -315,11 +321,20 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       return;
     }
 
+    // Click on a saved item to open detail
+    const savedItem = target.closest('.saved-item') as HTMLElement | null;
+    if (savedItem && !target.closest('button, a, [data-action]')) {
+      const movieId = savedItem.dataset.movieId;
+      if (movieId) openMovieDetail(movieId);
+      return;
+    }
+
     // Click on a card or list item body (not on buttons)
     const item = target.closest('.card, .list-item') as HTMLElement | null;
     if (item && !target.closest('button, a')) {
       const movieId = item.dataset.movieId;
-      if (movieId) openMovieDetail(movieId);
+      const sourceCard = item.classList.contains('card') ? item : undefined;
+      if (movieId) openMovieDetail(movieId, sourceCard);
     }
   });
 
@@ -432,7 +447,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // --- Initialize ---
   loadReactions();
-  updateDisplayToggles();
 </script>
 
 <style>
