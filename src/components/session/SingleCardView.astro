@@ -1,8 +1,9 @@
 ---
 /**
  * Apple-style Single Card View (Drawer Modal)
- * iOS-like bottom sheet with full-bleed hero image, drag handle, and gesture support.
- * Matches Vaul behavior with momentum close, damping, and iOS easing.
+ * iOS-like bottom sheet with full-bleed hero image, floating drag handle,
+ * floating close button, and gesture support.
+ * Matches Apple App Store / Vaul behavior with momentum close and iOS easing.
  */
 import type { UniqueMovie, MovieReaction } from '../../types/session';
 
@@ -19,41 +20,75 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
   <div class="single-view-overlay" id="single-view-overlay"></div>
 
   <div class="single-view-drawer" id="single-view-drawer" role="dialog" aria-modal="true">
-    <!-- Drag handle -->
-    <div class="drawer-handle-container">
-      <div class="drawer-handle"></div>
-    </div>
+    <!-- Content (scrollable) -->
+    <div class="drawer-scroll" id="drawer-scroll">
+      <!-- Hero section: full-bleed poster + floating controls + text overlay -->
+      <div class="drawer-hero" id="drawer-hero">
+        <img class="drawer-hero-img" id="drawer-hero-img" src="" alt="" />
+        <div class="drawer-hero-placeholder" id="drawer-hero-placeholder">No Image</div>
 
-    <!-- Content -->
-    <div class="drawer-content" id="drawer-content">
-      {movies.length > 0 && (
-        <div id="single-card-wrapper">
-          <!-- Card rendered via JS -->
+        <!-- Blur scrim on hero -->
+        <div class="drawer-hero-scrim"></div>
+
+        <!-- Floating drag handle (overlays hero) -->
+        <div class="drawer-handle">
+          <div class="drawer-handle-pill"></div>
         </div>
-      )}
 
-      {movies.length === 0 && (
-        <div class="drawer-empty">
-          <p>No movies to display</p>
+        <!-- Floating close button (overlays hero) -->
+        <button class="drawer-close-btn" id="drawer-close-btn" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <!-- Text overlay on hero image -->
+        <div class="drawer-hero-text">
+          <h2 class="drawer-hero-title" id="drawer-hero-title"></h2>
+          <p class="drawer-hero-meta" id="drawer-hero-meta"></p>
         </div>
-      )}
+      </div>
 
-      <!-- Navigation and details rendered below -->
-      {movies.length > 1 && (
+      <!-- Body content below hero -->
+      <div class="drawer-body" id="drawer-body">
+        <p class="drawer-actors" id="drawer-actors"></p>
+
+        <div class="drawer-description" id="drawer-description-block">
+          <p class="drawer-description-text" id="drawer-description"></p>
+          <p class="drawer-citation">— Film Forum</p>
+        </div>
+
+        <!-- Reaction buttons -->
+        <div class="drawer-reactions" id="drawer-reactions">
+          <button class="rbtn rbtn--yes" data-reaction="yes" aria-label="Yes" title="Yes">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Yes</span>
+          </button>
+          <button class="rbtn rbtn--maybe" data-reaction="maybe" aria-label="Maybe" title="Maybe">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Maybe</span>
+          </button>
+          <button class="rbtn rbtn--no" data-reaction="no" aria-label="No" title="No">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>No</span>
+          </button>
+        </div>
+
+        <!-- Navigation -->
         <div class="drawer-nav" id="drawer-nav">
           <button class="drawer-nav-btn" id="drawer-nav-prev" aria-label="Previous movie">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <span class="drawer-nav-counter" id="drawer-nav-counter">1 / {movies.length}</span>
+          <span class="drawer-nav-counter" id="drawer-nav-counter"></span>
           <button class="drawer-nav-btn" id="drawer-nav-next" aria-label="Next movie">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M9 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
         </div>
-      )}
+      </div>
     </div>
   </div>
 </div>
@@ -70,23 +105,29 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       this.startTime = 0;
 
       // Gesture thresholds (Vaul defaults)
-      this.CLOSE_THRESHOLD = 0.25; // 25% of height to close
-      this.VELOCITY_THRESHOLD = 0.5; // px/ms to trigger momentum close
+      this.CLOSE_THRESHOLD = 0.25;
+      this.VELOCITY_THRESHOLD = 0.5;
 
       this.wrapper = document.getElementById('single-view-wrapper');
       this.drawer = document.getElementById('single-view-drawer');
       this.overlay = document.getElementById('single-view-overlay');
-      this.content = document.getElementById('drawer-content');
+      this.scroll = document.getElementById('drawer-scroll');
 
       this.bindEvents();
       this.render();
     }
 
     bindEvents() {
-      // Drawer drag events
-      this.drawer.addEventListener('pointerdown', this.onPointerDown.bind(this));
+      // Drag from the handle area
+      const handle = this.drawer.querySelector('.drawer-handle');
+      if (handle) {
+        handle.addEventListener('pointerdown', this.onPointerDown.bind(this));
+      }
       document.addEventListener('pointermove', this.onPointerMove.bind(this));
       document.addEventListener('pointerup', this.onPointerUp.bind(this));
+
+      // Close button
+      document.getElementById('drawer-close-btn')?.addEventListener('click', () => this.close());
 
       // Overlay click to close
       this.overlay?.addEventListener('click', () => this.close());
@@ -106,31 +147,45 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       // Nav buttons
       document.getElementById('drawer-nav-prev')?.addEventListener('click', () => this.prev());
       document.getElementById('drawer-nav-next')?.addEventListener('click', () => this.next());
+
+      // Reaction buttons
+      this.drawer.addEventListener('click', (e) => {
+        const btn = e.target.closest('.rbtn');
+        if (!btn) return;
+        const reaction = btn.dataset.reaction;
+        const movie = this.movies[this.currentIndex];
+        if (!movie || !reaction) return;
+
+        const current = this.reactions[movie.id] || 'none';
+        const newReaction = current === reaction ? 'none' : reaction;
+        this.reactions[movie.id] = newReaction;
+
+        // Dispatch to main page handler
+        const event = new CustomEvent('single-card-reaction', {
+          detail: { movieId: movie.id, reaction: newReaction }
+        });
+        document.dispatchEvent(event);
+
+        this.updateReactionButtons(newReaction);
+      });
     }
 
     onPointerDown(e) {
-      // Only start drag from handle or top of drawer
-      const handle = e.target.closest('.drawer-handle-container');
-      const isTopArea = e.clientY < this.drawer.offsetHeight * 0.15;
-
-      if (!handle && !isTopArea) return;
-
-      // Ignore if scrolled (Vaul behavior)
-      if (this.content.scrollTop > 0) return;
+      // Ignore if content is scrolled
+      if (this.scroll && this.scroll.scrollTop > 0) return;
 
       this.isDragging = true;
       this.startY = e.clientY;
       this.startTime = Date.now();
       this.drawer.classList.add('dragging');
       this.drawer.setPointerCapture(e.pointerId);
+      e.preventDefault();
     }
 
     onPointerMove(e) {
       if (!this.isDragging) return;
 
       const deltaY = e.clientY - this.startY;
-
-      // Only allow dragging down (closing)
       if (deltaY >= 0) {
         this.currentY = deltaY;
         this.drawer.style.transform = `translateY(${deltaY}px)`;
@@ -150,7 +205,6 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       const timeTaken = Date.now() - this.startTime;
       const velocity = timeTaken > 0 ? this.currentY / timeTaken : 0;
 
-      // Close if: dragged past threshold OR flicked with momentum
       if (percentDragged > this.CLOSE_THRESHOLD || velocity > this.VELOCITY_THRESHOLD) {
         this.close();
       } else {
@@ -164,7 +218,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       const height = this.drawer.offsetHeight;
       const percent = Math.min(dragY / height, 1);
       if (this.overlay) {
-        this.overlay.style.opacity = Math.max(0, 1 - percent * 1.5);
+        this.overlay.style.opacity = String(Math.max(0, 1 - percent * 1.5));
       }
     }
 
@@ -175,15 +229,19 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
 
     open() {
       this.wrapper.dataset.hidden = 'false';
-      // Trigger reflow for animation
-      this.drawer.offsetHeight;
+      void this.drawer.offsetHeight;
       this.drawer.classList.add('open');
+      document.body.style.overflow = 'hidden';
     }
 
     close() {
       this.drawer.classList.remove('open');
-      this.wrapper.dataset.hidden = 'true';
-      this.drawer.style.transform = '';
+      // Wait for animation to finish before hiding
+      setTimeout(() => {
+        this.wrapper.dataset.hidden = 'true';
+        this.drawer.style.transform = '';
+        document.body.style.overflow = '';
+      }, 500);
     }
 
     next() {
@@ -200,70 +258,85 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       }
     }
 
+    updateReactionButtons(reaction) {
+      const btns = this.drawer.querySelectorAll('.rbtn');
+      btns.forEach(btn => {
+        const btnReaction = btn.dataset.reaction;
+        btn.classList.toggle('active', btnReaction === reaction);
+        btn.setAttribute('aria-pressed', String(btnReaction === reaction));
+      });
+    }
+
     render() {
       const movie = this.movies[this.currentIndex];
       if (!movie) return;
 
       const reaction = this.reactions[movie.id] || 'none';
-      const wrapper = document.getElementById('single-card-wrapper');
-      if (!wrapper) return;
 
-      // Render full-bleed card
-      wrapper.innerHTML = `
-        <div class="drawer-card" data-movie-id="${movie.id}">
-          <div class="drawer-poster">
-            ${movie.movie.poster_url ? `
-              <img src="${movie.movie.poster_url}" alt="${movie.movie.Movie}" class="drawer-poster-img" />
-              <div class="drawer-poster-blur"></div>
-            ` : '<div class="drawer-poster-placeholder">No Image</div>'}
-          </div>
+      // Hero image
+      const heroImg = document.getElementById('drawer-hero-img');
+      const heroPlaceholder = document.getElementById('drawer-hero-placeholder');
+      if (heroImg) {
+        heroImg.src = movie.movie.poster_url || '';
+        heroImg.alt = movie.movie.Movie || '';
+        heroImg.style.display = movie.movie.poster_url ? '' : 'none';
+      }
+      if (heroPlaceholder) {
+        heroPlaceholder.style.display = movie.movie.poster_url ? 'none' : '';
+      }
 
-          <div class="drawer-info">
-            <h2 class="drawer-title">${movie.movie.Movie}</h2>
-            <p class="drawer-meta">${[movie.movie.director, movie.movie.year, (movie.movie.runtime ? movie.movie.runtime + ' min' : '')].filter(Boolean).join(' · ')}</p>
-            ${movie.movie.actors ? `<p class="drawer-actors">${movie.movie.actors}</p>` : ''}
-            ${movie.movie.description ? `
-              <div class="drawer-description">
-                <p>"${movie.movie.description}"</p>
-                <p class="drawer-citation">— Film Forum</p>
-              </div>
-            ` : ''}
+      // Hero text overlay
+      const title = document.getElementById('drawer-hero-title');
+      if (title) title.textContent = movie.movie.Movie || '';
 
-            <!-- Reaction buttons -->
-            <div class="drawer-reactions" data-movie-id="${movie.id}">
-              <button class="reaction-btn reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${movie.id}" aria-pressed="${reaction === 'yes'}" title="Yes">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span>
-              </button>
-              <button class="reaction-btn reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${movie.id}" aria-pressed="${reaction === 'maybe'}" title="Maybe">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span>
-              </button>
-              <button class="reaction-btn reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${movie.id}" aria-pressed="${reaction === 'no'}" title="No">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
+      const meta = document.getElementById('drawer-hero-meta');
+      if (meta) {
+        meta.textContent = [movie.movie.director, movie.movie.year, (movie.movie.runtime ? movie.movie.runtime + ' min' : '')].filter(Boolean).join(' · ');
+      }
 
-      // Update nav
+      // Body content
+      const actors = document.getElementById('drawer-actors');
+      if (actors) {
+        actors.textContent = movie.movie.actors || '';
+        actors.style.display = movie.movie.actors ? '' : 'none';
+      }
+
+      const descBlock = document.getElementById('drawer-description-block');
+      const desc = document.getElementById('drawer-description');
+      if (desc && descBlock) {
+        desc.textContent = movie.movie.description ? `"${movie.movie.description}"` : '';
+        descBlock.style.display = movie.movie.description ? '' : 'none';
+      }
+
+      // Reaction buttons
+      const btns = this.drawer.querySelectorAll('.rbtn');
+      btns.forEach(btn => {
+        btn.dataset.movieId = movie.id;
+        const btnReaction = btn.dataset.reaction;
+        btn.classList.toggle('active', btnReaction === reaction);
+        btn.setAttribute('aria-pressed', String(btnReaction === reaction));
+      });
+
+      // Nav counter
       const counter = document.getElementById('drawer-nav-counter');
       if (counter) counter.textContent = `${this.currentIndex + 1} / ${this.movies.length}`;
 
-      const prevBtn = document.getElementById('drawer-nav-prev') as HTMLButtonElement;
-      const nextBtn = document.getElementById('drawer-nav-next') as HTMLButtonElement;
+      const prevBtn = document.getElementById('drawer-nav-prev');
+      const nextBtn = document.getElementById('drawer-nav-next');
       if (prevBtn) prevBtn.disabled = this.currentIndex === 0;
       if (nextBtn) nextBtn.disabled = this.currentIndex === this.movies.length - 1;
+
+      // Reset scroll position
+      if (this.scroll) this.scroll.scrollTop = 0;
     }
   }
 
-  // Initialize
   const controller = new SingleCardController();
-
-  // Expose to window for main page integration
   (window as any).singleCardController = controller;
 </script>
 
 <style>
+  /* --- Wrapper & overlay --- */
   .single-view-wrapper {
     position: fixed;
     top: 0;
@@ -280,11 +353,10 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     pointer-events: auto;
   }
 
-  /* Overlay */
   .single-view-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.5);
     opacity: 0;
     transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
   }
@@ -293,23 +365,20 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     opacity: 1;
   }
 
-  /* Drawer — THE Apple style bottom sheet */
+  /* --- Drawer (bottom sheet) --- */
   .single-view-drawer {
     position: relative;
     width: 100%;
-    max-height: 90vh;
-    max-height: 90dvh;
+    max-height: 92vh;
+    max-height: 92dvh;
     border-radius: 16px 16px 0 0;
     background: var(--bg-body);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    pointer-events: auto;
 
-    /* THE iOS easing curve — critical for feel */
+    /* iOS easing */
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-
-    /* Closed: below screen */
     transform: translateY(100%);
   }
 
@@ -321,54 +390,16 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     transition: none;
   }
 
-  /* Drag handle */
-  .drawer-handle-container {
-    display: flex;
-    justify-content: center;
-    padding: 8px 0;
-    cursor: grab;
-    user-select: none;
-  }
-
-  .drawer-handle-container:active {
-    cursor: grabbing;
-  }
-
-  .drawer-handle {
-    width: 40px;
-    height: 4px;
-    background: var(--text-tertiary);
-    border-radius: 2px;
-  }
-
-  /* Content scrolling area */
-  .drawer-content {
+  /* --- Scrollable content area --- */
+  .drawer-scroll {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
-  .drawer-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    text-align: center;
-  }
-
-  .drawer-empty p {
-    font-size: 16px;
-    color: var(--text-secondary);
-  }
-
-  /* Card in drawer */
-  .drawer-card {
-    position: relative;
-  }
-
-  /* Full-bleed poster */
-  .drawer-poster {
+  /* --- Hero section: full-bleed poster --- */
+  .drawer-hero {
     position: relative;
     width: 100%;
     aspect-ratio: 4 / 3;
@@ -376,7 +407,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     overflow: hidden;
   }
 
-  .drawer-poster-img {
+  .drawer-hero-img {
     position: absolute;
     top: 0;
     left: 0;
@@ -386,92 +417,163 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     display: block;
   }
 
-  .drawer-poster-blur {
+  .drawer-hero-placeholder {
     position: absolute;
     inset: 0;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
-    pointer-events: none;
-  }
-
-  .drawer-poster-placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
-    height: 100%;
     color: var(--text-tertiary);
-    font-size: 14px;
+    font-size: 16px;
   }
 
-  /* Padded info section */
-  .drawer-info {
-    padding: 16px;
+  /* Gradient scrim over hero for text readability */
+  .drawer-hero-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.3) 35%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  /* --- Floating drag handle (overlays hero image) --- */
+  .drawer-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .drawer-handle:active {
+    cursor: grabbing;
+  }
+
+  .drawer-handle-pill {
+    width: 36px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 3px;
+  }
+
+  /* --- Floating close button (overlays hero image) --- */
+  .drawer-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.15s;
+  }
+
+  .drawer-close-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  /* --- Text overlay on hero image --- */
+  .drawer-hero-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    padding: 16px 16px 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
   }
 
-  .drawer-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
+  .drawer-hero-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
     margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
   }
 
-  .drawer-meta {
+  .drawer-hero-meta {
     font-size: 13px;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.85);
     margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* --- Body content below hero --- */
+  .drawer-body {
+    padding: 14px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .drawer-actors {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-tertiary);
     margin: 0;
   }
 
   .drawer-description {
-    margin-top: 12px;
     padding: 12px;
     background: var(--bg-day);
     border-radius: 8px;
   }
 
-  .drawer-description p {
+  .drawer-description-text {
     font-size: 13px;
     color: var(--text-secondary);
     margin: 0;
     line-height: 1.5;
+    font-style: italic;
   }
 
   .drawer-citation {
     font-size: 12px;
     color: var(--text-tertiary);
     text-align: right;
-    margin-top: 4px;
+    margin: 4px 0 0 0;
+    font-style: italic;
   }
 
-  /* Reaction buttons */
+  /* --- Reaction buttons --- */
   .drawer-reactions {
     display: flex;
-    gap: 6px;
-    margin-top: 8px;
+    gap: 8px;
   }
 
-  .drawer-reactions .reaction-btn {
+  .rbtn {
     flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 8px 0;
-    font-size: 12px;
-    font-weight: 500;
+    gap: 5px;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
     font-family: inherit;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1.5px solid;
     background: transparent;
     cursor: pointer;
@@ -479,54 +581,56 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     user-select: none;
   }
 
-  .drawer-reactions .reaction-btn:active {
+  .rbtn:active {
     transform: scale(0.93);
   }
 
-  .drawer-reactions .reaction-btn--yes {
+  .rbtn--yes {
     color: var(--reaction-yes, #22c55e);
     border-color: var(--reaction-yes, #22c55e);
   }
-  .drawer-reactions .reaction-btn--yes:hover {
+  .rbtn--yes:hover {
     background: rgba(34, 197, 94, 0.1);
   }
-  .drawer-reactions .reaction-btn--yes.active {
+  .rbtn--yes.active {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
+    border-color: var(--reaction-yes, #22c55e);
   }
 
-  .drawer-reactions .reaction-btn--maybe {
+  .rbtn--maybe {
     color: var(--reaction-maybe, #f59e0b);
     border-color: var(--reaction-maybe, #f59e0b);
   }
-  .drawer-reactions .reaction-btn--maybe:hover {
+  .rbtn--maybe:hover {
     background: rgba(245, 158, 11, 0.1);
   }
-  .drawer-reactions .reaction-btn--maybe.active {
+  .rbtn--maybe.active {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
+    border-color: var(--reaction-maybe, #f59e0b);
   }
 
-  .drawer-reactions .reaction-btn--no {
-    color: var(--reaction-no, #6b7280);
-    border-color: var(--reaction-no, #6b7280);
+  .rbtn--no {
+    color: var(--reaction-no, #ef4444);
+    border-color: var(--reaction-no, #ef4444);
   }
-  .drawer-reactions .reaction-btn--no:hover {
-    background: rgba(107, 114, 128, 0.1);
+  .rbtn--no:hover {
+    background: rgba(239, 68, 68, 0.1);
   }
-  .drawer-reactions .reaction-btn--no.active {
-    background: var(--reaction-no, #6b7280);
+  .rbtn--no.active {
+    background: var(--reaction-no, #ef4444);
     color: #fff;
+    border-color: var(--reaction-no, #ef4444);
   }
 
-  /* Navigation */
+  /* --- Navigation --- */
   .drawer-nav {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    margin-top: 12px;
-    padding: 12px 16px;
+    padding-top: 4px;
     border-top: 1px solid var(--bg-movie);
   }
 
@@ -564,12 +668,12 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
 
   @media (max-width: 480px) {
     .single-view-drawer {
-      max-height: 85vh;
-      max-height: 85dvh;
+      max-height: 88vh;
+      max-height: 88dvh;
     }
 
-    .drawer-title {
-      font-size: 18px;
+    .drawer-hero-title {
+      font-size: 20px;
     }
   }
 </style>
