@@ -34,7 +34,10 @@ const {
     // Close on backdrop/button click
     closeElements.forEach(el => {
       el.addEventListener('click', (e) => {
-        if (e.target === el) {
+        // For backdrop, only close if clicking directly on it (not dialog content)
+        // For close button, always close regardless of which child element was clicked
+        const isBackdrop = el.classList.contains('dialog-backdrop');
+        if (!isBackdrop || e.target === el) {
           (dialog as HTMLElement).dataset.open = 'false';
           document.body.style.overflow = '';
         }
