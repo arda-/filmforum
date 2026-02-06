@@ -1,9 +1,8 @@
 ---
 /**
- * Apple-style Single Card View (Drawer Modal)
- * iOS-like bottom sheet with full-bleed hero image, floating drag handle,
- * floating close button, and gesture support.
- * Matches Apple App Store / Vaul behavior with momentum close and iOS easing.
+ * Apple-style Single Card View with expansion animation.
+ * Tapping a card in the grid expands it from its position to a full drawer.
+ * Close shrinks it back. Uses FLIP animation technique.
  */
 import type { UniqueMovie, MovieReaction } from '../../types/session';
 
@@ -94,6 +93,10 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
 </div>
 
 <script define:vars={{ moviesJson: JSON.stringify(movies), reactionsJson: JSON.stringify(reactions) }}>
+  // iOS easing curve
+  const IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const ANIM_DURATION = 500;
+
   class SingleCardController {
     constructor() {
       this.movies = JSON.parse(moviesJson);
@@ -103,6 +106,9 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       this.startY = 0;
       this.currentY = 0;
       this.startTime = 0;
+      this.sourceRect = null; // Bounding rect of the source card
+      this.sourceElement = null;
+      this.isAnimating = false;
 
       // Gesture thresholds (Vaul defaults)
       this.CLOSE_THRESHOLD = 0.25;
@@ -112,9 +118,9 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       this.drawer = document.getElementById('single-view-drawer');
       this.overlay = document.getElementById('single-view-overlay');
       this.scroll = document.getElementById('drawer-scroll');
+      this.body = document.getElementById('drawer-body');
 
       this.bindEvents();
-      this.render();
     }
 
     bindEvents() {
@@ -160,18 +166,16 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
         const newReaction = current === reaction ? 'none' : reaction;
         this.reactions[movie.id] = newReaction;
 
-        // Dispatch to main page handler
         const event = new CustomEvent('single-card-reaction', {
           detail: { movieId: movie.id, reaction: newReaction }
         });
         document.dispatchEvent(event);
-
         this.updateReactionButtons(newReaction);
       });
     }
 
     onPointerDown(e) {
-      // Ignore if content is scrolled
+      if (this.isAnimating) return;
       if (this.scroll && this.scroll.scrollTop > 0) return;
 
       this.isDragging = true;
@@ -184,18 +188,23 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
 
     onPointerMove(e) {
       if (!this.isDragging) return;
-
       const deltaY = e.clientY - this.startY;
-      if (deltaY >= 0) {
+
+      if (deltaY < 0) {
+        // Damping when dragging up (resistance)
+        const damped = Math.sqrt(Math.abs(deltaY)) * 3;
+        this.currentY = -damped;
+        this.drawer.style.transform = `translateY(${-damped}px)`;
+      } else {
         this.currentY = deltaY;
         this.drawer.style.transform = `translateY(${deltaY}px)`;
         this.updateOverlayOpacity(deltaY);
+        this.updateBackgroundScale(deltaY);
       }
     }
 
     onPointerUp(e) {
       if (!this.isDragging) return;
-
       this.isDragging = false;
       this.drawer.classList.remove('dragging');
       this.drawer.releasePointerCapture(e.pointerId);
@@ -210,7 +219,6 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       } else {
         this.snapBack();
       }
-
       this.currentY = 0;
     }
 
@@ -222,31 +230,217 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       }
     }
 
-    snapBack() {
-      this.drawer.style.transform = '';
-      this.updateOverlayOpacity(0);
+    updateBackgroundScale(dragY) {
+      const wrapper = document.querySelector('[data-drawer-wrapper]');
+      if (!wrapper) return;
+      const height = this.drawer.offsetHeight;
+      const percent = Math.min(dragY / height, 1);
+      const scale = 1 - (percent * 0.02);
+      const radius = (1 - percent) * 8;
+      wrapper.style.transform = `scale(${Math.max(scale, 0.95)})`;
+      wrapper.style.borderRadius = `${radius}px`;
     }
 
-    open() {
+    snapBack() {
+      this.drawer.style.transform = '';
+      if (this.overlay) this.overlay.style.opacity = '';
+      // Reset background
+      const wrapper = document.querySelector('[data-drawer-wrapper]');
+      if (wrapper) {
+        wrapper.style.transform = 'scale(0.97)';
+        wrapper.style.borderRadius = '8px';
+      }
+    }
+
+    /**
+     * Open with FLIP expansion from a source card element.
+     * @param {number} movieIndex
+     * @param {HTMLElement} [sourceEl] - The card element that was clicked
+     */
+    open(movieIndex, sourceEl) {
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+      this.currentIndex = typeof movieIndex === 'number' ? movieIndex : 0;
+      this.sourceElement = sourceEl || null;
+      this.render();
+
+      // Show wrapper
       this.wrapper.dataset.hidden = 'false';
-      void this.drawer.offsetHeight;
-      this.drawer.classList.add('open');
       document.body.style.overflow = 'hidden';
+
+      if (sourceEl) {
+        // --- FLIP animation: expand from card ---
+        this.sourceRect = sourceEl.getBoundingClientRect();
+
+        // Hide the source card during animation
+        sourceEl.style.opacity = '0';
+
+        // Position drawer at card's location
+        const viewportW = window.innerWidth;
+        const viewportH = window.innerHeight;
+
+        // Final drawer dimensions
+        const drawerW = viewportW;
+        const drawerH = this.drawer.offsetHeight || viewportH * 0.92;
+
+        // Scale factors to match card size
+        const scaleX = this.sourceRect.width / drawerW;
+        const scaleY = this.sourceRect.height / drawerH;
+        const scale = Math.max(scaleX, scaleY);
+
+        // Card center position
+        const cardCenterX = this.sourceRect.left + this.sourceRect.width / 2;
+        const cardCenterY = this.sourceRect.top + this.sourceRect.height / 2;
+
+        // Drawer final center (bottom-anchored, full width)
+        const drawerCenterX = viewportW / 2;
+        const drawerCenterY = viewportH - drawerH / 2;
+
+        // Translation needed
+        const translateX = cardCenterX - drawerCenterX;
+        const translateY = cardCenterY - drawerCenterY;
+
+        // Set initial state: positioned at card location
+        this.drawer.style.transition = 'none';
+        this.drawer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        this.drawer.style.borderRadius = `${this.sourceRect.width * 0.04}px`;
+        this.drawer.style.opacity = '1';
+
+        // Hide body content initially, fade in
+        if (this.body) this.body.style.opacity = '0';
+
+        // Force layout
+        void this.drawer.offsetHeight;
+
+        // Animate to final position
+        this.drawer.style.transition = `transform ${ANIM_DURATION}ms ${IOS_EASE}, border-radius ${ANIM_DURATION}ms ${IOS_EASE}`;
+        this.drawer.style.transform = 'translate(0, 0) scale(1)';
+        this.drawer.style.borderRadius = '';
+        this.drawer.classList.add('open');
+
+        // Fade in body content slightly delayed
+        setTimeout(() => {
+          if (this.body) {
+            this.body.style.transition = `opacity 300ms ease`;
+            this.body.style.opacity = '1';
+          }
+        }, ANIM_DURATION * 0.4);
+
+        // Scale background
+        const wrapper = document.querySelector('[data-drawer-wrapper]');
+        if (wrapper) {
+          wrapper.style.transition = `transform ${ANIM_DURATION}ms ${IOS_EASE}, border-radius ${ANIM_DURATION}ms ${IOS_EASE}`;
+          wrapper.style.transform = 'scale(0.97)';
+          wrapper.style.borderRadius = '8px';
+        }
+
+        // Clean up after animation
+        setTimeout(() => {
+          this.drawer.style.transition = '';
+          this.isAnimating = false;
+        }, ANIM_DURATION);
+
+      } else {
+        // Fallback: simple slide up
+        void this.drawer.offsetHeight;
+        this.drawer.classList.add('open');
+
+        const wrapper = document.querySelector('[data-drawer-wrapper]');
+        if (wrapper) {
+          wrapper.style.transition = `transform ${ANIM_DURATION}ms ${IOS_EASE}, border-radius ${ANIM_DURATION}ms ${IOS_EASE}`;
+          wrapper.style.transform = 'scale(0.97)';
+          wrapper.style.borderRadius = '8px';
+        }
+
+        setTimeout(() => {
+          this.isAnimating = false;
+        }, ANIM_DURATION);
+      }
     }
 
     close() {
-      this.drawer.classList.remove('open');
-      // Wait for animation to finish before hiding
-      setTimeout(() => {
-        this.wrapper.dataset.hidden = 'true';
-        this.drawer.style.transform = '';
-        document.body.style.overflow = '';
-      }, 500);
+      if (this.isAnimating) return;
+      this.isAnimating = true;
+
+      // Find the source card for reverse animation
+      const movie = this.movies[this.currentIndex];
+      const sourceEl = this.sourceElement || (movie ? document.querySelector(`[data-movie-id="${movie.id}"].card`) : null);
+
+      // Reset background
+      const bgWrapper = document.querySelector('[data-drawer-wrapper]');
+      if (bgWrapper) {
+        bgWrapper.style.transition = `transform ${ANIM_DURATION}ms ${IOS_EASE}, border-radius ${ANIM_DURATION}ms ${IOS_EASE}`;
+        bgWrapper.style.transform = '';
+        bgWrapper.style.borderRadius = '';
+      }
+
+      if (sourceEl) {
+        // --- Reverse FLIP: shrink back to card ---
+        const targetRect = sourceEl.getBoundingClientRect();
+        const viewportW = window.innerWidth;
+        const viewportH = window.innerHeight;
+        const drawerW = viewportW;
+        const drawerH = this.drawer.offsetHeight;
+
+        const scaleX = targetRect.width / drawerW;
+        const scaleY = targetRect.height / drawerH;
+        const scale = Math.max(scaleX, scaleY);
+
+        const cardCenterX = targetRect.left + targetRect.width / 2;
+        const cardCenterY = targetRect.top + targetRect.height / 2;
+        const drawerCenterX = viewportW / 2;
+        const drawerCenterY = viewportH - drawerH / 2;
+
+        const translateX = cardCenterX - drawerCenterX;
+        const translateY = cardCenterY - drawerCenterY;
+
+        // Fade out body first
+        if (this.body) {
+          this.body.style.transition = 'opacity 150ms ease';
+          this.body.style.opacity = '0';
+        }
+
+        // Animate drawer to card position
+        this.drawer.style.transition = `transform ${ANIM_DURATION}ms ${IOS_EASE}, border-radius ${ANIM_DURATION}ms ${IOS_EASE}, opacity ${ANIM_DURATION * 0.3}ms ease ${ANIM_DURATION * 0.7}ms`;
+        this.drawer.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        this.drawer.style.borderRadius = `${targetRect.width * 0.04}px`;
+
+        this.drawer.classList.remove('open');
+
+        setTimeout(() => {
+          // Show original card
+          sourceEl.style.opacity = '';
+          this.wrapper.dataset.hidden = 'true';
+          this.drawer.style.transition = '';
+          this.drawer.style.transform = '';
+          this.drawer.style.borderRadius = '';
+          this.drawer.style.opacity = '';
+          if (this.body) {
+            this.body.style.transition = '';
+            this.body.style.opacity = '';
+          }
+          document.body.style.overflow = '';
+          this.sourceElement = null;
+          this.sourceRect = null;
+          this.isAnimating = false;
+        }, ANIM_DURATION);
+
+      } else {
+        // Fallback: simple slide down
+        this.drawer.classList.remove('open');
+        setTimeout(() => {
+          this.wrapper.dataset.hidden = 'true';
+          this.drawer.style.transform = '';
+          document.body.style.overflow = '';
+          this.isAnimating = false;
+        }, ANIM_DURATION);
+      }
     }
 
     next() {
       if (this.currentIndex < this.movies.length - 1) {
         this.currentIndex++;
+        this.sourceElement = null; // No FLIP for nav
         this.render();
       }
     }
@@ -254,6 +448,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     prev() {
       if (this.currentIndex > 0) {
         this.currentIndex--;
+        this.sourceElement = null;
         this.render();
       }
     }
@@ -270,7 +465,6 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     render() {
       const movie = this.movies[this.currentIndex];
       if (!movie) return;
-
       const reaction = this.reactions[movie.id] || 'none';
 
       // Hero image
@@ -326,7 +520,6 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       if (prevBtn) prevBtn.disabled = this.currentIndex === 0;
       if (nextBtn) nextBtn.disabled = this.currentIndex === this.movies.length - 1;
 
-      // Reset scroll position
       if (this.scroll) this.scroll.scrollTop = 0;
     }
   }
@@ -365,7 +558,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     opacity: 1;
   }
 
-  /* --- Drawer (bottom sheet) --- */
+  /* --- Drawer --- */
   .single-view-drawer {
     position: relative;
     width: 100%;
@@ -376,8 +569,9 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transform-origin: center center;
 
-    /* iOS easing */
+    /* Default slide-up transition (used as fallback) */
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
     transform: translateY(100%);
   }
@@ -387,7 +581,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
   }
 
   .single-view-drawer.dragging {
-    transition: none;
+    transition: none !important;
   }
 
   /* --- Scrollable content area --- */
@@ -427,7 +621,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     font-size: 16px;
   }
 
-  /* Gradient scrim over hero for text readability */
+  /* Gradient scrim over hero */
   .drawer-hero-scrim {
     position: absolute;
     inset: 0;
@@ -581,17 +775,17 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     user-select: none;
   }
 
-  .rbtn:active {
-    transform: scale(0.93);
+  .rbtn:active > svg,
+  .rbtn:active > span {
+    transform: scale(0.85);
+    transition: transform 0.08s ease;
   }
 
   .rbtn--yes {
     color: var(--reaction-yes, #22c55e);
     border-color: var(--reaction-yes, #22c55e);
   }
-  .rbtn--yes:hover {
-    background: rgba(34, 197, 94, 0.1);
-  }
+  .rbtn--yes:hover { background: rgba(34, 197, 94, 0.1); }
   .rbtn--yes.active {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
@@ -602,9 +796,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     color: var(--reaction-maybe, #f59e0b);
     border-color: var(--reaction-maybe, #f59e0b);
   }
-  .rbtn--maybe:hover {
-    background: rgba(245, 158, 11, 0.1);
-  }
+  .rbtn--maybe:hover { background: rgba(245, 158, 11, 0.1); }
   .rbtn--maybe.active {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
@@ -615,9 +807,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     color: var(--reaction-no, #ef4444);
     border-color: var(--reaction-no, #ef4444);
   }
-  .rbtn--no:hover {
-    background: rgba(239, 68, 68, 0.1);
-  }
+  .rbtn--no:hover { background: rgba(239, 68, 68, 0.1); }
   .rbtn--no.active {
     background: var(--reaction-no, #ef4444);
     color: #fff;
