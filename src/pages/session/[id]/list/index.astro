@@ -202,7 +202,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       (el as HTMLElement).style.display = showBlurb ? '' : 'none';
     });
     // Images (card view)
-    document.querySelectorAll('.card-poster').forEach(el => {
+    document.querySelectorAll('.card-poster-img, .card-blur').forEach(el => {
       (el as HTMLElement).style.display = showImages ? '' : 'none';
     });
   }
@@ -297,7 +297,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const reactionsEl = document.getElementById('detail-reactions');
     if (reactionsEl) {
       reactionsEl.innerHTML = ['yes', 'maybe', 'no'].map(r => {
-        const labels: Record<string, string> = { yes: 'Want to see', maybe: 'Maybe', no: 'Pass' };
+        const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
         const active = r === reaction ? 'active' : '';
         return `<button class="reaction-btn reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${id}" aria-pressed="${r === reaction}">${labels[r]}</button>`;
       }).join('');
@@ -409,10 +409,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (count) count.textContent = String(movies.length);
 
     if (items) {
-      const currentSection = prefix === 'saved-yes' ? 'yes' : 'maybe';
-      const moveTarget = currentSection === 'yes' ? 'maybe' : 'yes';
-      const moveLabel = currentSection === 'yes' ? 'Move to Maybe' : 'Move to Want to see';
-      const moveArrow = currentSection === 'yes' ? '↓' : '↑';
+      const currentReaction = prefix === 'saved-yes' ? 'yes' : 'maybe';
 
       items.innerHTML = movies.map(um => {
         const title = toTitleCase(um.movie.Movie);
@@ -423,20 +420,15 @@ const movieDataJson = JSON.stringify(uniqueMovies);
               <p class="saved-item-title">${title}</p>
               <p class="saved-item-meta">${meta}</p>
             </div>
-            <div class="saved-item-actions">
-              <button class="saved-item-btn" data-action="more-info" data-movie-id="${um.id}" title="More info">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M7 6v3M7 4.5v-.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
+            <div class="saved-item-toggle">
+              <button class="saved-toggle-btn saved-toggle-btn--yes ${currentReaction === 'yes' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="yes" title="Yes">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
-              <button class="saved-item-btn saved-item-btn--move" data-action="move-saved" data-movie-id="${um.id}" data-move-to="${moveTarget}" title="${moveLabel}">
-                ${moveArrow}
+              <button class="saved-toggle-btn saved-toggle-btn--maybe ${currentReaction === 'maybe' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="maybe" title="Maybe">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </button>
-              <button class="saved-item-btn saved-item-btn--remove" data-action="remove-saved" data-movie-id="${um.id}" title="Remove from list">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
+              <button class="saved-toggle-btn saved-toggle-btn--no" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="none" title="Remove">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </button>
             </div>
           </div>
@@ -445,38 +437,18 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     }
   }
 
-  // Saved list move handler (move between Yes ↔ Maybe)
+  // Saved list toggle handler (Yes / Maybe / Remove)
   document.addEventListener('click', (e) => {
-    const moveBtn = (e.target as HTMLElement).closest('[data-action="move-saved"]') as HTMLElement | null;
-    if (moveBtn) {
-      const movieId = moveBtn.dataset.movieId;
-      const moveTo = moveBtn.dataset.moveTo as MovieReaction;
-      if (movieId && moveTo) {
-        setReaction(sessionId, movieId, moveTo);
-        loadReactions();
-        updateSavedListDrawer();
-      }
-      return;
-    }
+    const toggleBtn = (e.target as HTMLElement).closest('[data-action="set-reaction"]') as HTMLElement | null;
+    if (!toggleBtn) return;
 
-    // Saved list remove: demote Yes→Maybe first, only fully remove from Maybe
-    const removeBtn = (e.target as HTMLElement).closest('[data-action="remove-saved"]') as HTMLElement | null;
-    if (removeBtn) {
-      const movieId = removeBtn.dataset.movieId;
-      if (movieId) {
-        const reactions = getReactions(sessionId);
-        const current = reactions[movieId];
-        if (current === 'yes') {
-          // Demote to Maybe instead of removing
-          setReaction(sessionId, movieId, 'maybe');
-        } else {
-          // Remove entirely from Maybe
-          setReaction(sessionId, movieId, 'none');
-        }
-        loadReactions();
-        updateSavedListDrawer();
-      }
-    }
+    const movieId = toggleBtn.dataset.movieId;
+    const newReaction = toggleBtn.dataset.setReaction as MovieReaction | 'none';
+    if (!movieId) return;
+
+    setReaction(sessionId, movieId, newReaction as MovieReaction);
+    loadReactions();
+    updateSavedListDrawer();
   });
 
   // --- Share ---
@@ -484,7 +456,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const reactions = getReactions(sessionId);
     const encoded = encodeReactions(reactions);
     const userId = getUserId();
-    const url = `${window.location.origin}/session/${sessionId}/list/${userId}/saved?r=${encoded}`;
+    const url = `${window.location.origin}/session/${sessionId}/list/saved?u=${userId}&r=${encoded}`;
 
     if (navigator.share) {
       try {
