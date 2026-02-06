@@ -36,6 +36,17 @@ const { sessionId } = Astro.props;
       </div>
     </div>
 
+    <div class="saved-section" id="saved-no-section">
+      <h3 class="saved-section-title">
+        <span class="saved-dot saved-dot--no"></span>
+        No
+        <span class="saved-section-count" id="saved-no-count">0</span>
+      </h3>
+      <div class="saved-items" id="saved-no-items">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
     <div class="saved-empty" id="saved-empty">
       <div class="saved-empty-icon">
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -43,7 +54,7 @@ const { sessionId } = Astro.props;
         </svg>
       </div>
       <p class="saved-empty-title">No movies saved yet</p>
-      <p class="saved-empty-hint">Tap "Yes" or "Maybe" on any movie to start building your list</p>
+      <p class="saved-empty-hint">Tap Yes, Maybe, or No on any movie to start building your list</p>
     </div>
 
     <div class="saved-actions" id="saved-actions">
@@ -94,6 +105,10 @@ const { sessionId } = Astro.props;
 
   .saved-dot--maybe {
     background: var(--reaction-maybe, #f59e0b);
+  }
+
+  .saved-dot--no {
+    background: var(--reaction-no, #6b7280);
   }
 
   .saved-section-count {
@@ -183,13 +198,15 @@ const { sessionId } = Astro.props;
   }
 
   .saved-list :global(.saved-toggle-btn--no) {
-    color: var(--text-tertiary);
-    border-color: var(--bg-movie-hover);
+    color: var(--reaction-no, #6b7280);
+    border-color: var(--reaction-no, #6b7280);
   }
   .saved-list :global(.saved-toggle-btn--no:hover) {
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
+    background: rgba(107, 114, 128, 0.1);
+  }
+  .saved-list :global(.saved-toggle-btn--no.active) {
+    background: var(--reaction-no, #6b7280);
+    color: #fff;
   }
 
   /* Empty state */

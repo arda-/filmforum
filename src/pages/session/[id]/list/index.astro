@@ -143,7 +143,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   function updateBadge() {
     const counts = getReactionCounts(sessionId);
-    const total = counts.yes + counts.maybe;
+    const total = counts.yes + counts.maybe + counts.no;
     if (badge) {
       badge.textContent = String(total);
       badge.dataset.count = String(total);
@@ -348,7 +348,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const reactions = getReactions(sessionId);
     const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
     const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
-    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
+    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
+    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
 
     // Update empty state
     const emptyEl = document.getElementById('saved-empty');
@@ -357,6 +358,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     // Update sections
     updateSavedSection('saved-yes', yesMovies);
     updateSavedSection('saved-maybe', maybeMovies);
+    updateSavedSection('saved-no', noMovies);
 
     // Update actions
     const actionsEl = document.getElementById('saved-actions');
@@ -376,7 +378,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (count) count.textContent = String(movies.length);
 
     if (items) {
-      const currentReaction = prefix === 'saved-yes' ? 'yes' : 'maybe';
+      const reactionMap: Record<string, string> = { 'saved-yes': 'yes', 'saved-maybe': 'maybe', 'saved-no': 'no' };
+      const currentReaction = reactionMap[prefix] || 'none';
 
       items.innerHTML = movies.map(um => {
         const title = toTitleCase(um.movie.Movie);
@@ -394,8 +397,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
               <button class="saved-toggle-btn saved-toggle-btn--maybe ${currentReaction === 'maybe' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="maybe" title="Maybe">
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </button>
-              <button class="saved-toggle-btn saved-toggle-btn--no" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="none" title="Remove">
-                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <button class="saved-toggle-btn saved-toggle-btn--no ${currentReaction === 'no' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="no" title="No">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               </button>
             </div>
           </div>
