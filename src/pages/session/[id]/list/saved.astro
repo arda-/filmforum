@@ -2,26 +2,23 @@
 /**
  * Shareable saved list page.
  * Displays a friend's saved movies from URL-encoded reactions.
- * Visitors can react to their friend's picks.
+ * userId and reactions come from query params: ?u=userId&r=encodedReactions
  */
-import Layout from '../../../../../layouts/Layout.astro';
-import type { Movie } from '../../../../../utils/movieUtils';
-import { toTitleCase, formatRuntime } from '../../../../../utils/movieUtils';
+import Layout from '../../../../layouts/Layout.astro';
+import type { Movie } from '../../../../utils/movieUtils';
+import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
 import {
   getAllSessionIds,
   getSessionConfig,
   deduplicateMovies,
   sortMovies,
-} from '../../../../../utils/sessionUtils';
+} from '../../../../utils/sessionUtils';
 
 export function getStaticPaths() {
-  // Generate a placeholder path for each session; actual userId comes from URL
-  return getAllSessionIds().map(id => ({
-    params: { id, userId: 'shared' },
-  }));
+  return getAllSessionIds().map(id => ({ params: { id } }));
 }
 
-const { id, userId } = Astro.params;
+const { id } = Astro.params;
 const config = getSessionConfig(id!);
 if (!config) return Astro.redirect('/');
 
@@ -42,7 +39,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 ---
 
 <Layout title={`Shared List — ${config.name}`}>
-  <main class="shared-list-page" data-session-id={id} data-user-id={userId}>
+  <main class="shared-list-page" data-session-id={id}>
     <header class="page-header">
       <a href={`/session/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -51,14 +48,14 @@ const movieDataJson = JSON.stringify(uniqueMovies);
         Back to full list
       </a>
       <h1 class="page-title">Shared List</h1>
-      <p class="page-subtitle">from <span class="friend-id">{userId}</span></p>
+      <p class="page-subtitle">from <span class="friend-id" id="friend-id"></span></p>
     </header>
 
     <div class="shared-sections" id="shared-sections">
       <div class="shared-section" id="shared-yes-section">
         <h2 class="section-title">
           <span class="section-dot section-dot--yes"></span>
-          Want to see
+          Yes
         </h2>
         <div class="section-items" id="shared-yes-items"></div>
       </div>
@@ -94,17 +91,22 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '../../../../../utils/storageManager';
-  import { toTitleCase, formatRuntime } from '../../../../../utils/movieUtils';
-  import type { UniqueMovie, MovieReaction } from '../../../../../types/session';
+  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '../../../../utils/storageManager';
+  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
-  // Parse reactions from URL query param
+  // Parse userId and reactions from URL query params
   const urlParams = new URLSearchParams(window.location.search);
+  const friendUserId = urlParams.get('u') || 'unknown';
   const encodedReactions = urlParams.get('r') || '';
   const friendReactions = decodeReactions(encodedReactions);
+
+  // Display friend ID
+  const friendIdEl = document.getElementById('friend-id');
+  if (friendIdEl) friendIdEl.textContent = friendUserId;
 
   const yesMovies = allMovies.filter(m => friendReactions[m.id] === 'yes');
   const maybeMovies = allMovies.filter(m => friendReactions[m.id] === 'maybe');
@@ -263,7 +265,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     gap: 6px;
   }
 
-  /* Shared item */
   :global(.shared-item) {
     display: flex;
     align-items: center;
@@ -336,7 +337,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     color: #fff;
   }
 
-  /* Empty state */
   .shared-empty {
     text-align: center;
     padding: 40px 20px;
@@ -355,7 +355,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     margin: 4px 0 0 0;
   }
 
-  /* Actions */
   .shared-actions {
     padding: 16px 0;
     display: none;
