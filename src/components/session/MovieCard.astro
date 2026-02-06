@@ -40,8 +40,8 @@ const hasPoster = !!movie.poster_url;
     <div class="card-overlay">
       <h3 class="card-title">{title}</h3>
       <p class="card-meta">{meta}</p>
-      {movie.actors && <p class="card-actors" style={showActors ? undefined : 'display:none'}>{movie.actors}</p>}
-      {movie.description && <p class="card-blurb" style={showBlurb ? undefined : 'display:none'}>{movie.description}</p>}
+      {movie.actors && <p class="card-actors">{movie.actors}</p>}
+      {movie.description && <p class="card-blurb">{movie.description}</p>}
     </div>
   </div>
 
@@ -101,7 +101,7 @@ const hasPoster = !!movie.poster_url;
     box-shadow: 0 0 0 2px var(--reaction-maybe, #f59e0b), 0 4px 16px rgba(245, 158, 11, 0.2);
   }
   .card--no {
-    box-shadow: 0 0 0 2px var(--reaction-no, #6b7280), 0 2px 8px rgba(107, 114, 128, 0.1);
+    box-shadow: 0 0 0 2px var(--reaction-no, #ef4444), 0 2px 8px rgba(239, 68, 68, 0.15);
     opacity: 0.6;
   }
 
@@ -126,7 +126,7 @@ const hasPoster = !!movie.poster_url;
     display: block;
   }
 
-  /* Blur scrim — copied from blur-simple demo */
+  /* Blur scrim — backdrop-filter blur + dark gradient for visibility */
   .card-blur {
     position: absolute;
     inset: 0;
@@ -136,6 +136,20 @@ const hasPoster = !!movie.poster_url;
     -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
     pointer-events: none;
     z-index: 1;
+  }
+
+  /* Dark gradient scrim layered on top for visible darkening */
+  .card-blur::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.35) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
   }
 
   /* Text overlay — matches blur-simple demo: absolute, bottom-anchored */
@@ -225,6 +239,7 @@ const hasPoster = !!movie.poster_url;
   .card-reactions {
     display: flex;
     gap: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .reaction-btn {
@@ -232,64 +247,87 @@ const hasPoster = !!movie.poster_url;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    padding: 8px 0;
-    font-size: 12px;
-    font-weight: 500;
+    gap: 5px;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
     font-family: inherit;
+    letter-spacing: 0.01em;
     border-radius: 0;
     border: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    background: var(--bg-movie);
-    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
   }
 
+  /* Color-tinted backgrounds */
+  .reaction-btn--yes {
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--reaction-yes, #22c55e);
+  }
+  .reaction-btn--maybe {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--reaction-maybe, #f59e0b);
+  }
+  .reaction-btn--no {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--reaction-no, #ef4444);
+  }
+
   .reaction-btn:not(:last-child) {
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .reaction-btn:active {
     transform: scale(0.95);
   }
 
-  /* Poster cards: dark bar */
-  .card--has-poster .reaction-btn {
-    background: rgba(0, 0, 0, 0.65);
-    color: rgba(255, 255, 255, 0.7);
+  /* Poster cards: backdrop-blur + color tint (matching scrim style) */
+  .card--has-poster .card-reactions {
     border-top-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .card--has-poster .reaction-btn--yes {
+    background: rgba(34, 197, 94, 0.18);
+    color: #22c55e;
+  }
+  .card--has-poster .reaction-btn--maybe {
+    background: rgba(245, 158, 11, 0.18);
+    color: #f59e0b;
+  }
+  .card--has-poster .reaction-btn--no {
+    background: rgba(239, 68, 68, 0.18);
+    color: #ef4444;
   }
 
   .card--has-poster .reaction-btn:not(:last-child) {
     border-right-color: rgba(255, 255, 255, 0.1);
   }
 
+  /* Hover: intensify tint */
   .reaction-btn--yes:hover {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--reaction-yes, #22c55e);
+    background: rgba(34, 197, 94, 0.3);
   }
+  .reaction-btn--maybe:hover {
+    background: rgba(245, 158, 11, 0.3);
+  }
+  .reaction-btn--no:hover {
+    background: rgba(239, 68, 68, 0.3);
+  }
+
+  /* Active: solid fill */
   .reaction-btn--yes.active {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
-  }
-
-  .reaction-btn--maybe:hover {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--reaction-maybe, #f59e0b);
   }
   .reaction-btn--maybe.active {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
   }
-
-  .reaction-btn--no:hover {
-    background: rgba(107, 114, 128, 0.15);
-    color: var(--reaction-no, #6b7280);
-  }
   .reaction-btn--no.active {
-    background: var(--reaction-no, #6b7280);
+    background: var(--reaction-no, #ef4444);
     color: #fff;
   }
 
@@ -303,7 +341,7 @@ const hasPoster = !!movie.poster_url;
     color: #fff;
   }
   .card--has-poster .reaction-btn--no.active {
-    background: var(--reaction-no, #6b7280);
+    background: var(--reaction-no, #ef4444);
     color: #fff;
   }
 </style>
