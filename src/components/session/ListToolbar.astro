@@ -77,9 +77,14 @@ const {
     flex-direction: column;
     gap: 10px;
     padding: 12px 16px;
-    background: var(--bg-day);
+    background: color-mix(in srgb, var(--bg-day) 85%, transparent);
     border-radius: 10px;
     margin-bottom: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .toolbar-row {
