@@ -58,12 +58,28 @@ const { sessionId } = Astro.props;
     </div>
 
     <div class="saved-actions" id="saved-actions">
-      <button class="saved-share-btn" id="saved-share-btn" disabled>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <a class="saved-action-btn saved-action-btn--primary" id="saved-showtimes-btn" href={`/session/${sessionId}/showtimes`}>
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M9 5v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        Share List
-      </button>
+        Find Showtimes
+      </a>
+      <div class="saved-actions-row">
+        <button class="saved-action-btn saved-action-btn--secondary" id="saved-share-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Share
+        </button>
+        <a class="saved-action-btn saved-action-btn--secondary" id="saved-compare-btn" href={`/session/${sessionId}/compare/placeholder`}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M2 6h4M10 6h4M2 10h4M10 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Compare
+        </a>
+      </div>
     </div>
   </div>
 </Drawer>
@@ -243,42 +259,58 @@ const { sessionId } = Astro.props;
     max-width: 260px;
   }
 
-  /* Actions */
+  /* Actions footer */
   .saved-actions {
     display: none;
-    padding-top: 8px;
+    padding-top: 12px;
     border-top: 1px solid var(--bg-movie);
+    flex-direction: column;
+    gap: 8px;
   }
 
   .saved-actions.has-items {
-    display: block;
+    display: flex;
   }
 
-  .saved-share-btn {
+  .saved-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    width: 100%;
     padding: 10px 16px;
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
-    background: var(--bg-movie);
-    color: var(--text-secondary);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
+    text-decoration: none;
   }
 
-  .saved-share-btn:hover:not(:disabled) {
+  .saved-action-btn--primary {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .saved-action-btn--primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .saved-actions-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .saved-action-btn--secondary {
+    flex: 1;
+    background: var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  .saved-action-btn--secondary:hover {
     background: var(--bg-movie-hover);
     color: var(--text-primary);
-  }
-
-  .saved-share-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 </style>
