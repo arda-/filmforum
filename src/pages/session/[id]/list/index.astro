@@ -154,7 +154,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // --- Reaction button handling ---
   document.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest('.reaction-btn, .rbtn') as HTMLElement | null;
+    const btn = (e.target as HTMLElement).closest('.reaction-btn, .rbtn, .detail-rbtn') as HTMLElement | null;
     if (!btn) return;
 
     const movieId = btn.dataset.movieId;
@@ -174,6 +174,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       card.classList.remove('card--yes', 'card--maybe', 'card--no');
       if (newReaction !== 'none') card.classList.add(`card--${newReaction}`);
     }
+
+    // Update detail drawer buttons immediately
+    document.querySelectorAll(`#detail-reactions .detail-rbtn[data-movie-id="${movieId}"]`).forEach(b => {
+      const r = (b as HTMLElement).dataset.reaction;
+      b.classList.toggle('active', r === newReaction);
+    });
 
     loadReactions();
   });
@@ -304,6 +310,14 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       ticketsUrl.href = um.showtimes[0]?.tickets || '#';
       ticketsUrl.style.display = um.showtimes[0]?.tickets ? '' : 'none';
     }
+
+    // Update detail drawer reaction buttons
+    document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(btn => {
+      (btn as HTMLElement).dataset.movieId = id;
+      const btnReaction = (btn as HTMLElement).dataset.reaction;
+      btn.classList.toggle('active', btnReaction === reaction);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(btnReaction === reaction));
+    });
   }
 
   // More info click handlers — info button or tapping the item itself
