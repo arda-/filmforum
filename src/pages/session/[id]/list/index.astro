@@ -172,6 +172,15 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     loadReactions();
   });
 
+  // Handle reactions from SingleCardView drawer
+  document.addEventListener('single-card-reaction', ((e: CustomEvent) => {
+    const { movieId, reaction } = e.detail;
+    if (movieId) {
+      setReaction(sessionId, movieId, reaction as MovieReaction);
+      loadReactions();
+    }
+  }) as EventListener);
+
   // --- View toggle ---
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', () => {
