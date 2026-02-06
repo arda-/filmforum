@@ -328,13 +328,26 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (nextBtn) nextBtn.disabled = index === allMovies.length - 1;
   }
 
-  // More info click handlers
+  // More info click handlers — info button or tapping the item itself
   document.addEventListener('click', (e) => {
-    const infoBtn = (e.target as HTMLElement).closest('[data-action="more-info"]') as HTMLElement | null;
+    const target = e.target as HTMLElement;
+
+    // Skip if clicking a reaction button
+    if (target.closest('.reaction-btn')) return;
+
+    // Info button click
+    const infoBtn = target.closest('[data-action="more-info"]') as HTMLElement | null;
     if (infoBtn) {
       const movieId = infoBtn.dataset.movieId;
       if (movieId) openMovieDetail(movieId);
       return;
+    }
+
+    // Click on a card or list item body (not on buttons)
+    const item = target.closest('.card, .list-item') as HTMLElement | null;
+    if (item && !target.closest('button, a')) {
+      const movieId = item.dataset.movieId;
+      if (movieId) openMovieDetail(movieId);
     }
   });
 
