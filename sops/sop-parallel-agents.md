@@ -472,8 +472,8 @@ Time Savings: [X]x faster than sequential
 
 ## Related Documentation
 
-- [CLAUDE.md](../examples/claude.md) - Example project context and conventions
-- [CONTRIBUTING.md](../examples/contributing.md) - Example development workflow
+- [CLAUDE.md](../CLAUDE.md) - Project context and conventions
+- [Agent Limits SOP](./sop-agent-limits.md) - Memory budgets and concurrent agent limits
 
 ---
 

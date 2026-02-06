@@ -1,11 +1,11 @@
 # Standard Operating Procedure: Agent Usage Limits
 
-> **Configure these values during init.** Replace `[SYSTEM_RAM]`, `[MEMORY_BUDGET]`, and `[TERMINAL_APP]` with your actual values.
+> **Configured for:** 48GB system RAM, 32GB memory budget, Ghostty terminal.
 
 ## Hard Limits
 
-- **Max total memory**: [MEMORY_BUDGET] (Claude + [TERMINAL_APP] combined)
-- **System RAM**: [SYSTEM_RAM] total (16GB reserved for OS/other apps)
+- **Max total memory**: 32 (Claude + Ghostty combined)
+- **System RAM**: 48GB total (16GB reserved for OS/other apps)
 - **Max concurrent agents**: **DYNAMIC** — calculate before each spawn
 
 ## Memory Usage by Agent Type
@@ -23,20 +23,20 @@ The model choice affects speed and quality, NOT memory usage. Always assume 4.4G
 ## Memory Budget Calculation
 
 ```
-Available for agents: [MEMORY_BUDGET] total budget
+Available for agents: 32 total budget
 Per agent: ~4.4GB (observed max, NOT a fixed constant)
-Max safe concurrent: ([MEMORY_BUDGET] - current_usage) / 4.4GB
+Max safe concurrent: (32 - current_usage) / 4.4GB
 
 Example:
 - Current usage: 18GB
-- Available: [MEMORY_BUDGET] - 18 = remaining
+- Available: 32 - 18 = remaining
 - Max agents: remaining / 4.4 (round down)
 ```
 
 **CRITICAL:**
 - Do NOT assume you can always spawn 7 agents
 - DO check actual memory usage before spawning
-- DO calculate dynamic limit: `([MEMORY_BUDGET] - current) / 4.4`
+- DO calculate dynamic limit: `(32 - current) / 4.4`
 - 4.4GB is observed maximum, not average — actual usage varies
 
 ## Decision Tree: When to Use Agents
@@ -94,18 +94,18 @@ If each task is already complex, don't combine them.
 ### Check Current Memory Usage
 
 ```bash
-# Check total Claude + [TERMINAL_APP] memory
-ps aux | grep -E 'claude|[TERMINAL_APP]' | awk '{sum+=$6} END {print sum/1024/1024 " GB"}'
+# Check total Claude + Ghostty memory
+ps aux | grep -E 'claude|Ghostty' | awk '{sum+=$6} END {print sum/1024/1024 " GB"}'
 
 # Calculate remaining budget
-echo "scale=2; [MEMORY_BUDGET] - $(ps aux | grep -E 'claude|[TERMINAL_APP]' | awk '{sum+=$6} END {print sum/1024/1024}')" | bc
+echo "scale=2; 32 - $(ps aux | grep -E 'claude|Ghostty' | awk '{sum+=$6} END {print sum/1024/1024}')" | bc
 ```
 
 ### Dynamic Agent Limit Calculation
 
 ```bash
-CURRENT_MEM=$(ps aux | grep -E 'claude|[TERMINAL_APP]' | awk '{sum+=$6} END {print sum/1024/1024}')
-AVAILABLE=$(echo "[MEMORY_BUDGET] - $CURRENT_MEM" | bc)
+CURRENT_MEM=$(ps aux | grep -E 'claude|Ghostty' | awk '{sum+=$6} END {print sum/1024/1024}')
+AVAILABLE=$(echo "32 - $CURRENT_MEM" | bc)
 MAX_AGENTS=$(echo "$AVAILABLE / 4.4" | bc)
 echo "Can safely spawn: $MAX_AGENTS agents"
 ```
