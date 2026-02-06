@@ -6,6 +6,7 @@ import MovieCard from '../../../../components/session/MovieCard.astro';
 import BottomToolbar from '../../../../components/session/BottomToolbar.astro';
 import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
 import SavedListDrawer from '../../../../components/session/SavedListDrawer.astro';
+import SingleCardView from '../../../../components/session/SingleCardView.astro';
 import type { Movie } from '../../../../utils/movieUtils';
 import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
 import {
@@ -71,6 +72,9 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       ))}
     </div>
 
+    <!-- Single card view (Apple-style drawer) -->
+    <SingleCardView movies={uniqueMovies} hidden={true} />
+
     <!-- Spacer for bottom toolbar -->
     <div class="bottom-spacer"></div>
 
@@ -96,7 +100,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
   // --- State ---
-  let currentView: 'list' | 'card' = 'card';
+  let currentView: 'list' | 'card' | 'single' = 'card';
   let showActors = true;
   let showBlurb = false;
   let currentSort = 'alpha';
@@ -105,6 +109,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // --- DOM references ---
   const listView = document.getElementById('list-view')!;
   const cardView = document.getElementById('card-view')!;
+  const singleViewWrapper = document.getElementById('single-view-wrapper');
   const badge = document.querySelector('.saved-badge') as HTMLElement;
 
   // --- Initialize reactions from localStorage ---
@@ -170,7 +175,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // --- View toggle ---
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const view = (btn as HTMLElement).dataset.view as 'list' | 'card';
+      const view = (btn as HTMLElement).dataset.view as 'list' | 'card' | 'single';
       if (view === currentView) return;
       currentView = view;
 
@@ -181,6 +186,14 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
       listView.style.display = view === 'list' ? '' : 'none';
       cardView.style.display = view === 'card' ? '' : 'none';
+
+      // Single view: open the Apple-style drawer
+      const ctrl = (window as any).singleCardController;
+      if (view === 'single' && ctrl) {
+        ctrl.open();
+      } else if (ctrl) {
+        ctrl.close();
+      }
     });
   });
 
@@ -244,8 +257,18 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   function openMovieDetail(movieId: string) {
     const idx = allMovies.findIndex(m => m.id === movieId);
     if (idx === -1) return;
-    showMovieDetail(idx);
-    (window as any).openDrawer('movie-detail-drawer');
+
+    // Use Apple-style drawer for card taps
+    const ctrl = (window as any).singleCardController;
+    if (ctrl) {
+      ctrl.currentIndex = idx;
+      ctrl.reactions = getReactions(sessionId);
+      ctrl.render();
+      ctrl.open();
+    } else {
+      showMovieDetail(idx);
+      (window as any).openDrawer('movie-detail-drawer');
+    }
   }
 
   function showMovieDetail(index: number) {
