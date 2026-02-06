@@ -92,7 +92,7 @@ Session Data Layer (1)
   - URL encoding: base64 encode a compact JSON representation of reactions
 
 - [ ] **1.3: Create session page directory structure**
-  - Create Astro dynamic route: `src/pages/session/[id]/list.astro` (placeholder)
+  - Create Astro dynamic route: `src/pages/session/[id]/list/index.astro` (placeholder) — uses `list/index.astro` (not `list.astro`) so nested routes like `list/[userId]/saved.astro` can coexist
   - Create Astro dynamic route: `src/pages/session/[id]/compare/[...lists].astro` (placeholder)
   - Verify build passes with placeholder pages
 
@@ -158,7 +158,7 @@ Session Data Layer (1)
 ### Phase 3: Page Assembly (sequential, depends on Phase 2)
 
 - [ ] **3.1: Session list page**
-  - Implement `src/pages/session/[id]/list.astro`
+  - Implement `src/pages/session/[id]/list/index.astro`
   - Load session data (currently hardcoded to "tenement-stories" -- session ID maps to JSON file)
   - Deduplicate movies (group by movie title, keep unique films)
   - Render top toolbar, movie list/cards, bottom toolbar
@@ -181,7 +181,7 @@ Session Data Layer (1)
   - Extend `src/utils/storageManager.ts`
   - Encode reactions as compact URL-safe string (e.g., movie indices mapped to reaction codes: y/m/n)
   - Generate shareable URL: `/session/[id]/list/[userRandId]/saved`
-  - Create route: `src/pages/session/[id]/list/[userId]/saved.astro`
+  - Create route: `src/pages/session/[id]/list/[userId]/saved.astro` — coexists with `list/index.astro` since main list uses index file pattern
   - When visiting a shared URL: decode the list, show friend's selections, allow reacting to each
   - Copy link button with native clipboard API
   - Native share sheet (navigator.share) with fallback
