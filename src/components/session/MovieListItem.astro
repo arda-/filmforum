@@ -41,8 +41,8 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
       data-reaction="yes"
       data-movie-id={id}
       aria-pressed={reaction === 'yes'}
-      aria-label="Want to see"
-      title="Want to see"
+      aria-label="Yes"
+      title="Yes"
     ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span></button>
     <button
       class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
@@ -51,14 +51,14 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
       aria-pressed={reaction === 'maybe'}
       aria-label="Maybe"
       title="Maybe"
-    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>?</span></button>
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span></button>
     <button
       class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
       data-reaction="no"
       data-movie-id={id}
       aria-pressed={reaction === 'no'}
       aria-label="No"
-      title="Pass"
+      title="No"
     ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span></button>
   </div>
 </div>

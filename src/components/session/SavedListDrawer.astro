@@ -17,7 +17,7 @@ const { sessionId } = Astro.props;
     <div class="saved-section" id="saved-yes-section">
       <h3 class="saved-section-title">
         <span class="saved-dot saved-dot--yes"></span>
-        Want to see
+        Yes
         <span class="saved-section-count" id="saved-yes-count">0</span>
       </h3>
       <div class="saved-items" id="saved-yes-items">
@@ -144,50 +144,52 @@ const { sessionId } = Astro.props;
     margin: 2px 0 0 0;
   }
 
-  .saved-list :global(.saved-item-actions) {
+  .saved-list :global(.saved-item-toggle) {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     flex-shrink: 0;
   }
 
-  .saved-list :global(.saved-item-btn) {
+  .saved-list :global(.saved-toggle-btn) {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     padding: 0;
     background: transparent;
-    border: 1px solid var(--bg-movie-hover);
+    border: 1.5px solid transparent;
     border-radius: 6px;
-    color: var(--text-tertiary);
     cursor: pointer;
     transition: all 0.15s;
   }
 
-  .saved-list :global(.saved-item-btn:hover) {
-    background: var(--bg-movie);
-    color: var(--text-primary);
+  .saved-list :global(.saved-toggle-btn--yes) {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
+  }
+  .saved-list :global(.saved-toggle-btn--yes.active) {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
   }
 
-  .saved-list :global(.saved-item-btn--move) {
-    font-size: 14px;
-    font-weight: 600;
-    border-color: transparent;
+  .saved-list :global(.saved-toggle-btn--maybe) {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+  .saved-list :global(.saved-toggle-btn--maybe.active) {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
   }
 
-  .saved-list :global(.saved-item-btn--move:hover) {
-    color: var(--accent);
-    background: rgba(6, 182, 212, 0.1);
+  .saved-list :global(.saved-toggle-btn--no) {
+    color: var(--text-tertiary);
+    border-color: var(--bg-movie-hover);
   }
-
-  .saved-list :global(.saved-item-btn--remove) {
-    border-color: transparent;
-  }
-
-  .saved-list :global(.saved-item-btn--remove:hover) {
+  .saved-list :global(.saved-toggle-btn--no:hover) {
     color: #ef4444;
     background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
   }
 
   /* Empty state */

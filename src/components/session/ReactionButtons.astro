@@ -20,12 +20,12 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
     data-reaction="yes"
     data-movie-id={movieId}
     aria-pressed={reaction === 'yes'}
-    aria-label="Want to see"
+    aria-label="Yes"
   >
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    <span>Want to see</span>
+    <span>Yes</span>
   </button>
   <button
     class:list={['rbtn', 'rbtn--maybe', { active: reaction === 'maybe' }]}
@@ -45,12 +45,12 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
     data-reaction="no"
     data-movie-id={movieId}
     aria-pressed={reaction === 'no'}
-    aria-label="Pass"
+    aria-label="No"
   >
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
     </svg>
-    <span>Pass</span>
+    <span>No</span>
   </button>
 </div>
 
