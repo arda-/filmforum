@@ -1,20 +1,16 @@
 ---
 /**
  * Top toolbar for session list page.
- * Controls: view mode (list/card), display toggles, sort.
+ * Controls: view mode (list/card/single) and sort.
  */
 
 interface Props {
   viewMode?: 'list' | 'card' | 'single';
-  showActors?: boolean;
-  showBlurb?: boolean;
   sortBy?: string;
 }
 
 const {
   viewMode = 'card',
-  showActors = true,
-  showBlurb = false,
   sortBy = 'alpha',
 } = Astro.props;
 ---
@@ -72,17 +68,6 @@ const {
         <option value="marked" selected={sortBy === 'marked'}>Marked</option>
       </select>
     </div>
-  </div>
-
-  <div class="toolbar-row toolbar-toggles">
-    <label class="toggle-switch">
-      <input type="checkbox" id="toggle-actors" checked={showActors} />
-      <span class="toggle-switch-label">Actors</span>
-    </label>
-    <label class="toggle-switch">
-      <input type="checkbox" id="toggle-blurb" checked={showBlurb} />
-      <span class="toggle-switch-label">Blurb</span>
-    </label>
   </div>
 </div>
 
@@ -176,30 +161,5 @@ const {
     outline-offset: 1px;
   }
 
-  /* Display toggles */
-  .toolbar-toggles {
-    gap: 12px;
-  }
-
-  .toggle-switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .toggle-switch input {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    cursor: pointer;
-    accent-color: var(--accent);
-  }
-
-  .toggle-switch-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-  }
 
 </style>

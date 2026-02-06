@@ -101,8 +101,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // --- State ---
   let currentView: 'list' | 'card' | 'single' = 'card';
-  let showActors = true;
-  let showBlurb = false;
   let currentSort = 'alpha';
   let currentDetailIndex = 0;
 
@@ -204,28 +202,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
         ctrl.close();
       }
     });
-  });
-
-  // --- Display toggles ---
-  function updateDisplayToggles() {
-    // Actors
-    document.querySelectorAll('.list-item-actors, .card-actors').forEach(el => {
-      (el as HTMLElement).style.display = showActors ? '' : 'none';
-    });
-    // Blurb
-    document.querySelectorAll('.list-item-blurb, .card-blurb').forEach(el => {
-      (el as HTMLElement).style.display = showBlurb ? '' : 'none';
-    });
-  }
-
-  document.getElementById('toggle-actors')?.addEventListener('change', (e) => {
-    showActors = (e.target as HTMLInputElement).checked;
-    updateDisplayToggles();
-  });
-
-  document.getElementById('toggle-blurb')?.addEventListener('change', (e) => {
-    showBlurb = (e.target as HTMLInputElement).checked;
-    updateDisplayToggles();
   });
 
   // --- Sort ---

@@ -282,39 +282,49 @@ const hasPoster = !!movie.poster_url;
     transform: scale(0.95);
   }
 
-  /* Poster cards: backdrop-blur + color tint (matching scrim style) */
+  /* Poster cards: dark frosted glass + color tint */
   .card--has-poster .card-reactions {
-    border-top-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px) brightness(0.3);
+    -webkit-backdrop-filter: blur(16px) brightness(0.3);
   }
 
   .card--has-poster .reaction-btn--yes {
-    background: rgba(34, 197, 94, 0.18);
-    color: #22c55e;
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
   }
   .card--has-poster .reaction-btn--maybe {
-    background: rgba(245, 158, 11, 0.18);
-    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
   }
   .card--has-poster .reaction-btn--no {
-    background: rgba(239, 68, 68, 0.18);
-    color: #ef4444;
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
   }
 
   .card--has-poster .reaction-btn:not(:last-child) {
-    border-right-color: rgba(255, 255, 255, 0.1);
+    border-right-color: rgba(255, 255, 255, 0.08);
   }
 
   /* Hover: intensify tint */
   .reaction-btn--yes:hover {
-    background: rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.25);
   }
   .reaction-btn--maybe:hover {
-    background: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.25);
   }
   .reaction-btn--no:hover {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.25);
+  }
+
+  .card--has-poster .reaction-btn--yes:hover {
+    background: rgba(34, 197, 94, 0.25);
+  }
+  .card--has-poster .reaction-btn--maybe:hover {
+    background: rgba(245, 158, 11, 0.25);
+  }
+  .card--has-poster .reaction-btn--no:hover {
+    background: rgba(239, 68, 68, 0.25);
   }
 
   /* Active: solid fill */
