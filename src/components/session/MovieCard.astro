@@ -80,7 +80,7 @@ const hasPoster = !!movie.poster_url;
     overflow: hidden;
     background: var(--bg-movie);
     cursor: pointer;
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0s;
     display: flex;
     flex-direction: column;
     user-select: none;
@@ -293,20 +293,20 @@ const hasPoster = !!movie.poster_url;
     right: 0;
     z-index: 3;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px) brightness(0.3);
-    -webkit-backdrop-filter: blur(16px) brightness(0.3);
+    backdrop-filter: blur(16px) brightness(0.5);
+    -webkit-backdrop-filter: blur(16px) brightness(0.5);
   }
 
   .card--has-poster .reaction-btn--yes {
-    background: rgba(34, 197, 94, 0.15);
+    background: rgba(34, 197, 94, 0.08);
     color: #4ade80;
   }
   .card--has-poster .reaction-btn--maybe {
-    background: rgba(245, 158, 11, 0.15);
+    background: rgba(245, 158, 11, 0.08);
     color: #fbbf24;
   }
   .card--has-poster .reaction-btn--no {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.08);
     color: #f87171;
   }
 
