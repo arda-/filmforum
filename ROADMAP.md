@@ -22,6 +22,7 @@ Browsable movie list at `/session/[id]/list` with reactions (Yes/Maybe/No), save
 Move schedule from `/` to `/series/[slug]/schedule`. Extract inline script modules, reorganize components, create landing page at `/`.
 
 - Plan: `plans/migration-plan.md`
+- Workplan: `workplans/route-migration.md`
 
 ---
 
@@ -30,6 +31,7 @@ Move schedule from `/` to `/series/[slug]/schedule`. Extract inline script modul
 Add critic/audience scores (RT, Metacritic, IMDB) and plot blurbs via OMDb API. Separate data file joined at display time.
 
 - Plan: `plans/omdb-integration.md`
+- Workplan: `workplans/omdb-integration.md`
 
 ---
 
@@ -38,3 +40,12 @@ Add critic/audience scores (RT, Metacritic, IMDB) and plot blurbs via OMDb API. 
 Redesign MovieModal as an iOS-style bottom sheet with full-bleed hero image, drag handle, swipe-to-dismiss. Vaul-style implementation in vanilla JS.
 
 - Plan: `plans/apple-drawer-modal.md`
+- Workplan: `workplans/apple-drawer-modal.md`
+
+---
+
+## 5. Calendar UI Polish
+
+Three independent UI polish items: fix ToggleGroup dark mode borders, dim past day cells, make calendar color theme programmatic for multi-month series.
+
+- Workplan: `workplans/calendar-ui-polish.md`
