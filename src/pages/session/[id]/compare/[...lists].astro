@@ -1,0 +1,430 @@
+---
+/**
+ * Compare view: /session/[id]/compare/[listA]/[listB]
+ * Shows overlap, possible overlap, disagreements, etc. between two lists.
+ */
+import Layout from '../../../../layouts/Layout.astro';
+import type { Movie } from '../../../../utils/movieUtils';
+import {
+  getAllSessionIds,
+  getSessionConfig,
+  deduplicateMovies,
+  sortMovies,
+} from '../../../../utils/sessionUtils';
+
+export function getStaticPaths() {
+  return getAllSessionIds().map(id => ({
+    params: { id, lists: 'placeholder' },
+  }));
+}
+
+const { id } = Astro.params;
+const config = getSessionConfig(id!);
+if (!config) return Astro.redirect('/');
+
+// Load movie data
+let allMovies: Movie[] = [];
+try {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const dataPath = path.join(process.cwd(), 'public', config.dataFile);
+  const data = fs.readFileSync(dataPath, 'utf-8');
+  allMovies = JSON.parse(data);
+} catch {
+  allMovies = [];
+}
+
+const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
+const movieDataJson = JSON.stringify(uniqueMovies);
+---
+
+<Layout title={`Compare Lists — ${config.name}`}>
+  <main class="compare-page" data-session-id={id}>
+    <header class="page-header">
+      <a href={`/session/${id}/list`} class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to full list
+      </a>
+      <h1 class="page-title">Compare Lists</h1>
+      <p class="page-subtitle">{config.name}</p>
+    </header>
+
+    <div class="compare-sections" id="compare-sections">
+      <section class="compare-section" id="section-strong" data-section="strong">
+        <h2 class="section-heading section-heading--strong">
+          <span class="section-icon">&#x2764;</span>
+          Strong overlap
+          <span class="section-count" id="count-strong">0</span>
+        </h2>
+        <p class="section-desc">Both said "Want to see"</p>
+        <div class="section-items" id="items-strong"></div>
+      </section>
+
+      <section class="compare-section" id="section-possible" data-section="possible">
+        <h2 class="section-heading section-heading--possible">
+          <span class="section-icon">&#x1f91e;</span>
+          Possible overlap
+          <span class="section-count" id="count-possible">0</span>
+        </h2>
+        <p class="section-desc">One Yes + one Maybe, or both Maybe</p>
+        <div class="section-items" id="items-possible"></div>
+      </section>
+
+      <section class="compare-section" id="section-disagree" data-section="disagree">
+        <h2 class="section-heading section-heading--disagree">
+          <span class="section-icon">&#x26a0;</span>
+          Disagreements
+          <span class="section-count" id="count-disagree">0</span>
+        </h2>
+        <p class="section-desc">One Yes/Maybe + one No</p>
+        <div class="section-items" id="items-disagree"></div>
+      </section>
+
+      <section class="compare-section" id="section-pass" data-section="pass">
+        <h2 class="section-heading section-heading--pass">
+          Mutual pass
+          <span class="section-count" id="count-pass">0</span>
+        </h2>
+        <p class="section-desc">Both said No</p>
+        <div class="section-items" id="items-pass"></div>
+      </section>
+
+      <section class="compare-section" id="section-unreviewed" data-section="unreviewed">
+        <h2 class="section-heading section-heading--unreviewed">
+          Unreviewed
+          <span class="section-count" id="count-unreviewed">0</span>
+        </h2>
+        <p class="section-desc">One or both haven't reacted</p>
+        <div class="section-items" id="items-unreviewed"></div>
+      </section>
+    </div>
+
+    <div class="compare-empty" id="compare-empty" style="display: none;">
+      <p class="empty-title">No shared movies found</p>
+      <p class="empty-hint">The comparison link may be invalid. Try sharing your lists again.</p>
+    </div>
+
+    <div class="compare-actions">
+      <button class="share-compare-btn" id="share-compare-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Share comparison
+      </button>
+    </div>
+  </main>
+</Layout>
+
+<script define:vars={{ movieDataJson, sessionId: id }}>
+  window.__movieData = JSON.parse(movieDataJson);
+  window.__sessionId = sessionId;
+</script>
+
+<script>
+  import { decodeReactions } from '../../../../utils/storageManager';
+  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import type { UniqueMovie, MovieReaction } from '../../../../types/session';
+
+  const sessionId = (window as any).__sessionId as string;
+  const allMovies = (window as any).__movieData as UniqueMovie[];
+
+  // Parse two list encodings from URL path
+  const pathParts = window.location.pathname.split('/compare/')[1]?.split('/') || [];
+  const listAEncoded = pathParts[0] || '';
+  const listBEncoded = pathParts[1] || '';
+
+  const listA = decodeReactions(listAEncoded);
+  const listB = decodeReactions(listBEncoded);
+
+  type Category = 'strong' | 'possible' | 'disagree' | 'pass' | 'unreviewed';
+
+  interface CompareItem {
+    movie: UniqueMovie;
+    reactionA: MovieReaction;
+    reactionB: MovieReaction;
+    category: Category;
+  }
+
+  // Categorize each movie
+  const items: CompareItem[] = allMovies.map(m => {
+    const rA: MovieReaction = listA[m.id] || 'none';
+    const rB: MovieReaction = listB[m.id] || 'none';
+    let category: Category = 'unreviewed';
+
+    if (rA === 'none' || rB === 'none') {
+      category = 'unreviewed';
+    } else if (rA === 'yes' && rB === 'yes') {
+      category = 'strong';
+    } else if (
+      (rA === 'yes' && rB === 'maybe') ||
+      (rA === 'maybe' && rB === 'yes') ||
+      (rA === 'maybe' && rB === 'maybe')
+    ) {
+      category = 'possible';
+    } else if (rA === 'no' && rB === 'no') {
+      category = 'pass';
+    } else {
+      category = 'disagree';
+    }
+
+    return { movie: m, reactionA: rA, reactionB: rB, category };
+  });
+
+  const categories: Category[] = ['strong', 'possible', 'disagree', 'pass', 'unreviewed'];
+  let totalCategorized = 0;
+
+  for (const cat of categories) {
+    const catItems = items.filter(i => i.category === cat);
+    const section = document.getElementById(`section-${cat}`);
+    const container = document.getElementById(`items-${cat}`);
+    const count = document.getElementById(`count-${cat}`);
+
+    if (section) section.style.display = catItems.length > 0 ? '' : 'none';
+    if (count) count.textContent = String(catItems.length);
+    if (catItems.length > 0) totalCategorized += catItems.length;
+
+    if (container) {
+      container.innerHTML = catItems.map(item => {
+        const title = toTitleCase(item.movie.movie.Movie);
+        const meta = [item.movie.movie.director, item.movie.movie.year].filter(Boolean).join(', ');
+        const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No', none: '—' };
+
+        return `
+          <div class="compare-item">
+            <div class="compare-item-info">
+              <p class="compare-item-title">${title}</p>
+              <p class="compare-item-meta">${meta}</p>
+            </div>
+            <div class="compare-item-badges">
+              <span class="compare-badge compare-badge--${item.reactionA}">A: ${labels[item.reactionA]}</span>
+              <span class="compare-badge compare-badge--${item.reactionB}">B: ${labels[item.reactionB]}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // Show empty state if nothing to compare
+  const hasListData = Object.keys(listA).length > 0 || Object.keys(listB).length > 0;
+  const emptyEl = document.getElementById('compare-empty');
+  const sectionsEl = document.getElementById('compare-sections');
+  if (!hasListData) {
+    if (emptyEl) emptyEl.style.display = '';
+    if (sectionsEl) sectionsEl.style.display = 'none';
+  }
+
+  // Share comparison
+  document.getElementById('share-compare-btn')?.addEventListener('click', async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Movie List Comparison', url });
+      } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('share-compare-btn');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.textContent = 'Link copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      }
+    }
+  });
+</script>
+
+<style>
+  .compare-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px 40px;
+  }
+
+  .page-header {
+    padding: 16px 0 16px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  .compare-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .compare-section {
+    display: none;
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .section-icon {
+    font-size: 18px;
+  }
+
+  .section-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    background: var(--bg-movie);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .section-desc {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 2px 0 10px 0;
+  }
+
+  .section-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Compare items */
+  :global(.compare-item) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+  }
+
+  :global(.compare-item-info) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  :global(.compare-item-title) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  :global(.compare-item-meta) {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 2px 0 0 0;
+  }
+
+  :global(.compare-item-badges) {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  :global(.compare-badge) {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  :global(.compare-badge--yes) {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--reaction-yes);
+  }
+
+  :global(.compare-badge--maybe) {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--reaction-maybe);
+  }
+
+  :global(.compare-badge--no) {
+    background: rgba(107, 114, 128, 0.15);
+    color: var(--reaction-no);
+  }
+
+  :global(.compare-badge--none) {
+    background: var(--bg-movie-hover);
+    color: var(--text-tertiary);
+  }
+
+  /* Empty state */
+  .compare-empty {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .empty-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 8px 0 0 0;
+  }
+
+  .compare-actions {
+    margin-top: 20px;
+  }
+
+  .share-compare-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--bg-movie);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .share-compare-btn:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+</style>
