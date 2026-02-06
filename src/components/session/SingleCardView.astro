@@ -1,11 +1,9 @@
 ---
 /**
- * Single card view (Tinder-style interface)
- * Shows one movie card at a time, centered and large
- * Allows swipe/click navigation between movies
- * Maintains full reaction button access
+ * Apple-style Single Card View (Drawer Modal)
+ * iOS-like bottom sheet with full-bleed hero image, drag handle, and gesture support.
+ * Matches Vaul behavior with momentum close, damping, and iOS easing.
  */
-import MovieCard from './MovieCard.astro';
 import type { UniqueMovie, MovieReaction } from '../../types/session';
 
 interface Props {
@@ -17,158 +15,341 @@ interface Props {
 const { movies = [], reactions = {}, hidden = true } = Astro.props;
 ---
 
-<div class="single-view" data-hidden={hidden} id="single-view">
-  <div class="single-view-container">
-    <div class="single-view-inner" id="single-view-inner">
+<div class="single-view-wrapper" data-hidden={hidden} id="single-view-wrapper">
+  <div class="single-view-overlay" id="single-view-overlay"></div>
+
+  <div class="single-view-drawer" id="single-view-drawer" role="dialog" aria-modal="true">
+    <!-- Drag handle -->
+    <div class="drawer-handle-container">
+      <div class="drawer-handle"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="drawer-content" id="drawer-content">
       {movies.length > 0 && (
-        <div class="single-card-wrapper" id="single-card-wrapper">
-          <!-- MovieCard component inserted via JS -->
+        <div id="single-card-wrapper">
+          <!-- Card rendered via JS -->
         </div>
       )}
 
       {movies.length === 0 && (
-        <div class="single-view-empty">
+        <div class="drawer-empty">
           <p>No movies to display</p>
         </div>
       )}
-    </div>
 
-    {movies.length > 1 && (
-      <div class="single-view-nav">
-        <button class="single-nav-btn single-nav-prev" id="single-nav-prev" aria-label="Previous movie">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <span class="single-nav-counter" id="single-nav-counter">1 / {movies.length}</span>
-        <button class="single-nav-btn single-nav-next" id="single-nav-next" aria-label="Next movie">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M9 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-    )}
+      <!-- Navigation and details rendered below -->
+      {movies.length > 1 && (
+        <div class="drawer-nav" id="drawer-nav">
+          <button class="drawer-nav-btn" id="drawer-nav-prev" aria-label="Previous movie">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <span class="drawer-nav-counter" id="drawer-nav-counter">1 / {movies.length}</span>
+          <button class="drawer-nav-btn" id="drawer-nav-next" aria-label="Next movie">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 4l8 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
   </div>
 </div>
 
 <script define:vars={{ moviesJson: JSON.stringify(movies), reactionsJson: JSON.stringify(reactions) }}>
-  const movies = JSON.parse(moviesJson);
-  const initialReactions = JSON.parse(reactionsJson);
-  let currentIndex = 0;
+  class SingleCardController {
+    constructor() {
+      this.movies = JSON.parse(moviesJson);
+      this.reactions = JSON.parse(reactionsJson);
+      this.currentIndex = 0;
+      this.isDragging = false;
+      this.startY = 0;
+      this.currentY = 0;
+      this.startTime = 0;
 
-  function renderCurrentCard() {
-    if (movies.length === 0) return;
+      // Gesture thresholds (Vaul defaults)
+      this.CLOSE_THRESHOLD = 0.25; // 25% of height to close
+      this.VELOCITY_THRESHOLD = 0.5; // px/ms to trigger momentum close
 
-    const movie = movies[currentIndex];
-    const wrapper = document.getElementById('single-card-wrapper');
-    if (!wrapper) return;
+      this.wrapper = document.getElementById('single-view-wrapper');
+      this.drawer = document.getElementById('single-view-drawer');
+      this.overlay = document.getElementById('single-view-overlay');
+      this.content = document.getElementById('drawer-content');
 
-    const reaction = initialReactions[movie.id] || 'none';
+      this.bindEvents();
+      this.render();
+    }
 
-    // Create a simple card structure (similar to MovieCard but simpler)
-    wrapper.innerHTML = `
-      <div class="single-movie-card" data-movie-id="${movie.id}" data-reaction="${reaction}">
-        <div class="single-card-image">
-          ${movie.movie.poster_url ? `<img src="${movie.movie.poster_url}" alt="${movie.movie.Movie}" class="single-card-img" />` : ''}
-          ${movie.movie.poster_url ? '<div class="single-card-blur"></div>' : ''}
-          <div class="single-card-overlay">
-            <h2 class="single-card-title">${movie.movie.Movie}</h2>
-            <p class="single-card-meta">${[movie.movie.director, movie.movie.year, (movie.movie.runtime ? movie.movie.runtime + ' min' : '')].filter(Boolean).join(' · ')}</p>
-            ${movie.movie.actors ? `<p class="single-card-actors">${movie.movie.actors}</p>` : ''}
-            ${movie.movie.description ? `<p class="single-card-description">${movie.movie.description}</p>` : ''}
+    bindEvents() {
+      // Drawer drag events
+      this.drawer.addEventListener('pointerdown', this.onPointerDown.bind(this));
+      document.addEventListener('pointermove', this.onPointerMove.bind(this));
+      document.addEventListener('pointerup', this.onPointerUp.bind(this));
+
+      // Overlay click to close
+      this.overlay?.addEventListener('click', () => this.close());
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (this.wrapper.dataset.hidden === 'true') return;
+        if (e.key === 'Escape') {
+          this.close();
+        } else if (e.key === 'ArrowLeft' && this.currentIndex > 0) {
+          this.prev();
+        } else if (e.key === 'ArrowRight' && this.currentIndex < this.movies.length - 1) {
+          this.next();
+        }
+      });
+
+      // Nav buttons
+      document.getElementById('drawer-nav-prev')?.addEventListener('click', () => this.prev());
+      document.getElementById('drawer-nav-next')?.addEventListener('click', () => this.next());
+    }
+
+    onPointerDown(e) {
+      // Only start drag from handle or top of drawer
+      const handle = e.target.closest('.drawer-handle-container');
+      const isTopArea = e.clientY < this.drawer.offsetHeight * 0.15;
+
+      if (!handle && !isTopArea) return;
+
+      // Ignore if scrolled (Vaul behavior)
+      if (this.content.scrollTop > 0) return;
+
+      this.isDragging = true;
+      this.startY = e.clientY;
+      this.startTime = Date.now();
+      this.drawer.classList.add('dragging');
+      this.drawer.setPointerCapture(e.pointerId);
+    }
+
+    onPointerMove(e) {
+      if (!this.isDragging) return;
+
+      const deltaY = e.clientY - this.startY;
+
+      // Only allow dragging down (closing)
+      if (deltaY >= 0) {
+        this.currentY = deltaY;
+        this.drawer.style.transform = `translateY(${deltaY}px)`;
+        this.updateOverlayOpacity(deltaY);
+      }
+    }
+
+    onPointerUp(e) {
+      if (!this.isDragging) return;
+
+      this.isDragging = false;
+      this.drawer.classList.remove('dragging');
+      this.drawer.releasePointerCapture(e.pointerId);
+
+      const height = this.drawer.offsetHeight;
+      const percentDragged = this.currentY / height;
+      const timeTaken = Date.now() - this.startTime;
+      const velocity = timeTaken > 0 ? this.currentY / timeTaken : 0;
+
+      // Close if: dragged past threshold OR flicked with momentum
+      if (percentDragged > this.CLOSE_THRESHOLD || velocity > this.VELOCITY_THRESHOLD) {
+        this.close();
+      } else {
+        this.snapBack();
+      }
+
+      this.currentY = 0;
+    }
+
+    updateOverlayOpacity(dragY) {
+      const height = this.drawer.offsetHeight;
+      const percent = Math.min(dragY / height, 1);
+      if (this.overlay) {
+        this.overlay.style.opacity = Math.max(0, 1 - percent * 1.5);
+      }
+    }
+
+    snapBack() {
+      this.drawer.style.transform = '';
+      this.updateOverlayOpacity(0);
+    }
+
+    open() {
+      this.wrapper.dataset.hidden = 'false';
+      // Trigger reflow for animation
+      this.drawer.offsetHeight;
+      this.drawer.classList.add('open');
+    }
+
+    close() {
+      this.drawer.classList.remove('open');
+      this.wrapper.dataset.hidden = 'true';
+      this.drawer.style.transform = '';
+    }
+
+    next() {
+      if (this.currentIndex < this.movies.length - 1) {
+        this.currentIndex++;
+        this.render();
+      }
+    }
+
+    prev() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+        this.render();
+      }
+    }
+
+    render() {
+      const movie = this.movies[this.currentIndex];
+      if (!movie) return;
+
+      const reaction = this.reactions[movie.id] || 'none';
+      const wrapper = document.getElementById('single-card-wrapper');
+      if (!wrapper) return;
+
+      // Render full-bleed card
+      wrapper.innerHTML = `
+        <div class="drawer-card" data-movie-id="${movie.id}">
+          <div class="drawer-poster">
+            ${movie.movie.poster_url ? `
+              <img src="${movie.movie.poster_url}" alt="${movie.movie.Movie}" class="drawer-poster-img" />
+              <div class="drawer-poster-blur"></div>
+            ` : '<div class="drawer-poster-placeholder">No Image</div>'}
+          </div>
+
+          <div class="drawer-info">
+            <h2 class="drawer-title">${movie.movie.Movie}</h2>
+            <p class="drawer-meta">${[movie.movie.director, movie.movie.year, (movie.movie.runtime ? movie.movie.runtime + ' min' : '')].filter(Boolean).join(' · ')}</p>
+            ${movie.movie.actors ? `<p class="drawer-actors">${movie.movie.actors}</p>` : ''}
+            ${movie.movie.description ? `
+              <div class="drawer-description">
+                <p>"${movie.movie.description}"</p>
+                <p class="drawer-citation">— Film Forum</p>
+              </div>
+            ` : ''}
+
+            <!-- Reaction buttons -->
+            <div class="drawer-reactions" data-movie-id="${movie.id}">
+              <button class="reaction-btn reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${movie.id}" aria-pressed="${reaction === 'yes'}" title="Yes">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span>
+              </button>
+              <button class="reaction-btn reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${movie.id}" aria-pressed="${reaction === 'maybe'}" title="Maybe">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span>
+              </button>
+              <button class="reaction-btn reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${movie.id}" aria-pressed="${reaction === 'no'}" title="No">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span>
+              </button>
+            </div>
           </div>
         </div>
-        <div class="single-card-reactions" data-movie-id="${movie.id}">
-          <button class="reaction-btn reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${movie.id}" aria-pressed="${reaction === 'yes'}" aria-label="Yes" title="Yes">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span>
-          </button>
-          <button class="reaction-btn reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${movie.id}" aria-pressed="${reaction === 'maybe'}" aria-label="Maybe" title="Maybe">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span>
-          </button>
-          <button class="reaction-btn reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${movie.id}" aria-pressed="${reaction === 'no'}" aria-label="No" title="No">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span>
-          </button>
-        </div>
-      </div>
-    `;
+      `;
 
-    // Update nav counter
-    const counter = document.getElementById('single-nav-counter');
-    if (counter) counter.textContent = `${currentIndex + 1} / ${movies.length}`;
+      // Update nav
+      const counter = document.getElementById('drawer-nav-counter');
+      if (counter) counter.textContent = `${this.currentIndex + 1} / ${this.movies.length}`;
 
-    // Update nav button disabled states
-    const prevBtn = document.getElementById('single-nav-prev') as HTMLButtonElement;
-    const nextBtn = document.getElementById('single-nav-next') as HTMLButtonElement;
-    if (prevBtn) prevBtn.disabled = currentIndex === 0;
-    if (nextBtn) nextBtn.disabled = currentIndex === movies.length - 1;
+      const prevBtn = document.getElementById('drawer-nav-prev') as HTMLButtonElement;
+      const nextBtn = document.getElementById('drawer-nav-next') as HTMLButtonElement;
+      if (prevBtn) prevBtn.disabled = this.currentIndex === 0;
+      if (nextBtn) nextBtn.disabled = this.currentIndex === this.movies.length - 1;
+    }
   }
 
-  // Navigation handlers
-  document.getElementById('single-nav-prev')?.addEventListener('click', () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      renderCurrentCard();
-    }
-  });
+  // Initialize
+  const controller = new SingleCardController();
 
-  document.getElementById('single-nav-next')?.addEventListener('click', () => {
-    if (currentIndex < movies.length - 1) {
-      currentIndex++;
-      renderCurrentCard();
-    }
-  });
-
-  // Keyboard navigation
-  document.addEventListener('keydown', (e) => {
-    const singleView = document.getElementById('single-view');
-    if (!singleView || singleView.dataset.hidden === 'true') return;
-
-    if (e.key === 'ArrowLeft' && currentIndex > 0) {
-      currentIndex--;
-      renderCurrentCard();
-    } else if (e.key === 'ArrowRight' && currentIndex < movies.length - 1) {
-      currentIndex++;
-      renderCurrentCard();
-    }
-  });
-
-  // Initial render
-  renderCurrentCard();
+  // Expose to window for main page integration
+  (window as any).singleCardController = controller;
 </script>
 
 <style>
-  .single-view {
-    display: none;
-    min-height: 100vh;
-    padding: 16px;
-    padding-bottom: 100px;
+  .single-view-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    z-index: 999;
+    pointer-events: none;
   }
 
-  .single-view[data-hidden="false"] {
+  .single-view-wrapper[data-hidden="false"] {
+    pointer-events: auto;
+  }
+
+  /* Overlay */
+  .single-view-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .single-view-wrapper[data-hidden="false"] .single-view-overlay {
+    opacity: 1;
+  }
+
+  /* Drawer — THE Apple style bottom sheet */
+  .single-view-drawer {
+    position: relative;
+    width: 100%;
+    max-height: 90vh;
+    max-height: 90dvh;
+    border-radius: 16px 16px 0 0;
+    background: var(--bg-body);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    overflow: hidden;
+    pointer-events: auto;
+
+    /* THE iOS easing curve — critical for feel */
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+
+    /* Closed: below screen */
+    transform: translateY(100%);
+  }
+
+  .single-view-drawer.open {
+    transform: translateY(0);
+  }
+
+  .single-view-drawer.dragging {
+    transition: none;
+  }
+
+  /* Drag handle */
+  .drawer-handle-container {
+    display: flex;
     justify-content: center;
+    padding: 8px 0;
+    cursor: grab;
+    user-select: none;
   }
 
-  .single-view-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    width: 100%;
-    max-width: 500px;
+  .drawer-handle-container:active {
+    cursor: grabbing;
   }
 
-  .single-view-inner {
-    width: 100%;
+  .drawer-handle {
+    width: 40px;
+    height: 4px;
+    background: var(--text-tertiary);
+    border-radius: 2px;
   }
 
-  .single-card-wrapper {
-    width: 100%;
+  /* Content scrolling area */
+  .drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .single-view-empty {
+  .drawer-empty {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,30 +357,26 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     text-align: center;
   }
 
-  .single-view-empty p {
-    font-size: 18px;
+  .drawer-empty p {
+    font-size: 16px;
     color: var(--text-secondary);
   }
 
-  /* Single movie card styles */
-  .single-movie-card {
+  /* Card in drawer */
+  .drawer-card {
     position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--bg-movie);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
   }
 
-  .single-card-image {
+  /* Full-bleed poster */
+  .drawer-poster {
     position: relative;
     width: 100%;
     aspect-ratio: 4 / 3;
+    background: var(--bg-movie);
     overflow: hidden;
   }
 
-  .single-card-img {
+  .drawer-poster-img {
     position: absolute;
     top: 0;
     left: 0;
@@ -209,7 +386,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     display: block;
   }
 
-  .single-card-blur {
+  .drawer-poster-blur {
     position: absolute;
     inset: 0;
     backdrop-filter: blur(16px);
@@ -217,171 +394,182 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
     -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
     pointer-events: none;
-    z-index: 1;
   }
 
-  .single-card-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 0.5rem 1rem 1rem 1rem;
-    color: white;
+  .drawer-poster-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--text-tertiary);
+    font-size: 14px;
+  }
+
+  /* Padded info section */
+  .drawer-info {
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    z-index: 2;
+    gap: 8px;
   }
 
-  .single-card-title {
+  .drawer-title {
     font-size: 20px;
     font-weight: 600;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    color: var(--text-primary);
     margin: 0;
   }
 
-  .single-card-meta {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    margin: 0;
-  }
-
-  .single-card-actors {
+  .drawer-meta {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    color: var(--text-secondary);
     margin: 0;
   }
 
-  .single-card-description {
+  .drawer-actors {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .drawer-description {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--bg-day);
+    border-radius: 8px;
+  }
+
+  .drawer-description p {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.75);
-    line-height: 1.4;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    margin: 4px 0 0 0;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .drawer-citation {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin-top: 4px;
   }
 
   /* Reaction buttons */
-  .single-card-reactions {
+  .drawer-reactions {
     display: flex;
-    gap: 0;
-    background: rgba(0, 0, 0, 0.65);
+    gap: 6px;
+    margin-top: 8px;
   }
 
-  .single-card-reactions .reaction-btn {
+  .drawer-reactions .reaction-btn {
     flex: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 12px 0;
-    font-size: 13px;
+    gap: 4px;
+    padding: 8px 0;
+    font-size: 12px;
     font-weight: 500;
     font-family: inherit;
-    border-radius: 0;
-    border: none;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    border: 1.5px solid;
     background: transparent;
-    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
   }
 
-  .single-card-reactions .reaction-btn:last-child {
-    border-right: none;
+  .drawer-reactions .reaction-btn:active {
+    transform: scale(0.93);
   }
 
-  .single-card-reactions .reaction-btn:active {
-    transform: scale(0.95);
+  .drawer-reactions .reaction-btn--yes {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
   }
-
-  .single-card-reactions .reaction-btn--yes:hover {
-    background: rgba(34, 197, 94, 0.15);
-    color: #4ade80;
+  .drawer-reactions .reaction-btn--yes:hover {
+    background: rgba(34, 197, 94, 0.1);
   }
-  .single-card-reactions .reaction-btn--yes.active {
+  .drawer-reactions .reaction-btn--yes.active {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
   }
 
-  .single-card-reactions .reaction-btn--maybe:hover {
-    background: rgba(245, 158, 11, 0.15);
-    color: #fbbf24;
+  .drawer-reactions .reaction-btn--maybe {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
   }
-  .single-card-reactions .reaction-btn--maybe.active {
+  .drawer-reactions .reaction-btn--maybe:hover {
+    background: rgba(245, 158, 11, 0.1);
+  }
+  .drawer-reactions .reaction-btn--maybe.active {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
   }
 
-  .single-card-reactions .reaction-btn--no:hover {
-    background: rgba(107, 114, 128, 0.15);
-    color: #9ca3af;
+  .drawer-reactions .reaction-btn--no {
+    color: var(--reaction-no, #6b7280);
+    border-color: var(--reaction-no, #6b7280);
   }
-  .single-card-reactions .reaction-btn--no.active {
+  .drawer-reactions .reaction-btn--no:hover {
+    background: rgba(107, 114, 128, 0.1);
+  }
+  .drawer-reactions .reaction-btn--no.active {
     background: var(--reaction-no, #6b7280);
     color: #fff;
   }
 
   /* Navigation */
-  .single-view-nav {
+  .drawer-nav {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 16px;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--bg-movie);
   }
 
-  .single-nav-btn {
+  .drawer-nav-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     background: var(--bg-movie);
-    border: 1px solid var(--bg-movie-hover);
+    border: none;
     border-radius: 50%;
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s;
   }
 
-  .single-nav-btn:hover:not(:disabled) {
+  .drawer-nav-btn:hover:not(:disabled) {
     background: var(--bg-movie-hover);
     color: var(--text-primary);
   }
 
-  .single-nav-btn:disabled {
+  .drawer-nav-btn:disabled {
     opacity: 0.3;
     cursor: not-allowed;
   }
 
-  .single-nav-counter {
-    font-size: 14px;
+  .drawer-nav-counter {
+    font-size: 13px;
     color: var(--text-secondary);
-    min-width: 60px;
+    min-width: 50px;
     text-align: center;
   }
 
   @media (max-width: 480px) {
-    .single-view {
-      padding: 12px;
-      padding-bottom: 80px;
+    .single-view-drawer {
+      max-height: 85vh;
+      max-height: 85dvh;
     }
 
-    .single-card-title {
+    .drawer-title {
       font-size: 18px;
-    }
-
-    .single-card-meta {
-      font-size: 13px;
-    }
-
-    .single-nav-btn {
-      width: 40px;
-      height: 40px;
     }
   }
 </style>
