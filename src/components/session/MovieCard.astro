@@ -20,17 +20,16 @@ const {
 const { movie, id } = uniqueMovie;
 const title = toTitleCase(movie.Movie);
 const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
-const hasPoster = showImage && !!movie.poster_url;
+const hasPoster = !!movie.poster_url;
 ---
 
 <div
-  class:list={['card', { 'card--has-poster': hasPoster, [`card--${reaction}`]: reaction !== 'none' }]}
+  class:list={['card', { 'card--has-poster': hasPoster && showImage, [`card--${reaction}`]: reaction !== 'none' }]}
   data-movie-id={id}
   data-reaction={reaction}
-  style={hasPoster ? `--poster-url: url(${movie.poster_url})` : undefined}
 >
   {hasPoster && (
-    <div class="card-poster">
+    <div class="card-poster" style={showImage ? undefined : 'display:none'}>
       <img src={movie.poster_url} alt={title} loading="lazy" />
     </div>
   )}
@@ -46,8 +45,8 @@ const hasPoster = showImage && !!movie.poster_url;
       </button>
     </div>
     <p class="card-meta">{meta}</p>
-    {showActors && movie.actors && <p class="card-actors">{movie.actors}</p>}
-    {showBlurb && movie.description && <p class="card-blurb">{movie.description}</p>}
+    {movie.actors && <p class="card-actors" style={showActors ? undefined : 'display:none'}>{movie.actors}</p>}
+    {movie.description && <p class="card-blurb" style={showBlurb ? undefined : 'display:none'}>{movie.description}</p>}
 
     <div class="card-reactions" data-movie-id={id}>
       <button
@@ -57,7 +56,7 @@ const hasPoster = showImage && !!movie.poster_url;
         aria-pressed={reaction === 'yes'}
         aria-label="Want to see"
         title="Want to see"
-      >Yes</button>
+      ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span></button>
       <button
         class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
         data-reaction="maybe"
@@ -65,7 +64,7 @@ const hasPoster = showImage && !!movie.poster_url;
         aria-pressed={reaction === 'maybe'}
         aria-label="Maybe"
         title="Maybe"
-      >Maybe</button>
+      ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>?</span></button>
       <button
         class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
         data-reaction="no"
@@ -73,7 +72,7 @@ const hasPoster = showImage && !!movie.poster_url;
         aria-pressed={reaction === 'no'}
         aria-label="No"
         title="Pass"
-      >No</button>
+      ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span></button>
     </div>
   </div>
 </div>
@@ -86,6 +85,7 @@ const hasPoster = showImage && !!movie.poster_url;
     background: var(--bg-movie);
     overflow: hidden;
     transition: background-color 0.15s, box-shadow 0.25s;
+    cursor: pointer;
   }
 
   .card:hover {
@@ -216,6 +216,7 @@ const hasPoster = showImage && !!movie.poster_url;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
     padding: 6px 0;
     font-size: 12px;
     font-weight: 500;
