@@ -99,7 +99,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   let currentView: 'list' | 'card' = 'card';
   let showActors = true;
   let showBlurb = false;
-  let showImages = true;
   let currentSort = 'alpha';
   let currentDetailIndex = 0;
 
@@ -182,12 +181,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
       listView.style.display = view === 'list' ? '' : 'none';
       cardView.style.display = view === 'card' ? '' : 'none';
-
-      // Show/hide images toggle (card only)
-      const imagesToggle = document.getElementById('toggle-images-group');
-      if (imagesToggle) {
-        imagesToggle.classList.toggle('hidden', view === 'list');
-      }
     });
   });
 
@@ -201,10 +194,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     document.querySelectorAll('.list-item-blurb, .card-blurb').forEach(el => {
       (el as HTMLElement).style.display = showBlurb ? '' : 'none';
     });
-    // Images (card view)
-    document.querySelectorAll('.card-poster-img, .card-blur').forEach(el => {
-      (el as HTMLElement).style.display = showImages ? '' : 'none';
-    });
   }
 
   document.getElementById('toggle-actors')?.addEventListener('change', (e) => {
@@ -214,11 +203,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   document.getElementById('toggle-blurb')?.addEventListener('change', (e) => {
     showBlurb = (e.target as HTMLInputElement).checked;
-    updateDisplayToggles();
-  });
-
-  document.getElementById('toggle-images')?.addEventListener('change', (e) => {
-    showImages = (e.target as HTMLInputElement).checked;
     updateDisplayToggles();
   });
 

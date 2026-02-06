@@ -8,7 +8,6 @@ interface Props {
   viewMode?: 'list' | 'card';
   showActors?: boolean;
   showBlurb?: boolean;
-  showImages?: boolean;
   sortBy?: string;
 }
 
@@ -16,7 +15,6 @@ const {
   viewMode = 'card',
   showActors = true,
   showBlurb = false,
-  showImages = true,
   sortBy = 'alpha',
 } = Astro.props;
 ---
@@ -73,10 +71,6 @@ const {
     <label class="toggle-switch">
       <input type="checkbox" id="toggle-blurb" checked={showBlurb} />
       <span class="toggle-switch-label">Blurb</span>
-    </label>
-    <label class="toggle-switch" id="toggle-images-group" data-card-only>
-      <input type="checkbox" id="toggle-images" checked={showImages} />
-      <span class="toggle-switch-label">Images</span>
     </label>
   </div>
 </div>
@@ -197,8 +191,4 @@ const {
     color: var(--text-secondary);
   }
 
-  /* Hide images toggle when in list view (controlled by JS) */
-  [data-card-only].hidden {
-    display: none;
-  }
 </style>

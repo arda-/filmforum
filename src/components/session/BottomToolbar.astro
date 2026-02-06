@@ -16,7 +16,7 @@ const { sessionId, savedCount = 0 } = Astro.props;
         </svg>
         <span class="saved-badge" data-count={savedCount}>{savedCount}</span>
       </span>
-      <span class="toolbar-label">Review Saved</span>
+      <span class="toolbar-label">Saved</span>
     </button>
 
     <a href={`/session/${sessionId}/showtimes`} class="toolbar-showtimes-btn" aria-label="Find showtimes">
