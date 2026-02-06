@@ -198,36 +198,72 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
       }
     });
 
-    // Swipe-to-dismiss (touch)
-    if (handle) {
-      handle.addEventListener('touchstart', (e: TouchEvent) => {
-        isDragging = true;
-        startY = e.touches[0].clientY;
-        container.style.transition = 'none';
-      }, { passive: true });
+    // Swipe-to-dismiss: works on handle always, and on body when scrolled to top
+    const body = drawer.querySelector('.drawer-body') as HTMLElement;
+    let dragSource: 'handle' | 'body' | null = null;
 
-      handle.addEventListener('touchmove', (e: TouchEvent) => {
-        if (!isDragging) return;
-        currentY = e.touches[0].clientY - startY;
-        if (currentY < 0) currentY = 0; // Don't drag up past start
-        container.style.transform = `translateY(${currentY}px)`;
-      }, { passive: true });
+    function onTouchStart(e: TouchEvent, source: 'handle' | 'body') {
+      // For body drags, only start if scrolled to top
+      if (source === 'body' && body && body.scrollTop > 0) return;
+      isDragging = true;
+      dragSource = source;
+      startY = e.touches[0].clientY;
+      currentY = 0;
+      container.style.transition = 'none';
+    }
 
-      handle.addEventListener('touchend', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        container.style.transition = '';
-
-        // Dismiss if dragged more than 100px or with velocity
-        if (currentY > 100) {
-          closeDrawer();
-        } else {
+    function onTouchMove(e: TouchEvent) {
+      if (!isDragging) return;
+      const delta = e.touches[0].clientY - startY;
+      if (delta < 0) {
+        // Swiping up — if from body, cancel drag and let scroll take over
+        if (dragSource === 'body') {
+          isDragging = false;
+          container.style.transition = '';
           container.style.transform = '';
+          return;
         }
         currentY = 0;
-      });
+      } else {
+        currentY = delta;
+        // Prevent scroll while dragging drawer down
+        if (dragSource === 'body' && currentY > 5) {
+          e.preventDefault();
+        }
+      }
+      container.style.transform = `translateY(${currentY}px)`;
+    }
 
-      // Mouse drag support
+    function onTouchEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      dragSource = null;
+      container.style.transition = '';
+
+      if (currentY > 80) {
+        closeDrawer();
+      } else {
+        container.style.transform = '';
+      }
+      currentY = 0;
+    }
+
+    // Handle area — always draggable
+    if (handle) {
+      handle.addEventListener('touchstart', (e) => onTouchStart(e, 'handle'), { passive: true });
+    }
+
+    // Body area — draggable when at scroll top
+    if (body) {
+      body.addEventListener('touchstart', (e) => onTouchStart(e, 'body'), { passive: true });
+    }
+
+    // Shared move/end on container
+    container.addEventListener('touchmove', (e) => onTouchMove(e), { passive: false });
+    container.addEventListener('touchend', onTouchEnd);
+
+    // Mouse drag support (handle only, for desktop)
+    if (handle) {
       handle.addEventListener('mousedown', (e: MouseEvent) => {
         isDragging = true;
         startY = e.clientY;
@@ -243,7 +279,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
         const onMouseUp = () => {
           isDragging = false;
           container.style.transition = '';
-          if (currentY > 100) {
+          if (currentY > 80) {
             closeDrawer();
           } else {
             container.style.transform = '';
