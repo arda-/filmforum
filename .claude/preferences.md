@@ -12,7 +12,8 @@ This file contains preferences for how Claude Code should work in this repositor
 ## Agent Memory & Concurrency
 
 **CRITICAL RULES:**
-- **Maximum 3 concurrent agents** at any time
+- **Default safe limit: 3 concurrent agents** — use this when you haven't checked memory
+- **Dynamic limit**: Calculate from available memory before spawning more. See `sops/sop-agent-limits.md` for the full calculation (32GB budget, ~4.4GB per agent)
 - **Per-agent memory**: ~4.4GB (observed max)
 
 ### When to Use Agents
@@ -24,7 +25,7 @@ This file contains preferences for how Claude Code should work in this repositor
 2. **How many concurrent agents will I spawn?**
    - 1-2 tasks → Do it directly (no agents)
    - 3-5 tasks → 1-to-1 (3-5 agents, one per task)
-   - 6+ tasks → Batch strategically (max 3 concurrent)
+   - 6+ tasks → Batch strategically (default max 3, or calculate dynamic limit per SOP)
 
 ## Code Review Standards
 
