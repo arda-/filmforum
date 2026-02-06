@@ -277,16 +277,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const descEl = document.getElementById('detail-description');
     if (descEl) descEl.textContent = movie.description || '';
 
-    // Update reaction buttons
-    const reactionsEl = document.getElementById('detail-reactions');
-    if (reactionsEl) {
-      reactionsEl.innerHTML = ['yes', 'maybe', 'no'].map(r => {
-        const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
-        const active = r === reaction ? 'active' : '';
-        return `<button class="reaction-btn reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${id}" aria-pressed="${r === reaction}">${labels[r]}</button>`;
-      }).join('');
-    }
-
     // Update links
     const filmUrl = document.getElementById('detail-film-url') as HTMLAnchorElement;
     if (filmUrl) {
@@ -300,16 +290,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       ticketsUrl.href = um.showtimes[0]?.tickets || '#';
       ticketsUrl.style.display = um.showtimes[0]?.tickets ? '' : 'none';
     }
-
-    // Update nav
-    const counter = document.getElementById('detail-counter');
-    if (counter) counter.textContent = `${index + 1} / ${allMovies.length}`;
-
-    const prevBtn = document.getElementById('detail-prev') as HTMLButtonElement;
-    if (prevBtn) prevBtn.disabled = index === 0;
-
-    const nextBtn = document.getElementById('detail-next') as HTMLButtonElement;
-    if (nextBtn) nextBtn.disabled = index === allMovies.length - 1;
   }
 
   // More info click handlers — info button or tapping the item itself
@@ -332,26 +312,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (item && !target.closest('button, a')) {
       const movieId = item.dataset.movieId;
       if (movieId) openMovieDetail(movieId);
-    }
-  });
-
-  // Detail drawer nav
-  document.getElementById('detail-prev')?.addEventListener('click', () => {
-    if (currentDetailIndex > 0) showMovieDetail(currentDetailIndex - 1);
-  });
-
-  document.getElementById('detail-next')?.addEventListener('click', () => {
-    if (currentDetailIndex < allMovies.length - 1) showMovieDetail(currentDetailIndex + 1);
-  });
-
-  // Keyboard nav in detail drawer
-  document.addEventListener('keydown', (e) => {
-    const drawer = document.getElementById('movie-detail-drawer');
-    if (drawer?.dataset.open !== 'true') return;
-    if (e.key === 'ArrowLeft' && currentDetailIndex > 0) {
-      showMovieDetail(currentDetailIndex - 1);
-    } else if (e.key === 'ArrowRight' && currentDetailIndex < allMovies.length - 1) {
-      showMovieDetail(currentDetailIndex + 1);
     }
   });
 
@@ -534,62 +494,5 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   /* Spacer for fixed bottom toolbar */
   .bottom-spacer {
     height: 80px;
-  }
-
-  /* Detail drawer reaction button styles (injected via JS) */
-  .session-list-page :global(#detail-reactions .reaction-btn) {
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: 8px;
-    border: 1.5px solid transparent;
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .session-list-page :global(#detail-reactions .reaction-btn:active) {
-    transform: scale(0.95);
-  }
-
-  .session-list-page :global(#detail-reactions .reaction-btn--yes) {
-    color: var(--reaction-yes, #22c55e);
-    border-color: var(--reaction-yes, #22c55e);
-  }
-  .session-list-page :global(#detail-reactions .reaction-btn--yes:hover) {
-    background: rgba(34, 197, 94, 0.1);
-  }
-  .session-list-page :global(#detail-reactions .reaction-btn--yes.active) {
-    background: var(--reaction-yes, #22c55e);
-    color: #fff;
-  }
-
-  .session-list-page :global(#detail-reactions .reaction-btn--maybe) {
-    color: var(--reaction-maybe, #f59e0b);
-    border-color: var(--reaction-maybe, #f59e0b);
-  }
-  .session-list-page :global(#detail-reactions .reaction-btn--maybe:hover) {
-    background: rgba(245, 158, 11, 0.1);
-  }
-  .session-list-page :global(#detail-reactions .reaction-btn--maybe.active) {
-    background: var(--reaction-maybe, #f59e0b);
-    color: #fff;
-  }
-
-  .session-list-page :global(#detail-reactions .reaction-btn--no) {
-    color: var(--reaction-no, #6b7280);
-    border-color: var(--reaction-no, #6b7280);
-  }
-  .session-list-page :global(#detail-reactions .reaction-btn--no:hover) {
-    background: rgba(107, 114, 128, 0.1);
-  }
-  .session-list-page :global(#detail-reactions .reaction-btn--no.active) {
-    background: var(--reaction-no, #6b7280);
-    color: #fff;
   }
 </style>

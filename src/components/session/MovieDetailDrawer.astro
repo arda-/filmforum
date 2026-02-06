@@ -20,36 +20,6 @@ import Drawer from '../Drawer.astro';
 
     <p class="detail-description" id="detail-description"></p>
     <p class="detail-citation">— Film Forum</p>
-
-    <div class="detail-reactions" id="detail-reactions">
-      <!-- Populated via JS -->
-    </div>
-
-    <div class="detail-links" id="detail-links">
-      <a href="#" id="detail-film-url" class="detail-link" target="_blank">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M5.5 2H3a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V8.5M8 2h4v4M6 8l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        View on Film Forum
-      </a>
-      <a href="#" id="detail-tickets-url" class="detail-link detail-link--primary" target="_blank">
-        Buy Tickets
-      </a>
-    </div>
-
-    <div class="detail-nav">
-      <button class="detail-nav-btn" id="detail-prev" aria-label="Previous movie">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <span class="detail-nav-counter" id="detail-counter"></span>
-      <button class="detail-nav-btn" id="detail-next" aria-label="Next movie">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
   </div>
 </Drawer>
 
@@ -161,95 +131,6 @@ import Drawer from '../Drawer.astro';
     text-align: right;
     margin: -2px 0 4px 0;
     font-style: italic;
-  }
-
-  .detail-reactions {
-    display: flex;
-    gap: 6px;
-    margin: 8px 0;
-  }
-
-  .detail-reactions :global(.rbtn),
-  .detail-reactions :global(.reaction-btn) {
-    flex: 1;
-  }
-
-  .detail-links {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  .detail-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-    background: var(--bg-movie);
-    color: var(--text-secondary);
-  }
-
-  .detail-link:hover {
-    background: var(--bg-movie-hover);
-    color: var(--text-primary);
-  }
-
-  .detail-link--primary {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .detail-link--primary:hover {
-    background: var(--accent-bg);
-  }
-
-  .detail-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--bg-movie);
-  }
-
-  .detail-nav-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    background: var(--bg-movie);
-    border: none;
-    border-radius: 50%;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .detail-nav-btn:hover {
-    background: var(--bg-movie-hover);
-    color: var(--text-primary);
-  }
-
-  .detail-nav-btn:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .detail-nav-counter {
-    font-size: 13px;
-    color: var(--text-tertiary);
   }
 
   @media (max-width: 480px) {
