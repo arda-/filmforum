@@ -5,7 +5,7 @@
  */
 
 interface Props {
-  viewMode?: 'list' | 'card';
+  viewMode?: 'list' | 'card' | 'single';
   showActors?: boolean;
   showBlurb?: boolean;
   sortBy?: string;
@@ -47,6 +47,17 @@ const {
             <rect x="9.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
             <rect x="1.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
             <rect x="9.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <button
+          class:list={['view-btn', { active: viewMode === 'single' }]}
+          data-view="single"
+          role="radio"
+          aria-checked={viewMode === 'single'}
+          aria-label="Single card view"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
           </svg>
         </button>
       </div>
@@ -129,7 +140,7 @@ const {
     transition: all 0.15s ease;
   }
 
-  .view-btn:first-child {
+  .view-btn:not(:last-child) {
     border-right: 1px solid var(--bg-movie-hover);
   }
 
