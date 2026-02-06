@@ -31,7 +31,7 @@
   /* Reaction colors */
   --reaction-yes: #22c55e;
   --reaction-maybe: #f59e0b;
-  --reaction-no: #6b7280;
+  --reaction-no: #ef4444;
 }
 
 /* Dark mode */
@@ -64,7 +64,7 @@
     /* Reaction colors - brighter for dark mode */
     --reaction-yes: #4ade80;
     --reaction-maybe: #fbbf24;
-    --reaction-no: #9ca3af;
+    --reaction-no: #f87171;
   }
 }
 
