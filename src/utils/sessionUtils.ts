@@ -62,6 +62,11 @@ export function deduplicateMovies(movies: Movie[]): UniqueMovie[] {
   return Array.from(map.values());
 }
 
+/** Strip leading articles (A, An, The) for index-style sorting. */
+function sortKey(title: string): string {
+  return title.replace(/^(a|an|the)\s+/i, '');
+}
+
 /**
  * Sort unique movies by various criteria.
  */
@@ -74,7 +79,7 @@ export function sortMovies(
 
   switch (sortBy) {
     case 'alpha':
-      sorted.sort((a, b) => a.movie.Movie.localeCompare(b.movie.Movie));
+      sorted.sort((a, b) => sortKey(a.movie.Movie).localeCompare(sortKey(b.movie.Movie)));
       break;
     case 'year':
       sorted.sort((a, b) => {
