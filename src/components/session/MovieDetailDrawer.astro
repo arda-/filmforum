@@ -54,6 +54,11 @@ import Drawer from '../Drawer.astro';
 </Drawer>
 
 <style>
+  /* Ensure detail drawer stacks above saved list drawer */
+  :global(#movie-detail-drawer) {
+    z-index: 1010;
+  }
+
   .movie-detail {
     display: flex;
     flex-direction: column;

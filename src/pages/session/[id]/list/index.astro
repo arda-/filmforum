@@ -396,6 +396,11 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (count) count.textContent = String(movies.length);
 
     if (items) {
+      const currentSection = prefix === 'saved-yes' ? 'yes' : 'maybe';
+      const moveTarget = currentSection === 'yes' ? 'maybe' : 'yes';
+      const moveLabel = currentSection === 'yes' ? 'Move to Maybe' : 'Move to Want to see';
+      const moveArrow = currentSection === 'yes' ? '↓' : '↑';
+
       items.innerHTML = movies.map(um => {
         const title = toTitleCase(um.movie.Movie);
         const meta = [um.movie.director, um.movie.year].filter(Boolean).join(', ');
@@ -412,7 +417,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
                   <path d="M7 6v3M7 4.5v-.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               </button>
-              <button class="saved-item-btn saved-item-btn--remove" data-action="remove-saved" data-movie-id="${um.id}" title="Remove">
+              <button class="saved-item-btn saved-item-btn--move" data-action="move-saved" data-movie-id="${um.id}" data-move-to="${moveTarget}" title="${moveLabel}">
+                ${moveArrow}
+              </button>
+              <button class="saved-item-btn saved-item-btn--remove" data-action="remove-saved" data-movie-id="${um.id}" title="Remove from list">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
@@ -424,13 +432,34 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     }
   }
 
-  // Saved list remove handler
+  // Saved list move handler (move between Yes ↔ Maybe)
   document.addEventListener('click', (e) => {
+    const moveBtn = (e.target as HTMLElement).closest('[data-action="move-saved"]') as HTMLElement | null;
+    if (moveBtn) {
+      const movieId = moveBtn.dataset.movieId;
+      const moveTo = moveBtn.dataset.moveTo as MovieReaction;
+      if (movieId && moveTo) {
+        setReaction(sessionId, movieId, moveTo);
+        loadReactions();
+        updateSavedListDrawer();
+      }
+      return;
+    }
+
+    // Saved list remove: demote Yes→Maybe first, only fully remove from Maybe
     const removeBtn = (e.target as HTMLElement).closest('[data-action="remove-saved"]') as HTMLElement | null;
     if (removeBtn) {
       const movieId = removeBtn.dataset.movieId;
       if (movieId) {
-        setReaction(sessionId, movieId, 'none');
+        const reactions = getReactions(sessionId);
+        const current = reactions[movieId];
+        if (current === 'yes') {
+          // Demote to Maybe instead of removing
+          setReaction(sessionId, movieId, 'maybe');
+        } else {
+          // Remove entirely from Maybe
+          setReaction(sessionId, movieId, 'none');
+        }
         loadReactions();
         updateSavedListDrawer();
       }

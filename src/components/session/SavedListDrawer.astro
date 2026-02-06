@@ -170,6 +170,17 @@ const { sessionId } = Astro.props;
     color: var(--text-primary);
   }
 
+  .saved-list :global(.saved-item-btn--move) {
+    font-size: 14px;
+    font-weight: 600;
+    border-color: transparent;
+  }
+
+  .saved-list :global(.saved-item-btn--move:hover) {
+    color: var(--accent);
+    background: rgba(6, 182, 212, 0.1);
+  }
+
   .saved-list :global(.saved-item-btn--remove) {
     border-color: transparent;
   }
