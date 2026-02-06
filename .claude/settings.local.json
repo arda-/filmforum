@@ -52,7 +52,9 @@
       "Bash(git reset:*)",
       "Bash(lsof:*)",
       "WebFetch(domain:www.joshwcomeau.com)",
-      "Bash(npx astro check:*)"
+      "Bash(npx astro check:*)",
+      "Bash(bash:*)",
+      "Bash(printf:*)"
     ]
   }
 }
