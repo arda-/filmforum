@@ -1,0 +1,597 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import ListToolbar from '../../../../components/session/ListToolbar.astro';
+import MovieListItem from '../../../../components/session/MovieListItem.astro';
+import MovieCard from '../../../../components/session/MovieCard.astro';
+import BottomToolbar from '../../../../components/session/BottomToolbar.astro';
+import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
+import SavedListDrawer from '../../../../components/session/SavedListDrawer.astro';
+import type { Movie } from '../../../../utils/movieUtils';
+import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+import {
+  getAllSessionIds,
+  getSessionConfig,
+  deduplicateMovies,
+  sortMovies,
+} from '../../../../utils/sessionUtils';
+
+export function getStaticPaths() {
+  return getAllSessionIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const config = getSessionConfig(id!);
+if (!config) return Astro.redirect('/');
+
+// Load movie data at build time from public directory
+let allMovies: Movie[] = [];
+try {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const dataPath = path.join(process.cwd(), 'public', config.dataFile);
+  const data = fs.readFileSync(dataPath, 'utf-8');
+  allMovies = JSON.parse(data);
+} catch {
+  allMovies = [];
+}
+
+const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
+
+// Serialize movie data for client-side use
+const movieDataJson = JSON.stringify(uniqueMovies);
+---
+
+<Layout title={`${config.name} — Movie List`}>
+  <main class="session-list-page" data-session-id={id}>
+    <header class="page-header">
+      <a href="/" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back
+      </a>
+      <h1 class="page-title">{config.name}</h1>
+      {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
+      <p class="page-movie-count">{uniqueMovies.length} films</p>
+    </header>
+
+    <ListToolbar />
+
+    <!-- List view -->
+    <div class="movie-list-view" id="list-view" style="display: none;">
+      {uniqueMovies.map(um => (
+        <MovieListItem uniqueMovie={um} />
+      ))}
+    </div>
+
+    <!-- Card view (default) -->
+    <div class="movie-card-grid" id="card-view">
+      {uniqueMovies.map(um => (
+        <MovieCard uniqueMovie={um} />
+      ))}
+    </div>
+
+    <!-- Spacer for bottom toolbar -->
+    <div class="bottom-spacer"></div>
+
+    <BottomToolbar sessionId={id!} />
+    <MovieDetailDrawer />
+    <SavedListDrawer sessionId={id!} />
+  </main>
+</Layout>
+
+<script define:vars={{ movieDataJson, sessionId: id }}>
+  window.__movieData = JSON.parse(movieDataJson);
+  window.__sessionId = sessionId;
+</script>
+
+<script>
+  import { getReactions, setReaction, getReactionCounts, encodeReactions } from '../../../../utils/storageManager';
+  import { getUserId } from '../../../../utils/storageManager';
+  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import { sortMovies } from '../../../../utils/sessionUtils';
+  import type { MovieReaction, UniqueMovie } from '../../../../types/session';
+
+  const sessionId = (window as any).__sessionId as string;
+  const allMovies = (window as any).__movieData as UniqueMovie[];
+
+  // --- State ---
+  let currentView: 'list' | 'card' = 'card';
+  let showActors = true;
+  let showBlurb = false;
+  let showImages = true;
+  let currentSort = 'alpha';
+  let currentDetailIndex = 0;
+
+  // --- DOM references ---
+  const listView = document.getElementById('list-view')!;
+  const cardView = document.getElementById('card-view')!;
+  const badge = document.querySelector('.saved-badge') as HTMLElement;
+
+  // --- Initialize reactions from localStorage ---
+  function loadReactions() {
+    const reactions = getReactions(sessionId);
+    // Update all reaction buttons on the page
+    document.querySelectorAll('[data-movie-id][data-reaction]').forEach(btn => {
+      const movieId = (btn as HTMLElement).dataset.movieId!;
+      const btnReaction = (btn as HTMLElement).dataset.reaction!;
+      const currentReaction = reactions[movieId] || 'none';
+      const isActive = btnReaction === currentReaction;
+      btn.classList.toggle('active', isActive);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(isActive));
+    });
+
+    // Update card/list item states
+    document.querySelectorAll('.card[data-movie-id], .list-item[data-movie-id]').forEach(el => {
+      const movieId = (el as HTMLElement).dataset.movieId!;
+      const reaction = reactions[movieId] || 'none';
+      (el as HTMLElement).dataset.reaction = reaction;
+      // Remove old reaction classes
+      el.classList.remove('card--yes', 'card--maybe', 'card--no', 'list-item--yes', 'list-item--maybe', 'list-item--no');
+      if (reaction !== 'none') {
+        const prefix = el.classList.contains('card') ? 'card' : 'list-item';
+        el.classList.add(`${prefix}--${reaction}`);
+      }
+    });
+
+    updateBadge();
+  }
+
+  function updateBadge() {
+    const counts = getReactionCounts(sessionId);
+    const total = counts.yes + counts.maybe;
+    if (badge) {
+      badge.textContent = String(total);
+      badge.dataset.count = String(total);
+      // Trigger bump animation
+      badge.classList.remove('bump');
+      void badge.offsetWidth; // Force reflow
+      badge.classList.add('bump');
+    }
+  }
+
+  // --- Reaction button handling ---
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.reaction-btn, .rbtn') as HTMLElement | null;
+    if (!btn) return;
+
+    const movieId = btn.dataset.movieId;
+    const reaction = btn.dataset.reaction as MovieReaction;
+    if (!movieId || !reaction) return;
+
+    const reactions = getReactions(sessionId);
+    const current = reactions[movieId] || 'none';
+
+    // Toggle: if same reaction, clear it; otherwise set new
+    const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
+    setReaction(sessionId, movieId, newReaction);
+    loadReactions();
+  });
+
+  // --- View toggle ---
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = (btn as HTMLElement).dataset.view as 'list' | 'card';
+      if (view === currentView) return;
+      currentView = view;
+
+      document.querySelectorAll('.view-btn').forEach(b => {
+        b.classList.toggle('active', (b as HTMLElement).dataset.view === view);
+        (b as HTMLElement).setAttribute('aria-checked', String((b as HTMLElement).dataset.view === view));
+      });
+
+      listView.style.display = view === 'list' ? '' : 'none';
+      cardView.style.display = view === 'card' ? '' : 'none';
+
+      // Show/hide images toggle (card only)
+      const imagesToggle = document.getElementById('toggle-images-group');
+      if (imagesToggle) {
+        imagesToggle.classList.toggle('hidden', view === 'list');
+      }
+    });
+  });
+
+  // --- Display toggles ---
+  function updateDisplayToggles() {
+    // Actors
+    document.querySelectorAll('.list-item-actors, .card-actors').forEach(el => {
+      (el as HTMLElement).style.display = showActors ? '' : 'none';
+    });
+    // Blurb
+    document.querySelectorAll('.list-item-blurb, .card-blurb').forEach(el => {
+      (el as HTMLElement).style.display = showBlurb ? '' : 'none';
+    });
+    // Images (card view)
+    document.querySelectorAll('.card-poster').forEach(el => {
+      (el as HTMLElement).style.display = showImages ? '' : 'none';
+    });
+  }
+
+  document.getElementById('toggle-actors')?.addEventListener('change', (e) => {
+    showActors = (e.target as HTMLInputElement).checked;
+    updateDisplayToggles();
+  });
+
+  document.getElementById('toggle-blurb')?.addEventListener('change', (e) => {
+    showBlurb = (e.target as HTMLInputElement).checked;
+    updateDisplayToggles();
+  });
+
+  document.getElementById('toggle-images')?.addEventListener('change', (e) => {
+    showImages = (e.target as HTMLInputElement).checked;
+    updateDisplayToggles();
+  });
+
+  // --- Sort ---
+  document.getElementById('sort-select')?.addEventListener('change', (e) => {
+    currentSort = (e.target as HTMLSelectElement).value;
+    const reactions = getReactions(sessionId);
+    const sorted = sortMovies([...allMovies], currentSort, reactions);
+    reorderMovies(sorted);
+  });
+
+  function reorderMovies(sorted: UniqueMovie[]) {
+    // Reorder list view
+    const listItems = listView.querySelectorAll('.list-item');
+    const listMap = new Map<string, HTMLElement>();
+    listItems.forEach(el => {
+      const id = (el as HTMLElement).dataset.movieId!;
+      listMap.set(id, el as HTMLElement);
+    });
+    sorted.forEach(m => {
+      const el = listMap.get(m.id);
+      if (el) listView.appendChild(el);
+    });
+
+    // Reorder card view
+    const cards = cardView.querySelectorAll('.card');
+    const cardMap = new Map<string, HTMLElement>();
+    cards.forEach(el => {
+      const id = (el as HTMLElement).dataset.movieId!;
+      cardMap.set(id, el as HTMLElement);
+    });
+    sorted.forEach(m => {
+      const el = cardMap.get(m.id);
+      if (el) cardView.appendChild(el);
+    });
+  }
+
+  // --- More Info Drawer ---
+  function openMovieDetail(movieId: string) {
+    const idx = allMovies.findIndex(m => m.id === movieId);
+    if (idx === -1) return;
+    showMovieDetail(idx);
+    (window as any).openDrawer('movie-detail-drawer');
+  }
+
+  function showMovieDetail(index: number) {
+    currentDetailIndex = index;
+    const um = allMovies[index];
+    if (!um) return;
+
+    const { movie, id } = um;
+    const reactions = getReactions(sessionId);
+    const reaction = reactions[id] || 'none';
+
+    // Update poster
+    const img = document.getElementById('detail-poster-img') as HTMLImageElement;
+    if (img) {
+      img.src = movie.poster_url || '';
+      img.alt = movie.Movie;
+    }
+
+    // Update text
+    const titleEl = document.getElementById('detail-title');
+    if (titleEl) titleEl.textContent = toTitleCase(movie.Movie);
+
+    const metaEl = document.getElementById('detail-meta');
+    if (metaEl) metaEl.textContent = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
+
+    const actorsEl = document.getElementById('detail-actors');
+    if (actorsEl) actorsEl.textContent = movie.actors || '';
+
+    const descEl = document.getElementById('detail-description');
+    if (descEl) descEl.textContent = movie.description || '';
+
+    // Update reaction buttons
+    const reactionsEl = document.getElementById('detail-reactions');
+    if (reactionsEl) {
+      reactionsEl.innerHTML = ['yes', 'maybe', 'no'].map(r => {
+        const labels: Record<string, string> = { yes: 'Want to see', maybe: 'Maybe', no: 'Pass' };
+        const active = r === reaction ? 'active' : '';
+        return `<button class="reaction-btn reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${id}" aria-pressed="${r === reaction}">${labels[r]}</button>`;
+      }).join('');
+    }
+
+    // Update links
+    const filmUrl = document.getElementById('detail-film-url') as HTMLAnchorElement;
+    if (filmUrl) {
+      filmUrl.href = movie.film_url || '#';
+      filmUrl.style.display = movie.film_url ? '' : 'none';
+    }
+
+    const ticketsUrl = document.getElementById('detail-tickets-url') as HTMLAnchorElement;
+    if (ticketsUrl) {
+      // Use first showtime's ticket URL
+      ticketsUrl.href = um.showtimes[0]?.tickets || '#';
+      ticketsUrl.style.display = um.showtimes[0]?.tickets ? '' : 'none';
+    }
+
+    // Update nav
+    const counter = document.getElementById('detail-counter');
+    if (counter) counter.textContent = `${index + 1} / ${allMovies.length}`;
+
+    const prevBtn = document.getElementById('detail-prev') as HTMLButtonElement;
+    if (prevBtn) prevBtn.disabled = index === 0;
+
+    const nextBtn = document.getElementById('detail-next') as HTMLButtonElement;
+    if (nextBtn) nextBtn.disabled = index === allMovies.length - 1;
+  }
+
+  // More info click handlers
+  document.addEventListener('click', (e) => {
+    const infoBtn = (e.target as HTMLElement).closest('[data-action="more-info"]') as HTMLElement | null;
+    if (infoBtn) {
+      const movieId = infoBtn.dataset.movieId;
+      if (movieId) openMovieDetail(movieId);
+      return;
+    }
+  });
+
+  // Detail drawer nav
+  document.getElementById('detail-prev')?.addEventListener('click', () => {
+    if (currentDetailIndex > 0) showMovieDetail(currentDetailIndex - 1);
+  });
+
+  document.getElementById('detail-next')?.addEventListener('click', () => {
+    if (currentDetailIndex < allMovies.length - 1) showMovieDetail(currentDetailIndex + 1);
+  });
+
+  // Keyboard nav in detail drawer
+  document.addEventListener('keydown', (e) => {
+    const drawer = document.getElementById('movie-detail-drawer');
+    if (drawer?.dataset.open !== 'true') return;
+    if (e.key === 'ArrowLeft' && currentDetailIndex > 0) {
+      showMovieDetail(currentDetailIndex - 1);
+    } else if (e.key === 'ArrowRight' && currentDetailIndex < allMovies.length - 1) {
+      showMovieDetail(currentDetailIndex + 1);
+    }
+  });
+
+  // --- Saved List Drawer ---
+  document.querySelector('[data-action="open-saved"]')?.addEventListener('click', () => {
+    updateSavedListDrawer();
+    (window as any).openDrawer('saved-list-drawer');
+  });
+
+  function updateSavedListDrawer() {
+    const reactions = getReactions(sessionId);
+    const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
+    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
+    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
+
+    // Update empty state
+    const emptyEl = document.getElementById('saved-empty');
+    if (emptyEl) emptyEl.classList.toggle('hidden', hasAny);
+
+    // Update sections
+    updateSavedSection('saved-yes', yesMovies);
+    updateSavedSection('saved-maybe', maybeMovies);
+
+    // Update actions
+    const actionsEl = document.getElementById('saved-actions');
+    if (actionsEl) actionsEl.classList.toggle('has-items', hasAny);
+
+    // Update share button
+    const shareBtn = document.getElementById('saved-share-btn') as HTMLButtonElement;
+    if (shareBtn) shareBtn.disabled = !hasAny;
+  }
+
+  function updateSavedSection(prefix: string, movies: UniqueMovie[]) {
+    const section = document.getElementById(`${prefix}-section`);
+    const items = document.getElementById(`${prefix}-items`);
+    const count = document.getElementById(`${prefix}-count`);
+
+    if (section) section.classList.toggle('has-items', movies.length > 0);
+    if (count) count.textContent = String(movies.length);
+
+    if (items) {
+      items.innerHTML = movies.map(um => {
+        const title = toTitleCase(um.movie.Movie);
+        const meta = [um.movie.director, um.movie.year].filter(Boolean).join(', ');
+        return `
+          <div class="saved-item" data-movie-id="${um.id}">
+            <div class="saved-item-info">
+              <p class="saved-item-title">${title}</p>
+              <p class="saved-item-meta">${meta}</p>
+            </div>
+            <div class="saved-item-actions">
+              <button class="saved-item-btn" data-action="more-info" data-movie-id="${um.id}" title="More info">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M7 6v3M7 4.5v-.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="saved-item-btn saved-item-btn--remove" data-action="remove-saved" data-movie-id="${um.id}" title="Remove">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M3.5 3.5l7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // Saved list remove handler
+  document.addEventListener('click', (e) => {
+    const removeBtn = (e.target as HTMLElement).closest('[data-action="remove-saved"]') as HTMLElement | null;
+    if (removeBtn) {
+      const movieId = removeBtn.dataset.movieId;
+      if (movieId) {
+        setReaction(sessionId, movieId, 'none');
+        loadReactions();
+        updateSavedListDrawer();
+      }
+    }
+  });
+
+  // --- Share ---
+  document.getElementById('saved-share-btn')?.addEventListener('click', async () => {
+    const reactions = getReactions(sessionId);
+    const encoded = encodeReactions(reactions);
+    const userId = getUserId();
+    const url = `${window.location.origin}/session/${sessionId}/list/${userId}/saved?r=${encoded}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My Movie List', url });
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('saved-share-btn');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.textContent = 'Link copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      }
+    }
+  });
+
+  // --- Initialize ---
+  loadReactions();
+  updateDisplayToggles();
+</script>
+
+<style>
+  .session-list-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 12px;
+  }
+
+  .page-header {
+    padding: 16px 4px 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  .page-movie-count {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 4px 0 0 0;
+  }
+
+  /* List view */
+  .movie-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Card grid */
+  .movie-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .movie-card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Spacer for fixed bottom toolbar */
+  .bottom-spacer {
+    height: 80px;
+  }
+
+  /* Detail drawer reaction button styles (injected via JS) */
+  .session-list-page :global(#detail-reactions .reaction-btn) {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .session-list-page :global(#detail-reactions .reaction-btn:active) {
+    transform: scale(0.95);
+  }
+
+  .session-list-page :global(#detail-reactions .reaction-btn--yes) {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
+  }
+  .session-list-page :global(#detail-reactions .reaction-btn--yes:hover) {
+    background: rgba(34, 197, 94, 0.1);
+  }
+  .session-list-page :global(#detail-reactions .reaction-btn--yes.active) {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+  }
+
+  .session-list-page :global(#detail-reactions .reaction-btn--maybe) {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+  .session-list-page :global(#detail-reactions .reaction-btn--maybe:hover) {
+    background: rgba(245, 158, 11, 0.1);
+  }
+  .session-list-page :global(#detail-reactions .reaction-btn--maybe.active) {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+  }
+
+  .session-list-page :global(#detail-reactions .reaction-btn--no) {
+    color: var(--reaction-no, #6b7280);
+    border-color: var(--reaction-no, #6b7280);
+  }
+  .session-list-page :global(#detail-reactions .reaction-btn--no:hover) {
+    background: rgba(107, 114, 128, 0.1);
+  }
+  .session-list-page :global(#detail-reactions .reaction-btn--no.active) {
+    background: var(--reaction-no, #6b7280);
+    color: #fff;
+  }
+</style>
