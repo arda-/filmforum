@@ -28,46 +28,48 @@ const hasPoster = !!movie.poster_url;
   data-movie-id={id}
   data-reaction={reaction}
 >
-  {hasPoster && (
-    <img class="card-poster-img" src={movie.poster_url} alt={title} loading="lazy" style={showImage ? undefined : 'display:none'} />
-  )}
+  <div class="card-image">
+    {hasPoster && (
+      <img class="card-poster-img" src={movie.poster_url} alt={title} loading="lazy" style={showImage ? undefined : 'display:none'} />
+    )}
 
-  {hasPoster && (
-    <div class="card-blur" style={showImage ? undefined : 'display:none'}></div>
-  )}
+    {hasPoster && (
+      <div class="card-blur" style={showImage ? undefined : 'display:none'}></div>
+    )}
 
-  <div class="card-overlay">
-    <h3 class="card-title">{title}</h3>
-    <p class="card-meta">{meta}</p>
-    {movie.actors && <p class="card-actors" style={showActors ? undefined : 'display:none'}>{movie.actors}</p>}
-    {movie.description && <p class="card-blurb" style={showBlurb ? undefined : 'display:none'}>{movie.description}</p>}
-
-    <div class="card-reactions" data-movie-id={id}>
-      <button
-        class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
-        data-reaction="yes"
-        data-movie-id={id}
-        aria-pressed={reaction === 'yes'}
-        aria-label="Yes"
-        title="Yes"
-      ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span></button>
-      <button
-        class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
-        data-reaction="maybe"
-        data-movie-id={id}
-        aria-pressed={reaction === 'maybe'}
-        aria-label="Maybe"
-        title="Maybe"
-      ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span></button>
-      <button
-        class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
-        data-reaction="no"
-        data-movie-id={id}
-        aria-pressed={reaction === 'no'}
-        aria-label="No"
-        title="No"
-      ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span></button>
+    <div class="card-overlay">
+      <h3 class="card-title">{title}</h3>
+      <p class="card-meta">{meta}</p>
+      {movie.actors && <p class="card-actors" style={showActors ? undefined : 'display:none'}>{movie.actors}</p>}
+      {movie.description && <p class="card-blurb" style={showBlurb ? undefined : 'display:none'}>{movie.description}</p>}
     </div>
+  </div>
+
+  <div class="card-reactions" data-movie-id={id}>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
+      data-reaction="yes"
+      data-movie-id={id}
+      aria-pressed={reaction === 'yes'}
+      aria-label="Yes"
+      title="Yes"
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span></button>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
+      data-reaction="maybe"
+      data-movie-id={id}
+      aria-pressed={reaction === 'maybe'}
+      aria-label="Maybe"
+      title="Maybe"
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span></button>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
+      data-reaction="no"
+      data-movie-id={id}
+      aria-pressed={reaction === 'no'}
+      aria-label="No"
+      title="No"
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span></button>
   </div>
 </div>
 
@@ -79,11 +81,11 @@ const hasPoster = !!movie.poster_url;
     background: var(--bg-movie);
     cursor: pointer;
     transition: box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* Poster cards use 4:3 — enough image breathing room, not too tall */
   .card--has-poster {
-    aspect-ratio: 4 / 3;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
@@ -103,7 +105,17 @@ const hasPoster = !!movie.poster_url;
     opacity: 0.6;
   }
 
-  /* Poster image fills entire card */
+  /* Image area — poster + blur + text overlay */
+  .card-image {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card--has-poster .card-image {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Poster image fills image area — matches blur-simple demo */
   .card-poster-img {
     position: absolute;
     top: 0;
@@ -114,7 +126,7 @@ const hasPoster = !!movie.poster_url;
     display: block;
   }
 
-  /* Blur scrim — matches blur-simple demo exactly */
+  /* Blur scrim — copied from blur-simple demo */
   .card-blur {
     position: absolute;
     inset: 0;
@@ -126,7 +138,7 @@ const hasPoster = !!movie.poster_url;
     z-index: 1;
   }
 
-  /* Overlay: positioned at bottom of card */
+  /* Text overlay — matches blur-simple demo: absolute, bottom-anchored */
   .card-overlay {
     position: relative;
     z-index: 2;
@@ -141,31 +153,37 @@ const hasPoster = !!movie.poster_url;
 
   .card--has-poster .card-overlay {
     position: absolute;
-    inset: 0;
-    padding: 0 12px 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem 1rem 1rem;
+    color: white;
   }
 
-  /* --- Type hierarchy for poster cards --- */
+  /* --- Type hierarchy for poster cards — matches blur-simple demo text styles --- */
   .card--has-poster .card-title {
     color: #fff;
     font-size: 18px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
   }
 
   .card--has-poster .card-meta {
     color: rgba(255, 255, 255, 0.85);
     font-size: 13px;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   .card--has-poster .card-actors {
-    color: rgba(255, 255, 255, 0.7);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   .card--has-poster .card-blurb {
     color: rgba(255, 255, 255, 0.75);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    font-size: 12px;
+    line-height: 1.4;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   /* --- Base text styles (no-poster / fallback) --- */
@@ -203,11 +221,10 @@ const hasPoster = !!movie.poster_url;
     overflow: hidden;
   }
 
-  /* --- Reaction buttons --- */
+  /* --- Reaction buttons — full bleed row below image --- */
   .card-reactions {
     display: flex;
-    gap: 4px;
-    margin-top: 6px;
+    gap: 0;
   }
 
   .reaction-btn {
@@ -216,96 +233,77 @@ const hasPoster = !!movie.poster_url;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    padding: 5px 0;
-    font-size: 11px;
+    padding: 8px 0;
+    font-size: 12px;
     font-weight: 500;
     font-family: inherit;
-    border-radius: 6px;
-    border: 1.5px solid transparent;
-    background: transparent;
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-movie);
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s ease;
     user-select: none;
   }
 
+  .reaction-btn:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   .reaction-btn:active {
-    transform: scale(0.93);
+    transform: scale(0.95);
   }
 
-  /* Poster cards: glass-like buttons */
+  /* Poster cards: dark bar */
   .card--has-poster .reaction-btn {
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.65);
+    color: rgba(255, 255, 255, 0.7);
+    border-top-color: rgba(255, 255, 255, 0.1);
   }
 
-  .reaction-btn--yes {
-    color: var(--reaction-yes, #22c55e);
-    border-color: var(--reaction-yes, #22c55e);
+  .card--has-poster .reaction-btn:not(:last-child) {
+    border-right-color: rgba(255, 255, 255, 0.1);
   }
+
   .reaction-btn--yes:hover {
     background: rgba(34, 197, 94, 0.15);
+    color: var(--reaction-yes, #22c55e);
   }
   .reaction-btn--yes.active {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
   }
 
-  .reaction-btn--maybe {
-    color: var(--reaction-maybe, #f59e0b);
-    border-color: var(--reaction-maybe, #f59e0b);
-  }
   .reaction-btn--maybe:hover {
     background: rgba(245, 158, 11, 0.15);
+    color: var(--reaction-maybe, #f59e0b);
   }
   .reaction-btn--maybe.active {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
   }
 
-  .reaction-btn--no {
-    color: var(--reaction-no, #6b7280);
-    border-color: var(--reaction-no, #6b7280);
-  }
   .reaction-btn--no:hover {
     background: rgba(107, 114, 128, 0.15);
+    color: var(--reaction-no, #6b7280);
   }
   .reaction-btn--no.active {
     background: var(--reaction-no, #6b7280);
     color: #fff;
   }
 
-  /* Brighter colors on poster cards for readability */
-  .card--has-poster .reaction-btn--yes {
-    color: #4ade80;
-    border-color: #4ade80;
-  }
-  .card--has-poster .reaction-btn--maybe {
-    color: #fbbf24;
-    border-color: #fbbf24;
-  }
-  .card--has-poster .reaction-btn--no {
-    color: #9ca3af;
-    border-color: #9ca3af;
-  }
-
-  /* Active states on poster cards — higher specificity to override glass bg */
+  /* Active states on poster cards */
   .card--has-poster .reaction-btn--yes.active {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
   .card--has-poster .reaction-btn--maybe.active {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
   .card--has-poster .reaction-btn--no.active {
     background: var(--reaction-no, #6b7280);
     color: #fff;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
 </style>
