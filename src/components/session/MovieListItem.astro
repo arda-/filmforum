@@ -1,0 +1,236 @@
+---
+import type { UniqueMovie, MovieReaction } from '../../types/session';
+import { toTitleCase, formatRuntime } from '../../utils/movieUtils';
+
+interface Props {
+  uniqueMovie: UniqueMovie;
+  reaction?: MovieReaction;
+  showActors?: boolean;
+  showBlurb?: boolean;
+}
+
+const { uniqueMovie, reaction = 'none', showActors = true, showBlurb = false } = Astro.props;
+const { movie, id } = uniqueMovie;
+const title = toTitleCase(movie.Movie);
+const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
+---
+
+<div
+  class:list={['list-item', { [`list-item--${reaction}`]: reaction !== 'none' }]}
+  data-movie-id={id}
+  data-reaction={reaction}
+>
+  <div class="list-item-content">
+    <div class="list-item-header">
+      <h3 class="list-item-title">{title}</h3>
+      <button class="list-item-info-btn" data-action="more-info" data-movie-id={id} aria-label={`More info about ${title}`}>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 7v4M8 5.5v-.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+    <p class="list-item-meta">{meta}</p>
+    {showActors && movie.actors && <p class="list-item-actors">{movie.actors}</p>}
+    {showBlurb && movie.description && <p class="list-item-blurb">{movie.description}</p>}
+  </div>
+
+  <div class="list-item-reactions" data-movie-id={id}>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
+      data-reaction="yes"
+      data-movie-id={id}
+      aria-pressed={reaction === 'yes'}
+      aria-label="Want to see"
+      title="Want to see"
+    >Yes</button>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
+      data-reaction="maybe"
+      data-movie-id={id}
+      aria-pressed={reaction === 'maybe'}
+      aria-label="Maybe"
+      title="Maybe"
+    >Maybe</button>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
+      data-reaction="no"
+      data-movie-id={id}
+      aria-pressed={reaction === 'no'}
+      aria-label="No"
+      title="Pass"
+    >No</button>
+  </div>
+</div>
+
+<style>
+  .list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--bg-movie);
+    transition: background-color 0.15s, box-shadow 0.2s;
+  }
+
+  .list-item:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  /* Reaction state glow */
+  .list-item--yes {
+    box-shadow: inset 3px 0 0 var(--reaction-yes, #22c55e);
+  }
+  .list-item--maybe {
+    box-shadow: inset 3px 0 0 var(--reaction-maybe, #f59e0b);
+  }
+  .list-item--no {
+    box-shadow: inset 3px 0 0 var(--reaction-no, #6b7280);
+    opacity: 0.7;
+  }
+
+  .list-item-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .list-item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .list-item-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .list-item-info-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .list-item-info-btn:hover {
+    color: var(--accent);
+    background: var(--bg-movie);
+  }
+
+  .list-item-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 2px 0 0 0;
+  }
+
+  .list-item-actors {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 2px 0 0 0;
+  }
+
+  .list-item-blurb {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 6px 0 0 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .list-item-reactions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  /* Reaction buttons (inline version for list items) */
+  .reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .reaction-btn:active {
+    transform: scale(0.93);
+  }
+
+  /* Yes button */
+  .reaction-btn--yes {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
+  }
+  .reaction-btn--yes:hover {
+    background: rgba(34, 197, 94, 0.1);
+  }
+  .reaction-btn--yes.active {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+  }
+
+  /* Maybe button */
+  .reaction-btn--maybe {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+  .reaction-btn--maybe:hover {
+    background: rgba(245, 158, 11, 0.1);
+  }
+  .reaction-btn--maybe.active {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+  }
+
+  /* No button */
+  .reaction-btn--no {
+    color: var(--reaction-no, #6b7280);
+    border-color: var(--reaction-no, #6b7280);
+  }
+  .reaction-btn--no:hover {
+    background: rgba(107, 114, 128, 0.1);
+  }
+  .reaction-btn--no.active {
+    background: var(--reaction-no, #6b7280);
+    color: #fff;
+  }
+
+  @media (max-width: 480px) {
+    .list-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .list-item-reactions {
+      justify-content: flex-end;
+    }
+  }
+</style>

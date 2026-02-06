@@ -1,0 +1,284 @@
+---
+/**
+ * Vaul-style drawer component.
+ * Slides up from bottom with backdrop, swipe-to-dismiss, and smooth transitions.
+ */
+interface Props {
+  id: string;
+  title?: string;
+  maxHeight?: string;
+}
+
+const { id, title, maxHeight = '85vh' } = Astro.props;
+---
+
+<div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
+  <div class="drawer-backdrop" data-drawer-close></div>
+  <div class="drawer-container" style={`--drawer-max-height: ${maxHeight}`}>
+    <div class="drawer-handle-area" data-drawer-handle>
+      <div class="drawer-handle"></div>
+    </div>
+    {title && (
+      <div class="drawer-header">
+        <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
+        <button class="drawer-close-btn" data-drawer-close aria-label="Close">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M11.78 4.03a.5.5 0 00-.71-.71L7.5 6.89 3.93 3.32a.5.5 0 10-.71.71L6.79 7.5l-3.57 3.47a.5.5 0 00.71.71L7.5 8.11l3.57 3.57a.5.5 0 00.71-.71L8.21 7.5l3.57-3.47z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+    )}
+    <div class="drawer-body">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .drawer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+  }
+
+  .drawer[data-open="true"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    animation: drawer-backdrop-in 0.2s ease-out;
+  }
+
+  .drawer[data-open="true"] .drawer-container {
+    animation: drawer-slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .drawer.closing .drawer-backdrop {
+    animation: drawer-backdrop-out 0.2s ease-in forwards;
+  }
+
+  .drawer.closing .drawer-container {
+    animation: drawer-slide-down 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  @keyframes drawer-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes drawer-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  @keyframes drawer-slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes drawer-slide-down {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+
+  .drawer-container {
+    position: relative;
+    z-index: 1;
+    max-height: var(--drawer-max-height, 85vh);
+    background: var(--bg-day);
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    will-change: transform;
+    touch-action: none;
+  }
+
+  .drawer-handle-area {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0 4px;
+    cursor: grab;
+    flex-shrink: 0;
+  }
+
+  .drawer-handle-area:active {
+    cursor: grabbing;
+  }
+
+  .drawer-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--bg-movie-hover);
+    border-radius: 2px;
+  }
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .drawer-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .drawer-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: var(--bg-movie);
+    border: none;
+    border-radius: 50%;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .drawer-close-btn:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .drawer-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 20px 20px;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+</style>
+
+<script>
+  // Drawer initialization
+  document.querySelectorAll('.drawer').forEach(drawer => {
+    const container = drawer.querySelector('.drawer-container') as HTMLElement;
+    const handle = drawer.querySelector('[data-drawer-handle]') as HTMLElement;
+    const closeElements = drawer.querySelectorAll('[data-drawer-close]');
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    function closeDrawer() {
+      drawer.classList.add('closing');
+      setTimeout(() => {
+        (drawer as HTMLElement).dataset.open = 'false';
+        drawer.classList.remove('closing');
+        container.style.transform = '';
+        document.body.style.overflow = '';
+      }, 250);
+    }
+
+    // Close on backdrop/button click
+    closeElements.forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target === el) closeDrawer();
+      });
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && (drawer as HTMLElement).dataset.open === 'true') {
+        closeDrawer();
+      }
+    });
+
+    // Swipe-to-dismiss (touch)
+    if (handle) {
+      handle.addEventListener('touchstart', (e: TouchEvent) => {
+        isDragging = true;
+        startY = e.touches[0].clientY;
+        container.style.transition = 'none';
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', (e: TouchEvent) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY - startY;
+        if (currentY < 0) currentY = 0; // Don't drag up past start
+        container.style.transform = `translateY(${currentY}px)`;
+      }, { passive: true });
+
+      handle.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        container.style.transition = '';
+
+        // Dismiss if dragged more than 100px or with velocity
+        if (currentY > 100) {
+          closeDrawer();
+        } else {
+          container.style.transform = '';
+        }
+        currentY = 0;
+      });
+
+      // Mouse drag support
+      handle.addEventListener('mousedown', (e: MouseEvent) => {
+        isDragging = true;
+        startY = e.clientY;
+        container.style.transition = 'none';
+
+        const onMouseMove = (e: MouseEvent) => {
+          if (!isDragging) return;
+          currentY = e.clientY - startY;
+          if (currentY < 0) currentY = 0;
+          container.style.transform = `translateY(${currentY}px)`;
+        };
+
+        const onMouseUp = () => {
+          isDragging = false;
+          container.style.transition = '';
+          if (currentY > 100) {
+            closeDrawer();
+          } else {
+            container.style.transform = '';
+          }
+          currentY = 0;
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    }
+  });
+
+  // Global drawer API
+  (window as any).openDrawer = (id: string) => {
+    const drawer = document.getElementById(id);
+    if (drawer) {
+      drawer.dataset.open = 'true';
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  (window as any).closeDrawer = (id: string) => {
+    const drawer = document.getElementById(id);
+    if (drawer) {
+      const container = drawer.querySelector('.drawer-container') as HTMLElement;
+      drawer.classList.add('closing');
+      setTimeout(() => {
+        drawer.dataset.open = 'false';
+        drawer.classList.remove('closing');
+        if (container) container.style.transform = '';
+        document.body.style.overflow = '';
+      }, 250);
+    }
+  };
+</script>
