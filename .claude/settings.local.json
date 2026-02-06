@@ -54,7 +54,9 @@
       "WebFetch(domain:www.joshwcomeau.com)",
       "Bash(npx astro check:*)",
       "Bash(bash:*)",
-      "Bash(printf:*)"
+      "Bash(printf:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)"
     ]
   }
 }
