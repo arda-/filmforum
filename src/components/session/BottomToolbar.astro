@@ -1,0 +1,147 @@
+---
+interface Props {
+  sessionId: string;
+  savedCount?: number;
+}
+
+const { sessionId, savedCount = 0 } = Astro.props;
+---
+
+<div class="bottom-toolbar" data-session-id={sessionId}>
+  <div class="bottom-toolbar-inner">
+    <button class="toolbar-saved-btn" data-action="open-saved" aria-label="Review saved movies">
+      <span class="saved-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M5 3a2 2 0 00-2 2v12l7-4 7 4V5a2 2 0 00-2-2H5z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        </svg>
+        <span class="saved-badge" data-count={savedCount}>{savedCount}</span>
+      </span>
+      <span class="toolbar-label">Review Saved</span>
+    </button>
+
+    <a href={`/session/${sessionId}/showtimes`} class="toolbar-showtimes-btn" aria-label="Find showtimes">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9 5v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="toolbar-label">Find Showtimes</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .bottom-toolbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-body);
+    border-top: 1px solid var(--bg-grid);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  @supports (backdrop-filter: blur(12px)) {
+    .bottom-toolbar {
+      background: color-mix(in srgb, var(--bg-body) 85%, transparent);
+    }
+  }
+
+  .bottom-toolbar-inner {
+    display: flex;
+    gap: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .toolbar-saved-btn,
+  .toolbar-showtimes-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+    border: none;
+  }
+
+  .toolbar-saved-btn:active,
+  .toolbar-showtimes-btn:active {
+    transform: scale(0.97);
+  }
+
+  .toolbar-saved-btn {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .toolbar-saved-btn:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  .toolbar-showtimes-btn {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .toolbar-showtimes-btn:hover {
+    background: var(--accent-bg);
+  }
+
+  .saved-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .saved-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  .saved-badge[data-count="0"] {
+    display: none;
+  }
+
+  .saved-badge.bump {
+    animation: badge-bump 0.3s ease;
+  }
+
+  .toolbar-label {
+    white-space: nowrap;
+  }
+
+  @keyframes badge-bump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  @media (max-width: 400px) {
+    .toolbar-label {
+      font-size: 13px;
+    }
+  }
+</style>

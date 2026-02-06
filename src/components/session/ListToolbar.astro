@@ -1,0 +1,204 @@
+---
+/**
+ * Top toolbar for session list page.
+ * Controls: view mode (list/card), display toggles, sort.
+ */
+
+interface Props {
+  viewMode?: 'list' | 'card';
+  showActors?: boolean;
+  showBlurb?: boolean;
+  showImages?: boolean;
+  sortBy?: string;
+}
+
+const {
+  viewMode = 'card',
+  showActors = true,
+  showBlurb = false,
+  showImages = true,
+  sortBy = 'alpha',
+} = Astro.props;
+---
+
+<div class="list-toolbar">
+  <div class="toolbar-row">
+    <div class="toolbar-group">
+      <span class="toolbar-label">View</span>
+      <div class="view-toggle" role="radiogroup" aria-label="View mode">
+        <button
+          class:list={['view-btn', { active: viewMode === 'list' }]}
+          data-view="list"
+          role="radio"
+          aria-checked={viewMode === 'list'}
+          aria-label="List view"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button
+          class:list={['view-btn', { active: viewMode === 'card' }]}
+          data-view="card"
+          role="radio"
+          aria-checked={viewMode === 'card'}
+          aria-label="Card view"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="1.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="1.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar-group">
+      <span class="toolbar-label">Sort</span>
+      <select class="sort-select" id="sort-select" aria-label="Sort movies by">
+        <option value="alpha" selected={sortBy === 'alpha'}>A → Z</option>
+        <option value="year" selected={sortBy === 'year'}>Year</option>
+        <option value="director" selected={sortBy === 'director'}>Director</option>
+        <option value="marked" selected={sortBy === 'marked'}>Marked</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="toolbar-row toolbar-toggles">
+    <label class="toggle-switch">
+      <input type="checkbox" id="toggle-actors" checked={showActors} />
+      <span class="toggle-switch-label">Actors</span>
+    </label>
+    <label class="toggle-switch">
+      <input type="checkbox" id="toggle-blurb" checked={showBlurb} />
+      <span class="toggle-switch-label">Blurb</span>
+    </label>
+    <label class="toggle-switch" id="toggle-images-group" data-card-only>
+      <input type="checkbox" id="toggle-images" checked={showImages} />
+      <span class="toggle-switch-label">Images</span>
+    </label>
+  </div>
+</div>
+
+<style>
+  .list-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-day);
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  .toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toolbar-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  /* View toggle */
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .view-btn:first-child {
+    border-right: 1px solid var(--bg-movie-hover);
+  }
+
+  .view-btn:hover {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .view-btn.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  /* Sort select */
+  .sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 6px 28px 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-movie);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+
+  .sort-select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  /* Display toggles */
+  .toolbar-toggles {
+    gap: 12px;
+  }
+
+  .toggle-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-switch input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  .toggle-switch-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* Hide images toggle when in list view (controlled by JS) */
+  [data-card-only].hidden {
+    display: none;
+  }
+</style>

@@ -1,0 +1,255 @@
+---
+/**
+ * Movie detail content for use inside a Drawer.
+ * Shows full movie info, reaction buttons, and navigation.
+ * Content is populated dynamically via JS.
+ */
+import Drawer from '../Drawer.astro';
+---
+
+<Drawer id="movie-detail-drawer" maxHeight="90vh">
+  <div class="movie-detail" id="movie-detail-content">
+    <div class="detail-poster" id="detail-poster">
+      <img id="detail-poster-img" src="" alt="" />
+      <span class="detail-poster-placeholder">No Image Available</span>
+    </div>
+
+    <h2 class="detail-title" id="detail-title"></h2>
+    <p class="detail-meta" id="detail-meta"></p>
+    <p class="detail-actors" id="detail-actors"></p>
+
+    <p class="detail-description" id="detail-description"></p>
+    <p class="detail-citation">— Film Forum</p>
+
+    <div class="detail-reactions" id="detail-reactions">
+      <!-- Populated via JS -->
+    </div>
+
+    <div class="detail-links" id="detail-links">
+      <a href="#" id="detail-film-url" class="detail-link" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M5.5 2H3a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V8.5M8 2h4v4M6 8l6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        View on Film Forum
+      </a>
+      <a href="#" id="detail-tickets-url" class="detail-link detail-link--primary" target="_blank">
+        Buy Tickets
+      </a>
+    </div>
+
+    <div class="detail-nav">
+      <button class="detail-nav-btn" id="detail-prev" aria-label="Previous movie">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="detail-nav-counter" id="detail-counter"></span>
+      <button class="detail-nav-btn" id="detail-next" aria-label="Next movie">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</Drawer>
+
+<style>
+  .movie-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .detail-poster {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+
+  .detail-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-poster img[src=""],
+  .detail-poster img:not([src]) {
+    display: none;
+  }
+
+  .detail-poster img[src=""] ~ .detail-poster-placeholder,
+  .detail-poster img:not([src]) ~ .detail-poster-placeholder {
+    display: block;
+  }
+
+  .detail-poster-placeholder {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    display: none;
+  }
+
+  .detail-poster:has(img[src=""]) .detail-poster-placeholder,
+  .detail-poster:has(img:not([src])) .detail-poster-placeholder {
+    display: block;
+  }
+
+  .detail-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .detail-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .detail-actors {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .detail-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 8px 0 0 0;
+    padding-left: 1.5em;
+    position: relative;
+    font-style: italic;
+  }
+
+  .detail-description::before {
+    content: '\201C';
+    position: absolute;
+    left: 0;
+    top: -0.1em;
+    font-size: 2em;
+    font-family: Georgia, serif;
+    color: var(--accent);
+    line-height: 1;
+    font-style: normal;
+  }
+
+  .detail-description:empty {
+    display: none;
+  }
+
+  .detail-description:empty + .detail-citation {
+    display: none;
+  }
+
+  .detail-citation {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin: -2px 0 4px 0;
+    font-style: italic;
+  }
+
+  .detail-reactions {
+    display: flex;
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .detail-reactions :global(.rbtn),
+  .detail-reactions :global(.reaction-btn) {
+    flex: 1;
+  }
+
+  .detail-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .detail-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    background: var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  .detail-link:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .detail-link--primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .detail-link--primary:hover {
+    background: var(--accent-bg);
+  }
+
+  .detail-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bg-movie);
+  }
+
+  .detail-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: var(--bg-movie);
+    border: none;
+    border-radius: 50%;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .detail-nav-btn:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .detail-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .detail-nav-counter {
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  @media (max-width: 480px) {
+    .detail-title {
+      font-size: 1.25rem;
+    }
+  }
+</style>
