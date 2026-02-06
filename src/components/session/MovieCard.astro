@@ -43,9 +43,8 @@ const hasPoster = !!movie.poster_url;
       {movie.actors && <p class="card-actors">{movie.actors}</p>}
       {movie.description && <p class="card-blurb">{movie.description}</p>}
     </div>
-  </div>
 
-  <div class="card-reactions" data-movie-id={id}>
+    <div class="card-reactions" data-movie-id={id}>
     <button
       class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
       data-reaction="yes"
@@ -70,6 +69,7 @@ const hasPoster = !!movie.poster_url;
       aria-label="No"
       title="No"
     ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span></button>
+    </div>
   </div>
 </div>
 
@@ -83,6 +83,8 @@ const hasPoster = !!movie.poster_url;
     transition: box-shadow 0.2s;
     display: flex;
     flex-direction: column;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .card--has-poster {
@@ -132,8 +134,8 @@ const hasPoster = !!movie.poster_url;
     inset: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
+    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
     pointer-events: none;
     z-index: 1;
   }
@@ -170,7 +172,7 @@ const hasPoster = !!movie.poster_url;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 0.5rem 1rem 1rem 1rem;
+    padding: 0.5rem 1rem 50px 1rem;
     color: white;
   }
 
@@ -235,11 +237,10 @@ const hasPoster = !!movie.poster_url;
     overflow: hidden;
   }
 
-  /* --- Reaction buttons — full bleed row below image --- */
+  /* --- Reaction buttons — overlays poster image at bottom --- */
   .card-reactions {
     display: flex;
     gap: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .reaction-btn {
@@ -278,13 +279,20 @@ const hasPoster = !!movie.poster_url;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
   }
 
-  .reaction-btn:active {
-    transform: scale(0.95);
+  .reaction-btn:active > svg,
+  .reaction-btn:active > span {
+    transform: scale(0.85);
+    transition: transform 0.08s ease;
   }
 
-  /* Poster cards: dark frosted glass + color tint */
+  /* Poster cards: positioned at bottom of image with frosted glass */
   .card--has-poster .card-reactions {
-    border-top-color: rgba(255, 255, 255, 0.08);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(16px) brightness(0.3);
     -webkit-backdrop-filter: blur(16px) brightness(0.3);
   }
