@@ -8,85 +8,33 @@
 
 ---
 
-## Phase 1: Foundation (2-4 weeks)
+## 1. Session List Page
 
-**Goal**: Establish core infrastructure and base architecture
+Browsable movie list at `/session/[id]/list` with reactions (Yes/Maybe/No), saved list drawer, shareable URLs, and 2-person compare view.
 
-**Key Tasks**:
-- [ ] Set up development environment
-- [ ] Establish project structure and tooling
-- [ ] Create foundational components/modules
-- [ ] Set up testing and CI/CD basics
-
-**Deliverable**: Working foundation with basic functionality
+- Plan: `plans/session-list-page.md`
+- Workplan: `workplans/session-list-page.md`
 
 ---
 
-## Phase 2: Core Features (4-6 weeks)
+## 2. Route Migration
 
-**Goal**: Implement primary user-facing features
+Move schedule from `/` to `/series/[slug]/schedule`. Extract inline script modules, reorganize components, create landing page at `/`.
 
-**Key Tasks**:
-- [ ] Implement main feature set
-- [ ] Build out API/backend services
-- [ ] Create UI components and flows
-- [ ] Add comprehensive tests
-
-**Deliverable**: Feature-complete MVP
+- Plan: `plans/migration-plan.md`
 
 ---
 
-## Phase 3: Polish & Scale (2-4 weeks)
+## 3. OMDb Integration
 
-**Goal**: Optimize, test thoroughly, and prepare for production
+Add critic/audience scores (RT, Metacritic, IMDB) and plot blurbs via OMDb API. Separate data file joined at display time.
 
-**Key Tasks**:
-- [ ] Performance optimization
-- [ ] Security audit and hardening
-- [ ] Full end-to-end testing
-- [ ] Documentation and runbooks
-
-**Deliverable**: Production-ready application
+- Plan: `plans/omdb-integration.md`
 
 ---
 
-## Success Metrics
+## 4. Apple-Style Drawer Modal
 
-### Phase 1
-- [ ] Codebase builds without errors
-- [ ] Basic tests passing
-- [ ] Development workflow documented
+Redesign MovieModal as an iOS-style bottom sheet with full-bleed hero image, drag handle, swipe-to-dismiss. Vaul-style implementation in vanilla JS.
 
-### Phase 2
-- [ ] Core features implemented
-- [ ] >70% test coverage
-- [ ] No critical bugs
-
-### Phase 3
-- [ ] Performance targets met
-- [ ] Security review passed
-- [ ] Ready for deployment
-
----
-
-## Using This Roadmap with AI Agents
-
-### Planning Phase Work
-```
-"Create implementation plan for Phase [N] with task breakdown and dependencies."
-```
-
-### Executing with Parallel Agents
-```
-"Launch 2 agents:
-- Agent 1: [Task 1]
-- Agent 2: [Task 2]"
-```
-
-### Tracking Progress
-Update items as:
-- ✅ Completed
-- 🔄 In progress
-- 📋 Planned
-- 🚫 Blocked (note dependency)
-
+- Plan: `plans/apple-drawer-modal.md`
