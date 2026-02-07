@@ -738,7 +738,7 @@ const movies = [
     position: absolute;
     /* Mobile: bottom-aligned drawer, clamped so it never goes above safe area */
     inset: auto 0 0 0;
-    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
     border-radius: 16px 16px 0 0;
     background: var(--bg-body);
     overflow: hidden;
@@ -760,7 +760,7 @@ const movies = [
   }
 
   .expansion-scroll {
-    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 20px);
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
     overflow-y: auto;
     overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
