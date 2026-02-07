@@ -1,0 +1,829 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const movies = [
+  {
+    title: 'Taxi Driver',
+    director: 'Martin Scorsese',
+    year: '1976',
+    runtime: '1h 54m',
+    genre: 'Drama',
+    poster: '/posters/taxi-driver.png',
+    badge: 'NOW SHOWING',
+    label: 'FILM FORUM REPERTORY',
+    description: 'A mentally unstable veteran works as a nighttime taxi driver in New York City, where the perceived decadence and sleaze fuels his unraveling, his unhinged mission to save a teenage sex worker.',
+    actors: 'Robert De Niro, Jodie Foster, Cybill Shepherd, Harvey Keitel',
+    showtimes: ['Today 2:00 PM', 'Today 4:30 PM', 'Today 7:15 PM', 'Tomorrow 1:00 PM'],
+  },
+  {
+    title: 'Mean Streets',
+    director: 'Martin Scorsese',
+    year: '1973',
+    runtime: '1h 52m',
+    genre: 'Crime / Drama',
+    poster: '/posters/mean-streets.png',
+    badge: 'FINAL WEEK',
+    label: 'SCORSESE RETROSPECTIVE',
+    description: 'A small-time hood tries to keep peace between his reckless, debt-ridden friend and the loan shark who is after him while simultaneously trying to advance in the local Mafia hierarchy.',
+    actors: 'Robert De Niro, Harvey Keitel, David Proval, Amy Robinson',
+    showtimes: ['Today 3:15 PM', 'Today 6:00 PM', 'Tomorrow 2:30 PM'],
+  },
+  {
+    title: 'The Godfather Part II',
+    director: 'Francis Ford Coppola',
+    year: '1974',
+    runtime: '3h 22m',
+    genre: 'Crime / Drama',
+    poster: '/posters/the-godfather-part-ii.png',
+    badge: 'SPECIAL EVENT',
+    label: 'NEW 4K RESTORATION',
+    description: 'The continuing saga of the Corleone crime family tells the parallel stories of a young Vito Corleone growing up in Sicily and in 1920s New York, and his son Michael expanding and tightening his grip on the family empire.',
+    actors: 'Al Pacino, Robert De Niro, Robert Duvall, Diane Keaton',
+    showtimes: ['Today 1:00 PM', 'Today 6:30 PM', 'Tomorrow 1:00 PM', 'Tomorrow 6:30 PM'],
+  },
+  {
+    title: 'West Side Story',
+    director: 'Robert Wise & Jerome Robbins',
+    year: '1961',
+    runtime: '2h 33m',
+    genre: 'Musical / Drama',
+    poster: '/posters/west-side-story.png',
+    badge: 'OPENING NIGHT',
+    label: 'SUMMER MUSICAL SERIES',
+    description: 'Two youngsters from rival New York City gangs fall in love, but tensions between their respective friends build toward tragedy in this adaptation of the classic Broadway musical.',
+    actors: 'Natalie Wood, Richard Beymer, Russ Tamblyn, Rita Moreno',
+    showtimes: ['Tomorrow 2:00 PM', 'Tomorrow 7:00 PM', 'Sat 4:00 PM', 'Sun 2:00 PM'],
+  },
+  {
+    title: 'The Naked City',
+    director: 'Jules Dassin',
+    year: '1948',
+    runtime: '1h 36m',
+    genre: 'Film Noir',
+    poster: '/posters/the-naked-city.png',
+    badge: 'MATINEE',
+    label: 'NOIR ESSENTIALS',
+    description: 'A documentary-style police procedural following the investigation of a young model\'s murder on the streets of New York City. Shot entirely on location, a landmark in American cinema.',
+    actors: 'Barry Fitzgerald, Howard Duff, Dorothy Hart, Don Taylor',
+    showtimes: ['Today 12:30 PM', 'Tomorrow 12:30 PM', 'Tomorrow 3:00 PM'],
+  },
+  {
+    title: 'Once Upon a Time in America',
+    director: 'Sergio Leone',
+    year: '1984',
+    runtime: '3h 49m',
+    genre: 'Crime / Drama',
+    poster: '/posters/once-upon-a-time-in-america.png',
+    badge: 'EXTENDED CUT',
+    label: 'EPIC CINEMA',
+    description: 'A former Prohibition-era Jewish gangster returns to the Lower East Side of Manhattan over thirty years later, where he must once again confront the ghosts and regrets of his old life.',
+    actors: 'Robert De Niro, James Woods, Elizabeth McGovern, Joe Pesci',
+    showtimes: ['Sat 1:00 PM', 'Sun 1:00 PM'],
+  },
+];
+---
+
+<Layout title="Apple Card Expansion">
+  <div class="apple-card-page" id="page-content">
+    <header class="page-header">
+      <h1>Apple Card Expansion</h1>
+      <p>App Store-style card with FLIP animation. Tap a card to expand.</p>
+    </header>
+
+    <div class="card-grid">
+      {movies.map((movie, i) => (
+        <article class="movie-card" data-card-index={i} tabindex="0" role="button" aria-label={`View ${movie.title}`}>
+          <img src={movie.poster} alt={movie.title} class="card-img" loading="lazy" />
+          <div class="card-blur"></div>
+          <div class="card-content">
+            <span class="card-badge">{movie.badge}</span>
+            <div class="card-info">
+              <span class="card-label">{movie.label}</span>
+              <h2 class="card-title">{movie.title}</h2>
+              <p class="card-meta">{movie.director} · {movie.year} · {movie.runtime}</p>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <!-- Expansion overlay (hidden by default) -->
+  <div class="expansion-overlay" id="expansion-overlay" data-open="false">
+    <div class="expansion-backdrop" id="expansion-backdrop"></div>
+    <div class="expansion-card" id="expansion-card" role="dialog" aria-modal="true">
+      <div class="expansion-scroll" id="expansion-scroll">
+        <!-- Hero: full-bleed poster + blur + text -->
+        <div class="expansion-hero" id="expansion-hero">
+          <img class="expansion-img" id="expansion-img" src="" alt="" />
+          <div class="expansion-blur"></div>
+          <button class="expansion-close" id="expansion-close" aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="expansion-hero-content">
+            <span class="expansion-badge" id="expansion-badge"></span>
+            <span class="expansion-label" id="expansion-label"></span>
+            <h2 class="expansion-title" id="expansion-title"></h2>
+            <p class="expansion-meta" id="expansion-meta"></p>
+          </div>
+        </div>
+
+        <!-- Body content (below the fold) -->
+        <div class="expansion-body" id="expansion-body">
+          <p class="expansion-description" id="expansion-description"></p>
+
+          <div class="expansion-cast" id="expansion-cast">
+            <span class="cast-label">Starring</span>
+            <p class="cast-names" id="expansion-cast-names"></p>
+          </div>
+
+          <div class="expansion-actions">
+            <button class="action-btn action-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 12 12)"/></svg>
+              Get Tickets
+            </button>
+            <button class="action-btn action-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Add to Calendar
+            </button>
+          </div>
+
+          <div class="expansion-showtimes" id="expansion-showtimes">
+            <span class="showtimes-label">Upcoming Showtimes</span>
+            <div class="showtimes-list" id="expansion-showtimes-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script define:vars={{ moviesJson: JSON.stringify(movies) }}>
+  const IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+  const DURATION = 500;
+  const movieData = JSON.parse(moviesJson);
+
+  const overlay = document.getElementById('expansion-overlay');
+  const backdrop = document.getElementById('expansion-backdrop');
+  const card = document.getElementById('expansion-card');
+  const scroll = document.getElementById('expansion-scroll');
+  const body = document.getElementById('expansion-body');
+  const closeBtn = document.getElementById('expansion-close');
+  const pageContent = document.getElementById('page-content');
+
+  let isAnimating = false;
+  let sourceEl = null;
+
+  // Populate expanded card content
+  function populate(movie) {
+    document.getElementById('expansion-img').src = movie.poster;
+    document.getElementById('expansion-img').alt = movie.title;
+    document.getElementById('expansion-badge').textContent = movie.badge;
+    document.getElementById('expansion-label').textContent = movie.label;
+    document.getElementById('expansion-title').textContent = movie.title;
+    document.getElementById('expansion-meta').textContent =
+      `${movie.director} · ${movie.year} · ${movie.runtime}`;
+    document.getElementById('expansion-description').textContent = movie.description;
+    document.getElementById('expansion-cast-names').textContent = movie.actors;
+
+    const list = document.getElementById('expansion-showtimes-list');
+    list.innerHTML = movie.showtimes
+      .map(t => `<span class="showtime-chip">${t}</span>`)
+      .join('');
+  }
+
+  // --- FLIP OPEN ---
+  function open(index, el) {
+    if (isAnimating) return;
+    isAnimating = true;
+    sourceEl = el;
+
+    populate(movieData[index]);
+    scroll.scrollTop = 0;
+
+    // Show overlay
+    overlay.dataset.open = 'true';
+    document.body.style.overflow = 'hidden';
+
+    // FIRST: record source card position
+    const first = el.getBoundingClientRect();
+
+    // Hide original card
+    el.style.opacity = '0';
+
+    // Get final position (the expansion-card's natural position)
+    // On mobile: fills viewport. On desktop: centered with margins.
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Force card to its final layout to measure
+    card.style.transition = 'none';
+    card.style.transform = 'none';
+    card.style.opacity = '1';
+    void card.offsetHeight;
+
+    const last = card.getBoundingClientRect();
+
+    // INVERT: calculate transform from last -> first
+    const scaleX = first.width / last.width;
+    const scaleY = first.height / last.height;
+
+    const firstCenterX = first.left + first.width / 2;
+    const firstCenterY = first.top + first.height / 2;
+    const lastCenterX = last.left + last.width / 2;
+    const lastCenterY = last.top + last.height / 2;
+
+    const dx = firstCenterX - lastCenterX;
+    const dy = firstCenterY - lastCenterY;
+
+    // Apply inverted state (card appears at source position)
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
+    card.style.borderRadius = `${12 / scaleX}px`;
+    if (body) body.style.opacity = '0';
+
+    void card.offsetHeight; // force reflow
+
+    // PLAY: animate to final state
+    card.style.transition = [
+      `transform ${DURATION}ms ${IOS_EASE}`,
+      `border-radius ${DURATION}ms ${IOS_EASE}`,
+    ].join(', ');
+    card.style.transform = 'translate(0, 0) scale(1)';
+    card.style.borderRadius = '';
+
+    // Backdrop fade in
+    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+    backdrop.style.opacity = '1';
+
+    // Scale page content behind
+    if (pageContent) {
+      pageContent.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageContent.style.transform = 'scale(0.94)';
+      pageContent.style.borderRadius = '12px';
+    }
+
+    // Fade in body content after delay
+    setTimeout(() => {
+      if (body) {
+        body.style.transition = 'opacity 300ms ease';
+        body.style.opacity = '1';
+      }
+    }, DURATION * 0.35);
+
+    setTimeout(() => {
+      card.style.transition = '';
+      isAnimating = false;
+    }, DURATION);
+  }
+
+  // --- FLIP CLOSE ---
+  function close() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const el = sourceEl;
+    if (!el) {
+      // Fallback: just hide
+      overlay.dataset.open = 'false';
+      document.body.style.overflow = '';
+      isAnimating = false;
+      return;
+    }
+
+    const targetRect = el.getBoundingClientRect();
+    const last = card.getBoundingClientRect();
+
+    const scaleX = targetRect.width / last.width;
+    const scaleY = targetRect.height / last.height;
+
+    const targetCX = targetRect.left + targetRect.width / 2;
+    const targetCY = targetRect.top + targetRect.height / 2;
+    const cardCX = last.left + last.width / 2;
+    const cardCY = last.top + last.height / 2;
+
+    const dx = targetCX - cardCX;
+    const dy = targetCY - cardCY;
+
+    // Fade out body first
+    if (body) {
+      body.style.transition = 'opacity 120ms ease';
+      body.style.opacity = '0';
+    }
+
+    // Scroll to top smoothly before animating back
+    scroll.scrollTop = 0;
+
+    // Animate card back to source position
+    card.style.transition = [
+      `transform ${DURATION}ms ${IOS_EASE}`,
+      `border-radius ${DURATION}ms ${IOS_EASE}`,
+    ].join(', ');
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
+    card.style.borderRadius = `${12 / scaleX}px`;
+
+    // Fade backdrop
+    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+    backdrop.style.opacity = '0';
+
+    // Unscale page
+    if (pageContent) {
+      pageContent.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageContent.style.transform = '';
+      pageContent.style.borderRadius = '';
+    }
+
+    setTimeout(() => {
+      el.style.opacity = '';
+      overlay.dataset.open = 'false';
+      card.style.transition = '';
+      card.style.transform = '';
+      card.style.borderRadius = '';
+      card.style.opacity = '';
+      if (body) {
+        body.style.transition = '';
+        body.style.opacity = '';
+      }
+      document.body.style.overflow = '';
+      sourceEl = null;
+      isAnimating = false;
+    }, DURATION);
+  }
+
+  // --- Event listeners ---
+
+  // Card clicks
+  document.querySelectorAll('.movie-card').forEach(cardEl => {
+    cardEl.addEventListener('click', () => {
+      const index = parseInt(cardEl.dataset.cardIndex, 10);
+      open(index, cardEl);
+    });
+    cardEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const index = parseInt(cardEl.dataset.cardIndex, 10);
+        open(index, cardEl);
+      }
+    });
+  });
+
+  // Close button
+  closeBtn.addEventListener('click', close);
+
+  // Backdrop click
+  backdrop.addEventListener('click', close);
+
+  // Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.dataset.open === 'true') {
+      close();
+    }
+  });
+</script>
+
+<style>
+  /* =============================================
+     PAGE LAYOUT
+     ============================================= */
+
+  .apple-card-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+    transform-origin: center top;
+    will-change: transform;
+  }
+
+  .page-header {
+    padding: 24px 0 32px;
+  }
+
+  .page-header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    margin: 0 0 6px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  /* =============================================
+     CARD GRID
+     ============================================= */
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (min-width: 580px) {
+    .card-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* =============================================
+     MOVIE CARD (COLLAPSED)
+     ============================================= */
+
+  .movie-card {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform, opacity;
+    transition: transform 0.2s ease;
+    outline: none;
+  }
+
+  .movie-card:hover {
+    transform: scale(1.02);
+  }
+
+  .movie-card:active {
+    transform: scale(0.98);
+    transition-duration: 0.1s;
+  }
+
+  .movie-card:focus-visible {
+    box-shadow: 0 0 0 3px var(--accent);
+  }
+
+  .card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Progressive blur over the image */
+  .card-blur {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    mask-image: linear-gradient(to top, black 0%, black 20%, transparent 55%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 20%, transparent 55%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Content overlay on the card */
+  .card-content {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px;
+    pointer-events: none;
+  }
+
+  .card-badge {
+    align-self: flex-start;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 5px 10px;
+    border-radius: 6px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .card-label {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: #d4a574;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1.1;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-meta {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* =============================================
+     EXPANSION OVERLAY
+     ============================================= */
+
+  .expansion-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  .expansion-overlay[data-open="true"] {
+    pointer-events: auto;
+  }
+
+  .expansion-overlay[data-open="false"] .expansion-card,
+  .expansion-overlay[data-open="false"] .expansion-backdrop {
+    visibility: hidden;
+  }
+
+  .expansion-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+  }
+
+  /* =============================================
+     EXPANSION CARD (EXPANDED STATE)
+     ============================================= */
+
+  .expansion-card {
+    position: absolute;
+    /* Mobile: fill viewport */
+    inset: 0;
+    background: var(--bg-body);
+    overflow: hidden;
+    transform-origin: center center;
+    will-change: transform;
+  }
+
+  /* Desktop: centered dialog with margins */
+  @media (min-width: 768px) {
+    .expansion-card {
+      inset: 20px auto 20px auto;
+      left: 50%;
+      width: 520px;
+      margin-left: -260px;
+      border-radius: 16px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  .expansion-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* =============================================
+     EXPANSION HERO (IMAGE + OVERLAY)
+     ============================================= */
+
+  .expansion-hero {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .expansion-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .expansion-blur {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .expansion-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .expansion-close:hover {
+    background: rgba(0, 0, 0, 0.65);
+  }
+
+  .expansion-close:active {
+    transform: scale(0.9);
+  }
+
+  .expansion-hero-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .expansion-badge {
+    align-self: flex-start;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .expansion-label {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: #d4a574;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  .expansion-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.1;
+    color: #fff;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .expansion-meta {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* =============================================
+     EXPANSION BODY (BELOW THE FOLD)
+     ============================================= */
+
+  .expansion-body {
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .expansion-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .expansion-cast {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cast-label {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .cast-names {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  /* Action buttons */
+  .expansion-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.1s, filter 0.15s;
+  }
+
+  .action-btn:active {
+    transform: scale(0.97);
+  }
+
+  .action-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .action-primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .action-secondary {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .action-secondary:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  /* Showtimes */
+  .expansion-showtimes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .showtimes-label {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .showtimes-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  :global(.showtime-chip) {
+    display: inline-block;
+    padding: 8px 14px;
+    background: var(--bg-movie);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+</style>
