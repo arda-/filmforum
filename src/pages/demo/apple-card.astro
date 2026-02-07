@@ -356,6 +356,8 @@ const movies = [
       body.style.opacity = '';
       scroll.style.overflowY = '';
       document.body.style.overflow = '';
+      // Clear stale image so it doesn't flash when a new card opens
+      document.getElementById('expansion-img').src = '';
       resetPage();
       sourceEl = null;
       sourceRect = null;
