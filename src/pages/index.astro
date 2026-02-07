@@ -88,6 +88,7 @@ function toTitleCase(str: string): string {
           {showingToday.map(({ film, seriesId }) => (
             <a href={`/s/${seriesId}/calendar`} class="poster-card">
               <img src={film.poster_url} alt={film.Movie} class="poster-image" loading="lazy" />
+              <div class="poster-scrim"></div>
               <div class="progressive-blur">
                 <div class="blur-layer layer-1"></div>
                 <div class="blur-layer layer-2"></div>
@@ -95,7 +96,6 @@ function toTitleCase(str: string): string {
                 <div class="blur-layer layer-4"></div>
                 <div class="blur-layer layer-5"></div>
                 <div class="blur-layer layer-6"></div>
-                <div class="blur-layer layer-7"></div>
               </div>
               <div class="poster-info">
                 <span class="poster-title">{toTitleCase(film.Movie)}</span>
@@ -240,65 +240,73 @@ function toTitleCase(str: string): string {
     object-fit: cover;
   }
 
-  /* Progressive blur layers */
+  /* Dark scrim for text readability */
+  .poster-scrim {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.35) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Progressive blur — scoped to bottom 45% (text region only) */
   .progressive-blur {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 100%;
+    height: 45%;
     pointer-events: none;
   }
 
   .blur-layer {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
+    inset: 0;
   }
 
+  /* Scaled blur values for small cards, masks within the 45% container */
   .layer-1 {
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(1px);
-    mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
+    mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
   }
   .layer-2 {
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
+    mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
   }
   .layer-3 {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
-    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
+    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
   }
   .layer-4 {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
-    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
+    -webkit-mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
   }
   .layer-5 {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
-    -webkit-mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
   }
   .layer-6 {
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
-  }
-  .layer-7 {
-    backdrop-filter: blur(64px);
-    -webkit-backdrop-filter: blur(64px);
-    mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
   }
 
   .poster-info {
@@ -317,13 +325,13 @@ function toTitleCase(str: string): string {
     font-weight: 600;
     font-size: 0.85rem;
     color: white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     line-height: 1.2;
   }
 
   .poster-meta {
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.8);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
 </style>
