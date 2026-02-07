@@ -220,7 +220,8 @@ const movies = [
     const first = sourceRect;
     el.style.opacity = '0';
 
-    // Show overlay — body and hero text invisible during FLIP
+    // Keep card invisible until FLIP inverse is set (prevents flash at resting position)
+    card.style.opacity = '0';
     overlay.dataset.open = 'true';
     document.body.style.overflow = 'hidden';
     scroll.style.overflowY = 'hidden';
@@ -233,13 +234,12 @@ const movies = [
     pageWrapper.style.borderRadius = '12px';
     pageWrapper.style.overflow = 'hidden';
 
-    // Prepare card for measurement (no clip, no transform)
+    // Prepare card for measurement (no clip, no transform, still invisible)
     card.style.transition = 'none';
     card.style.clipPath = 'none';
     card.style.transform = 'none';
     card.style.transformOrigin = 'top left';
     card.style.borderRadius = '0';
-    card.style.opacity = '1';
     void card.offsetHeight;
 
     // Measure full card and hero
@@ -252,9 +252,10 @@ const movies = [
     const dx = first.left - cardRect.left;
     const dy = first.top - cardRect.top;
 
-    // INVERT: clip to hero-only, position at source card
+    // INVERT: clip to hero-only, position at source card — now reveal
     card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
     card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    card.style.opacity = '1';
     void card.offsetHeight;
 
     // PLAY: animate to final position, reveal body via clip
