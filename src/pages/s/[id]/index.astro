@@ -1,0 +1,167 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import fs from 'node:fs';
+import path from 'node:path';
+
+export function getStaticPaths() {
+  return getAllSeriesIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const series = getSeriesConfig(id);
+if (!series) return Astro.redirect('/');
+
+// Load movie data at build time to extract series stats
+const dataPath = path.join(process.cwd(), 'public', series.dataFile);
+const movieData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+
+// Deduplicate movies by title
+const filmMap = new Map();
+for (const m of movieData) {
+  if (!filmMap.has(m.Movie)) {
+    filmMap.set(m.Movie, { ...m, showtimeCount: 1 });
+  } else {
+    filmMap.get(m.Movie).showtimeCount++;
+  }
+}
+const films = Array.from(filmMap.values());
+const totalShowtimes = movieData.length;
+---
+
+<Layout title={`${series.name}: ${series.subtitle}`}>
+  <main class="series-landing">
+    <header class="series-header">
+      <a href="/" class="back-link">&larr; FilmForum</a>
+      <h1 class="series-title">{series.name}:</h1>
+      <h2 class="series-subtitle">{series.subtitle}</h2>
+      <p class="series-meta">
+        <a href={series.seriesUrl} class="venue-link">{series.venueName}</a> &middot; {series.dateRange}
+      </p>
+    </header>
+
+    <div class="series-stats">
+      <span class="stat">{films.length} films</span>
+      <span class="stat-sep">&middot;</span>
+      <span class="stat">{totalShowtimes} showtimes</span>
+    </div>
+
+    <div class="series-actions">
+      <a href={`/s/${id}/calendar`} class="action-link action-link--primary">
+        <span class="action-link-label">View Schedule</span>
+        <span class="action-link-arrow">&rarr;</span>
+      </a>
+      <a href={`/s/${id}/list`} class="action-link action-link--secondary">
+        <span class="action-link-label">Browse Films</span>
+        <span class="action-link-arrow">&rarr;</span>
+      </a>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .series-landing {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .series-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .series-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  .series-subtitle {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .series-meta {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  .venue-link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .series-stats {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+  }
+
+  .series-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 320px;
+    margin: 0 auto 40px;
+  }
+
+  .action-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    transition: opacity 0.15s;
+  }
+
+  .action-link:hover {
+    opacity: 0.85;
+  }
+
+  .action-link--primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .action-link--secondary {
+    background: var(--bg-day-movies);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-grid);
+  }
+
+  .action-link-arrow {
+    font-size: 1.2em;
+  }
+</style>

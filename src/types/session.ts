@@ -13,14 +13,6 @@ export interface UserList {
   reactions: ReactionMap;
 }
 
-/** Session configuration mapping IDs to data sources */
-export interface SessionConfig {
-  id: string;
-  name: string;
-  subtitle?: string;
-  dataFile: string;
-}
-
 /** A unique movie (deduplicated from showtime entries) */
 export interface UniqueMovie {
   id: string;
@@ -28,12 +20,3 @@ export interface UniqueMovie {
   showtimes: { datetime: string; time: string; tickets: string }[];
 }
 
-/** Known sessions */
-export const SESSIONS: Record<string, SessionConfig> = {
-  'tenement-stories': {
-    id: 'tenement-stories',
-    name: 'Tenement Stories',
-    subtitle: 'Life on the Lower East Side',
-    dataFile: '/tenement-stories-full.json',
-  },
-};

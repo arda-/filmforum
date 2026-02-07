@@ -80,8 +80,9 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
     </div>
   `;
 
-  // Data for modal (main page feature)
-  el.dataset.movie = JSON.stringify(movie);
+  // Store lightweight lookup keys instead of full JSON
+  el.dataset.movieTitle = movie.Movie;
+  el.dataset.movieKey = `${movie.Datetime}_${movie.Movie}`;
   el.setAttribute('tabindex', '0');
   el.setAttribute('role', 'button');
 

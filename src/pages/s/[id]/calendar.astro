@@ -1,0 +1,619 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import MovieModal from '../../../components/MovieModal.astro';
+import ToggleGroup from '../../../components/ToggleGroup.astro';
+import Switch from '../../../components/Switch.astro';
+import Toggle from '../../../components/Toggle.astro';
+import Dialog from '../../../components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
+import Button from '../../../components/Button.astro';
+import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+
+export function getStaticPaths() {
+  return getAllSeriesIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const series = getSeriesConfig(id)!;
+---
+
+<Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
+  <div id="schedule-config" data-file={series.dataFile} data-slug={id}></div>
+
+  <Header
+    seriesName={series.name}
+    seriesSubtitle={series.subtitle}
+    seriesUrl={series.seriesUrl}
+    venueName={series.venueName}
+    dateRange={series.dateRange}
+  />
+
+  <div class="controls">
+    <div class="control-group">
+      <span class="control-group-label">Calendar Display</span>
+      <div class="control-group-toggles">
+        <Switch id="week-start-toggle" label="Start week on Monday" checked small />
+        <Switch id="timeline-mode-toggle" label="Timeline mode" checked small />
+        <Switch id="fit-width-toggle" label="Fit to width" checked small />
+      </div>
+    </div>
+    <div class="control-group">
+      <span class="control-group-label">Movie Tile Display</span>
+      <div class="toggle-row disabled" id="tile-display-options">
+        <span class="toggle-row-label">Show:</span>
+        <Toggle id="show-year-director" label="Year / Director" variant="outline" size="sm" />
+        <Toggle id="show-runtime" label="Runtime" variant="outline" size="sm" />
+        <Toggle id="show-actors" label="Actors" variant="outline" size="sm" />
+        <Toggle id="show-image" label="Image" variant="outline" size="sm" />
+      </div>
+    </div>
+    <div class="control-group">
+      <span class="control-group-label">Filtering</span>
+      <div class="control-group-toggles">
+        <ToggleGroup
+          label="Availability:"
+          name="hours-filter-mode"
+          options={[
+            { label: 'All', value: 'none' },
+            { label: 'After 5pm & weekends', value: 'afterhours' },
+            { label: 'Weekends only', value: 'weekends' }
+          ]}
+          statusId="hours-filter-status"
+        />
+        <ToggleGroup
+          label="Single showings:"
+          name="single-showtimes-mode"
+          options={[
+            { label: 'Off', value: 'none' },
+            { label: '\u2605 Highlight unique', value: 'highlight' },
+            { label: 'Only show unique', value: 'only' }
+          ]}
+        />
+        <div class="desktop-only">
+          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-scroll-container">
+    <div class="calendar"></div>
+  </div>
+
+  <p class="legend">Click any movie for details. Times are PM unless marked "FF Jr."</p>
+
+  <MovieModal />
+
+  <!-- Hidden Movies Modal -->
+  <DialogRoot id="hidden-movies-modal" size="md">
+    <DialogHeader>
+      <DialogTitle>Hidden Weekday 9-5 Showtimes</DialogTitle>
+      <DialogDescription>These showtimes are hidden because they fall during weekday work hours (9am-5pm).</DialogDescription>
+    </DialogHeader>
+    <DialogBody scroll>
+      <div id="hidden-movies-list" class="hidden-movies-list"></div>
+    </DialogBody>
+  </DialogRoot>
+
+  <!-- Weekday Movies Modal (for weekends-only filter) -->
+  <DialogRoot id="weekday-movies-modal" size="md">
+    <DialogHeader>
+      <DialogTitle>Hidden Weekday Showtimes</DialogTitle>
+      <DialogDescription>These showtimes are hidden because they fall on weekdays (Mon-Fri).</DialogDescription>
+    </DialogHeader>
+    <DialogBody scroll>
+      <div id="weekday-movies-list" class="hidden-movies-list"></div>
+    </DialogBody>
+  </DialogRoot>
+
+  <!-- Confirm Disable Fit-Width Dialog -->
+  <Dialog
+    id="confirm-fit-width-dialog"
+    title="Customize movie tile display?"
+    description='Disable "Fit to width" to show additional movie details like year, director, runtime, and images.'
+    showCloseButton={false}
+  >
+    <div class="dialog-footer dialog-footer--center">
+      <Button id="confirm-fit-width-cancel" variant="secondary">Cancel</Button>
+      <Button id="confirm-fit-width-ok" variant="primary">Disable Fit to Width</Button>
+    </div>
+  </Dialog>
+</Layout>
+
+<script>
+  import {
+    PX_PER_MIN,
+    HOURS_FILTER_MODE,
+    SINGLE_SHOWTIMES_MODE,
+    type HoursFilterMode,
+    type SingleShowtimesMode,
+  } from '../../../constants';
+  import type { Movie } from '../../../utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '../../../components/MovieTile';
+  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange } from '../../../utils/calendarTime';
+  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies } from '../../../utils/calendarFilters';
+  import { openMovieModal, renderMovieList } from '../../../utils/calendarModal';
+  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
+
+  // --- State ---
+  const configEl = document.getElementById('schedule-config');
+  const dataFile = configEl?.dataset.file || '/tenement-stories-full.json';
+
+  let moviesByDate: Record<string, Movie[]> = {};
+  let globalRange = { start: Infinity, end: 0, range: 0 };
+  let uniformHeight = 0;
+  let allMovies: Movie[] = [];
+  let allMovieDates: string[] = [];
+  let movieByKey: Map<string, Movie> = new Map();
+
+  // --- Calendar rendering ---
+  function createDayCell(date: string): HTMLElement {
+    const dayEl = document.createElement('div');
+    dayEl.className = 'day';
+    dayEl.dataset.date = date;
+    dayEl.dataset.dayNumber = formatDayLabel(date);
+    const labelEl = document.createElement('div');
+    labelEl.className = 'day-number';
+    labelEl.textContent = formatDayLabel(date);
+    dayEl.appendChild(labelEl);
+    return dayEl;
+  }
+
+  function renderCalendar() {
+    const weekStartToggle = document.getElementById('week-start-toggle');
+    const weekStartInput = weekStartToggle?.tagName === 'INPUT'
+      ? weekStartToggle as HTMLInputElement
+      : weekStartToggle?.querySelector('input') as HTMLInputElement;
+    const mondayStart = weekStartInput?.checked ?? true;
+
+    const dates = generateDateRange(allMovieDates, mondayStart);
+    const calendarEl = document.querySelector('.calendar');
+    if (!calendarEl) return;
+
+    calendarEl.innerHTML = '';
+    dates.forEach(date => calendarEl.appendChild(createDayCell(date)));
+    renderAllDays();
+  }
+
+  function renderAllDays() {
+    const timelineToggle = document.getElementById('timeline-mode-toggle');
+    const timelineInput = timelineToggle?.tagName === 'INPUT' ? timelineToggle : timelineToggle?.querySelector('input');
+    const timelineMode = (timelineInput as HTMLInputElement)?.checked ?? false;
+
+    const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
+    const hoursFilterMode = (hoursFilterRadio?.value || HOURS_FILTER_MODE.NONE) as HoursFilterMode;
+
+    const singleShowtimesRadio = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
+    const singleShowtimesMode = (singleShowtimesRadio?.value || SINGLE_SHOWTIMES_MODE.NONE) as SingleShowtimesMode;
+
+    updateHoursFilterStatus(hoursFilterMode, allMovies);
+
+    // Build count of filtered showtimes per movie title
+    const filteredShowtimeCounts: Record<string, number> = {};
+    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      filterDayMovies(dayMovies, date, hoursFilterMode).forEach(m => {
+        filteredShowtimeCounts[m.Movie] = (filteredShowtimeCounts[m.Movie] || 0) + 1;
+      });
+    });
+
+    Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
+
+      if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
+        filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
+      }
+
+      const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
+      if (!dayCell) return;
+
+      const dayNumber = dayCell.dataset.dayNumber;
+      dayCell.innerHTML = '';
+      dayCell.classList.remove('timeline-view');
+      dayCell.classList.add('has-movies');
+      dayCell.style.height = '';
+
+      const dayNumDiv = document.createElement('div');
+      dayNumDiv.className = 'day-number';
+      dayNumDiv.textContent = dayNumber || '';
+      dayCell.appendChild(dayNumDiv);
+
+      if (filteredMovies.length === 0) {
+        dayCell.classList.remove('has-movies');
+        return;
+      }
+
+      if (timelineMode) {
+        dayCell.style.height = `${uniformHeight}px`;
+        dayCell.classList.add('timeline-view');
+        assignOverlapColumns(filteredMovies).forEach(movie => {
+          const start = parseTimeToMins(movie.Time);
+          const runtime = parseInt(movie.runtime || '90');
+          const topPx = (start - globalRange.start) * PX_PER_MIN;
+          const heightPx = Math.max(runtime * PX_PER_MIN, 24);
+          dayCell.appendChild(createMovieElement(movie, {
+            isTimeline: true, topPx, heightPx,
+            filteredCounts: filteredShowtimeCounts,
+            singleShowtimeMode: singleShowtimesMode
+          }));
+        });
+      } else {
+        filteredMovies.forEach(movie => {
+          dayCell.appendChild(createMovieElement(movie, {
+            isTimeline: false,
+            filteredCounts: filteredShowtimeCounts,
+            singleShowtimeMode: singleShowtimesMode
+          }));
+        });
+      }
+    });
+  }
+
+  // --- Control event handlers ---
+  document.getElementById('week-start-toggle')?.addEventListener('change', (e) => {
+    const checked = (e.target as HTMLInputElement).checked;
+    document.body.classList.toggle('monday-start', checked);
+    document.body.classList.toggle('sunday-start', !checked);
+    updateUrlParams();
+    renderCalendar();
+    setTimeout(updateTextHeights, 10);
+  });
+
+  document.getElementById('timeline-mode-toggle')?.addEventListener('change', () => {
+    renderAllDays();
+    updateUrlParams();
+    setTimeout(updateTextHeights, 10);
+  });
+
+  // Tile display toggles
+  const fitWidthToggle = document.getElementById('fit-width-toggle');
+  const tileDisplayOptions = document.getElementById('tile-display-options');
+  const showYearDirector = document.getElementById('show-year-director') as HTMLButtonElement;
+  const showRuntime = document.getElementById('show-runtime') as HTMLButtonElement;
+  const showActors = document.getElementById('show-actors') as HTMLButtonElement;
+  const showImage = document.getElementById('show-image') as HTMLButtonElement;
+
+  function updateTileDisplayState() {
+    const fitWidthInput = getToggleInput(fitWidthToggle);
+    const fitWidthEnabled = fitWidthInput?.checked ?? true;
+
+    if (fitWidthEnabled) {
+      tileDisplayOptions?.classList.add('disabled');
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+        if (toggle) { setToggleState(toggle, false); toggle.dataset.disabled = 'true'; }
+      });
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
+    } else {
+      tileDisplayOptions?.classList.remove('disabled');
+      [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+        if (toggle) toggle.dataset.disabled = 'false';
+      });
+    }
+  }
+
+  fitWidthToggle?.addEventListener('change', (e) => {
+    document.body.classList.toggle('natural-width', !(e.target as HTMLInputElement).checked);
+    updateTileDisplayState();
+    updateUrlParams();
+  });
+
+  // Confirm dialog for disabled toggles
+  let pendingToggle: HTMLButtonElement | null = null;
+
+  document.getElementById('confirm-fit-width-ok')?.addEventListener('click', () => {
+    const fitWidthInput = getToggleInput(fitWidthToggle);
+    if (fitWidthInput) {
+      fitWidthInput.checked = false;
+      fitWidthInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (pendingToggle) pendingToggle.click();
+    (window as any).closeDialog('confirm-fit-width-dialog');
+    pendingToggle = null;
+  });
+
+  document.getElementById('confirm-fit-width-cancel')?.addEventListener('click', () => {
+    (window as any).closeDialog('confirm-fit-width-dialog');
+    pendingToggle = null;
+  });
+
+  tileDisplayOptions?.addEventListener('click', (e) => {
+    const clickedToggle = (e.target as HTMLElement).closest('.toggle') as HTMLButtonElement;
+    if (clickedToggle?.dataset.disabled === 'true') {
+      pendingToggle = clickedToggle;
+      (window as any).openDialog('confirm-fit-width-dialog');
+    }
+  });
+
+  [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
+    toggle?.addEventListener('change', () => {
+      const cls = toggle === showYearDirector ? 'show-year-director'
+        : toggle === showRuntime ? 'show-runtime'
+        : toggle === showActors ? 'show-actors' : 'show-image';
+      document.body.classList.toggle(cls, isTogglePressed(toggle));
+      updateUrlParams();
+      setTimeout(updateTextHeights, 10);
+    });
+  });
+
+  updateTileDisplayState();
+
+  document.querySelectorAll('input[name="hours-filter-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
+  });
+
+  document.querySelectorAll('input[name="single-showtimes-mode"]').forEach(radio => {
+    radio.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
+  });
+
+  // --- Fetch data and render ---
+  fetch(dataFile)
+    .then(res => res.json())
+    .then((movies: Movie[]) => {
+      allMovies = movies;
+      movies.forEach(movie => {
+        const date = movie.Datetime.split('T')[0];
+        if (!moviesByDate[date]) moviesByDate[date] = [];
+        moviesByDate[date].push(movie);
+        movieByKey.set(`${movie.Datetime}_${movie.Movie}`, movie);
+      });
+
+      allMovieDates = Object.keys(moviesByDate);
+
+      Object.values(moviesByDate).forEach(dayMovies => {
+        const range = getDayTimeRange(dayMovies);
+        if (range.start < globalRange.start) globalRange.start = range.start;
+        if (range.end > globalRange.end) globalRange.end = range.end;
+      });
+      globalRange.range = globalRange.end - globalRange.start;
+      uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
+
+      renderCalendar();
+      setTimeout(updateTextHeights, 10);
+    });
+
+  // --- DOMContentLoaded: event delegation + URL state restore ---
+  document.addEventListener('DOMContentLoaded', () => {
+    // Hidden showtimes modal handlers
+    document.getElementById('hours-filter-status')?.addEventListener('click', () => {
+      const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
+      const mode = hoursFilterRadio?.value || 'none';
+      if (mode === 'weekends') {
+        const listEl = document.getElementById('weekday-movies-list');
+        if (listEl) listEl.innerHTML = renderMovieList(getWeekdayMovies(allMovies));
+        (window as any).openDialog('weekday-movies-modal');
+      } else if (mode === 'afterhours') {
+        const listEl = document.getElementById('hidden-movies-list');
+        if (listEl) listEl.innerHTML = renderMovieList(getHiddenWorkHoursMovies(allMovies));
+        (window as any).openDialog('hidden-movies-modal');
+      }
+    });
+
+    // Pointer device detection
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      document.querySelectorAll('.desktop-only').forEach(el => el.classList.add('has-pointer'));
+    }
+
+    // Restore URL state
+    restoreFromUrl();
+
+    // Movie tile click → modal
+    function getMovieFromEl(el: Element): Movie | undefined {
+      return movieByKey.get((el as HTMLElement).dataset.movieKey || '');
+    }
+
+    document.querySelector('.calendar')?.addEventListener('click', (e) => {
+      const movieEl = (e.target as HTMLElement).closest('[data-movie-key]');
+      if (movieEl) {
+        const movie = getMovieFromEl(movieEl);
+        if (movie) openMovieModal(movie);
+      }
+    });
+
+    document.querySelector('.calendar')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const movieEl = (e.target as HTMLElement).closest('[data-movie-key]');
+        if (movieEl) {
+          e.preventDefault();
+          const movie = getMovieFromEl(movieEl);
+          if (movie) openMovieModal(movie);
+        }
+      }
+    });
+
+    // Highlight alternate showtimes on hover
+    let currentHighlightedMovie: string | null = null;
+
+    document.querySelector('.calendar')?.addEventListener('mouseover', (e) => {
+      const movieEl = (e.target as HTMLElement).closest('[data-movie-title]');
+      if (!movieEl) return;
+
+      const highlightToggleEl = document.getElementById('highlight-alternate-toggle');
+      const highlightEnabled = highlightToggleEl?.tagName === 'INPUT'
+        ? (highlightToggleEl as HTMLInputElement).checked
+        : (highlightToggleEl?.querySelector('input') as HTMLInputElement)?.checked;
+      if (!highlightEnabled) return;
+
+      const movieTitle = (movieEl as HTMLElement).dataset.movieTitle!;
+
+      let visibleCount = 0;
+      document.querySelectorAll('[data-movie-title]').forEach(el => {
+        if ((el as HTMLElement).dataset.movieTitle === movieTitle) visibleCount++;
+      });
+      if (visibleCount <= 1) return;
+
+      if (currentHighlightedMovie === movieTitle) return;
+      currentHighlightedMovie = movieTitle;
+
+      document.querySelectorAll('.alternate-highlight').forEach(el => el.classList.remove('alternate-highlight'));
+      document.querySelectorAll('[data-movie-title]').forEach(el => {
+        if ((el as HTMLElement).dataset.movieTitle === movieTitle) el.classList.add('alternate-highlight');
+      });
+    });
+
+    document.querySelector('.calendar')?.addEventListener('mouseout', (e) => {
+      const movieEl = (e.target as HTMLElement).closest('[data-movie-title]');
+      const relatedTarget = (e as MouseEvent).relatedTarget as HTMLElement | null;
+      const relatedMovieEl = relatedTarget?.closest('[data-movie-title]');
+
+      if (movieEl && (!relatedMovieEl || relatedMovieEl !== movieEl)) {
+        currentHighlightedMovie = null;
+        document.querySelectorAll('.alternate-highlight').forEach(el => el.classList.remove('alternate-highlight'));
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Calendar scroll container - only scrolls horizontally in natural-width mode */
+  .calendar-scroll-container {
+    width: 100%;
+  }
+
+  :global(body.natural-width) .calendar-scroll-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Day number styles (for dynamically recreated elements) */
+  :global(.day-number) {
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 300;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+    padding-left: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+  }
+
+  @media (min-width: 480px) {
+    :global(.day-number) {
+      font-size: 13px;
+      font-family: 'Barlow Semi Condensed', sans-serif;
+      letter-spacing: -0.01em;
+    }
+  }
+
+  @media (min-width: 640px) {
+    :global(.day-number) {
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-transform: none;
+      letter-spacing: normal;
+      font-weight: 400;
+    }
+  }
+
+  :global(.day.has-movies .day-number) {
+    color: var(--text-secondary);
+  }
+
+  :global(.day.timeline-view .day-number) {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 20;
+    margin-bottom: 0;
+  }
+
+  @media (min-width: 768px) {
+    :global(body.show-image .day-number) {
+      font-weight: 500;
+    }
+
+    :global(.day-number) {
+      padding-left: 6px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :global(.day-number) {
+      padding-left: 10px;
+    }
+  }
+
+  /* Toggle row styling */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .toggle-row-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-right: 4px;
+  }
+
+  /* Disabled toggle row styling - opacity handled by individual toggles */
+  .toggle-row.disabled .toggle-row-label {
+    opacity: 0.6;
+  }
+
+  /* Toggle with status wrapper */
+  .toggle-with-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .hidden-status {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+
+  .hidden-status:hover {
+    color: var(--accent);
+  }
+
+  /* Hidden movies list content styles */
+  :global(.hidden-movies-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  :global(.hidden-movie-item) {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--bg-movie);
+  }
+
+  :global(.hidden-movie-item:last-child) {
+    border-bottom: none;
+  }
+
+  :global(.hidden-movie-title) {
+    font-weight: 500;
+    color: var(--text-primary);
+    display: inline;
+  }
+
+  :global(.hidden-movie-meta) {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    display: inline;
+    margin-left: 6px;
+  }
+
+  :global(.hidden-movie-showtimes) {
+    display: inline;
+    margin-left: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  :global(.hidden-showtime) {
+    color: var(--text-secondary);
+  }
+
+  :global(.hidden-showtime:not(:last-child)::after) {
+    content: ', ';
+  }
+
+</style>
