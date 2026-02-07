@@ -442,9 +442,11 @@ const movies = [
     finishDrag();
   }, { passive: true });
 
-  // Pointer events (desktop — hero handle)
+  // Pointer events (desktop — hero area, or drag handle)
   const hero = heroEl;
-  hero.addEventListener('pointerdown', (e) => {
+  const handleEl = document.querySelector('.expansion-handle');
+
+  function startPointerDrag(e) {
     if (isAnimating || overlay.dataset.open !== 'true') return;
     if (scroll && scroll.scrollTop > 0) return;
 
@@ -455,7 +457,10 @@ const movies = [
     card.classList.add('dragging');
     card.setPointerCapture(e.pointerId);
     e.preventDefault();
-  });
+  }
+
+  hero.addEventListener('pointerdown', startPointerDrag);
+  handleEl.addEventListener('pointerdown', startPointerDrag);
 
   document.addEventListener('pointermove', (e) => {
     if (!isDragging || isTracking) return;
@@ -785,6 +790,7 @@ const movies = [
     aspect-ratio: 4 / 3;
     overflow: hidden;
     flex-shrink: 0;
+    isolation: isolate;
   }
 
   .expansion-img {
@@ -811,11 +817,10 @@ const movies = [
     inset: 0;
     background: linear-gradient(
       to top,
-      rgb(10, 10, 10) 0%,
-      rgba(10, 10, 10, 0.6) 30%,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.4) 30%,
       transparent 60%
     );
-    mix-blend-mode: darken;
     pointer-events: none;
     z-index: 1;
   }
@@ -891,6 +896,8 @@ const movies = [
     display: flex;
     flex-direction: column;
     gap: 4px;
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   .expansion-badge {
