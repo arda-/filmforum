@@ -66,20 +66,19 @@ const movies = [
 ---
 
 <Layout title="2B: Mobile Drawer - With Body Content">
-  <nav class="demo-nav">
-    <a href="/demo/apple-card-1a">1A: Desktop</a>
-    <a href="/demo/apple-card-1b">1B: Mobile 16px</a>
-    <a href="/demo/apple-card-1c">1C: Mobile 24px</a>
-    <a href="/demo/apple-card-1d">1D: Responsive</a>
-    <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
-    <a href="/demo/apple-card-2b">2B: Mobile+Body</a>
-    <a href="/demo/apple-card-2c">2C: Pointer Swipe</a>
-  </nav>
   <div class="page-wrapper" id="page-wrapper">
+    <nav class="demo-nav">
+      <a href="/demo/apple-card-1a">1A: Desktop</a>
+      <a href="/demo/apple-card-1b">1B: Mobile 16px</a>
+      <a href="/demo/apple-card-1c">1C: Mobile 24px</a>
+      <a href="/demo/apple-card-1d">1D: Responsive</a>
+      <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
+      <a href="/demo/apple-card-2b">2B: Mobile+Body</a>
+    </nav>
     <div class="demo-page">
       <header class="page-header">
         <h1>2B: Mobile Drawer - With Body Content</h1>
-        <p>Bottom drawer with 16px top radius. Hero image + scrollable body content. Swipe-to-dismiss. Drag handle FIFO.</p>
+        <p>Pointer-based swipe (touch + mouse). Hero image + scrollable body content. Drag handle FIFO. Works like Vaul.</p>
       </header>
 
       <div class="card-grid">
@@ -486,11 +485,12 @@ const movies = [
     savedSourceRect = null;
   }
 
-  // --- SWIPE-TO-DISMISS ---
+  // --- SWIPE-TO-DISMISS (POINTER-BASED) ---
   let isDragging = false;
   let dragStartY = 0;
   let dragCurrentY = 0;
   let dragStartTime = 0;
+  let activePointerId = null;
   const CLOSE_THRESHOLD = 0.25;
   const VELOCITY_THRESHOLD = 0.5;
 
@@ -550,35 +550,66 @@ const movies = [
     expandedCard.addEventListener('transitionend', done);
   }
 
-  // Touch events for swipe
-  document.addEventListener('touchstart', (e) => {
+  // Pointer events for swipe (works with touch and mouse)
+  document.addEventListener('pointerdown', (e) => {
     if (isAnimating || overlay.dataset.open !== 'true' || !expandedCard) return;
     const target = e.target;
     if (!expandedCard.contains(target)) return;
     if (target.closest('.close-btn')) return;
-    dragStartY = e.touches[0].clientY;
+
+    // Prevent default to stop text selection and image dragging
+    e.preventDefault();
+
+    // Capture the pointer for reliable tracking
+    activePointerId = e.pointerId;
+    expandedCard.setPointerCapture(e.pointerId);
+
+    dragStartY = e.clientY;
     dragStartTime = Date.now();
     dragCurrentY = 0;
     isDragging = true;
     expandedCard.classList.add('dragging');
-  }, { passive: true });
+  });
 
-  document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    const currentY = e.touches[0].clientY;
+  document.addEventListener('pointermove', (e) => {
+    if (!isDragging || e.pointerId !== activePointerId) return;
+    const currentY = e.clientY;
     const deltaY = currentY - dragStartY;
     if (Math.abs(deltaY) > 5) {
       e.preventDefault();
       applyDragVisuals(deltaY);
     }
-  }, { passive: false });
+  });
 
-  document.addEventListener('touchend', () => {
-    if (!isDragging) return;
+  document.addEventListener('pointerup', (e) => {
+    if (!isDragging || e.pointerId !== activePointerId) return;
     isDragging = false;
-    if (expandedCard) expandedCard.classList.remove('dragging');
+    activePointerId = null;
+    if (expandedCard) {
+      expandedCard.classList.remove('dragging');
+      expandedCard.releasePointerCapture(e.pointerId);
+    }
     finishDrag();
-  }, { passive: true });
+  });
+
+  document.addEventListener('pointercancel', (e) => {
+    if (!isDragging || e.pointerId !== activePointerId) return;
+    isDragging = false;
+    activePointerId = null;
+    if (expandedCard) {
+      expandedCard.classList.remove('dragging');
+      expandedCard.releasePointerCapture(e.pointerId);
+    }
+    snapBack();
+  });
+
+  // Prevent native image drag completely
+  document.addEventListener('dragstart', (e) => {
+    if (e.target.classList.contains('card-img')) {
+      e.preventDefault();
+      return false;
+    }
+  });
 
   // Handle window resize - update placeholder position
   window.addEventListener('resize', () => {
@@ -693,6 +724,12 @@ const movies = [
     display: block;
     width: 100%;
     height: auto;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
   }
 
   /* CARD (EXPANDED) - Mobile drawer */
@@ -838,6 +875,14 @@ const movies = [
   /* DRAGGING STATE */
   .movie-card.dragging {
     transition: none !important;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .movie-card.dragging * {
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
   }
 
   /* REDUCED MOTION */
