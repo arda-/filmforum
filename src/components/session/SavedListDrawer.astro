@@ -330,13 +330,19 @@ const { sessionId } = Astro.props;
     max-width: 260px;
   }
 
-  /* Actions footer */
+  /* Actions footer — sticky at bottom of scrollable drawer */
   .saved-actions {
     display: none;
-    padding-top: 12px;
+    position: sticky;
+    bottom: -20px; /* counteract drawer-body padding */
+    margin: 0 -20px; /* stretch to drawer edges */
+    padding: 12px 20px 20px;
+    background: var(--bg-day);
     border-top: 1px solid var(--bg-movie);
     flex-direction: column;
     gap: 8px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    z-index: 1;
   }
 
   .saved-actions.has-items {
