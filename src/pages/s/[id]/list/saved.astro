@@ -7,19 +7,18 @@
 import Layout from '../../../../layouts/Layout.astro';
 import type { Movie } from '../../../../utils/movieUtils';
 import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
 import {
-  getAllSessionIds,
-  getSessionConfig,
   deduplicateMovies,
   sortMovies,
 } from '../../../../utils/sessionUtils';
 
 export function getStaticPaths() {
-  return getAllSessionIds().map(id => ({ params: { id } }));
+  return getAllSeriesIds().map(id => ({ params: { id } }));
 }
 
 const { id } = Astro.params;
-const config = getSessionConfig(id!);
+const config = getSeriesConfig(id!);
 if (!config) return Astro.redirect('/');
 
 // Load movie data at build time
@@ -41,7 +40,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 <Layout title={`Shared List — ${config.name}`}>
   <main class="shared-list-page" data-session-id={id}>
     <header class="page-header">
-      <a href={`/session/${id}/list`} class="back-link">
+      <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -182,7 +181,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const myReactions = getReactions(sessionId);
     const myEncoded = encodeReactions(myReactions);
     const friendEncoded = encodedReactions;
-    window.location.href = `/session/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
+    window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });
 </script>
 
