@@ -447,6 +447,7 @@ const movies = [
   hero.addEventListener('pointerdown', (e) => {
     if (isAnimating || overlay.dataset.open !== 'true') return;
     if (scroll && scroll.scrollTop > 0) return;
+    if (e.target.closest('.expansion-close')) return;
 
     isDragging = true;
     dragStartY = e.clientY;
