@@ -396,9 +396,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
               const onEnd = () => {
                 item.classList.remove('saved-item--flip');
-                item.removeEventListener('transitionend', onEnd);
               };
-              item.addEventListener('transitionend', onEnd);
+              item.addEventListener('transitionend', onEnd, { once: true });
             });
           });
         }
@@ -446,6 +445,18 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (shareBtn) shareBtn.disabled = !hasAnyReaction;
   }
 
+  // HTML escape helper to prevent XSS
+  function escapeHtml(text: string): string {
+    const map: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
   function updateSavedSection(prefix: string, movies: UniqueMovie[]) {
     const section = document.getElementById(`${prefix}-section`);
     const items = document.getElementById(`${prefix}-items`);
@@ -459,22 +470,22 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       const currentReaction = reactionMap[prefix] || 'none';
 
       items.innerHTML = movies.map(um => {
-        const title = toTitleCase(um.movie.Movie);
-        const meta = [um.movie.director, um.movie.year].filter(Boolean).join(', ');
+        const title = escapeHtml(toTitleCase(um.movie.Movie));
+        const meta = escapeHtml([um.movie.director, um.movie.year].filter(Boolean).join(', '));
         return `
-          <div class="saved-item" data-movie-id="${um.id}">
+          <div class="saved-item" data-movie-id="${escapeHtml(um.id)}">
             <div class="saved-item-info">
               <p class="saved-item-title">${title}</p>
               <p class="saved-item-meta">${meta}</p>
             </div>
             <div class="saved-item-toggle">
-              <button class="saved-toggle-btn saved-toggle-btn--yes ${currentReaction === 'yes' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="yes" title="Yes">
+              <button class="saved-toggle-btn saved-toggle-btn--yes ${currentReaction === 'yes' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${escapeHtml(um.id)}" data-set-reaction="yes" title="Yes">
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
-              <button class="saved-toggle-btn saved-toggle-btn--maybe ${currentReaction === 'maybe' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="maybe" title="Maybe">
+              <button class="saved-toggle-btn saved-toggle-btn--maybe ${currentReaction === 'maybe' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${escapeHtml(um.id)}" data-set-reaction="maybe" title="Maybe">
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
               </button>
-              <button class="saved-toggle-btn saved-toggle-btn--no ${currentReaction === 'no' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="no" title="No">
+              <button class="saved-toggle-btn saved-toggle-btn--no ${currentReaction === 'no' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${escapeHtml(um.id)}" data-set-reaction="no" title="No">
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               </button>
             </div>
