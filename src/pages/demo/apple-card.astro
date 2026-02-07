@@ -94,8 +94,8 @@ const movies = [
       {movies.map((movie, i) => (
         <article class="movie-card" data-card-index={i} tabindex="0" role="button" aria-label={`View ${movie.title}`}>
           <img src={movie.poster} alt={movie.title} class="card-img" loading="lazy" />
-          <div class="card-blur"></div>
           <div class="card-scrim"></div>
+          <div class="card-blur"></div>
           <div class="card-content">
             <span class="card-badge">{movie.badge}</span>
             <div class="card-info">
@@ -116,9 +116,10 @@ const movies = [
       <div class="expansion-scroll" id="expansion-scroll">
         <!-- Hero: full-bleed poster + blur + text -->
         <div class="expansion-hero" id="expansion-hero">
+          <div class="expansion-handle"><div class="expansion-handle-pill"></div></div>
           <img class="expansion-img" id="expansion-img" src="" alt="" />
-          <div class="expansion-blur"></div>
           <div class="expansion-scrim"></div>
+          <div class="expansion-blur"></div>
           <button class="expansion-close" id="expansion-close" aria-label="Close">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
               <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
@@ -343,7 +344,98 @@ const movies = [
     }, 100);
   }
 
+  // --- SWIPE-TO-DISMISS ---
+  let isDragging = false;
+  let dragStartY = 0;
+  let dragCurrentY = 0;
+  let dragStartTime = 0;
+  const CLOSE_THRESHOLD = 0.25;
+  const VELOCITY_THRESHOLD = 0.5;
+
+  function onPointerDown(e) {
+    if (isAnimating || overlay.dataset.open !== 'true') return;
+    // Only allow drag when scrolled to top
+    if (scroll && scroll.scrollTop > 0) return;
+
+    isDragging = true;
+    dragStartY = e.clientY;
+    dragCurrentY = 0;
+    dragStartTime = Date.now();
+    card.classList.add('dragging');
+    card.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    const deltaY = e.clientY - dragStartY;
+
+    if (deltaY < 0) {
+      // Rubber-band resistance when dragging up
+      const damped = Math.sqrt(Math.abs(deltaY)) * 3;
+      dragCurrentY = -damped;
+      card.style.transform = `translateY(${-damped}px)`;
+    } else {
+      dragCurrentY = deltaY;
+      card.style.transform = `translateY(${deltaY}px)`;
+
+      // Fade backdrop proportionally
+      const height = card.offsetHeight;
+      const percent = Math.min(deltaY / height, 1);
+      backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
+
+      // Ease page content back toward normal scale
+      if (pageContent) {
+        const s = 0.94 + (percent * 0.06);
+        pageContent.style.transform = `scale(${Math.min(s, 1)})`;
+        pageContent.style.borderRadius = `${Math.max(0, 12 * (1 - percent))}px`;
+      }
+    }
+  }
+
+  function onPointerUp(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    card.classList.remove('dragging');
+    card.releasePointerCapture(e.pointerId);
+
+    const height = card.offsetHeight;
+    const percentDragged = dragCurrentY / height;
+    const timeTaken = Date.now() - dragStartTime;
+    const velocity = timeTaken > 0 ? dragCurrentY / timeTaken : 0;
+
+    if (percentDragged > CLOSE_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
+      // Clear drag transform, then let close() handle FLIP back
+      card.style.transform = '';
+      close();
+    } else {
+      snapBack();
+    }
+    dragCurrentY = 0;
+  }
+
+  function snapBack() {
+    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}`;
+    card.style.transform = '';
+    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+    backdrop.style.opacity = '1';
+    if (pageContent) {
+      pageContent.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageContent.style.transform = 'scale(0.94)';
+      pageContent.style.borderRadius = '12px';
+    }
+    setTimeout(() => {
+      card.style.transition = '';
+    }, DURATION);
+  }
+
   // --- Event listeners ---
+
+  // Swipe gesture on hero area
+  const hero = document.getElementById('expansion-hero');
+  hero.addEventListener('pointerdown', onPointerDown);
+  document.addEventListener('pointermove', onPointerMove);
+  document.addEventListener('pointerup', onPointerUp);
 
   // Card clicks
   document.querySelectorAll('.movie-card').forEach(cardEl => {
@@ -459,7 +551,7 @@ const movies = [
     object-fit: cover;
   }
 
-  /* Progressive blur over the image */
+  /* Progressive blur over the image (above scrim) */
   .card-blur {
     position: absolute;
     inset: 0;
@@ -468,22 +560,22 @@ const movies = [
     mask-image: linear-gradient(to top, black 0%, black 20%, transparent 55%);
     -webkit-mask-image: linear-gradient(to top, black 0%, black 20%, transparent 55%);
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
   }
 
-  /* Dark scrim gradient for contrast and color wash */
+  /* Dark scrim under the blur (darken blend, like the blur demo) */
   .card-scrim {
     position: absolute;
     inset: 0;
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.8) 0%,
-      rgba(0, 0, 0, 0.45) 30%,
-      rgba(0, 0, 0, 0.1) 55%,
-      transparent 70%
+      rgb(10, 10, 10) 0%,
+      rgba(10, 10, 10, 0.6) 30%,
+      transparent 60%
     );
+    mix-blend-mode: darken;
     pointer-events: none;
-    z-index: 2;
+    z-index: 1;
   }
 
   /* Content overlay on the card */
@@ -660,7 +752,7 @@ const movies = [
     mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
     -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
     pointer-events: none;
-    z-index: 1;
+    z-index: 2;
   }
 
   .expansion-scrim {
@@ -668,13 +760,39 @@ const movies = [
     inset: 0;
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.8) 0%,
-      rgba(0, 0, 0, 0.45) 30%,
-      rgba(0, 0, 0, 0.1) 55%,
-      transparent 70%
+      rgb(10, 10, 10) 0%,
+      rgba(10, 10, 10, 0.6) 30%,
+      transparent 60%
     );
+    mix-blend-mode: darken;
     pointer-events: none;
-    z-index: 2;
+    z-index: 1;
+  }
+
+  /* Drag handle */
+  .expansion-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .expansion-handle-pill {
+    width: 36px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.45);
+  }
+
+  /* Disable transitions during drag for immediate response */
+  .expansion-card.dragging {
+    transition: none !important;
   }
 
   .expansion-close {
