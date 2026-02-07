@@ -84,17 +84,19 @@ const { sessionId, savedCount = 0 } = Astro.props;
     color: var(--text-primary);
   }
 
-  .toolbar-saved-btn:hover {
-    background: var(--bg-movie-hover);
-  }
-
   .toolbar-showtimes-btn {
     background: var(--accent);
     color: #fff;
   }
 
-  .toolbar-showtimes-btn:hover {
-    background: var(--accent-bg);
+  @media (hover: hover) {
+    .toolbar-saved-btn:hover {
+      background: var(--bg-movie-hover);
+    }
+
+    .toolbar-showtimes-btn:hover {
+      background: var(--accent-bg);
+    }
   }
 
   .saved-icon {

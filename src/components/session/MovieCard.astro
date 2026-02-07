@@ -91,8 +91,10 @@ const hasPoster = !!movie.poster_url;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
-  .card:hover {
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  @media (hover: hover) {
+    .card:hover {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
   }
 
   /* Reaction state glow */
@@ -315,24 +317,26 @@ const hasPoster = !!movie.poster_url;
   }
 
   /* Hover: intensify tint */
-  .reaction-btn--yes:hover {
-    background: rgba(34, 197, 94, 0.25);
-  }
-  .reaction-btn--maybe:hover {
-    background: rgba(245, 158, 11, 0.25);
-  }
-  .reaction-btn--no:hover {
-    background: rgba(239, 68, 68, 0.25);
-  }
+  @media (hover: hover) {
+    .reaction-btn--yes:hover {
+      background: rgba(34, 197, 94, 0.25);
+    }
+    .reaction-btn--maybe:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+    .reaction-btn--no:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
 
-  .card--has-poster .reaction-btn--yes:hover {
-    background: rgba(34, 197, 94, 0.25);
-  }
-  .card--has-poster .reaction-btn--maybe:hover {
-    background: rgba(245, 158, 11, 0.25);
-  }
-  .card--has-poster .reaction-btn--no:hover {
-    background: rgba(239, 68, 68, 0.25);
+    .card--has-poster .reaction-btn--yes:hover {
+      background: rgba(34, 197, 94, 0.25);
+    }
+    .card--has-poster .reaction-btn--maybe:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+    .card--has-poster .reaction-btn--no:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
   }
 
   /* Active: solid fill */
