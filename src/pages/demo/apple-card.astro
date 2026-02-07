@@ -115,6 +115,7 @@ const movies = [
   <div class="expansion-overlay" id="expansion-overlay" data-open="false">
     <div class="expansion-backdrop" id="expansion-backdrop"></div>
     <div class="expansion-card" id="expansion-card" role="dialog" aria-modal="true">
+      <div class="expansion-handle"><div class="expansion-handle-pill"></div></div>
       <button class="expansion-close" id="expansion-close" aria-label="Close">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
           <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
@@ -123,7 +124,6 @@ const movies = [
       <div class="expansion-scroll" id="expansion-scroll">
         <!-- Hero: full-bleed poster + blur + text -->
         <div class="expansion-hero" id="expansion-hero">
-          <div class="expansion-handle"><div class="expansion-handle-pill"></div></div>
           <img class="expansion-img" id="expansion-img" src="" alt="" />
           <div class="expansion-scrim"></div>
           <div class="expansion-blur"></div>
@@ -362,7 +362,7 @@ const movies = [
       sourceEl = null;
       sourceRect = null;
       isAnimating = false;
-    }, DURATION);
+    }, DURATION + 50);
   }
 
   function resetPage() {
@@ -594,6 +594,9 @@ const movies = [
     will-change: transform, opacity;
     transition: transform 0.2s ease;
     outline: none;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.25),
+      0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
   .movie-card:hover {
