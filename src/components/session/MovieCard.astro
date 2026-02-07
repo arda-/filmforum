@@ -1,0 +1,365 @@
+---
+import type { UniqueMovie, MovieReaction } from '../../types/session';
+import { toTitleCase, formatRuntime } from '../../utils/movieUtils';
+
+interface Props {
+  uniqueMovie: UniqueMovie;
+  reaction?: MovieReaction;
+  showActors?: boolean;
+  showBlurb?: boolean;
+  showImage?: boolean;
+}
+
+const {
+  uniqueMovie,
+  reaction = 'none',
+  showActors = true,
+  showBlurb = false,
+  showImage = true,
+} = Astro.props;
+const { movie, id } = uniqueMovie;
+const title = toTitleCase(movie.Movie);
+const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
+const hasPoster = !!movie.poster_url;
+---
+
+<div
+  class:list={['card', { 'card--has-poster': hasPoster && showImage, [`card--${reaction}`]: reaction !== 'none' }]}
+  data-movie-id={id}
+  data-reaction={reaction}
+>
+  <div class="card-image">
+    {hasPoster && (
+      <img class="card-poster-img" src={movie.poster_url} alt={title} loading="lazy" style={showImage ? undefined : 'display:none'} />
+    )}
+
+    {hasPoster && (
+      <div class="card-blur" style={showImage ? undefined : 'display:none'}></div>
+    )}
+
+    <div class="card-overlay">
+      <h3 class="card-title">{title}</h3>
+      <p class="card-meta">{meta}</p>
+      {movie.actors && <p class="card-actors">{movie.actors}</p>}
+      {movie.description && <p class="card-blurb">{movie.description}</p>}
+    </div>
+
+    <div class="card-reactions" data-movie-id={id}>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
+      data-reaction="yes"
+      data-movie-id={id}
+      aria-pressed={reaction === 'yes'}
+      aria-label="Yes"
+      title="Yes"
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Yes</span></button>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
+      data-reaction="maybe"
+      data-movie-id={id}
+      aria-pressed={reaction === 'maybe'}
+      aria-label="Maybe"
+      title="Maybe"
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Maybe</span></button>
+    <button
+      class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
+      data-reaction="no"
+      data-movie-id={id}
+      aria-pressed={reaction === 'no'}
+      aria-label="No"
+      title="No"
+    ><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>No</span></button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-movie);
+    cursor: pointer;
+    transition: box-shadow 0s;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .card--has-poster {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .card:hover {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Reaction state glow */
+  .card--yes {
+    box-shadow: 0 0 0 2px var(--reaction-yes, #22c55e), 0 4px 16px rgba(34, 197, 94, 0.2);
+  }
+  .card--maybe {
+    box-shadow: 0 0 0 2px var(--reaction-maybe, #f59e0b), 0 4px 16px rgba(245, 158, 11, 0.2);
+  }
+  .card--no {
+    opacity: 0.45;
+    filter: grayscale(0.3);
+  }
+
+  /* Image area — poster + blur + text overlay */
+  .card-image {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card--has-poster .card-image {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* Poster image fills image area — matches blur-simple demo */
+  .card-poster-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Blur scrim — backdrop-filter blur + dark gradient for visibility */
+  .card-blur {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Dark gradient scrim layered on top for visible darkening */
+  .card-blur::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.35) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Text overlay — matches blur-simple demo: absolute, bottom-anchored */
+  .card-overlay {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 2px;
+    padding: 12px;
+    min-height: 100%;
+    box-sizing: border-box;
+  }
+
+  .card--has-poster .card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem 50px 1rem;
+    color: white;
+  }
+
+  /* --- Type hierarchy for poster cards — matches blur-simple demo text styles --- */
+  .card--has-poster .card-title {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  .card--has-poster .card-meta {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .card--has-poster .card-actors {
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  .card--has-poster .card-blurb {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    line-height: 1.4;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  /* --- Base text styles (no-poster / fallback) --- */
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  .card-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .card-actors {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-blurb {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* --- Reaction buttons — overlays poster image at bottom --- */
+  .card-reactions {
+    display: flex;
+    gap: 0;
+  }
+
+  .reaction-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.01em;
+    border-radius: 0;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  /* Color-tinted backgrounds */
+  .reaction-btn--yes {
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--reaction-yes, #22c55e);
+  }
+  .reaction-btn--maybe {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--reaction-maybe, #f59e0b);
+  }
+  .reaction-btn--no {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--reaction-no, #ef4444);
+  }
+
+  .reaction-btn:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .reaction-btn:active > svg,
+  .reaction-btn:active > span {
+    transform: scale(0.85);
+    transition: transform 0.08s ease;
+  }
+
+  /* Poster cards: positioned at bottom of image with frosted glass */
+  .card--has-poster .card-reactions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px) brightness(0.5);
+    -webkit-backdrop-filter: blur(16px) brightness(0.5);
+  }
+
+  .card--has-poster .reaction-btn--yes {
+    background: rgba(34, 197, 94, 0.08);
+    color: #4ade80;
+  }
+  .card--has-poster .reaction-btn--maybe {
+    background: rgba(245, 158, 11, 0.08);
+    color: #fbbf24;
+  }
+  .card--has-poster .reaction-btn--no {
+    background: rgba(239, 68, 68, 0.08);
+    color: #f87171;
+  }
+
+  .card--has-poster .reaction-btn:not(:last-child) {
+    border-right-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Hover: intensify tint */
+  .reaction-btn--yes:hover {
+    background: rgba(34, 197, 94, 0.25);
+  }
+  .reaction-btn--maybe:hover {
+    background: rgba(245, 158, 11, 0.25);
+  }
+  .reaction-btn--no:hover {
+    background: rgba(239, 68, 68, 0.25);
+  }
+
+  .card--has-poster .reaction-btn--yes:hover {
+    background: rgba(34, 197, 94, 0.25);
+  }
+  .card--has-poster .reaction-btn--maybe:hover {
+    background: rgba(245, 158, 11, 0.25);
+  }
+  .card--has-poster .reaction-btn--no:hover {
+    background: rgba(239, 68, 68, 0.25);
+  }
+
+  /* Active: solid fill */
+  .reaction-btn--yes.active {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+  }
+  .reaction-btn--maybe.active {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+  }
+  .reaction-btn--no.active {
+    background: var(--reaction-no, #ef4444);
+    color: #fff;
+  }
+
+  /* Active states on poster cards */
+  .card--has-poster .reaction-btn--yes.active {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+  }
+  .card--has-poster .reaction-btn--maybe.active {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+  }
+  .card--has-poster .reaction-btn--no.active {
+    background: var(--reaction-no, #ef4444);
+    color: #fff;
+  }
+</style>

@@ -1,4 +1,5 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { touch-action: manipulation; }
 
 /* Light mode (default) */
 :root {
@@ -27,6 +28,11 @@
   --w-switch-on-color: var(--accent);
   --w-md-radius: 5px;
   --w-xl-radius: 15px;
+
+  /* Reaction colors */
+  --reaction-yes: #22c55e;
+  --reaction-maybe: #f59e0b;
+  --reaction-no: #ef4444;
 }
 
 /* Dark mode */
@@ -55,6 +61,11 @@
     --w-color-primary-70: #061321;
     --w-switch-off-color: var(--w-color-primary-40);
     --w-switch-on-color: var(--accent);
+
+    /* Reaction colors - brighter for dark mode */
+    --reaction-yes: #4ade80;
+    --reaction-maybe: #fbbf24;
+    --reaction-no: #f87171;
   }
 }
 

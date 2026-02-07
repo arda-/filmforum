@@ -1,0 +1,324 @@
+---
+/**
+ * Vaul-style drawer component.
+ * Slides up from bottom with backdrop, swipe-to-dismiss, and smooth transitions.
+ */
+interface Props {
+  id: string;
+  title?: string;
+  maxHeight?: string;
+}
+
+const { id, title, maxHeight = '85vh' } = Astro.props;
+---
+
+<div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
+  <div class="drawer-backdrop" data-drawer-close></div>
+  <div class="drawer-container" style={`--drawer-max-height: ${maxHeight}`}>
+    <div class="drawer-handle-area" data-drawer-handle>
+      <div class="drawer-handle"></div>
+    </div>
+    <div class="drawer-header">
+      {title && <h2 id={`${id}-title`} class="drawer-title">{title}</h2>}
+      {!title && <div></div>}
+      <button class="drawer-close-btn" aria-label="Close">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M11.78 4.03a.5.5 0 00-.71-.71L7.5 6.89 3.93 3.32a.5.5 0 10-.71.71L6.79 7.5l-3.57 3.47a.5.5 0 00.71.71L7.5 8.11l3.57 3.57a.5.5 0 00.71-.71L8.21 7.5l3.57-3.47z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    <div class="drawer-body">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .drawer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+  }
+
+  .drawer[data-open="true"] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .drawer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    animation: drawer-backdrop-in 0.2s ease-out;
+  }
+
+  .drawer[data-open="true"] .drawer-container {
+    animation: drawer-slide-up 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .drawer.closing .drawer-backdrop {
+    animation: drawer-backdrop-out 0.2s ease-in forwards;
+  }
+
+  .drawer.closing .drawer-container {
+    animation: drawer-slide-down 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  }
+
+  @keyframes drawer-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes drawer-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  @keyframes drawer-slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes drawer-slide-down {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+  }
+
+  .drawer-container {
+    position: relative;
+    z-index: 1;
+    max-height: var(--drawer-max-height, 85vh);
+    background: var(--bg-day);
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    will-change: transform;
+  }
+
+  .drawer-handle-area {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0 4px;
+    cursor: grab;
+    flex-shrink: 0;
+  }
+
+  .drawer-handle-area:active {
+    cursor: grabbing;
+  }
+
+  .drawer-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--bg-movie-hover);
+    border-radius: 2px;
+  }
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px 12px;
+    flex-shrink: 0;
+  }
+
+  .drawer-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .drawer-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: var(--bg-movie);
+    border: none;
+    border-radius: 50%;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .drawer-close-btn:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .drawer-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 20px 20px;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+</style>
+
+<script>
+  // Drawer initialization
+  document.querySelectorAll('.drawer').forEach(drawer => {
+    const container = drawer.querySelector('.drawer-container') as HTMLElement;
+    const handle = drawer.querySelector('[data-drawer-handle]') as HTMLElement;
+    const body = drawer.querySelector('.drawer-body') as HTMLElement;
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    let dragSource: 'handle' | 'body' | null = null;
+
+    function closeDrawer() {
+      drawer.classList.add('closing');
+      setTimeout(() => {
+        (drawer as HTMLElement).dataset.open = 'false';
+        drawer.classList.remove('closing');
+        container.style.transform = '';
+        document.body.style.overflow = '';
+      }, 250);
+    }
+
+    // Close on backdrop click
+    const backdrop = drawer.querySelector('.drawer-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', () => closeDrawer());
+    }
+
+    // Close on close button click (use closest to handle SVG children)
+    drawer.querySelectorAll('.drawer-close-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeDrawer();
+      });
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && (drawer as HTMLElement).dataset.open === 'true') {
+        closeDrawer();
+      }
+    });
+
+    // --- Swipe-to-dismiss ---
+    function onTouchStart(e: TouchEvent, source: 'handle' | 'body') {
+      // For body drags, only start if scrolled to top
+      if (source === 'body' && body && body.scrollTop > 0) return;
+      isDragging = true;
+      dragSource = source;
+      startY = e.touches[0].clientY;
+      currentY = 0;
+      container.style.transition = 'none';
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (!isDragging) return;
+      const delta = e.touches[0].clientY - startY;
+      if (delta < 0) {
+        // Swiping up — if from body, cancel drag and let scroll take over
+        if (dragSource === 'body') {
+          isDragging = false;
+          container.style.transition = '';
+          container.style.transform = '';
+          return;
+        }
+        currentY = 0;
+      } else {
+        currentY = delta;
+        // Prevent native scroll immediately when dragging down
+        e.preventDefault();
+      }
+      container.style.transform = `translateY(${currentY}px)`;
+    }
+
+    function onTouchEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      dragSource = null;
+      container.style.transition = '';
+
+      if (currentY > 80) {
+        closeDrawer();
+      } else {
+        container.style.transform = '';
+      }
+      currentY = 0;
+    }
+
+    // Handle area — always draggable
+    if (handle) {
+      handle.addEventListener('touchstart', (e) => onTouchStart(e, 'handle'), { passive: true });
+    }
+
+    // Body area — draggable when at scroll top
+    if (body) {
+      body.addEventListener('touchstart', (e) => onTouchStart(e, 'body'), { passive: true });
+    }
+
+    // Shared move/end — listen on the entire drawer element (not just container)
+    // so touches that start on body but move to container are captured
+    drawer.addEventListener('touchmove', (e) => onTouchMove(e as TouchEvent), { passive: false });
+    drawer.addEventListener('touchend', () => onTouchEnd());
+
+    // Mouse drag support (handle only, for desktop)
+    if (handle) {
+      handle.addEventListener('mousedown', (e: MouseEvent) => {
+        isDragging = true;
+        dragSource = 'handle';
+        startY = e.clientY;
+        container.style.transition = 'none';
+
+        const onMouseMove = (e: MouseEvent) => {
+          if (!isDragging) return;
+          currentY = e.clientY - startY;
+          if (currentY < 0) currentY = 0;
+          container.style.transform = `translateY(${currentY}px)`;
+        };
+
+        const onMouseUp = () => {
+          isDragging = false;
+          dragSource = null;
+          container.style.transition = '';
+          if (currentY > 80) {
+            closeDrawer();
+          } else {
+            container.style.transform = '';
+          }
+          currentY = 0;
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    }
+  });
+
+  // Global drawer API
+  (window as any).openDrawer = (id: string) => {
+    const drawer = document.getElementById(id);
+    if (drawer) {
+      drawer.dataset.open = 'true';
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  (window as any).closeDrawer = (id: string) => {
+    const drawer = document.getElementById(id);
+    if (drawer) {
+      const container = drawer.querySelector('.drawer-container') as HTMLElement;
+      drawer.classList.add('closing');
+      setTimeout(() => {
+        drawer.dataset.open = 'false';
+        drawer.classList.remove('closing');
+        if (container) container.style.transform = '';
+        document.body.style.overflow = '';
+      }, 250);
+    }
+  };
+</script>

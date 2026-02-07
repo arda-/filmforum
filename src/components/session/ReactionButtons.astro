@@ -1,0 +1,151 @@
+---
+/**
+ * Standalone reaction button group.
+ * Used in drawers and modals where buttons need to be separate from card/list item.
+ */
+import type { MovieReaction } from '../../types/session';
+
+interface Props {
+  movieId: string;
+  reaction?: MovieReaction;
+  size?: 'sm' | 'md';
+}
+
+const { movieId, reaction = 'none', size = 'md' } = Astro.props;
+---
+
+<div class:list={['reactions', `reactions--${size}`]} data-movie-id={movieId}>
+  <button
+    class:list={['rbtn', 'rbtn--yes', { active: reaction === 'yes' }]}
+    data-reaction="yes"
+    data-movie-id={movieId}
+    aria-pressed={reaction === 'yes'}
+    aria-label="Yes"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span>Yes</span>
+  </button>
+  <button
+    class:list={['rbtn', 'rbtn--maybe', { active: reaction === 'maybe' }]}
+    data-reaction="maybe"
+    data-movie-id={movieId}
+    aria-pressed={reaction === 'maybe'}
+    aria-label="Maybe"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="11.5" r="1" fill="currentColor"/>
+      <path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <span>Maybe</span>
+  </button>
+  <button
+    class:list={['rbtn', 'rbtn--no', { active: reaction === 'no' }]}
+    data-reaction="no"
+    data-movie-id={movieId}
+    aria-pressed={reaction === 'no'}
+    aria-label="No"
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <span>No</span>
+  </button>
+</div>
+
+<style>
+  .reactions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .rbtn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .rbtn:active {
+    transform: scale(0.95);
+  }
+
+  .rbtn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Sizes */
+  .reactions--md .rbtn {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .reactions--sm .rbtn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .reactions--sm .rbtn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Yes */
+  .rbtn--yes {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
+  }
+  .rbtn--yes:hover {
+    background: rgba(34, 197, 94, 0.1);
+  }
+  .rbtn--yes.active {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+    animation: pulse 0.3s ease;
+  }
+
+  /* Maybe */
+  .rbtn--maybe {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+  .rbtn--maybe:hover {
+    background: rgba(245, 158, 11, 0.1);
+  }
+  .rbtn--maybe.active {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+    animation: pulse 0.3s ease;
+  }
+
+  /* No */
+  .rbtn--no {
+    color: var(--reaction-no, #ef4444);
+    border-color: var(--reaction-no, #ef4444);
+  }
+  .rbtn--no:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .rbtn--no.active {
+    background: var(--reaction-no, #ef4444);
+    color: #fff;
+    animation: pulse 0.3s ease;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+</style>

@@ -1,0 +1,537 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import ListToolbar from '../../../../components/session/ListToolbar.astro';
+import MovieListItem from '../../../../components/session/MovieListItem.astro';
+import MovieCard from '../../../../components/session/MovieCard.astro';
+import BottomToolbar from '../../../../components/session/BottomToolbar.astro';
+import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
+import SavedListDrawer from '../../../../components/session/SavedListDrawer.astro';
+import SingleCardView from '../../../../components/session/SingleCardView.astro';
+import type { Movie } from '../../../../utils/movieUtils';
+import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+import {
+  getAllSessionIds,
+  getSessionConfig,
+  deduplicateMovies,
+  sortMovies,
+} from '../../../../utils/sessionUtils';
+
+export function getStaticPaths() {
+  return getAllSessionIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const config = getSessionConfig(id!);
+if (!config) return Astro.redirect('/');
+
+// Load movie data at build time from public directory
+let allMovies: Movie[] = [];
+try {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const dataPath = path.join(process.cwd(), 'public', config.dataFile);
+  const data = fs.readFileSync(dataPath, 'utf-8');
+  allMovies = JSON.parse(data);
+} catch {
+  allMovies = [];
+}
+
+const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
+
+// Serialize movie data for client-side use
+const movieDataJson = JSON.stringify(uniqueMovies);
+---
+
+<Layout title={`${config.name} — Movie List`}>
+  <main class="session-list-page" data-session-id={id} data-drawer-wrapper>
+    <header class="page-header">
+      <a href="/" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back
+      </a>
+      <h1 class="page-title">{config.name}</h1>
+      {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
+      <p class="page-movie-count">{uniqueMovies.length} films</p>
+    </header>
+
+    <ListToolbar />
+
+    <!-- List view -->
+    <div class="movie-list-view" id="list-view" style="display: none;">
+      {uniqueMovies.map(um => (
+        <MovieListItem uniqueMovie={um} />
+      ))}
+    </div>
+
+    <!-- Card view (default) -->
+    <div class="movie-card-grid" id="card-view">
+      {uniqueMovies.map(um => (
+        <MovieCard uniqueMovie={um} />
+      ))}
+    </div>
+
+    <!-- Single card view (Apple-style drawer) -->
+    <SingleCardView movies={uniqueMovies} hidden={true} />
+
+    <!-- Spacer for bottom toolbar -->
+    <div class="bottom-spacer"></div>
+
+    <BottomToolbar sessionId={id!} />
+    <MovieDetailDrawer />
+    <SavedListDrawer sessionId={id!} />
+  </main>
+</Layout>
+
+<script define:vars={{ movieDataJson, sessionId: id }}>
+  window.__movieData = JSON.parse(movieDataJson);
+  window.__sessionId = sessionId;
+</script>
+
+<script>
+  import { getReactions, setReaction, getReactionCounts, encodeReactions } from '../../../../utils/storageManager';
+  import { getUserId } from '../../../../utils/storageManager';
+  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import { sortMovies } from '../../../../utils/sessionUtils';
+  import type { MovieReaction, UniqueMovie } from '../../../../types/session';
+
+  const sessionId = (window as any).__sessionId as string;
+  const allMovies = (window as any).__movieData as UniqueMovie[];
+
+  // --- State ---
+  let currentView: 'list' | 'card' | 'single' = 'card';
+  let currentSort = 'alpha';
+  let currentDetailIndex = 0;
+
+  // --- DOM references ---
+  const listView = document.getElementById('list-view')!;
+  const cardView = document.getElementById('card-view')!;
+  const singleViewWrapper = document.getElementById('single-view-wrapper');
+  const badge = document.querySelector('.saved-badge') as HTMLElement;
+
+  // --- Initialize reactions from localStorage ---
+  function loadReactions() {
+    const reactions = getReactions(sessionId);
+    // Update all reaction buttons on the page
+    document.querySelectorAll('[data-movie-id][data-reaction]').forEach(btn => {
+      const movieId = (btn as HTMLElement).dataset.movieId!;
+      const btnReaction = (btn as HTMLElement).dataset.reaction!;
+      const currentReaction = reactions[movieId] || 'none';
+      const isActive = btnReaction === currentReaction;
+      btn.classList.toggle('active', isActive);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(isActive));
+    });
+
+    // Update card/list item states
+    document.querySelectorAll('.card[data-movie-id], .list-item[data-movie-id]').forEach(el => {
+      const movieId = (el as HTMLElement).dataset.movieId!;
+      const reaction = reactions[movieId] || 'none';
+      (el as HTMLElement).dataset.reaction = reaction;
+      // Remove old reaction classes
+      el.classList.remove('card--yes', 'card--maybe', 'card--no', 'list-item--yes', 'list-item--maybe', 'list-item--no');
+      if (reaction !== 'none') {
+        const prefix = el.classList.contains('card') ? 'card' : 'list-item';
+        el.classList.add(`${prefix}--${reaction}`);
+      }
+    });
+
+    updateBadge();
+  }
+
+  function updateBadge() {
+    const counts = getReactionCounts(sessionId);
+    const total = counts.yes + counts.maybe + counts.no;
+    if (badge) {
+      badge.textContent = String(total);
+      badge.dataset.count = String(total);
+      // Trigger bump animation
+      badge.classList.remove('bump');
+      void badge.offsetWidth; // Force reflow
+      badge.classList.add('bump');
+    }
+  }
+
+  // --- Reaction button handling ---
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.reaction-btn, .rbtn, .detail-rbtn') as HTMLElement | null;
+    if (!btn) return;
+
+    const movieId = btn.dataset.movieId;
+    const reaction = btn.dataset.reaction as MovieReaction;
+    if (!movieId || !reaction) return;
+
+    const reactions = getReactions(sessionId);
+    const current = reactions[movieId] || 'none';
+
+    // Toggle: if same reaction, clear it; otherwise set new
+    const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
+    setReaction(sessionId, movieId, newReaction);
+
+    // Immediate visual feedback before full DOM sync
+    const card = document.querySelector(`.card[data-movie-id="${movieId}"]`) as HTMLElement;
+    if (card) {
+      card.classList.remove('card--yes', 'card--maybe', 'card--no');
+      if (newReaction !== 'none') card.classList.add(`card--${newReaction}`);
+    }
+
+    // Update detail drawer buttons immediately
+    document.querySelectorAll(`#detail-reactions .detail-rbtn[data-movie-id="${movieId}"]`).forEach(b => {
+      const r = (b as HTMLElement).dataset.reaction;
+      b.classList.toggle('active', r === newReaction);
+    });
+
+    loadReactions();
+  });
+
+  // Handle reactions from SingleCardView drawer
+  document.addEventListener('single-card-reaction', ((e: CustomEvent) => {
+    const { movieId, reaction } = e.detail;
+    if (movieId) {
+      setReaction(sessionId, movieId, reaction as MovieReaction);
+      loadReactions();
+    }
+  }) as EventListener);
+
+  // --- View toggle ---
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = (btn as HTMLElement).dataset.view as 'list' | 'card' | 'single';
+      if (view === currentView) return;
+      currentView = view;
+
+      document.querySelectorAll('.view-btn').forEach(b => {
+        b.classList.toggle('active', (b as HTMLElement).dataset.view === view);
+        (b as HTMLElement).setAttribute('aria-checked', String((b as HTMLElement).dataset.view === view));
+      });
+
+      listView.style.display = view === 'list' ? '' : 'none';
+      cardView.style.display = view === 'card' ? '' : 'none';
+
+      // Single view: open the Apple-style drawer
+      const ctrl = (window as any).singleCardController;
+      if (view === 'single' && ctrl) {
+        ctrl.open();
+      } else if (ctrl) {
+        ctrl.close();
+      }
+    });
+  });
+
+  // --- Sort ---
+  document.getElementById('sort-select')?.addEventListener('change', (e) => {
+    currentSort = (e.target as HTMLSelectElement).value;
+    const reactions = getReactions(sessionId);
+    const sorted = sortMovies([...allMovies], currentSort, reactions);
+    reorderMovies(sorted);
+  });
+
+  function reorderMovies(sorted: UniqueMovie[]) {
+    // Reorder list view
+    const listItems = listView.querySelectorAll('.list-item');
+    const listMap = new Map<string, HTMLElement>();
+    listItems.forEach(el => {
+      const id = (el as HTMLElement).dataset.movieId!;
+      listMap.set(id, el as HTMLElement);
+    });
+    sorted.forEach(m => {
+      const el = listMap.get(m.id);
+      if (el) listView.appendChild(el);
+    });
+
+    // Reorder card view
+    const cards = cardView.querySelectorAll('.card');
+    const cardMap = new Map<string, HTMLElement>();
+    cards.forEach(el => {
+      const id = (el as HTMLElement).dataset.movieId!;
+      cardMap.set(id, el as HTMLElement);
+    });
+    sorted.forEach(m => {
+      const el = cardMap.get(m.id);
+      if (el) cardView.appendChild(el);
+    });
+  }
+
+  // --- More Info Drawer ---
+  function openMovieDetail(movieId: string, sourceEl?: HTMLElement) {
+    const idx = allMovies.findIndex(m => m.id === movieId);
+    if (idx === -1) return;
+
+    // Use Apple-style drawer for card taps
+    const ctrl = (window as any).singleCardController;
+    if (ctrl) {
+      ctrl.reactions = getReactions(sessionId);
+      ctrl.open(idx, sourceEl);
+    } else {
+      showMovieDetail(idx);
+      (window as any).openDrawer('movie-detail-drawer');
+    }
+  }
+
+  function showMovieDetail(index: number) {
+    currentDetailIndex = index;
+    const um = allMovies[index];
+    if (!um) return;
+
+    const { movie, id } = um;
+    const reactions = getReactions(sessionId);
+    const reaction = reactions[id] || 'none';
+
+    // Update poster
+    const img = document.getElementById('detail-poster-img') as HTMLImageElement;
+    if (img) {
+      img.src = movie.poster_url || '';
+      img.alt = movie.Movie;
+    }
+
+    // Update text
+    const titleEl = document.getElementById('detail-title');
+    if (titleEl) titleEl.textContent = toTitleCase(movie.Movie);
+
+    const metaEl = document.getElementById('detail-meta');
+    if (metaEl) metaEl.textContent = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
+
+    const actorsEl = document.getElementById('detail-actors');
+    if (actorsEl) actorsEl.textContent = movie.actors || '';
+
+    const descEl = document.getElementById('detail-description');
+    if (descEl) descEl.textContent = movie.description || '';
+
+    // Update links
+    const filmUrl = document.getElementById('detail-film-url') as HTMLAnchorElement;
+    if (filmUrl) {
+      filmUrl.href = movie.film_url || '#';
+      filmUrl.style.display = movie.film_url ? '' : 'none';
+    }
+
+    const ticketsUrl = document.getElementById('detail-tickets-url') as HTMLAnchorElement;
+    if (ticketsUrl) {
+      // Use first showtime's ticket URL
+      ticketsUrl.href = um.showtimes[0]?.tickets || '#';
+      ticketsUrl.style.display = um.showtimes[0]?.tickets ? '' : 'none';
+    }
+
+    // Update detail drawer reaction buttons
+    document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(btn => {
+      (btn as HTMLElement).dataset.movieId = id;
+      const btnReaction = (btn as HTMLElement).dataset.reaction;
+      btn.classList.toggle('active', btnReaction === reaction);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(btnReaction === reaction));
+    });
+  }
+
+  // More info click handlers — info button or tapping the item itself
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Skip if clicking a reaction button
+    if (target.closest('.reaction-btn')) return;
+
+    // Info button click
+    const infoBtn = target.closest('[data-action="more-info"]') as HTMLElement | null;
+    if (infoBtn) {
+      const movieId = infoBtn.dataset.movieId;
+      if (movieId) openMovieDetail(movieId);
+      return;
+    }
+
+    // Click on a saved item to open detail
+    const savedItem = target.closest('.saved-item') as HTMLElement | null;
+    if (savedItem && !target.closest('button, a, [data-action]')) {
+      const movieId = savedItem.dataset.movieId;
+      if (movieId) openMovieDetail(movieId);
+      return;
+    }
+
+    // Click on a card or list item body (not on buttons)
+    const item = target.closest('.card, .list-item') as HTMLElement | null;
+    if (item && !target.closest('button, a')) {
+      const movieId = item.dataset.movieId;
+      const sourceCard = item.classList.contains('card') ? item : undefined;
+      if (movieId) openMovieDetail(movieId, sourceCard);
+    }
+  });
+
+  // --- Saved List Drawer ---
+  document.querySelector('[data-action="open-saved"]')?.addEventListener('click', () => {
+    updateSavedListDrawer();
+    (window as any).openDrawer('saved-list-drawer');
+  });
+
+  function updateSavedListDrawer() {
+    const reactions = getReactions(sessionId);
+    const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
+    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
+    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
+    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
+
+    // Update empty state
+    const emptyEl = document.getElementById('saved-empty');
+    if (emptyEl) emptyEl.classList.toggle('hidden', hasAny);
+
+    // Update sections
+    updateSavedSection('saved-yes', yesMovies);
+    updateSavedSection('saved-maybe', maybeMovies);
+    updateSavedSection('saved-no', noMovies);
+
+    // Update actions
+    const actionsEl = document.getElementById('saved-actions');
+    if (actionsEl) actionsEl.classList.toggle('has-items', hasAny);
+
+    // Update share button
+    const shareBtn = document.getElementById('saved-share-btn') as HTMLButtonElement;
+    if (shareBtn) shareBtn.disabled = !hasAny;
+  }
+
+  function updateSavedSection(prefix: string, movies: UniqueMovie[]) {
+    const section = document.getElementById(`${prefix}-section`);
+    const items = document.getElementById(`${prefix}-items`);
+    const count = document.getElementById(`${prefix}-count`);
+
+    if (section) section.classList.toggle('has-items', movies.length > 0);
+    if (count) count.textContent = String(movies.length);
+
+    if (items) {
+      const reactionMap: Record<string, string> = { 'saved-yes': 'yes', 'saved-maybe': 'maybe', 'saved-no': 'no' };
+      const currentReaction = reactionMap[prefix] || 'none';
+
+      items.innerHTML = movies.map(um => {
+        const title = toTitleCase(um.movie.Movie);
+        const meta = [um.movie.director, um.movie.year].filter(Boolean).join(', ');
+        return `
+          <div class="saved-item" data-movie-id="${um.id}">
+            <div class="saved-item-info">
+              <p class="saved-item-title">${title}</p>
+              <p class="saved-item-meta">${meta}</p>
+            </div>
+            <div class="saved-item-toggle">
+              <button class="saved-toggle-btn saved-toggle-btn--yes ${currentReaction === 'yes' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="yes" title="Yes">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="saved-toggle-btn saved-toggle-btn--maybe ${currentReaction === 'maybe' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="maybe" title="Maybe">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <button class="saved-toggle-btn saved-toggle-btn--no ${currentReaction === 'no' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="no" title="No">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // Saved list toggle handler (Yes / Maybe / Remove)
+  document.addEventListener('click', (e) => {
+    const toggleBtn = (e.target as HTMLElement).closest('[data-action="set-reaction"]') as HTMLElement | null;
+    if (!toggleBtn) return;
+
+    const movieId = toggleBtn.dataset.movieId;
+    const newReaction = toggleBtn.dataset.setReaction as MovieReaction | 'none';
+    if (!movieId) return;
+
+    setReaction(sessionId, movieId, newReaction as MovieReaction);
+    loadReactions();
+    updateSavedListDrawer();
+  });
+
+  // --- Share ---
+  document.getElementById('saved-share-btn')?.addEventListener('click', async () => {
+    const reactions = getReactions(sessionId);
+    const encoded = encodeReactions(reactions);
+    const userId = getUserId();
+    const url = `${window.location.origin}/session/${sessionId}/list/saved?u=${userId}&r=${encoded}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'My Movie List', url });
+      } catch {
+        // User cancelled or share failed
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('saved-share-btn');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.textContent = 'Link copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      }
+    }
+  });
+
+  // --- Initialize ---
+  loadReactions();
+</script>
+
+<style>
+  .session-list-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 12px;
+  }
+
+  .page-header {
+    padding: 16px 4px 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  .page-movie-count {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 4px 0 0 0;
+  }
+
+  /* List view */
+  .movie-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Card grid */
+  .movie-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .movie-card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Spacer for fixed bottom toolbar */
+  .bottom-spacer {
+    height: 80px;
+  }
+</style>

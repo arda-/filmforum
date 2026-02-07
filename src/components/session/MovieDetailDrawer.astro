@@ -1,0 +1,220 @@
+---
+/**
+ * Movie detail content for use inside a Drawer.
+ * Shows full movie info, reaction buttons, and navigation.
+ * Content is populated dynamically via JS.
+ */
+import Drawer from '../Drawer.astro';
+---
+
+<Drawer id="movie-detail-drawer" maxHeight="70vh">
+  <div class="movie-detail" id="movie-detail-content">
+    <div class="detail-poster" id="detail-poster">
+      <img id="detail-poster-img" src="" alt="" />
+      <span class="detail-poster-placeholder">No Image Available</span>
+    </div>
+
+    <h2 class="detail-title" id="detail-title"></h2>
+    <p class="detail-meta" id="detail-meta"></p>
+    <p class="detail-actors" id="detail-actors"></p>
+
+    <p class="detail-description" id="detail-description"></p>
+    <p class="detail-citation">— Film Forum</p>
+
+    <div class="detail-reactions" id="detail-reactions">
+      <button class="detail-rbtn detail-rbtn--yes" data-reaction="yes" data-movie-id="" aria-label="Yes" title="Yes">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Yes</span>
+      </button>
+      <button class="detail-rbtn detail-rbtn--maybe" data-reaction="maybe" data-movie-id="" aria-label="Maybe" title="Maybe">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Maybe</span>
+      </button>
+      <button class="detail-rbtn detail-rbtn--no" data-reaction="no" data-movie-id="" aria-label="No" title="No">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>No</span>
+      </button>
+    </div>
+  </div>
+</Drawer>
+
+<style>
+  /* Ensure detail drawer stacks above saved list drawer */
+  :global(#movie-detail-drawer) {
+    z-index: 1010;
+  }
+
+  .movie-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .detail-poster {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+  }
+
+  .detail-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-poster img[src=""],
+  .detail-poster img:not([src]) {
+    display: none;
+  }
+
+  .detail-poster img[src=""] ~ .detail-poster-placeholder,
+  .detail-poster img:not([src]) ~ .detail-poster-placeholder {
+    display: block;
+  }
+
+  .detail-poster-placeholder {
+    color: var(--text-tertiary);
+    font-size: 14px;
+    display: none;
+  }
+
+  .detail-poster:has(img[src=""]) .detail-poster-placeholder,
+  .detail-poster:has(img:not([src])) .detail-poster-placeholder {
+    display: block;
+  }
+
+  .detail-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .detail-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .detail-actors {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .detail-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 8px 0 0 0;
+    padding-left: 1.5em;
+    position: relative;
+    font-style: italic;
+  }
+
+  .detail-description::before {
+    content: '\201C';
+    position: absolute;
+    left: 0;
+    top: -0.1em;
+    font-size: 2em;
+    font-family: Georgia, serif;
+    color: var(--accent);
+    line-height: 1;
+    font-style: normal;
+  }
+
+  .detail-description:empty {
+    display: none;
+  }
+
+  .detail-description:empty + .detail-citation {
+    display: none;
+  }
+
+  .detail-citation {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin: -2px 0 4px 0;
+    font-style: italic;
+  }
+
+  /* --- Reaction buttons --- */
+  .detail-reactions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .detail-rbtn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 8px;
+    border: 1.5px solid;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+
+  .detail-rbtn:active > svg,
+  .detail-rbtn:active > span {
+    transform: scale(0.85);
+    transition: transform 0.08s ease;
+  }
+
+  .detail-rbtn--yes {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
+  }
+  .detail-rbtn--yes:hover { background: rgba(34, 197, 94, 0.1); }
+  .detail-rbtn--yes.active {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+    border-color: var(--reaction-yes, #22c55e);
+  }
+
+  .detail-rbtn--maybe {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+  .detail-rbtn--maybe:hover { background: rgba(245, 158, 11, 0.1); }
+  .detail-rbtn--maybe.active {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+
+  .detail-rbtn--no {
+    color: var(--reaction-no, #ef4444);
+    border-color: var(--reaction-no, #ef4444);
+  }
+  .detail-rbtn--no:hover { background: rgba(239, 68, 68, 0.1); }
+  .detail-rbtn--no.active {
+    background: var(--reaction-no, #ef4444);
+    color: #fff;
+    border-color: var(--reaction-no, #ef4444);
+  }
+
+  @media (max-width: 480px) {
+    .detail-title {
+      font-size: 1.25rem;
+    }
+  }
+</style>

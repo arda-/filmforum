@@ -1,0 +1,316 @@
+---
+/**
+ * Saved list drawer showing the user's Yes and Maybe selections.
+ * Opens via bottom toolbar "Review Saved" button.
+ */
+import Drawer from '../Drawer.astro';
+
+interface Props {
+  sessionId: string;
+}
+
+const { sessionId } = Astro.props;
+---
+
+<Drawer id="saved-list-drawer" title="Your Saved Movies" maxHeight="85vh">
+  <div class="saved-list" data-session-id={sessionId}>
+    <div class="saved-section" id="saved-yes-section">
+      <h3 class="saved-section-title">
+        <span class="saved-dot saved-dot--yes"></span>
+        Yes
+        <span class="saved-section-count" id="saved-yes-count">0</span>
+      </h3>
+      <div class="saved-items" id="saved-yes-items">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+    <div class="saved-section" id="saved-maybe-section">
+      <h3 class="saved-section-title">
+        <span class="saved-dot saved-dot--maybe"></span>
+        Maybe
+        <span class="saved-section-count" id="saved-maybe-count">0</span>
+      </h3>
+      <div class="saved-items" id="saved-maybe-items">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+    <div class="saved-section" id="saved-no-section">
+      <h3 class="saved-section-title">
+        <span class="saved-dot saved-dot--no"></span>
+        No
+        <span class="saved-section-count" id="saved-no-count">0</span>
+      </h3>
+      <div class="saved-items" id="saved-no-items">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+    <div class="saved-empty" id="saved-empty">
+      <div class="saved-empty-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <path d="M10 6a4 4 0 00-4 4v24l14-8 14 8V10a4 4 0 00-4-4H10z" stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+      <p class="saved-empty-title">No movies saved yet</p>
+      <p class="saved-empty-hint">Tap Yes, Maybe, or No on any movie to start building your list</p>
+    </div>
+
+    <div class="saved-actions" id="saved-actions">
+      <a class="saved-action-btn saved-action-btn--primary" id="saved-showtimes-btn" href={`/session/${sessionId}/showtimes`}>
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M9 5v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Find Showtimes
+      </a>
+      <div class="saved-actions-row">
+        <button class="saved-action-btn saved-action-btn--secondary" id="saved-share-btn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Share
+        </button>
+        <a class="saved-action-btn saved-action-btn--secondary" id="saved-compare-btn" href={`/session/${sessionId}/compare/placeholder`}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 2v12M10 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M2 6h4M10 6h4M2 10h4M10 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Compare
+        </a>
+      </div>
+    </div>
+  </div>
+</Drawer>
+
+<style>
+  .saved-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .saved-section {
+    display: none;
+  }
+
+  .saved-section.has-items {
+    display: block;
+  }
+
+  .saved-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+  }
+
+  .saved-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .saved-dot--yes {
+    background: var(--reaction-yes, #22c55e);
+  }
+
+  .saved-dot--maybe {
+    background: var(--reaction-maybe, #f59e0b);
+  }
+
+  .saved-dot--no {
+    background: var(--reaction-no, #ef4444);
+  }
+
+  .saved-section-count {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+  }
+
+  .saved-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Saved item (created via JS) */
+  .saved-list :global(.saved-item) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    transition: background-color 0.15s;
+  }
+
+  .saved-list :global(.saved-item:hover) {
+    background: var(--bg-movie-hover);
+  }
+
+  .saved-list :global(.saved-item-info) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .saved-list :global(.saved-item-title) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .saved-list :global(.saved-item-meta) {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 2px 0 0 0;
+  }
+
+  .saved-list :global(.saved-item-toggle) {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .saved-list :global(.saved-toggle-btn) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .saved-list :global(.saved-toggle-btn--yes) {
+    color: var(--reaction-yes, #22c55e);
+    border-color: var(--reaction-yes, #22c55e);
+  }
+  .saved-list :global(.saved-toggle-btn--yes.active) {
+    background: var(--reaction-yes, #22c55e);
+    color: #fff;
+  }
+
+  .saved-list :global(.saved-toggle-btn--maybe) {
+    color: var(--reaction-maybe, #f59e0b);
+    border-color: var(--reaction-maybe, #f59e0b);
+  }
+  .saved-list :global(.saved-toggle-btn--maybe.active) {
+    background: var(--reaction-maybe, #f59e0b);
+    color: #fff;
+  }
+
+  .saved-list :global(.saved-toggle-btn--no) {
+    color: var(--reaction-no, #ef4444);
+    border-color: var(--reaction-no, #ef4444);
+  }
+  .saved-list :global(.saved-toggle-btn--no:hover) {
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .saved-list :global(.saved-toggle-btn--no.active) {
+    background: var(--reaction-no, #ef4444);
+    color: #fff;
+  }
+
+  /* Empty state */
+  .saved-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 8px;
+  }
+
+  .saved-empty.hidden {
+    display: none;
+  }
+
+  .saved-empty-icon {
+    color: var(--text-tertiary);
+    opacity: 0.5;
+    margin-bottom: 4px;
+  }
+
+  .saved-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .saved-empty-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 260px;
+  }
+
+  /* Actions footer */
+  .saved-actions {
+    display: none;
+    padding-top: 12px;
+    border-top: 1px solid var(--bg-movie);
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .saved-actions.has-items {
+    display: flex;
+  }
+
+  .saved-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .saved-action-btn--primary {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .saved-action-btn--primary:hover {
+    filter: brightness(1.1);
+  }
+
+  .saved-actions-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .saved-action-btn--secondary {
+    flex: 1;
+    background: var(--bg-movie);
+    color: var(--text-secondary);
+  }
+
+  .saved-action-btn--secondary:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+</style>
