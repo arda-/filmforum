@@ -1,25 +1,24 @@
 ---
 /**
- * Compare view: /session/[id]/compare/[listA]/[listB]
+ * Compare view: /s/[id]/compare/[listA]/[listB]
  * Shows overlap, possible overlap, disagreements, etc. between two lists.
  */
 import Layout from '../../../../layouts/Layout.astro';
 import type { Movie } from '../../../../utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
 import {
-  getAllSessionIds,
-  getSessionConfig,
   deduplicateMovies,
   sortMovies,
 } from '../../../../utils/sessionUtils';
 
 export function getStaticPaths() {
-  return getAllSessionIds().map(id => ({
+  return getAllSeriesIds().map(id => ({
     params: { id, lists: 'placeholder' },
   }));
 }
 
 const { id } = Astro.params;
-const config = getSessionConfig(id!);
+const config = getSeriesConfig(id!);
 if (!config) return Astro.redirect('/');
 
 // Load movie data
@@ -41,7 +40,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 <Layout title={`Compare Lists — ${config.name}`}>
   <main class="compare-page" data-session-id={id}>
     <header class="page-header">
-      <a href={`/session/${id}/list`} class="back-link">
+      <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>

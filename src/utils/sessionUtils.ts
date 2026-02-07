@@ -1,6 +1,5 @@
 import type { Movie } from './movieUtils';
-import type { UniqueMovie, SessionConfig } from '../types/session';
-import { SESSIONS } from '../types/session';
+import type { UniqueMovie } from '../types/session';
 
 /**
  * Generate a stable ID from a movie title.
@@ -11,20 +10,6 @@ export function movieId(title: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-}
-
-/**
- * Look up a session config by ID. Returns undefined if not found.
- */
-export function getSessionConfig(id: string): SessionConfig | undefined {
-  return SESSIONS[id];
-}
-
-/**
- * Get all known session IDs (for getStaticPaths).
- */
-export function getAllSessionIds(): string[] {
-  return Object.keys(SESSIONS);
 }
 
 /**
