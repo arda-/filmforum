@@ -98,6 +98,20 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
+  // Safety check: If movie data isn't loaded, show error
+  if (!allMovies || !Array.isArray(allMovies) || allMovies.length === 0) {
+    console.error('FATAL: Movie data not loaded!', {
+      movieData: (window as any).__movieData,
+      type: typeof (window as any).__movieData,
+      isArray: Array.isArray((window as any).__movieData),
+    });
+    document.getElementById('shared-empty')!.innerHTML = `
+      <p class="empty-title">Error loading movie data</p>
+      <p class="empty-hint">Please refresh the page. If the problem persists, the deployment may have an issue.</p>
+    `;
+    throw new Error('Movie data not loaded');
+  }
+
   // Parse userId and reactions from URL query params
   const urlParams = new URLSearchParams(window.location.search);
   const friendUserId = urlParams.get('u') || 'unknown';
