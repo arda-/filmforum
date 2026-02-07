@@ -145,6 +145,8 @@ const series = getSeriesConfig(id)!;
   let movieShowtimeCounts: Record<string, number> = {};
   let allMovies: Movie[] = [];
   let allMovieDates: string[] = [];
+  // Lookup map keyed by composite key for O(1) movie retrieval from tile elements
+  let movieByKey: Map<string, Movie> = new Map();
 
   // Format day label like "Mon 2/10"
   function formatDayLabel(dateStr: string): string {
@@ -609,6 +611,7 @@ const series = getSeriesConfig(id)!;
         const date = movie.Datetime.split('T')[0];
         if (!moviesByDate[date]) moviesByDate[date] = [];
         moviesByDate[date].push(movie);
+        movieByKey.set(`${movie.Datetime}_${movie.Movie}`, movie);
       });
 
       // Get unique movie dates for calendar generation
@@ -845,22 +848,27 @@ const series = getSeriesConfig(id)!;
       if (radio) radio.click();
     }
 
+    // Helper to get a Movie object from a tile element via lookup map
+    function getMovieFromEl(el: Element): Movie | undefined {
+      return movieByKey.get((el as HTMLElement).dataset.movieKey || '');
+    }
+
     document.querySelector('.calendar')?.addEventListener('click', (e) => {
-      const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+      const movieEl = (e.target as HTMLElement).closest('[data-movie-key]');
       if (movieEl) {
-        const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
-        openMovieModal(movie);
+        const movie = getMovieFromEl(movieEl);
+        if (movie) openMovieModal(movie);
       }
     });
 
     // Keyboard accessibility
     document.querySelector('.calendar')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+        const movieEl = (e.target as HTMLElement).closest('[data-movie-key]');
         if (movieEl) {
           e.preventDefault();
-          const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
-          openMovieModal(movie);
+          const movie = getMovieFromEl(movieEl);
+          if (movie) openMovieModal(movie);
         }
       }
     });
@@ -869,7 +877,7 @@ const series = getSeriesConfig(id)!;
     let currentHighlightedMovie: string | null = null;
 
     document.querySelector('.calendar')?.addEventListener('mouseover', (e) => {
-      const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+      const movieEl = (e.target as HTMLElement).closest('[data-movie-title]');
       if (!movieEl) return;
 
       const highlightToggleEl = document.getElementById('highlight-alternate-toggle');
@@ -878,20 +886,19 @@ const series = getSeriesConfig(id)!;
         : (highlightToggleEl?.querySelector('input') as HTMLInputElement)?.checked;
       if (!highlightEnabled) return;
 
-      const movie = JSON.parse((movieEl as HTMLElement).dataset.movie || '{}');
+      const movieTitle = (movieEl as HTMLElement).dataset.movieTitle!;
 
       // Count visible showtimes for this movie (not total, since some may be filtered)
-      const visibleShowtimes = document.querySelectorAll('[data-movie]');
+      const visibleShowtimes = document.querySelectorAll('[data-movie-title]');
       let visibleCount = 0;
       visibleShowtimes.forEach(el => {
-        const m = JSON.parse((el as HTMLElement).dataset.movie || '{}');
-        if (m.Movie === movie.Movie) visibleCount++;
+        if ((el as HTMLElement).dataset.movieTitle === movieTitle) visibleCount++;
       });
       if (visibleCount <= 1) return;
 
       // Avoid re-processing if already highlighting this movie
-      if (currentHighlightedMovie === movie.Movie) return;
-      currentHighlightedMovie = movie.Movie;
+      if (currentHighlightedMovie === movieTitle) return;
+      currentHighlightedMovie = movieTitle;
 
       // Remove existing highlights first
       document.querySelectorAll('.alternate-highlight').forEach(el => {
@@ -899,18 +906,17 @@ const series = getSeriesConfig(id)!;
       });
 
       // Highlight all movies with the same title
-      document.querySelectorAll('[data-movie]').forEach(el => {
-        const otherMovie = JSON.parse((el as HTMLElement).dataset.movie || '{}');
-        if (otherMovie.Movie === movie.Movie) {
+      document.querySelectorAll('[data-movie-title]').forEach(el => {
+        if ((el as HTMLElement).dataset.movieTitle === movieTitle) {
           el.classList.add('alternate-highlight');
         }
       });
     });
 
     document.querySelector('.calendar')?.addEventListener('mouseout', (e) => {
-      const movieEl = (e.target as HTMLElement).closest('[data-movie]');
+      const movieEl = (e.target as HTMLElement).closest('[data-movie-title]');
       const relatedTarget = (e as MouseEvent).relatedTarget as HTMLElement | null;
-      const relatedMovieEl = relatedTarget?.closest('[data-movie]');
+      const relatedMovieEl = relatedTarget?.closest('[data-movie-title]');
 
       // Only remove highlights if leaving the movie tile entirely
       if (movieEl && (!relatedMovieEl || relatedMovieEl !== movieEl)) {

@@ -1,6 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
+import { toTitleCase } from '../utils/movieUtils';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const activeSeries = getActiveSeries();
 
@@ -19,13 +22,10 @@ interface MovieEntry {
 // Gather upcoming films from all active series
 let showingToday: { film: MovieEntry; seriesId: string }[] = [];
 
-const fs = await import('node:fs');
-const path = await import('node:path');
-
 for (const series of activeSeries) {
-  const dataPath = path.default.join(process.cwd(), 'public', series.dataFile);
+  const dataPath = path.join(process.cwd(), 'public', series.dataFile);
   try {
-    const movieData: MovieEntry[] = JSON.parse(fs.default.readFileSync(dataPath, 'utf-8'));
+    const movieData: MovieEntry[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
     // Get today's date (build time), but since we're building statically,
     // use the series start date to show "opening day" films as a reasonable default
@@ -46,14 +46,13 @@ for (const series of activeSeries) {
         showingToday.push({ film: m, seriesId: series.id });
       }
     }
-  } catch {
-    // Skip if data file missing
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== 'ENOENT') {
+      console.error(`Error loading series data for ${series.id}:`, e);
+    }
   }
 }
 
-function toTitleCase(str: string): string {
-  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-}
 ---
 
 <Layout title="FilmForum - Series Explorer">

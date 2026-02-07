@@ -5,21 +5,20 @@
  */
 import Layout from '../../../../layouts/Layout.astro';
 import type { Movie } from '../../../../utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
 import {
-  getAllSessionIds,
-  getSessionConfig,
   deduplicateMovies,
   sortMovies,
 } from '../../../../utils/sessionUtils';
 
 export function getStaticPaths() {
-  return getAllSessionIds().map(id => ({
+  return getAllSeriesIds().map(id => ({
     params: { id, lists: 'placeholder' },
   }));
 }
 
 const { id } = Astro.params;
-const config = getSessionConfig(id!);
+const config = getSeriesConfig(id!);
 if (!config) return Astro.redirect('/');
 
 // Load movie data

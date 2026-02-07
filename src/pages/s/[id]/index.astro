@@ -1,19 +1,20 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
 }
 
 const { id } = Astro.params;
-const series = getSeriesConfig(id)!;
+const series = getSeriesConfig(id);
+if (!series) return Astro.redirect('/');
 
 // Load movie data at build time to extract series stats
-const fs = await import('node:fs');
-const path = await import('node:path');
-const dataPath = path.default.join(process.cwd(), 'public', series.dataFile);
-const movieData = JSON.parse(fs.default.readFileSync(dataPath, 'utf-8'));
+const dataPath = path.join(process.cwd(), 'public', series.dataFile);
+const movieData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
 // Deduplicate movies by title
 const filmMap = new Map();

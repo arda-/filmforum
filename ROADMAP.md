@@ -10,7 +10,7 @@
 
 ## 1. Session List Page
 
-Browsable movie list at `/session/[id]/list` with reactions (Yes/Maybe/No), saved list drawer, shareable URLs, and 2-person compare view.
+Browsable movie list at `/s/[id]/list` with reactions (Yes/Maybe/No), saved list drawer, shareable URLs, and 2-person compare view.
 
 - Plan: `plans/session-list-page.md`
 - Workplan: `workplans/session-list-page.md`
@@ -19,7 +19,7 @@ Browsable movie list at `/session/[id]/list` with reactions (Yes/Maybe/No), save
 
 ## 2. Route Migration
 
-Move schedule from `/` to `/series/[slug]/schedule`. Extract inline script modules, reorganize components, create landing page at `/`.
+Move schedule from `/` to `/s/[id]/calendar`. Extract inline script modules, reorganize components, create landing page at `/`.
 
 - Plan: `plans/migration-plan.md`
 - Workplan: `workplans/route-migration.md`

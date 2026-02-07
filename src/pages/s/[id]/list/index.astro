@@ -9,19 +9,18 @@ import SavedListDrawer from '../../../../components/session/SavedListDrawer.astr
 import SingleCardView from '../../../../components/session/SingleCardView.astro';
 import type { Movie } from '../../../../utils/movieUtils';
 import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
 import {
-  getAllSessionIds,
-  getSessionConfig,
   deduplicateMovies,
   sortMovies,
 } from '../../../../utils/sessionUtils';
 
 export function getStaticPaths() {
-  return getAllSessionIds().map(id => ({ params: { id } }));
+  return getAllSeriesIds().map(id => ({ params: { id } }));
 }
 
 const { id } = Astro.params;
-const config = getSessionConfig(id!);
+const config = getSeriesConfig(id!);
 if (!config) return Astro.redirect('/');
 
 // Load movie data at build time from public directory
