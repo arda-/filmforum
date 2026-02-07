@@ -1,0 +1,323 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+
+export function getStaticPaths() {
+  return getAllSeriesIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const series = getSeriesConfig(id)!;
+
+// Load movie data at build time to extract series stats
+const dataUrl = new URL(series.dataFile, Astro.url.origin);
+const moviesRaw = await fetch(`http://localhost:4321${series.dataFile}`)
+  .catch(() => null);
+
+// Read the data file directly from the filesystem at build time
+const fs = await import('node:fs');
+const path = await import('node:path');
+const dataPath = path.default.join(process.cwd(), 'public', series.dataFile);
+const movieData = JSON.parse(fs.default.readFileSync(dataPath, 'utf-8'));
+
+// Deduplicate movies by title
+const filmMap = new Map();
+for (const m of movieData) {
+  if (!filmMap.has(m.Movie)) {
+    filmMap.set(m.Movie, { ...m, showtimeCount: 1 });
+  } else {
+    filmMap.get(m.Movie).showtimeCount++;
+  }
+}
+const films = Array.from(filmMap.values());
+const totalShowtimes = movieData.length;
+
+// Date range
+const dates = movieData.map((m: any) => m.Datetime.split('T')[0]).sort();
+const firstDate = new Date(dates[0] + 'T12:00:00');
+const lastDate = new Date(dates[dates.length - 1] + 'T12:00:00');
+---
+
+<Layout title={`${series.name}: ${series.subtitle}`}>
+  <main class="series-landing">
+    <header class="series-header">
+      <a href="/" class="back-link">&larr; FilmForum</a>
+      <h1 class="series-title">{series.name}:</h1>
+      <h2 class="series-subtitle">{series.subtitle}</h2>
+      <p class="series-meta">
+        <a href={series.seriesUrl} class="venue-link">{series.venueName}</a> &middot; {series.dateRange}
+      </p>
+    </header>
+
+    <div class="series-stats">
+      <span class="stat">{films.length} films</span>
+      <span class="stat-sep">&middot;</span>
+      <span class="stat">{totalShowtimes} showtimes</span>
+    </div>
+
+    <a href={`/s/${id}/calendar`} class="calendar-link">
+      <span class="calendar-link-label">View Schedule</span>
+      <span class="calendar-link-arrow">&rarr;</span>
+    </a>
+
+    <section class="films-section">
+      <h3 class="section-heading">All Films</h3>
+      <div class="film-grid">
+        {films
+          .sort((a: any, b: any) => a.Movie.localeCompare(b.Movie))
+          .map((film: any) => (
+            <div class="film-card">
+              {film.poster_url ? (
+                <img src={film.poster_url} alt={film.Movie} class="film-poster" loading="lazy" />
+              ) : (
+                <div class="film-poster-placeholder" />
+              )}
+              <div class="progressive-blur">
+                <div class="blur-layer layer-1"></div>
+                <div class="blur-layer layer-2"></div>
+                <div class="blur-layer layer-3"></div>
+                <div class="blur-layer layer-4"></div>
+                <div class="blur-layer layer-5"></div>
+                <div class="blur-layer layer-6"></div>
+                <div class="blur-layer layer-7"></div>
+              </div>
+              <div class="film-info">
+                <span class="film-title">{film.Movie.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>
+                <span class="film-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .series-landing {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .series-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .series-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    margin-bottom: 0;
+  }
+
+  .series-subtitle {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+
+  .series-meta {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  .venue-link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .series-stats {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+  }
+
+  .calendar-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 320px;
+    margin: 0 auto 40px;
+    padding: 14px 24px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    transition: opacity 0.15s;
+  }
+
+  .calendar-link:hover {
+    opacity: 0.85;
+  }
+
+  .calendar-link-arrow {
+    font-size: 1.2em;
+  }
+
+  .section-heading {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .film-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .film-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+  }
+
+  .film-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-movie);
+  }
+
+  .film-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .film-poster-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-movie-hover);
+  }
+
+  /* Progressive blur layers */
+  .progressive-blur {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .blur-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+  }
+
+  .layer-1 {
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
+  }
+  .layer-2 {
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
+  }
+  .layer-3 {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
+    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
+  }
+  .layer-4 {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
+    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
+  }
+  .layer-5 {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
+  }
+  .layer-6 {
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
+  }
+  .layer-7 {
+    backdrop-filter: blur(64px);
+    -webkit-backdrop-filter: blur(64px);
+    mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
+  }
+
+  .film-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .film-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    line-height: 1.2;
+  }
+
+  .film-meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+</style>
