@@ -3,6 +3,57 @@ import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
 
 const activeSeries = getActiveSeries();
+
+// Load movie data at build time to get "showing today" films
+interface MovieEntry {
+  Movie: string;
+  Time: string;
+  Datetime: string;
+  director?: string;
+  year?: string;
+  poster_url?: string;
+  runtime?: string;
+  actors?: string;
+}
+
+// Gather upcoming films from all active series
+let showingToday: { film: MovieEntry; seriesId: string }[] = [];
+
+const fs = await import('node:fs');
+const path = await import('node:path');
+
+for (const series of activeSeries) {
+  const dataPath = path.default.join(process.cwd(), 'public', series.dataFile);
+  try {
+    const movieData: MovieEntry[] = JSON.parse(fs.default.readFileSync(dataPath, 'utf-8'));
+
+    // Get today's date (build time), but since we're building statically,
+    // use the series start date to show "opening day" films as a reasonable default
+    // In production with SSR this would be dynamic
+    const allDates = [...new Set(movieData.map(m => m.Datetime.split('T')[0]))].sort();
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Find the nearest date with showings (today or next upcoming)
+    let targetDate = allDates.find(d => d >= todayStr) || allDates[0];
+
+    const todayMovies = movieData.filter(m => m.Datetime.split('T')[0] === targetDate);
+
+    // Deduplicate by title (only show each film once)
+    const seen = new Set<string>();
+    for (const m of todayMovies) {
+      if (!seen.has(m.Movie) && m.poster_url) {
+        seen.add(m.Movie);
+        showingToday.push({ film: m, seriesId: series.id });
+      }
+    }
+  } catch {
+    // Skip if data file missing
+  }
+}
+
+function toTitleCase(str: string): string {
+  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
 ---
 
 <Layout title="FilmForum - Series Explorer">
@@ -15,7 +66,7 @@ const activeSeries = getActiveSeries();
 
     {activeSeries.length > 0 && (
       <section class="series-list">
-        <h2 class="series-heading">Currently Running</h2>
+        <h2 class="section-heading">Currently Running</h2>
         <ul class="series-cards">
           {activeSeries.map(series => (
             <li>
@@ -29,12 +80,38 @@ const activeSeries = getActiveSeries();
         </ul>
       </section>
     )}
+
+    {showingToday.length > 0 && (
+      <section class="today-section">
+        <h2 class="section-heading">Showing Today</h2>
+        <div class="today-grid">
+          {showingToday.map(({ film, seriesId }) => (
+            <a href={`/s/${seriesId}/calendar`} class="poster-card">
+              <img src={film.poster_url} alt={film.Movie} class="poster-image" loading="lazy" />
+              <div class="progressive-blur">
+                <div class="blur-layer layer-1"></div>
+                <div class="blur-layer layer-2"></div>
+                <div class="blur-layer layer-3"></div>
+                <div class="blur-layer layer-4"></div>
+                <div class="blur-layer layer-5"></div>
+                <div class="blur-layer layer-6"></div>
+                <div class="blur-layer layer-7"></div>
+              </div>
+              <div class="poster-info">
+                <span class="poster-title">{toTitleCase(film.Movie)}</span>
+                <span class="poster-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
   </main>
 </Layout>
 
 <style>
   .landing {
-    max-width: 540px;
+    max-width: 720px;
     margin: 0 auto;
     padding: 40px 20px;
     text-align: center;
@@ -63,7 +140,7 @@ const activeSeries = getActiveSeries();
     text-underline-offset: 2px;
   }
 
-  .series-heading {
+  .section-heading {
     font-family: 'Barlow Semi Condensed', sans-serif;
     font-weight: 500;
     font-size: 0.85rem;
@@ -73,11 +150,13 @@ const activeSeries = getActiveSeries();
     margin-bottom: 16px;
   }
 
+  /* Series cards */
   .series-cards {
     list-style: none;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-bottom: 48px;
   }
 
   .series-card {
@@ -115,5 +194,136 @@ const activeSeries = getActiveSeries();
     font-size: 0.8rem;
     color: var(--text-tertiary);
     margin-top: 4px;
+  }
+
+  /* Today gallery */
+  .today-section {
+    margin-top: 0;
+  }
+
+  .today-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    text-align: left;
+  }
+
+  @media (min-width: 480px) {
+    .today-grid {
+      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      gap: 14px;
+    }
+  }
+
+  .poster-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-movie);
+    text-decoration: none;
+    display: block;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .poster-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  .poster-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Progressive blur layers */
+  .progressive-blur {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .blur-layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+  }
+
+  .layer-1 {
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 65%, black 80%, black 100%);
+  }
+  .layer-2 {
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 65%, black 85%, transparent 100%);
+  }
+  .layer-3 {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
+    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 50%, black 70%, transparent 90%);
+  }
+  .layer-4 {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
+    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 35%, black 55%, transparent 75%);
+  }
+  .layer-5 {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, transparent 5%, black 20%, black 40%, transparent 60%);
+  }
+  .layer-6 {
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 5%, black 25%, transparent 45%);
+  }
+  .layer-7 {
+    backdrop-filter: blur(64px);
+    -webkit-backdrop-filter: blur(64px);
+    mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 10%, transparent 30%);
+  }
+
+  .poster-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .poster-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    line-height: 1.2;
+  }
+
+  .poster-meta {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 </style>
