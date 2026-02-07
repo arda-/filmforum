@@ -179,6 +179,7 @@ const movies = [
   const closeBtn = document.getElementById('expansion-close');
   const pageWrapper = document.getElementById('page-wrapper');
   const heroEl = document.getElementById('expansion-hero');
+  const heroContent = heroEl.querySelector('.expansion-hero-content');
 
   let isAnimating = false;
   let sourceEl = null;
@@ -220,11 +221,13 @@ const movies = [
     const first = sourceRect;
     el.style.opacity = '0';
 
-    // Show overlay — body in layout but invisible
+    // Show overlay — body and hero text invisible during FLIP
     overlay.dataset.open = 'true';
     document.body.style.overflow = 'hidden';
     scroll.style.overflowY = 'hidden';
     body.style.opacity = '0';
+    heroContent.style.opacity = '0';
+    closeBtn.style.opacity = '0';
 
     // Scale page down (Apple effect)
     setPageOrigin();
@@ -267,6 +270,12 @@ const movies = [
     body.style.transition = `opacity ${Math.round(DURATION * 0.5)}ms ease-out ${Math.round(DURATION * 0.4)}ms`;
     body.style.opacity = '1';
 
+    // Hero text fades in as card settles (avoids font-size mismatch click)
+    heroContent.style.transition = `opacity ${Math.round(DURATION * 0.4)}ms ease-out ${Math.round(DURATION * 0.5)}ms`;
+    heroContent.style.opacity = '1';
+    closeBtn.style.transition = `opacity ${Math.round(DURATION * 0.35)}ms ease-out ${Math.round(DURATION * 0.6)}ms`;
+    closeBtn.style.opacity = '1';
+
     // Backdrop
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
@@ -280,6 +289,10 @@ const movies = [
       card.style.transformOrigin = '';
       body.style.transition = '';
       body.style.opacity = '';
+      heroContent.style.transition = '';
+      heroContent.style.opacity = '';
+      closeBtn.style.transition = '';
+      closeBtn.style.opacity = '';
       scroll.style.overflowY = '';
       pageWrapper.style.transition = '';
       isAnimating = false;
@@ -329,9 +342,13 @@ const movies = [
     card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
     card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
 
-    // Body fades out quickly
+    // Body and hero text fade out quickly
     body.style.transition = `opacity ${Math.round(DURATION * 0.35)}ms ease-in`;
     body.style.opacity = '0';
+    heroContent.style.transition = `opacity ${Math.round(DURATION * 0.25)}ms ease-in`;
+    heroContent.style.opacity = '0';
+    closeBtn.style.transition = `opacity ${Math.round(DURATION * 0.2)}ms ease-in`;
+    closeBtn.style.opacity = '0';
 
     // Backdrop
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
@@ -353,6 +370,10 @@ const movies = [
       card.style.opacity = '';
       body.style.transition = '';
       body.style.opacity = '';
+      heroContent.style.transition = '';
+      heroContent.style.opacity = '';
+      closeBtn.style.transition = '';
+      closeBtn.style.opacity = '';
       scroll.style.overflowY = '';
       document.body.style.overflow = '';
       resetPage();
@@ -820,10 +841,11 @@ const movies = [
   }
 
   .expansion-handle-pill {
-    width: 36px;
+    width: 48px;
     height: 5px;
     border-radius: 3px;
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
   /* Disable transitions during drag for immediate response */
