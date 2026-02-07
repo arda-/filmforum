@@ -106,24 +106,37 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // DEBUG: Log everything
   console.log('=== SHARE LIST DEBUG ===');
   console.log('1. Encoded from URL:', encodedReactions);
-  console.log('2. All movies count:', allMovies?.length || 0);
-  console.log('3. All movies:', allMovies);
+  console.log('2. window.__movieData exists?', typeof (window as any).__movieData);
+  console.log('3. All movies is array?', Array.isArray(allMovies));
+  console.log('4. All movies count:', allMovies?.length || 0);
+  if (allMovies && allMovies.length > 0) {
+    console.log('5. First 3 movie IDs:', allMovies.slice(0, 3).map(m => m.id));
+    console.log('6. Movie at index 2:', allMovies[2]?.id);
+    console.log('7. Movie at index 3:', allMovies[3]?.id);
+    console.log('8. Movie at index 5:', allMovies[5]?.id);
+  }
 
-  const friendReactions = decodeReactionsCompact(encodedReactions, allMovies || []);
-
-  console.log('4. Decoded reactions:', friendReactions);
-  console.log('5. Decoded reaction count:', Object.keys(friendReactions).length);
+  let friendReactions: ReactionMap = {};
+  try {
+    friendReactions = decodeReactionsCompact(encodedReactions, allMovies || []);
+    console.log('9. Decoded successfully');
+    console.log('10. Decoded reaction keys:', Object.keys(friendReactions));
+    console.log('11. Decoded reactions:', friendReactions);
+  } catch (error) {
+    console.error('ERROR decoding:', error);
+  }
 
   // Display friend ID
   const friendIdEl = document.getElementById('friend-id');
   if (friendIdEl) friendIdEl.textContent = friendUserId;
 
-  const yesMovies = allMovies?.filter(m => friendReactions[m.id] === 'yes') || [];
-  const maybeMovies = allMovies?.filter(m => friendReactions[m.id] === 'maybe') || [];
+  const yesMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'yes');
+  const maybeMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'maybe');
   const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
 
-  console.log('6. Yes movies:', yesMovies.length);
-  console.log('7. Maybe movies:', maybeMovies.length);
+  console.log('12. Yes movies:', yesMovies.map(m => m.id));
+  console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
+  console.log('14. hasAny:', hasAny);
   console.log('========================');
 
   // Show/hide empty state
