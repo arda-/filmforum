@@ -88,21 +88,17 @@ const movies = [
   <div class="apple-card-page" id="page-content">
     <header class="page-header">
       <h1>Apple Card Expansion</h1>
-      <p>App Store-style card with FLIP animation. Tap a card to expand.</p>
+      <p>Step 1: Image-only FLIP. No hero text.</p>
     </header>
 
     <div class="card-grid">
       {movies.map((movie, i) => (
         <article class="movie-card" data-card-index={i} tabindex="0" role="button" aria-label={`View ${movie.title}`}>
-          <img src={movie.poster} alt={movie.title} class="card-img" loading="lazy" />
-          <div class="card-scrim"></div>
-          <div class="card-blur"></div>
-          <div class="card-content">
-            <span class="card-badge">{movie.badge}</span>
-            <div class="card-info">
-              <span class="card-label">{movie.label}</span>
-              <h2 class="card-title">{movie.title}</h2>
-              <p class="card-meta">{movie.director} · {movie.year} · {movie.runtime}</p>
+          <div class="card-scroll">
+            <div class="card-hero">
+              <img src={movie.poster} alt={movie.title} class="card-img" loading="lazy" />
+              <div class="card-scrim"></div>
+              <div class="card-blur"></div>
             </div>
           </div>
         </article>
@@ -111,119 +107,89 @@ const movies = [
   </div>
   </div>
 
-  <!-- Expansion overlay (hidden by default) -->
+  <!-- Expansion overlay -->
   <div class="expansion-overlay" id="expansion-overlay" data-open="false">
     <div class="expansion-backdrop" id="expansion-backdrop"></div>
-    <div class="expansion-card" id="expansion-card" role="dialog" aria-modal="true">
-      <div class="expansion-handle"><div class="expansion-handle-pill"></div></div>
-      <button class="expansion-close" id="expansion-close" aria-label="Close">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <div class="expansion-scroll" id="expansion-scroll">
-        <!-- Hero: full-bleed poster + blur + text -->
-        <div class="expansion-hero" id="expansion-hero">
-          <img class="expansion-img" id="expansion-img" src="" alt="" />
-          <div class="expansion-scrim"></div>
-          <div class="expansion-blur"></div>
-          <div class="expansion-hero-content">
-            <span class="expansion-badge" id="expansion-badge"></span>
-            <span class="expansion-label" id="expansion-label"></span>
-            <h2 class="expansion-title" id="expansion-title"></h2>
-            <p class="expansion-meta" id="expansion-meta"></p>
-          </div>
-        </div>
+  </div>
 
-        <!-- Body content (below the fold) -->
-        <div class="expansion-body" id="expansion-body">
-          <p class="expansion-description" id="expansion-description"></p>
-
-          <div class="expansion-cast" id="expansion-cast">
-            <span class="cast-label">Starring</span>
-            <p class="cast-names" id="expansion-cast-names"></p>
-          </div>
-
-          <div class="expansion-actions">
-            <button class="action-btn action-primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 12 12)"/></svg>
-              Get Tickets
-            </button>
-            <button class="action-btn action-secondary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              Add to Calendar
-            </button>
-          </div>
-
-          <div class="expansion-showtimes" id="expansion-showtimes">
-            <span class="showtimes-label">Upcoming Showtimes</span>
-            <div class="showtimes-list" id="expansion-showtimes-list"></div>
-          </div>
-        </div>
+  <!-- Templates cloned on each open -->
+  <template id="tmpl-body">
+    <div class="expansion-body">
+      <p class="expansion-description"></p>
+      <div class="expansion-cast">
+        <span class="cast-label">Starring</span>
+        <p class="cast-names"></p>
+      </div>
+      <div class="expansion-actions">
+        <button class="action-btn action-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15.5 5l-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 12 12)"/></svg>
+          Get Tickets
+        </button>
+        <button class="action-btn action-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Add to Calendar
+        </button>
+      </div>
+      <div class="expansion-showtimes">
+        <span class="showtimes-label">Upcoming Showtimes</span>
+        <div class="showtimes-list"></div>
       </div>
     </div>
-  </div>
+  </template>
+
+  <template id="tmpl-close">
+    <button class="expansion-close" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </template>
+
+  <template id="tmpl-handle">
+    <div class="expansion-handle"><div class="expansion-handle-pill"></div></div>
+  </template>
 </Layout>
 
 <script define:vars={{ moviesJson: JSON.stringify(movies) }}>
   const IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
-  const DURATION = 400;
+  const DURATION = 2000;
   const PAGE_SCALE = 0.94;
   const movieData = JSON.parse(moviesJson);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const overlay = document.getElementById('expansion-overlay');
   const backdrop = document.getElementById('expansion-backdrop');
-  const card = document.getElementById('expansion-card');
-  const scroll = document.getElementById('expansion-scroll');
-  const body = document.getElementById('expansion-body');
-  const closeBtn = document.getElementById('expansion-close');
   const pageWrapper = document.getElementById('page-wrapper');
-  const heroEl = document.getElementById('expansion-hero');
 
-  // Guard against missing DOM elements
-  if (!overlay || !backdrop || !card || !scroll || !body || !closeBtn || !pageWrapper || !heroEl) {
+  if (!overlay || !backdrop || !pageWrapper) {
     console.error('Required DOM elements not found');
     return;
   }
 
   let isAnimating = false;
-  let sourceEl = null;
-  let sourceRect = null;
+  let expandedCard = null;
+  let scrollEl = null;
+  let heroEl = null;
+  let closeBtnEl = null;
+  let handleEl = null;
+  let bodyEl = null;
+  let placeholder = null;
+  let savedSourceRect = null;
 
-  function populate(movie) {
-    const img = document.getElementById('expansion-img');
-    const badge = document.getElementById('expansion-badge');
-    const label = document.getElementById('expansion-label');
-    const title = document.getElementById('expansion-title');
-    const meta = document.getElementById('expansion-meta');
-    const description = document.getElementById('expansion-description');
-    const castNames = document.getElementById('expansion-cast-names');
-    const list = document.getElementById('expansion-showtimes-list');
-
-    if (!img || !badge || !label || !title || !meta || !description || !castNames || !list) {
-      console.error('Missing elements in populate()');
-      return;
+  function populateBody(movie, bodyFrag) {
+    const desc = bodyFrag.querySelector('.expansion-description');
+    const castNames = bodyFrag.querySelector('.cast-names');
+    const list = bodyFrag.querySelector('.showtimes-list');
+    if (desc) desc.textContent = movie.description;
+    if (castNames) castNames.textContent = movie.actors;
+    if (list) {
+      movie.showtimes.forEach(time => {
+        const chip = document.createElement('span');
+        chip.className = 'showtime-chip';
+        chip.textContent = time;
+        list.appendChild(chip);
+      });
     }
-
-    img.src = movie.poster;
-    img.alt = movie.title;
-    badge.textContent = movie.badge;
-    label.textContent = movie.label;
-    title.textContent = movie.title;
-    meta.textContent = `${movie.director} · ${movie.year} · ${movie.runtime}`;
-    description.textContent = movie.description;
-    castNames.textContent = movie.actors;
-
-    // Clear existing chips
-    list.innerHTML = '';
-    // Create chips safely without innerHTML (prevents XSS if pattern is reused with dynamic data)
-    movie.showtimes.forEach(time => {
-      const chip = document.createElement('span');
-      chip.className = 'showtime-chip';
-      chip.textContent = time;
-      list.appendChild(chip);
-    });
   }
 
   function setPageOrigin() {
@@ -232,344 +198,329 @@ const movies = [
     pageWrapper.style.transformOrigin = `center ${originY}px`;
   }
 
-  // --- FLIP OPEN (clip-path approach) ---
+  // --- FLIP OPEN (scale + clip-path) ---
   function open(index, el) {
     if (isAnimating) return;
     isAnimating = true;
 
-    // Safety timeout: reset isAnimating if transitionend doesn't fire
     const safetyTimeout = setTimeout(() => {
-      if (isAnimating) {
-        console.warn('Animation cleanup timeout reached, resetting isAnimating flag');
-        isAnimating = false;
-      }
+      if (isAnimating) { console.warn('Safety timeout'); isAnimating = false; }
     }, DURATION * 3);
 
     try {
-      sourceEl = el;
-      // Hide source card FIRST, then reset to rest state for measurement.
-      // Order matters: hiding before resetting transform prevents the visible
-      // snap from :active(0.98) or :hover(1.02) → 1.0
+      // 1. Reset hover/active, measure source
       el.style.transition = 'none';
-      el.style.opacity = '0';
       el.style.transform = 'none';
       void el.offsetHeight;
-      sourceRect = el.getBoundingClientRect();
+      const sourceRect = el.getBoundingClientRect();
+      savedSourceRect = sourceRect;
 
-    populate(movieData[index]);
-    scroll.scrollTop = 0;
+      // 2. Placeholder holds grid space
+      placeholder = document.createElement('div');
+      placeholder.className = 'card-placeholder';
+      placeholder.style.width = sourceRect.width + 'px';
+      placeholder.style.height = sourceRect.height + 'px';
+      el.parentNode.insertBefore(placeholder, el);
 
-    // Reduced motion: skip FLIP animation, show instantly
-    if (prefersReducedMotion) {
-      clearTimeout(safetyTimeout);
+      // 3. Move card into overlay
+      overlay.appendChild(el);
+      expandedCard = el;
+      scrollEl = el.querySelector('.card-scroll');
+      heroEl = el.querySelector('.card-hero');
+
+      // 4. Expand — card takes on expanded CSS (position:fixed, centered)
+      el.classList.add('expanded');
+      el.style.opacity = '0';
+      el.removeAttribute('tabindex');
+      el.removeAttribute('role');
+
+      // 5. Inject body, close button, handle
+      const bodyTmpl = document.getElementById('tmpl-body');
+      const bodyFrag = bodyTmpl.content.cloneNode(true);
+      populateBody(movieData[index], bodyFrag);
+      scrollEl.appendChild(bodyFrag);
+      bodyEl = scrollEl.querySelector('.expansion-body');
+
+      const closeTmpl = document.getElementById('tmpl-close');
+      el.appendChild(closeTmpl.content.cloneNode(true));
+      closeBtnEl = el.querySelector('.expansion-close');
+
+      const handleTmpl = document.getElementById('tmpl-handle');
+      el.appendChild(handleTmpl.content.cloneNode(true));
+      handleEl = el.querySelector('.expansion-handle');
+
+      scrollEl.scrollTop = 0;
+      scrollEl.style.overflowY = 'hidden';
+
+      // Reduced motion: instant
+      if (prefersReducedMotion) {
+        clearTimeout(safetyTimeout);
+        overlay.dataset.open = 'true';
+        document.body.style.overflow = 'hidden';
+        el.style.opacity = '';
+        el.style.transform = '';
+        if (closeBtnEl) { closeBtnEl.style.opacity = '1'; closeBtnEl.style.transform = 'scale(1)'; }
+        scrollEl.style.overflowY = '';
+        isAnimating = false;
+        return;
+      }
+
+      // 6. Measure expanded (Last position)
+      void el.offsetHeight;
+      const expandedRect = el.getBoundingClientRect();
+      const heroRect = heroEl.getBoundingClientRect();
+
+      // 7. FLIP calculations
+      const scale = sourceRect.width / expandedRect.width;
+      const dx = sourceRect.left - expandedRect.left;
+      const dy = sourceRect.top - expandedRect.top;
+
+      // Clip body content in element-local coords (before transform)
+      // Hero fills top portion; clip everything below it
+      const bodyClip = expandedRect.height - heroRect.height;
+
+      // 8. Set FLIP inverse state — card appears at source position/size
+      el.style.transformOrigin = 'top left';
+      el.style.willChange = 'transform, clip-path';
+      el.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+      el.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
+      el.style.opacity = '1';
+
+      // Hide body + close button initially
+      if (bodyEl) bodyEl.style.opacity = '0';
+      if (closeBtnEl) {
+        closeBtnEl.style.transition = 'none';
+        closeBtnEl.style.opacity = '0';
+        closeBtnEl.style.transform = 'scale(0.8)';
+      }
+
       overlay.dataset.open = 'true';
       document.body.style.overflow = 'hidden';
-      closeBtn.style.opacity = '1';
-      closeBtn.style.transform = 'scale(1)';
-      isAnimating = false;
-      return;
-    }
+      void el.offsetHeight;
 
-    const first = sourceRect;
+      // Page scale-down
+      setPageOrigin();
+      pageWrapper.style.willChange = 'transform';
+      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
+      pageWrapper.style.borderRadius = '12px';
+      pageWrapper.style.overflow = 'hidden';
 
-    // Keep card invisible until FLIP inverse is set (prevents flash at resting position)
-    card.style.opacity = '0';
-    overlay.dataset.open = 'true';
-    document.body.style.overflow = 'hidden';
-    scroll.style.overflowY = 'hidden';
-    body.style.opacity = '0';
+      // 9. PLAY — animate to final expanded state
+      const finalRound = window.innerWidth < 640 ? '16px 16px 0px 0px' : '16px';
+      const animOptions = { duration: DURATION, easing: IOS_EASE, fill: 'forwards' };
 
-    // Scale page down (Apple effect)
-    setPageOrigin();
-    pageWrapper.style.willChange = 'transform';
-    pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
-    pageWrapper.style.borderRadius = '12px';
-    pageWrapper.style.overflow = 'hidden';
+      const cardAnim = el.animate([
+        { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, clipPath: `inset(0px 0px ${bodyClip}px 0px round 16px)` },
+        { transform: 'translate(0px, 0px) scale(1)', clipPath: `inset(0px 0px 0px 0px round ${finalRound})` }
+      ], animOptions);
 
-    // Prepare card for measurement (no clip, no transform, still invisible)
-    card.style.willChange = 'transform, clip-path';
-    card.style.transition = 'none';
-    card.style.clipPath = 'none';
-    card.style.transform = 'none';
-    card.style.transformOrigin = 'top left';
-    card.style.borderRadius = '0';
-    void card.offsetHeight;
+      // Hero bottom corners: rounded → flat as card expands
+      const heroAnim = heroEl.animate([
+        { borderRadius: '16px' },
+        { borderRadius: '16px 16px 0 0' }
+      ], animOptions);
 
-    // Measure full card and hero
-    const cardRect = card.getBoundingClientRect();
-    const heroRect = heroEl.getBoundingClientRect();
-    const bodyClip = cardRect.bottom - heroRect.bottom;
+      // Backdrop
+      backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+      backdrop.style.opacity = '1';
 
-    // Uniform width-based scale (hero 4:3 matches source card 4:3)
-    const scale = first.width / cardRect.width;
-    const dx = first.left - cardRect.left;
-    const dy = first.top - cardRect.top;
+      // Close button entrance (delayed)
+      const closeDelay = Math.round(DURATION * 0.5);
+      if (closeBtnEl) {
+        void closeBtnEl.offsetHeight;
+        closeBtnEl.style.transition = `opacity 300ms ease-out ${closeDelay}ms, transform 300ms ease-out ${closeDelay}ms`;
+        closeBtnEl.style.opacity = '1';
+        closeBtnEl.style.transform = 'scale(1)';
+      }
 
-    // INVERT: clip to hero-only, position at source card — now reveal
-    card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
-    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-    card.style.opacity = '1';
+      // Body staggered fade-in
+      if (bodyEl) {
+        const desc = bodyEl.querySelector('.expansion-description');
+        const cast = bodyEl.querySelector('.expansion-cast');
+        const actions = bodyEl.querySelector('.expansion-actions');
+        const times = bodyEl.querySelector('.expansion-showtimes');
+        const base = Math.round(DURATION * 0.15);
+        const dur = Math.round(DURATION * 0.4);
+        const gap = 40;
+        if (desc) desc.style.transition = `opacity ${dur}ms ease-out ${base}ms`;
+        if (cast) cast.style.transition = `opacity ${dur}ms ease-out ${base + gap}ms`;
+        if (actions) actions.style.transition = `opacity ${dur}ms ease-out ${base + gap * 2}ms`;
+        if (times) times.style.transition = `opacity ${dur}ms ease-out ${base + gap * 3}ms`;
+        void bodyEl.offsetHeight;
+        bodyEl.style.opacity = '1';
+        if (desc) desc.style.opacity = '1';
+        if (cast) cast.style.opacity = '1';
+        if (actions) actions.style.opacity = '1';
+        if (times) times.style.opacity = '1';
+      }
 
-    // Reset close button to initial state (hidden, scaled down)
-    closeBtn.style.transition = 'none';
-    closeBtn.style.opacity = '0';
-    closeBtn.style.transform = 'scale(0.8)';
-    void card.offsetHeight;
-
-    // PLAY: animate to final position, reveal body via clip
-    const finalRound = window.innerWidth < 640 ? '16px 16px 0px 0px' : '16px';
-    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, clip-path ${DURATION}ms ${IOS_EASE}`;
-    card.style.clipPath = `inset(0px 0px 0px 0px round ${finalRound})`;
-    card.style.transform = 'translate(0px, 0px) scale(1)';
-
-    // Animate close button in with delay (after hero is visible)
-    const closeButtonDelay = Math.round(DURATION * 0.5);
-    const closeButtonDuration = 300;
-    closeBtn.style.transition = `opacity ${closeButtonDuration}ms ease-out ${closeButtonDelay}ms, transform ${closeButtonDuration}ms ease-out ${closeButtonDelay}ms`;
-    closeBtn.style.opacity = '1';
-    closeBtn.style.transform = 'scale(1)';
-
-    // Body sections fade in with staggered delays (progressive reveal during clip expansion)
-    const description = document.getElementById('expansion-description');
-    const castSection = document.getElementById('expansion-cast');
-    const actionsSection = document.querySelector('.expansion-actions');
-    const showtimesSection = document.getElementById('expansion-showtimes');
-
-    // Start content fade sooner, with tighter stagger for snappier reveal
-    const baseDelay = Math.round(DURATION * 0.15);  // Start at 60ms (was 160ms)
-    const transitionDuration = Math.round(DURATION * 0.4);  // Faster fade (was 200ms)
-    const staggerInterval = 40;  // Tighter spacing between elements (was 80ms)
-
-    if (description) description.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay}ms`;
-    if (castSection) castSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval}ms`;
-    if (actionsSection) actionsSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval * 2}ms`;
-    if (showtimesSection) showtimesSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval * 3}ms`;
-
-    description.style.opacity = '1';
-    castSection.style.opacity = '1';
-    actionsSection.style.opacity = '1';
-    showtimesSection.style.opacity = '1';
-
-    // Backdrop
-    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
-    backdrop.style.opacity = '1';
-
-      // Clean up after animation completes — only clear transition and unlock scroll.
-      // Keep transform, clipPath, transformOrigin, willChange intact to prevent
-      // text re-rasterization. The close() function resets all of these.
-      const handleOpenComplete = (e) => {
-        if (e.target !== card || e.propertyName !== 'transform') return;
-        card.removeEventListener('transitionend', handleOpenComplete);
+      // 10. Commit final state
+      cardAnim.finished.then(() => {
         clearTimeout(safetyTimeout);
-
-        card.style.transition = '';
-        body.style.transition = '';
-        body.style.opacity = '';
-        closeBtn.style.transition = '';
-
-        const description = document.getElementById('expansion-description');
-        const castSection = document.getElementById('expansion-cast');
-        const actionsSection = document.querySelector('.expansion-actions');
-        const showtimesSection = document.getElementById('expansion-showtimes');
-
-        if (description) description.style.transition = '';
-        if (castSection) castSection.style.transition = '';
-        if (actionsSection) actionsSection.style.transition = '';
-        if (showtimesSection) showtimesSection.style.transition = '';
-
-        scroll.style.overflowY = '';
+        el.style.transform = '';
+        el.style.clipPath = '';
+        el.style.willChange = '';
+        el.style.transformOrigin = '';
+        el.style.borderRadius = '';
+        cardAnim.cancel();
+        heroAnim.cancel();
+        heroEl.style.borderRadius = '';
+        scrollEl.style.overflowY = '';
         pageWrapper.style.transition = '';
+        if (closeBtnEl) closeBtnEl.style.transition = '';
+        if (bodyEl) {
+          bodyEl.querySelectorAll('.expansion-description, .expansion-cast, .expansion-actions, .expansion-showtimes')
+            .forEach(s => s.style.transition = '');
+        }
         isAnimating = false;
-      };
-      card.addEventListener('transitionend', handleOpenComplete);
+      }).catch(() => { clearTimeout(safetyTimeout); isAnimating = false; });
     } catch (error) {
-      console.error('Error during open animation:', error);
+      console.error('Error during open:', error);
       clearTimeout(safetyTimeout);
       isAnimating = false;
-      // Attempt to clean up in case of error
-      if (el) el.style.opacity = '';
+      if (expandedCard) { expandedCard.classList.remove('expanded'); expandedCard.style.opacity = ''; }
       document.body.style.overflow = '';
       overlay.dataset.open = 'false';
     }
   }
 
-  // --- FLIP CLOSE (clip-path approach) ---
+  // --- FLIP CLOSE (scale + clip-path) ---
   function close() {
-    if (isAnimating) return;
+    if (isAnimating || !expandedCard) return;
     isAnimating = true;
 
-    // Safety timeout: reset isAnimating if transitionend doesn't fire
     const safetyTimeout = setTimeout(() => {
-      if (isAnimating) {
-        console.warn('Animation cleanup timeout reached, resetting isAnimating flag');
-        isAnimating = false;
-      }
+      if (isAnimating) { console.warn('Safety timeout'); isAnimating = false; }
     }, DURATION * 3);
 
     try {
-      const el = sourceEl;
-      if (!el) {
+      const el = expandedCard;
+
+      if (prefersReducedMotion) {
         clearTimeout(safetyTimeout);
-        overlay.dataset.open = 'false';
-        document.body.style.overflow = '';
-        resetPage();
+        cleanupExpansion(el);
         isAnimating = false;
         return;
       }
 
-    // Reduced motion: close instantly
-    if (prefersReducedMotion) {
-      clearTimeout(safetyTimeout);
-      overlay.dataset.open = 'false';
-      document.body.style.overflow = '';
-      closeBtn.style.opacity = '0';
-      closeBtn.style.transform = 'scale(0.8)';
-      sourceEl = null;
-      sourceRect = null;
-      isAnimating = false;
-      return;
-    }
-
-    // Animate close button out immediately
-    const closeFadeDuration = Math.round(DURATION * 0.35);
-    closeBtn.style.transition = `opacity ${closeFadeDuration}ms ease-in, transform ${closeFadeDuration}ms ease-in`;
-    closeBtn.style.opacity = '0';
-    closeBtn.style.transform = 'scale(0.8)';
-
-    // Scroll to top so hero is visible for FLIP
-    scroll.scrollTop = 0;
-    scroll.style.overflowY = 'hidden';
-
-    // Prepare card for measurement (clear translateZ(0) keepalive, set FLIP origin)
-    card.style.willChange = 'transform, clip-path';
-    pageWrapper.style.willChange = 'transform';
-    card.style.transition = 'none';
-    card.style.transform = 'none';
-    card.style.transformOrigin = 'top left';
-    card.style.borderRadius = '0';
-    void card.offsetHeight;
-
-    // Measure from resting position
-    const cardRect = card.getBoundingClientRect();
-    const heroRect = heroEl.getBoundingClientRect();
-    const bodyClip = cardRect.bottom - heroRect.bottom;
-    const targetRect = sourceRect;
-    const scale = targetRect.width / cardRect.width;
-    const dx = targetRect.left - cardRect.left;
-    const dy = targetRect.top - cardRect.top;
-
-    // Set starting clip-path (full card visible, current state)
-    const startRound = window.innerWidth < 640 ? '16px 16px 0px 0px' : '16px';
-    card.style.clipPath = `inset(0px 0px 0px 0px round ${startRound})`;
-    void card.offsetHeight;
-
-    // Animate: shrink to source, clip to hero-only
-    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, clip-path ${DURATION}ms ${IOS_EASE}`;
-    card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
-    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-
-    // Body sections fade out quickly
-    const description = document.getElementById('expansion-description');
-    const castSection = document.getElementById('expansion-cast');
-    const actionsSection = document.querySelector('.expansion-actions');
-    const showtimesSection = document.getElementById('expansion-showtimes');
-
-    const fadeOutDuration = Math.round(DURATION * 0.35);
-    if (description) description.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
-    if (castSection) castSection.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
-    if (actionsSection) actionsSection.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
-    if (showtimesSection) showtimesSection.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
-
-    description.style.opacity = '0';
-    castSection.style.opacity = '0';
-    actionsSection.style.opacity = '0';
-    showtimesSection.style.opacity = '0';
-
-    // Backdrop
-    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
-    backdrop.style.opacity = '0';
-
-    // Un-scale page simultaneously
-    pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    pageWrapper.style.transform = '';
-    pageWrapper.style.borderRadius = '';
-
-      const handleCloseComplete = (e) => {
-        // Only handle transitionend from the card's transform (ignore child elements)
-        if (e.target !== card || e.propertyName !== 'transform') return;
-        card.removeEventListener('transitionend', handleCloseComplete);
-        clearTimeout(safetyTimeout);
-
-        // Restore source card: re-enable transitions BEFORE clearing transform
-        // so any :hover scale animates smoothly instead of snapping
-        el.style.transition = '';
-        el.style.opacity = '';
-        el.style.transform = '';
-        overlay.dataset.open = 'false';
-        card.style.transition = '';
-        card.style.transform = '';
-        card.style.clipPath = '';
-        card.style.borderRadius = '';
-        card.style.transformOrigin = '';
-        card.style.opacity = '';
-        card.style.willChange = '';
-        body.style.transition = '';
-        body.style.opacity = '';
-        closeBtn.style.transition = '';
-        closeBtn.style.opacity = '';
-        closeBtn.style.transform = '';
-
-        const description = document.getElementById('expansion-description');
-        const castSection = document.getElementById('expansion-cast');
-        const actionsSection = document.querySelector('.expansion-actions');
-        const showtimesSection = document.getElementById('expansion-showtimes');
-
-        if (description) {
-          description.style.transition = '';
-          description.style.opacity = '';
-        }
-        if (castSection) {
-          castSection.style.transition = '';
-          castSection.style.opacity = '';
-        }
-        if (actionsSection) {
-          actionsSection.style.transition = '';
-          actionsSection.style.opacity = '';
-        }
-        if (showtimesSection) {
-          showtimesSection.style.transition = '';
-          showtimesSection.style.opacity = '';
-        }
-
-        scroll.style.overflowY = '';
-        document.body.style.overflow = '';
-        pageWrapper.style.willChange = '';
-        // Clear stale image so it doesn't flash when a new card opens
-        const img = document.getElementById('expansion-img');
-        if (img) img.src = '';
-        resetPage();
-        sourceEl = null;
-        sourceRect = null;
-        isAnimating = false;
-      };
-      card.addEventListener('transitionend', handleCloseComplete);
-    } catch (error) {
-      console.error('Error during close animation:', error);
-      clearTimeout(safetyTimeout);
-      isAnimating = false;
-      // Attempt to clean up in case of error
-      if (el) {
-        el.style.transition = '';
-        el.style.opacity = '';
-        el.style.transform = '';
+      // 1. Fade out close button (fast, before FLIP starts) + body
+      const fadeDur = Math.round(DURATION * 0.35);
+      if (closeBtnEl) {
+        closeBtnEl.style.transition = 'opacity 150ms ease-in, transform 150ms ease-in';
+        closeBtnEl.style.opacity = '0';
+        closeBtnEl.style.transform = 'scale(0.8)';
       }
-      overlay.dataset.open = 'false';
-      document.body.style.overflow = '';
-      resetPage();
-      sourceEl = null;
-      sourceRect = null;
+      if (bodyEl) {
+        bodyEl.querySelectorAll('.expansion-description, .expansion-cast, .expansion-actions, .expansion-showtimes')
+          .forEach(s => { s.style.transition = `opacity ${fadeDur}ms ease-in`; s.style.opacity = '0'; });
+      }
+
+      // 2. Scroll to top, disable scroll
+      scrollEl.scrollTop = 0;
+      scrollEl.style.overflowY = 'hidden';
+
+      // 3. Measure current expanded rect + use saved source rect as target
+      // (placeholder.getBoundingClientRect() is wrong here because the page
+      // is still at scale(0.94) — it gives the scaled-down position, but by
+      // the time the animation ends the page is back at scale(1))
+      el.style.transformOrigin = 'top left';
+      el.style.willChange = 'transform, clip-path';
+      void el.offsetHeight;
+
+      const expandedRect = el.getBoundingClientRect();
+      const targetRect = savedSourceRect;
+      const heroRect = heroEl.getBoundingClientRect();
+
+      const scale = targetRect.width / expandedRect.width;
+      const dx = targetRect.left - expandedRect.left;
+      const dy = targetRect.top - expandedRect.top;
+      const bodyClip = expandedRect.height - heroRect.height;
+
+      // 4. Animate to source position/size
+      const startRound = window.innerWidth < 640 ? '16px 16px 0px 0px' : '16px';
+      const animOptions = { duration: DURATION, easing: IOS_EASE, fill: 'forwards' };
+
+      const cardAnim = el.animate([
+        { transform: 'translate(0px, 0px) scale(1)', clipPath: `inset(0px 0px 0px 0px round ${startRound})` },
+        { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, clipPath: `inset(0px 0px ${bodyClip}px 0px round 16px)` }
+      ], animOptions);
+
+      // Hero bottom corners: flat → rounded as card collapses
+      const heroAnim = heroEl.animate([
+        { borderRadius: '16px 16px 0 0' },
+        { borderRadius: '16px' }
+      ], animOptions);
+
+      // Backdrop
+      backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+      backdrop.style.opacity = '0';
+
+      // Un-scale page
+      pageWrapper.style.willChange = 'transform';
+      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageWrapper.style.transform = '';
+      pageWrapper.style.borderRadius = '';
+
+      // 5. Clean up
+      cardAnim.finished.then(() => {
+        clearTimeout(safetyTimeout);
+        cardAnim.cancel();
+        cleanupExpansion(el);
+        isAnimating = false;
+      }).catch(() => {
+        clearTimeout(safetyTimeout);
+        cleanupExpansion(el);
+        isAnimating = false;
+      });
+    } catch (error) {
+      console.error('Error during close:', error);
+      clearTimeout(safetyTimeout);
+      cleanupExpansion(expandedCard);
+      isAnimating = false;
     }
+  }
+
+  function cleanupExpansion(el) {
+    if (!el) return;
+    const injectedBody = el.querySelector('.expansion-body');
+    if (injectedBody) injectedBody.remove();
+    const injectedClose = el.querySelector('.expansion-close');
+    if (injectedClose) injectedClose.remove();
+    const injectedHandle = el.querySelector('.expansion-handle');
+    if (injectedHandle) injectedHandle.remove();
+
+    if (placeholder && placeholder.parentNode) {
+      placeholder.parentNode.insertBefore(el, placeholder);
+      placeholder.remove();
+    }
+
+    el.classList.remove('expanded');
+    el.style.transition = '';
+    el.style.transform = '';
+    el.style.opacity = '';
+    el.style.clipPath = '';
+    el.style.willChange = '';
+    el.style.transformOrigin = '';
+    el.style.borderRadius = '';
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+
+    if (scrollEl) scrollEl.style.overflowY = '';
+    if (heroEl) heroEl.style.borderRadius = '';
+
+    overlay.dataset.open = 'false';
+    document.body.style.overflow = '';
+    resetPage();
+
+    expandedCard = null;
+    scrollEl = null;
+    heroEl = null;
+    closeBtnEl = null;
+    handleEl = null;
+    bodyEl = null;
+    placeholder = null;
+    savedSourceRect = null;
   }
 
   function resetPage() {
@@ -578,6 +529,7 @@ const movies = [
     pageWrapper.style.borderRadius = '';
     pageWrapper.style.overflow = '';
     pageWrapper.style.transformOrigin = '';
+    pageWrapper.style.willChange = '';
   }
 
   // --- SWIPE-TO-DISMISS ---
@@ -590,17 +542,18 @@ const movies = [
   const VELOCITY_THRESHOLD = 0.5;
 
   function applyDragVisuals(deltaY) {
-    const height = card.offsetHeight;
+    if (!expandedCard) return;
+    const height = expandedCard.offsetHeight;
     if (deltaY < 0) {
       const damped = Math.sqrt(Math.abs(deltaY)) * 3;
       dragCurrentY = -damped;
-      card.style.transform = `translateY(${-damped}px)`;
+      expandedCard.style.transform = `translateY(${-damped}px)`;
     } else {
       dragCurrentY = deltaY;
-      card.style.transform = `translateY(${deltaY}px)`;
+      expandedCard.style.transform = `translateY(${deltaY}px)`;
       const percent = Math.min(deltaY / height, 1);
       backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
-      card.style.borderRadius = `${Math.min(percent * 80, 20)}px`;
+      expandedCard.style.borderRadius = `${Math.min(percent * 80, 20)}px`;
       const pageScale = PAGE_SCALE + (1 - PAGE_SCALE) * percent;
       pageWrapper.style.transition = 'none';
       pageWrapper.style.transform = `scale(${pageScale})`;
@@ -608,9 +561,10 @@ const movies = [
     }
   }
 
-  // Touch events (mobile)
-  scroll.addEventListener('touchstart', (e) => {
-    if (isAnimating || overlay.dataset.open !== 'true') return;
+  document.addEventListener('touchstart', (e) => {
+    if (isAnimating || overlay.dataset.open !== 'true' || !expandedCard) return;
+    const scrollTarget = e.target.closest('.card-scroll');
+    if (!scrollTarget || !expandedCard.contains(scrollTarget)) return;
     dragStartY = e.touches[0].clientY;
     dragStartTime = Date.now();
     dragCurrentY = 0;
@@ -618,87 +572,72 @@ const movies = [
     isDragging = false;
   }, { passive: true });
 
-  scroll.addEventListener('touchmove', (e) => {
-    if (!isTracking) return;
+  document.addEventListener('touchmove', (e) => {
+    if (!isTracking || !scrollEl) return;
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - dragStartY;
-
     if (!isDragging) {
       if (Math.abs(deltaY) < 8) return;
-
-      if (deltaY > 0 && scroll.scrollTop <= 0) {
+      if (deltaY > 0 && scrollEl.scrollTop <= 0) {
         isDragging = true;
-        card.classList.add('dragging');
-      } else {
-        isTracking = false;
-        return;
-      }
+        if (expandedCard) expandedCard.classList.add('dragging');
+      } else { isTracking = false; return; }
     }
-
     e.preventDefault();
     applyDragVisuals(deltaY);
   }, { passive: false });
 
-  scroll.addEventListener('touchend', () => {
+  document.addEventListener('touchend', () => {
     const wasDragging = isDragging;
     isTracking = false;
     isDragging = false;
     if (!wasDragging) return;
-
-    card.classList.remove('dragging');
+    if (expandedCard) expandedCard.classList.remove('dragging');
     finishDrag();
   }, { passive: true });
 
-  // Pointer events (desktop — hero area, or drag handle)
-  const hero = heroEl;
-  const handleEl = document.querySelector('.expansion-handle');
-
-  function startPointerDrag(e) {
-    if (isAnimating || overlay.dataset.open !== 'true') return;
-    if (scroll && scroll.scrollTop > 0) return;
-
-    // Only prevent default for primary mouse button (left click) or touch/pen
-    // This allows right-click context menus and doesn't interfere with text selection
-    // unless actively initiating a drag
+  document.addEventListener('pointerdown', (e) => {
+    if (isAnimating || overlay.dataset.open !== 'true' || !expandedCard) return;
+    const heroTarget = e.target.closest('.card-hero');
+    const handleTarget = e.target.closest('.expansion-handle');
+    if (!heroTarget && !handleTarget) return;
+    if (!expandedCard.contains(heroTarget || handleTarget)) return;
+    if (scrollEl && scrollEl.scrollTop > 0) return;
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-
     isDragging = true;
     dragStartY = e.clientY;
     dragCurrentY = 0;
     dragStartTime = Date.now();
-    card.classList.add('dragging');
-    card.setPointerCapture(e.pointerId);
-    // Prevent default only when we're actually starting a drag
+    expandedCard.classList.add('dragging');
+    expandedCard.setPointerCapture(e.pointerId);
     e.preventDefault();
-  }
-
-  hero.addEventListener('pointerdown', startPointerDrag);
-  handleEl.addEventListener('pointerdown', startPointerDrag);
+  });
 
   document.addEventListener('pointermove', (e) => {
     if (!isDragging || isTracking) return;
-    const deltaY = e.clientY - dragStartY;
-    applyDragVisuals(deltaY);
+    applyDragVisuals(e.clientY - dragStartY);
   });
 
   document.addEventListener('pointerup', (e) => {
     if (!isDragging || isTracking) return;
     isDragging = false;
-    card.classList.remove('dragging');
-    card.releasePointerCapture(e.pointerId);
+    if (expandedCard) {
+      expandedCard.classList.remove('dragging');
+      expandedCard.releasePointerCapture(e.pointerId);
+    }
     finishDrag();
   });
 
   function finishDrag() {
-    const height = card.offsetHeight;
+    if (!expandedCard) return;
+    const height = expandedCard.offsetHeight;
     const percentDragged = dragCurrentY / height;
     const timeTaken = Date.now() - dragStartTime;
     const velocity = timeTaken > 0 ? dragCurrentY / timeTaken : 0;
-
     if (percentDragged > CLOSE_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
-      card.style.transition = 'none';
-      card.style.transform = '';
-      card.style.borderRadius = '';
+      expandedCard.style.transition = 'none';
+      expandedCard.style.transform = '';
+      expandedCard.style.borderRadius = '';
       close();
     } else {
       snapBack();
@@ -707,47 +646,45 @@ const movies = [
   }
 
   function snapBack() {
-    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    card.style.transform = '';
-    card.style.borderRadius = '';
+    if (!expandedCard) return;
+    expandedCard.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+    expandedCard.style.transform = '';
+    expandedCard.style.borderRadius = '';
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
     pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
     pageWrapper.style.borderRadius = '12px';
-
-    const handleSnapBackComplete = (e) => {
-      if (e.target !== card || e.propertyName !== 'transform') return;
-      card.removeEventListener('transitionend', handleSnapBackComplete);
-
-      card.style.transition = '';
+    const done = (e) => {
+      if (e.target !== expandedCard || e.propertyName !== 'transform') return;
+      expandedCard.removeEventListener('transitionend', done);
+      expandedCard.style.transition = '';
       pageWrapper.style.transition = '';
     };
-    card.addEventListener('transitionend', handleSnapBackComplete);
+    expandedCard.addEventListener('transitionend', done);
   }
 
   // --- Event listeners ---
-
   document.querySelectorAll('.movie-card').forEach(cardEl => {
     cardEl.addEventListener('click', () => {
-      const index = parseInt(cardEl.dataset.cardIndex, 10);
-      open(index, cardEl);
+      if (cardEl.classList.contains('expanded')) return;
+      open(parseInt(cardEl.dataset.cardIndex, 10), cardEl);
     });
     cardEl.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        const index = parseInt(cardEl.dataset.cardIndex, 10);
-        open(index, cardEl);
+        if (cardEl.classList.contains('expanded')) return;
+        open(parseInt(cardEl.dataset.cardIndex, 10), cardEl);
       }
     });
   });
 
-  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => {
+    if (e.target.closest('.expansion-close')) close();
+  });
   backdrop.addEventListener('click', close);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay.dataset.open === 'true') {
-      close();
-    }
+    if (e.key === 'Escape' && overlay.dataset.open === 'true') close();
   });
 </script>
 
@@ -802,15 +739,20 @@ const movies = [
     }
   }
 
+  :global(.card-placeholder) {
+    border-radius: 16px;
+  }
+
   /* =============================================
      MOVIE CARD (COLLAPSED)
      ============================================= */
 
   .movie-card {
     position: relative;
-    aspect-ratio: 4 / 3;
     border-radius: 16px;
     overflow: hidden;
+    -webkit-mask-image: linear-gradient(#fff 0 0);
+    mask-image: linear-gradient(#fff 0 0);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.15s ease;
@@ -821,18 +763,39 @@ const movies = [
   }
 
   @media (hover: hover) {
-    .movie-card:hover {
+    .movie-card:not(.expanded):hover {
       transform: scale(1.02);
     }
   }
 
-  .movie-card:active {
+  .movie-card:not(.expanded):active {
     transform: scale(0.98);
     transition-duration: 0.1s;
   }
 
-  .movie-card:focus-visible {
+  .movie-card:not(.expanded):focus-visible {
     box-shadow: 0 0 0 3px var(--accent);
+  }
+
+  /* =============================================
+     CARD HERO
+     ============================================= */
+
+  .card-scroll {
+    border-radius: inherit;
+    overflow: hidden;
+  }
+
+  .card-hero {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 16px;
+  }
+
+  .movie-card.expanded .card-hero {
+    border-radius: 16px 16px 0 0;
   }
 
   .card-img {
@@ -843,7 +806,6 @@ const movies = [
     object-fit: cover;
   }
 
-  /* Progressive blur over the image (above scrim) */
   .card-blur {
     position: absolute;
     inset: 0;
@@ -855,10 +817,6 @@ const movies = [
     z-index: 2;
   }
 
-  /* Dark scrim under the blur
-     Uses mix-blend-mode: darken for richer color preservation on card grid.
-     Omitted in expansion-scrim to avoid iOS Safari compositing issues during
-     FLIP animation (transform + clip-path + blend-mode can cause glitches). */
   .card-scrim {
     position: absolute;
     inset: 0;
@@ -873,63 +831,60 @@ const movies = [
     z-index: 1;
   }
 
-  /* Content overlay on the card */
-  .card-content {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 16px;
-    pointer-events: none;
+  .movie-card.expanded .card-scrim {
+    mix-blend-mode: normal;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.4) 30%,
+      transparent 60%
+    );
   }
 
-  .card-badge {
-    align-self: flex-start;
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 5px 10px;
-    border-radius: 6px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  /* =============================================
+     MOVIE CARD (EXPANDED STATE)
+     ============================================= */
+
+  .movie-card.expanded {
+    position: fixed;
+    inset: auto 0 0 0;
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
+    border-radius: 16px 16px 0 0;
+    clip-path: inset(0 round 16px 16px 0 0);
+    background: #000;
+    cursor: default;
+    box-shadow: none;
+    z-index: 1;
+    transition: none;
   }
 
-  .card-info {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+  .movie-card.expanded .card-scroll {
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
+    overflow-y: auto;
+    overscroll-behavior-y: none;
+    background: var(--bg-body);
   }
 
-  .card-label {
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: #d4a574;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  @media (min-width: 640px) {
+    .movie-card.expanded {
+      inset: 0;
+      margin: auto;
+      width: 520px;
+      height: fit-content;
+      max-height: calc(100vh - 80px);
+      border-radius: 16px;
+      clip-path: inset(0 round 16px);
+      box-shadow: none;
+      filter: drop-shadow(0 25px 80px rgba(0, 0, 0, 0.5));
+    }
+
+    .movie-card.expanded .card-scroll {
+      max-height: calc(100vh - 80px);
+    }
   }
 
-  .card-title {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 700;
-    font-size: 26px;
-    line-height: 1.1;
-    color: #fff;
-    margin: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  }
-
-  .card-meta {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.8);
-    margin: 0;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  .movie-card.dragging {
+    transition: none !important;
   }
 
   /* =============================================
@@ -947,7 +902,6 @@ const movies = [
     pointer-events: auto;
   }
 
-  .expansion-overlay[data-open="false"] .expansion-card,
   .expansion-overlay[data-open="false"] .expansion-backdrop {
     visibility: hidden;
   }
@@ -960,127 +914,10 @@ const movies = [
   }
 
   /* =============================================
-     EXPANSION CARD (EXPANDED STATE)
+     INJECTED ELEMENTS
      ============================================= */
 
-  .expansion-card {
-    position: absolute;
-    /* Mobile: bottom-aligned drawer, clamped so it never goes above safe area */
-    inset: auto 0 0 0;
-    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
-    border-radius: 16px 16px 0 0;
-    background: var(--bg-body);
-    overflow: hidden;
-    transform-origin: center center;
-    will-change: transform, clip-path;
-  }
-
-  /* Desktop: centered dialog, content-driven height */
-  @media (min-width: 640px) {
-    .expansion-card {
-      inset: 0;
-      margin: auto;
-      width: 520px;
-      height: fit-content;
-      max-height: calc(100vh - 80px);
-      border-radius: 16px;
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  .expansion-scroll {
-    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
-    overflow-y: auto;
-    overscroll-behavior-y: none;
-    background: var(--bg-body);
-  }
-
-  @media (min-width: 640px) {
-    .expansion-scroll {
-      max-height: calc(100vh - 80px);
-    }
-  }
-
-  /* =============================================
-     EXPANSION HERO (IMAGE + OVERLAY)
-     ============================================= */
-
-  .expansion-hero {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    flex-shrink: 0;
-    isolation: isolate;
-  }
-
-  .expansion-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .expansion-blur {
-    position: absolute;
-    inset: 0;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  /* Expansion scrim - no mix-blend-mode to prevent iOS Safari compositing glitches
-     during FLIP animation (transform + clip-path + blend-mode interaction) */
-  .expansion-scrim {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.85) 0%,
-      rgba(0, 0, 0, 0.4) 30%,
-      transparent 60%
-    );
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  /* Drag handle */
-  .expansion-handle {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 20;
-    display: flex;
-    justify-content: center;
-    padding: 8px 0;
-    cursor: grab;
-    touch-action: none;
-  }
-
-  .expansion-handle-pill {
-    width: 48px;
-    height: 5px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  @media (min-width: 640px) {
-    .expansion-handle {
-      display: none;
-    }
-  }
-
-  /* Disable transitions during drag for immediate response */
-  .expansion-card.dragging {
-    transition: none !important;
-  }
-
-  .expansion-close {
+  :global(.expansion-close) {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -1101,226 +938,70 @@ const movies = [
   }
 
   @media (hover: hover) {
-    .expansion-close:hover {
-      background: rgba(0, 0, 0, 0.7);
-    }
+    :global(.expansion-close:hover) { background: rgba(0, 0, 0, 0.7); }
   }
 
-  .expansion-close:active {
-    transform: scale(0.9);
-  }
+  :global(.expansion-close:active) { transform: scale(0.9); }
 
-  .expansion-hero-content {
+  :global(.expansion-handle) {
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
-    z-index: 3;
-    padding: 16px;
+    z-index: 20;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    transform: translateZ(0);
-    will-change: transform;
+    justify-content: center;
+    padding: 8px 0;
+    cursor: grab;
+    touch-action: none;
   }
 
-  .expansion-badge {
-    align-self: flex-start;
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 5px 10px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  :global(.expansion-handle-pill) {
+    width: 48px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
-  .expansion-label {
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: #d4a574;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-  }
-
-  .expansion-title {
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 700;
-    font-size: 26px;
-    line-height: 1.1;
-    color: #fff;
-    margin: 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  }
-
-  .expansion-meta {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
-    margin: 0;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  @media (min-width: 640px) {
+    :global(.expansion-handle) { display: none; }
   }
 
   /* =============================================
-     EXPANSION BODY (BELOW THE FOLD)
+     EXPANSION BODY
      ============================================= */
 
-  .expansion-body {
+  :global(.expansion-body) {
     padding: 24px 20px 40px;
     display: flex;
     flex-direction: column;
     gap: 24px;
   }
 
-  .expansion-description {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--text-primary);
-    margin: 0;
-    opacity: 0;
-  }
-
-  .expansion-cast {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    opacity: 0;
-  }
-
-  .cast-label {
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-
-  .cast-names {
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--text-primary);
-    margin: 0;
-  }
-
-  /* Action buttons */
-  .expansion-actions {
-    display: flex;
-    gap: 10px;
-    opacity: 0;
-  }
-
-  .action-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 16px;
-    border: none;
-    border-radius: 12px;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-weight: 500;
-    font-size: 14px;
-    cursor: pointer;
-    transition: transform 0.1s, opacity 0.15s;
-  }
-
-  .action-btn:active {
-    transform: scale(0.97);
-  }
-
-  .action-primary {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  @media (hover: hover) {
-    .action-primary:hover {
-      transform: scale(1.05);
-    }
-
-    .action-secondary:hover {
-      background: var(--bg-movie-hover);
-    }
-  }
-
-  .action-secondary {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  /* Showtimes */
-  .expansion-showtimes {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    opacity: 0;
-  }
-
-  .showtimes-label {
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-
-  .showtimes-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  :global(.showtime-chip) {
-    display: inline-block;
-    padding: 8px 14px;
-    background: var(--bg-movie);
-    color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 500;
-    border-radius: 8px;
-    white-space: nowrap;
-  }
+  :global(.expansion-description) { font-size: 15px; line-height: 1.6; color: var(--text-primary); margin: 0; opacity: 0; }
+  :global(.expansion-cast) { display: flex; flex-direction: column; gap: 6px; opacity: 0; }
+  :global(.cast-label) { font-family: 'Barlow Semi Condensed', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); }
+  :global(.cast-names) { font-size: 14px; line-height: 1.5; color: var(--text-primary); margin: 0; }
+  :global(.expansion-actions) { display: flex; gap: 10px; opacity: 0; }
+  :global(.action-btn) { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border: none; border-radius: 12px; font-family: 'IBM Plex Sans', sans-serif; font-weight: 500; font-size: 14px; cursor: pointer; transition: transform 0.1s, opacity 0.15s; }
+  :global(.action-btn:active) { transform: scale(0.97); }
+  :global(.action-primary) { background: var(--accent); color: #fff; }
+  @media (hover: hover) { :global(.action-primary:hover) { transform: scale(1.05); } :global(.action-secondary:hover) { background: var(--bg-movie-hover); } }
+  :global(.action-secondary) { background: var(--bg-movie); color: var(--text-primary); }
+  :global(.expansion-showtimes) { display: flex; flex-direction: column; gap: 10px; opacity: 0; }
+  :global(.showtimes-label) { font-family: 'Barlow Semi Condensed', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); }
+  :global(.showtimes-list) { display: flex; flex-wrap: wrap; gap: 8px; }
+  :global(.showtime-chip) { display: inline-block; padding: 8px 14px; background: var(--bg-movie); color: var(--text-primary); font-size: 13px; font-weight: 500; border-radius: 8px; white-space: nowrap; }
 
   /* =============================================
-     REDUCED MOTION SUPPORT
+     REDUCED MOTION
      ============================================= */
 
   @media (prefers-reduced-motion: reduce) {
-    /* Disable all transitions and animations */
-    .movie-card,
-    .expansion-card,
-    .expansion-backdrop,
-    .expansion-body,
-    .page-wrapper,
-    .action-btn,
-    .expansion-close {
-      transition: none !important;
-    }
-
-    /* Snap to final state immediately */
-    .movie-card:hover {
-      transform: none;
-    }
-
-    .movie-card:active {
-      transform: none;
-    }
-
-    .action-btn:active {
-      transform: none;
-    }
-
-    /* Close button snaps to final state without scale animation */
-    .expansion-close {
-      transform: none;
-    }
+    .movie-card, .expansion-backdrop, .page-wrapper { transition: none !important; }
+    .movie-card:hover, .movie-card:active { transform: none; }
+    :global(.action-btn:active) { transform: none; }
+    :global(.expansion-close) { transform: none; }
   }
 </style>
