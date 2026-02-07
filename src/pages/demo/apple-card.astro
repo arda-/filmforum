@@ -170,6 +170,7 @@ const movies = [
   const DURATION = 400;
   const PAGE_SCALE = 0.94;
   const movieData = JSON.parse(moviesJson);
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const overlay = document.getElementById('expansion-overlay');
   const backdrop = document.getElementById('expansion-backdrop');
@@ -180,25 +181,49 @@ const movies = [
   const pageWrapper = document.getElementById('page-wrapper');
   const heroEl = document.getElementById('expansion-hero');
 
+  // Guard against missing DOM elements
+  if (!overlay || !backdrop || !card || !scroll || !body || !closeBtn || !pageWrapper || !heroEl) {
+    console.error('Required DOM elements not found');
+    return;
+  }
+
   let isAnimating = false;
   let sourceEl = null;
   let sourceRect = null;
 
   function populate(movie) {
-    document.getElementById('expansion-img').src = movie.poster;
-    document.getElementById('expansion-img').alt = movie.title;
-    document.getElementById('expansion-badge').textContent = movie.badge;
-    document.getElementById('expansion-label').textContent = movie.label;
-    document.getElementById('expansion-title').textContent = movie.title;
-    document.getElementById('expansion-meta').textContent =
-      `${movie.director} · ${movie.year} · ${movie.runtime}`;
-    document.getElementById('expansion-description').textContent = movie.description;
-    document.getElementById('expansion-cast-names').textContent = movie.actors;
-
+    const img = document.getElementById('expansion-img');
+    const badge = document.getElementById('expansion-badge');
+    const label = document.getElementById('expansion-label');
+    const title = document.getElementById('expansion-title');
+    const meta = document.getElementById('expansion-meta');
+    const description = document.getElementById('expansion-description');
+    const castNames = document.getElementById('expansion-cast-names');
     const list = document.getElementById('expansion-showtimes-list');
-    list.innerHTML = movie.showtimes
-      .map(t => `<span class="showtime-chip">${t}</span>`)
-      .join('');
+
+    if (!img || !badge || !label || !title || !meta || !description || !castNames || !list) {
+      console.error('Missing elements in populate()');
+      return;
+    }
+
+    img.src = movie.poster;
+    img.alt = movie.title;
+    badge.textContent = movie.badge;
+    label.textContent = movie.label;
+    title.textContent = movie.title;
+    meta.textContent = `${movie.director} · ${movie.year} · ${movie.runtime}`;
+    description.textContent = movie.description;
+    castNames.textContent = movie.actors;
+
+    // Clear existing chips
+    list.innerHTML = '';
+    // Create chips safely without innerHTML (prevents XSS if pattern is reused with dynamic data)
+    movie.showtimes.forEach(time => {
+      const chip = document.createElement('span');
+      chip.className = 'showtime-chip';
+      chip.textContent = time;
+      list.appendChild(chip);
+    });
   }
 
   function setPageOrigin() {
@@ -211,11 +236,30 @@ const movies = [
   function open(index, el) {
     if (isAnimating) return;
     isAnimating = true;
-    sourceEl = el;
-    sourceRect = el.getBoundingClientRect();
+
+    // Safety timeout: reset isAnimating if transitionend doesn't fire
+    const safetyTimeout = setTimeout(() => {
+      if (isAnimating) {
+        console.warn('Animation cleanup timeout reached, resetting isAnimating flag');
+        isAnimating = false;
+      }
+    }, DURATION * 3);
+
+    try {
+      sourceEl = el;
+      sourceRect = el.getBoundingClientRect();
 
     populate(movieData[index]);
     scroll.scrollTop = 0;
+
+    // Reduced motion: skip FLIP animation, show instantly
+    if (prefersReducedMotion) {
+      clearTimeout(safetyTimeout);
+      overlay.dataset.open = 'true';
+      document.body.style.overflow = 'hidden';
+      isAnimating = false;
+      return;
+    }
 
     const first = sourceRect;
     el.style.opacity = '0';
@@ -229,12 +273,14 @@ const movies = [
 
     // Scale page down (Apple effect)
     setPageOrigin();
+    pageWrapper.style.willChange = 'transform';
     pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
     pageWrapper.style.borderRadius = '12px';
     pageWrapper.style.overflow = 'hidden';
 
     // Prepare card for measurement (no clip, no transform, still invisible)
+    card.style.willChange = 'transform, clip-path';
     card.style.transition = 'none';
     card.style.clipPath = 'none';
     card.style.transform = 'none';
@@ -272,19 +318,36 @@ const movies = [
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
 
-    // Clean up after animation completes
-    setTimeout(() => {
-      card.style.transition = '';
-      card.style.transform = '';
-      card.style.clipPath = '';
-      card.style.borderRadius = '';
-      card.style.transformOrigin = '';
-      body.style.transition = '';
-      body.style.opacity = '';
-      scroll.style.overflowY = '';
-      pageWrapper.style.transition = '';
+      // Clean up after animation completes
+      const handleOpenComplete = (e) => {
+        // Only handle transitionend from the card's transform (ignore child elements)
+        if (e.target !== card || e.propertyName !== 'transform') return;
+        card.removeEventListener('transitionend', handleOpenComplete);
+        clearTimeout(safetyTimeout);
+
+        card.style.transition = '';
+        card.style.transform = '';
+        card.style.clipPath = '';
+        card.style.borderRadius = '';
+        card.style.transformOrigin = '';
+        card.style.willChange = '';
+        body.style.transition = '';
+        body.style.opacity = '';
+        scroll.style.overflowY = '';
+        pageWrapper.style.transition = '';
+        pageWrapper.style.willChange = '';
+        isAnimating = false;
+      };
+      card.addEventListener('transitionend', handleOpenComplete);
+    } catch (error) {
+      console.error('Error during open animation:', error);
+      clearTimeout(safetyTimeout);
       isAnimating = false;
-    }, DURATION + 80);
+      // Attempt to clean up in case of error
+      if (el) el.style.opacity = '';
+      document.body.style.overflow = '';
+      overlay.dataset.open = 'false';
+    }
   }
 
   // --- FLIP CLOSE (clip-path approach) ---
@@ -292,11 +355,32 @@ const movies = [
     if (isAnimating) return;
     isAnimating = true;
 
-    const el = sourceEl;
-    if (!el) {
+    // Safety timeout: reset isAnimating if transitionend doesn't fire
+    const safetyTimeout = setTimeout(() => {
+      if (isAnimating) {
+        console.warn('Animation cleanup timeout reached, resetting isAnimating flag');
+        isAnimating = false;
+      }
+    }, DURATION * 3);
+
+    try {
+      const el = sourceEl;
+      if (!el) {
+        clearTimeout(safetyTimeout);
+        overlay.dataset.open = 'false';
+        document.body.style.overflow = '';
+        resetPage();
+        isAnimating = false;
+        return;
+      }
+
+    // Reduced motion: close instantly
+    if (prefersReducedMotion) {
+      clearTimeout(safetyTimeout);
       overlay.dataset.open = 'false';
       document.body.style.overflow = '';
-      resetPage();
+      sourceEl = null;
+      sourceRect = null;
       isAnimating = false;
       return;
     }
@@ -306,6 +390,8 @@ const movies = [
     scroll.style.overflowY = 'hidden';
 
     // Prepare card for measurement
+    card.style.willChange = 'transform, clip-path';
+    pageWrapper.style.willChange = 'transform';
     card.style.transition = 'none';
     card.style.transformOrigin = 'top left';
     card.style.borderRadius = '0';
@@ -343,26 +429,47 @@ const movies = [
     pageWrapper.style.transform = '';
     pageWrapper.style.borderRadius = '';
 
-    setTimeout(() => {
-      el.style.opacity = '';
+      const handleCloseComplete = (e) => {
+        // Only handle transitionend from the card's transform (ignore child elements)
+        if (e.target !== card || e.propertyName !== 'transform') return;
+        card.removeEventListener('transitionend', handleCloseComplete);
+        clearTimeout(safetyTimeout);
+
+        el.style.opacity = '';
+        overlay.dataset.open = 'false';
+        card.style.transition = '';
+        card.style.transform = '';
+        card.style.clipPath = '';
+        card.style.borderRadius = '';
+        card.style.transformOrigin = '';
+        card.style.opacity = '';
+        card.style.willChange = '';
+        body.style.transition = '';
+        body.style.opacity = '';
+        scroll.style.overflowY = '';
+        document.body.style.overflow = '';
+        pageWrapper.style.willChange = '';
+        // Clear stale image so it doesn't flash when a new card opens
+        const img = document.getElementById('expansion-img');
+        if (img) img.src = '';
+        resetPage();
+        sourceEl = null;
+        sourceRect = null;
+        isAnimating = false;
+      };
+      card.addEventListener('transitionend', handleCloseComplete);
+    } catch (error) {
+      console.error('Error during close animation:', error);
+      clearTimeout(safetyTimeout);
+      isAnimating = false;
+      // Attempt to clean up in case of error
+      if (el) el.style.opacity = '';
       overlay.dataset.open = 'false';
-      card.style.transition = '';
-      card.style.transform = '';
-      card.style.clipPath = '';
-      card.style.borderRadius = '';
-      card.style.transformOrigin = '';
-      card.style.opacity = '';
-      body.style.transition = '';
-      body.style.opacity = '';
-      scroll.style.overflowY = '';
       document.body.style.overflow = '';
-      // Clear stale image so it doesn't flash when a new card opens
-      document.getElementById('expansion-img').src = '';
       resetPage();
       sourceEl = null;
       sourceRect = null;
-      isAnimating = false;
-    }, DURATION + 50);
+    }
   }
 
   function resetPage() {
@@ -450,12 +557,18 @@ const movies = [
     if (isAnimating || overlay.dataset.open !== 'true') return;
     if (scroll && scroll.scrollTop > 0) return;
 
+    // Only prevent default for primary mouse button (left click) or touch/pen
+    // This allows right-click context menus and doesn't interfere with text selection
+    // unless actively initiating a drag
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+
     isDragging = true;
     dragStartY = e.clientY;
     dragCurrentY = 0;
     dragStartTime = Date.now();
     card.classList.add('dragging');
     card.setPointerCapture(e.pointerId);
+    // Prevent default only when we're actually starting a drag
     e.preventDefault();
   }
 
@@ -502,10 +615,15 @@ const movies = [
     pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
     pageWrapper.style.borderRadius = '12px';
-    setTimeout(() => {
+
+    const handleSnapBackComplete = (e) => {
+      if (e.target !== card || e.propertyName !== 'transform') return;
+      card.removeEventListener('transitionend', handleSnapBackComplete);
+
       card.style.transition = '';
       pageWrapper.style.transition = '';
-    }, DURATION);
+    };
+    card.addEventListener('transitionend', handleSnapBackComplete);
   }
 
   // --- Event listeners ---
@@ -541,7 +659,6 @@ const movies = [
   .page-wrapper {
     background: var(--bg-body);
     min-height: 100vh;
-    will-change: transform;
   }
 
   .apple-card-page {
@@ -596,16 +713,17 @@ const movies = [
     overflow: hidden;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    will-change: transform, opacity;
-    transition: transform 0.2s ease;
+    transition: transform 0.15s ease;
     outline: none;
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.25),
       0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
-  .movie-card:hover {
-    transform: scale(1.02);
+  @media (hover: hover) {
+    .movie-card:hover {
+      transform: scale(1.02);
+    }
   }
 
   .movie-card:active {
@@ -637,7 +755,10 @@ const movies = [
     z-index: 2;
   }
 
-  /* Dark scrim under the blur (darken blend, like the blur demo) */
+  /* Dark scrim under the blur
+     Uses mix-blend-mode: darken for richer color preservation on card grid.
+     Omitted in expansion-scrim to avoid iOS Safari compositing issues during
+     FLIP animation (transform + clip-path + blend-mode can cause glitches). */
   .card-scrim {
     position: absolute;
     inset: 0;
@@ -771,7 +892,6 @@ const movies = [
     max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
     overflow-y: auto;
     overscroll-behavior-y: none;
-    -webkit-overflow-scrolling: touch;
     background: var(--bg-body);
   }
 
@@ -812,6 +932,8 @@ const movies = [
     z-index: 2;
   }
 
+  /* Expansion scrim - no mix-blend-mode to prevent iOS Safari compositing glitches
+     during FLIP animation (transform + clip-path + blend-mode interaction) */
   .expansion-scrim {
     position: absolute;
     inset: 0;
@@ -878,8 +1000,10 @@ const movies = [
     transition: background 0.15s, transform 0.1s;
   }
 
-  .expansion-close:hover {
-    background: rgba(0, 0, 0, 0.65);
+  @media (hover: hover) {
+    .expansion-close:hover {
+      background: rgba(0, 0, 0, 0.65);
+    }
   }
 
   .expansion-close:active {
@@ -1001,7 +1125,7 @@ const movies = [
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
-    transition: transform 0.1s, filter 0.15s;
+    transition: transform 0.1s, opacity 0.15s;
   }
 
   .action-btn:active {
@@ -1013,17 +1137,19 @@ const movies = [
     color: #fff;
   }
 
-  .action-primary:hover {
-    filter: brightness(1.1);
+  @media (hover: hover) {
+    .action-primary:hover {
+      opacity: 0.9;
+    }
+
+    .action-secondary:hover {
+      background: var(--bg-movie-hover);
+    }
   }
 
   .action-secondary {
     background: var(--bg-movie);
     color: var(--text-primary);
-  }
-
-  .action-secondary:hover {
-    background: var(--bg-movie-hover);
   }
 
   /* Showtimes */
@@ -1057,5 +1183,35 @@ const movies = [
     font-weight: 500;
     border-radius: 8px;
     white-space: nowrap;
+  }
+
+  /* =============================================
+     REDUCED MOTION SUPPORT
+     ============================================= */
+
+  @media (prefers-reduced-motion: reduce) {
+    /* Disable all transitions and animations */
+    .movie-card,
+    .expansion-card,
+    .expansion-backdrop,
+    .expansion-body,
+    .page-wrapper,
+    .action-btn,
+    .expansion-close {
+      transition: none !important;
+    }
+
+    /* Snap to final state immediately */
+    .movie-card:hover {
+      transform: none;
+    }
+
+    .movie-card:active {
+      transform: none;
+    }
+
+    .action-btn:active {
+      transform: none;
+    }
   }
 </style>
