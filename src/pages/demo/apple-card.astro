@@ -247,6 +247,13 @@ const movies = [
 
     try {
       sourceEl = el;
+      // Hide source card FIRST, then reset to rest state for measurement.
+      // Order matters: hiding before resetting transform prevents the visible
+      // snap from :active(0.98) or :hover(1.02) → 1.0
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+      el.style.transform = 'none';
+      void el.offsetHeight;
       sourceRect = el.getBoundingClientRect();
 
     populate(movieData[index]);
@@ -262,7 +269,6 @@ const movies = [
     }
 
     const first = sourceRect;
-    el.style.opacity = '0';
 
     // Keep card invisible until FLIP inverse is set (prevents flash at resting position)
     card.style.opacity = '0';
@@ -318,24 +324,19 @@ const movies = [
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
 
-      // Clean up after animation completes
+      // Clean up after animation completes — only clear transition and unlock scroll.
+      // Keep transform, clipPath, transformOrigin, willChange intact to prevent
+      // text re-rasterization. The close() function resets all of these.
       const handleOpenComplete = (e) => {
-        // Only handle transitionend from the card's transform (ignore child elements)
         if (e.target !== card || e.propertyName !== 'transform') return;
         card.removeEventListener('transitionend', handleOpenComplete);
         clearTimeout(safetyTimeout);
 
         card.style.transition = '';
-        card.style.transform = '';
-        card.style.clipPath = '';
-        card.style.borderRadius = '';
-        card.style.transformOrigin = '';
-        card.style.willChange = '';
         body.style.transition = '';
         body.style.opacity = '';
         scroll.style.overflowY = '';
         pageWrapper.style.transition = '';
-        pageWrapper.style.willChange = '';
         isAnimating = false;
       };
       card.addEventListener('transitionend', handleOpenComplete);
@@ -389,10 +390,11 @@ const movies = [
     scroll.scrollTop = 0;
     scroll.style.overflowY = 'hidden';
 
-    // Prepare card for measurement
+    // Prepare card for measurement (clear translateZ(0) keepalive, set FLIP origin)
     card.style.willChange = 'transform, clip-path';
     pageWrapper.style.willChange = 'transform';
     card.style.transition = 'none';
+    card.style.transform = 'none';
     card.style.transformOrigin = 'top left';
     card.style.borderRadius = '0';
     void card.offsetHeight;
@@ -435,7 +437,11 @@ const movies = [
         card.removeEventListener('transitionend', handleCloseComplete);
         clearTimeout(safetyTimeout);
 
+        // Restore source card: re-enable transitions BEFORE clearing transform
+        // so any :hover scale animates smoothly instead of snapping
+        el.style.transition = '';
         el.style.opacity = '';
+        el.style.transform = '';
         overlay.dataset.open = 'false';
         card.style.transition = '';
         card.style.transform = '';
@@ -463,7 +469,11 @@ const movies = [
       clearTimeout(safetyTimeout);
       isAnimating = false;
       // Attempt to clean up in case of error
-      if (el) el.style.opacity = '';
+      if (el) {
+        el.style.transition = '';
+        el.style.opacity = '';
+        el.style.transform = '';
+      }
       overlay.dataset.open = 'false';
       document.body.style.overflow = '';
       resetPage();
