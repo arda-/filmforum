@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AppleCardDemoNav from '../../../components/AppleCardDemoNav.astro';
 
 const movies = [
   { title: 'Taxi Driver', poster: '/posters/taxi-driver.png' },
@@ -12,15 +13,7 @@ const movies = [
 ---
 
 <Layout title="1A: Desktop Modal - Image Only">
-  <nav class="demo-nav">
-    <a href="/demo/apple-card-1a">1A: Desktop</a>
-    <a href="/demo/apple-card-1b">1B: Mobile 16px</a>
-    <a href="/demo/apple-card-1c">1C: Mobile 24px</a>
-    <a href="/demo/apple-card-1d">1D: Responsive</a>
-    <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
-    <a href="/demo/apple-card-2b">2B: Floating Bottom</a>
-    <a href="/demo/apple-card-2c">2C: Scroll-Aware</a>
-  </nav>
+  <AppleCardDemoNav current="1a" />
   <div class="page-wrapper" id="page-wrapper">
     <div class="demo-page">
       <header class="page-header">
@@ -480,35 +473,6 @@ const movies = [
   }
 
   :global(.close-btn:active) { transform: scale(0.9); }
-
-  /* DEMO NAV */
-  .demo-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px;
-    background: var(--bg-body);
-    border-bottom: 1px solid var(--border-color);
-    overflow-x: auto;
-  }
-
-  .demo-nav a {
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-radius: 6px;
-    white-space: nowrap;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .demo-nav a:hover {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
 
   /* REDUCED MOTION */
   @media (prefers-reduced-motion: reduce) {

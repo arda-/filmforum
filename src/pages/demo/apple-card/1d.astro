@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import AppleCardDemoNav from '../../../components/AppleCardDemoNav.astro';
 
 const movies = [
   { title: 'Taxi Driver', poster: '/posters/taxi-driver.png' },
@@ -11,21 +12,13 @@ const movies = [
 ];
 ---
 
-<Layout title="1B: Mobile Drawer - Image Only">
-  <nav class="demo-nav">
-    <a href="/demo/apple-card-1a">1A: Desktop</a>
-    <a href="/demo/apple-card-1b">1B: Mobile 16px</a>
-    <a href="/demo/apple-card-1c">1C: Mobile 24px</a>
-    <a href="/demo/apple-card-1d">1D: Responsive</a>
-    <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
-    <a href="/demo/apple-card-2b">2B: Floating Bottom</a>
-    <a href="/demo/apple-card-2c">2C: Scroll-Aware</a>
-  </nav>
+<Layout title="1D: Responsive - Drawer + Modal">
+  <AppleCardDemoNav current="1d" />
   <div class="page-wrapper" id="page-wrapper">
     <div class="demo-page">
       <header class="page-header">
-        <h1>1B: Mobile Drawer - Image Only</h1>
-        <p>Bottom drawer. Image only. Drag handle FIFO (not scaled). Close button FIFO. Mobile only.</p>
+        <h1>1D: Responsive - Drawer + Modal</h1>
+        <p>Below 640px: mobile drawer with 24px top radius. Above 640px: desktop modal (centered). Same card element.</p>
       </header>
 
       <div class="card-grid">
@@ -60,7 +53,8 @@ const movies = [
 <script>
   const IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
   const DURATION = 2000;
-  const PAGE_SCALE = 0.94;
+  const PAGE_SCALE = 0.97;
+  const MOBILE_BREAKPOINT = 640;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const overlay = document.getElementById('overlay')!;
@@ -73,6 +67,10 @@ const movies = [
   let handleEl: HTMLElement | null = null;
   let placeholder: HTMLElement | null = null;
   let savedSourceRect: DOMRect | null = null;
+
+  function isMobile() {
+    return window.innerWidth < MOBILE_BREAKPOINT;
+  }
 
   function setPageOrigin() {
     const rect = pageWrapper.getBoundingClientRect();
@@ -96,11 +94,11 @@ const movies = [
       const sourceRect = el.getBoundingClientRect();
       savedSourceRect = sourceRect;
 
-      // 2. Placeholder holds grid space
+      // 2. Placeholder holds grid space - match source aspect ratio for resilience
       placeholder = document.createElement('div');
       placeholder.className = 'card-placeholder';
-      placeholder.style.width = sourceRect.width + 'px';
-      placeholder.style.height = sourceRect.height + 'px';
+      const aspectRatio = sourceRect.width / sourceRect.height;
+      placeholder.style.aspectRatio = String(aspectRatio);
       el.parentNode!.insertBefore(placeholder, el);
 
       // 3. Move card to overlay
@@ -113,14 +111,16 @@ const movies = [
       el.removeAttribute('tabindex');
       el.removeAttribute('role');
 
-      // 5. Inject close button + handle
+      // 5. Inject close button (always) + handle (mobile only)
       const closeTmpl = document.getElementById('tmpl-close') as HTMLTemplateElement;
       el.appendChild(closeTmpl.content.cloneNode(true));
       closeBtnEl = el.querySelector('.close-btn');
 
-      const handleTmpl = document.getElementById('tmpl-handle') as HTMLTemplateElement;
-      el.appendChild(handleTmpl.content.cloneNode(true));
-      handleEl = el.querySelector('.drag-handle');
+      if (isMobile()) {
+        const handleTmpl = document.getElementById('tmpl-handle') as HTMLTemplateElement;
+        el.appendChild(handleTmpl.content.cloneNode(true));
+        handleEl = el.querySelector('.drag-handle');
+      }
 
       // Reduced motion: instant
       if (prefersReducedMotion) {
@@ -164,19 +164,22 @@ const movies = [
       document.body.style.overflow = 'hidden';
       void el.offsetHeight;
 
-      // Page scale-down
-      setPageOrigin();
-      pageWrapper.style.willChange = 'transform';
-      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
-      pageWrapper.style.borderRadius = '12px';
-      pageWrapper.style.overflow = 'hidden';
+      // Page scale-down (mobile only)
+      if (isMobile()) {
+        setPageOrigin();
+        pageWrapper.style.willChange = 'transform';
+        pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+        pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
+        pageWrapper.style.borderRadius = '12px';
+        pageWrapper.style.overflow = 'hidden';
+      }
 
-      // 9. PLAY
+      // 9. PLAY - different clip-path based on mobile/desktop
       const animOptions = { duration: DURATION, easing: IOS_EASE, fill: 'forwards' as FillMode };
+      const finalClip = isMobile() ? 'inset(0 round 24px 24px 0 0)' : 'inset(0 round 16px)';
       const cardAnim = el.animate([
         { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, clipPath: 'inset(0 round 16px)' },
-        { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0 round 16px 16px 0 0)' }
+        { transform: 'translate(0px, 0px) scale(1)', clipPath: finalClip }
       ], animOptions);
 
       // Backdrop
@@ -261,10 +264,11 @@ const movies = [
       const dx = targetRect.left - expandedRect.left;
       const dy = targetRect.top - expandedRect.top;
 
-      // 3. Animate to source
+      // 3. Animate to source - clip-path back to 16px all around
       const animOptions = { duration: DURATION, easing: IOS_EASE, fill: 'forwards' as FillMode };
+      const startClip = isMobile() ? 'inset(0 round 24px 24px 0 0)' : 'inset(0 round 16px)';
       const cardAnim = el.animate([
-        { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0 round 16px 16px 0 0)' },
+        { transform: 'translate(0px, 0px) scale(1)', clipPath: startClip },
         { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, clipPath: 'inset(0 round 16px)' }
       ], animOptions);
 
@@ -272,11 +276,13 @@ const movies = [
       backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
       backdrop.style.opacity = '0';
 
-      // Un-scale page
-      pageWrapper.style.willChange = 'transform';
-      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      pageWrapper.style.transform = '';
-      pageWrapper.style.borderRadius = '';
+      // Un-scale page (mobile only)
+      if (isMobile()) {
+        pageWrapper.style.willChange = 'transform';
+        pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+        pageWrapper.style.transform = '';
+        pageWrapper.style.borderRadius = '';
+      }
 
       // 4. Clean up
       cardAnim.finished.then(() => {
@@ -336,7 +342,7 @@ const movies = [
     savedSourceRect = null;
   }
 
-  // --- SWIPE-TO-DISMISS ---
+  // --- SWIPE-TO-DISMISS (mobile only) ---
   let isDragging = false;
   let dragStartY = 0;
   let dragCurrentY = 0;
@@ -345,7 +351,7 @@ const movies = [
   const VELOCITY_THRESHOLD = 0.5;
 
   function applyDragVisuals(deltaY: number) {
-    if (!expandedCard) return;
+    if (!expandedCard || !isMobile()) return;
     const height = expandedCard.offsetHeight;
     if (deltaY < 0) {
       const damped = Math.sqrt(Math.abs(deltaY)) * 3;
@@ -365,7 +371,7 @@ const movies = [
   }
 
   function finishDrag() {
-    if (!expandedCard) return;
+    if (!expandedCard || !isMobile()) return;
     const height = expandedCard.offsetHeight;
     const percentDragged = dragCurrentY / height;
     const timeTaken = Date.now() - dragStartTime;
@@ -382,15 +388,17 @@ const movies = [
   }
 
   function snapBack() {
-    if (!expandedCard) return;
+    if (!expandedCard || !isMobile()) return;
     expandedCard.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     expandedCard.style.transform = '';
     expandedCard.style.borderRadius = '';
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
-    pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
-    pageWrapper.style.borderRadius = '12px';
+    if (isMobile()) {
+      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
+      pageWrapper.style.borderRadius = '12px';
+    }
     const done = (e: TransitionEvent) => {
       if (e.target !== expandedCard || e.propertyName !== 'transform') return;
       expandedCard!.removeEventListener('transitionend', done);
@@ -400,13 +408,11 @@ const movies = [
     expandedCard.addEventListener('transitionend', done);
   }
 
-  // Touch events for swipe
+  // Touch events for swipe (mobile only)
   document.addEventListener('touchstart', (e) => {
-    if (isAnimating || overlay.dataset.open !== 'true' || !expandedCard) return;
+    if (!isMobile() || isAnimating || overlay.dataset.open !== 'true' || !expandedCard) return;
     const target = e.target as HTMLElement;
-    // Allow drag on card itself, handle, or image
     if (!expandedCard.contains(target)) return;
-    // Don't drag if touching close button
     if (target.closest('.close-btn')) return;
     dragStartY = e.touches[0].clientY;
     dragStartTime = Date.now();
@@ -431,6 +437,49 @@ const movies = [
     if (expandedCard) expandedCard.classList.remove('dragging');
     finishDrag();
   }, { passive: true });
+
+  // Handle resize while modal is open
+  let resizeTimeout: number;
+  window.addEventListener('resize', () => {
+    if (!expandedCard || isAnimating) return;
+
+    clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(() => {
+      // Update savedSourceRect by measuring placeholder's new position
+      if (placeholder) {
+        savedSourceRect = placeholder.getBoundingClientRect();
+      }
+
+      // Update page scale-down with new origin (mobile only)
+      if (isMobile()) {
+        setPageOrigin();
+        pageWrapper.style.transition = 'none';
+        pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
+        pageWrapper.style.borderRadius = '12px';
+        void pageWrapper.offsetHeight;
+        pageWrapper.style.transition = '';
+      } else {
+        // Desktop - no scale
+        pageWrapper.style.transform = '';
+        pageWrapper.style.borderRadius = '';
+      }
+
+      // Add/remove handle based on new viewport size
+      if (isMobile() && !handleEl) {
+        // Switched to mobile - add handle
+        const handleTmpl = document.getElementById('tmpl-handle') as HTMLTemplateElement;
+        expandedCard!.appendChild(handleTmpl.content.cloneNode(true));
+        handleEl = expandedCard!.querySelector('.drag-handle');
+        if (handleEl) {
+          handleEl.style.opacity = '1';
+        }
+      } else if (!isMobile() && handleEl) {
+        // Switched to desktop - remove handle
+        handleEl.remove();
+        handleEl = null;
+      }
+    }, 100);
+  });
 
   // Event listeners
   document.querySelectorAll('.movie-card').forEach(cardEl => {
@@ -495,7 +544,7 @@ const movies = [
     gap: 20px;
   }
 
-  @media (min-width: 580px) {
+  @media (min-width: 640px) {
     .card-grid {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -508,7 +557,6 @@ const movies = [
   /* CARD (COLLAPSED) */
   .movie-card {
     position: relative;
-    aspect-ratio: 4 / 3;
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
@@ -536,24 +584,35 @@ const movies = [
   }
 
   .card-img {
-    position: absolute;
-    inset: -1px;
-    width: calc(100% + 2px);
-    height: calc(100% + 2px);
-    object-fit: cover;
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
-  /* CARD (EXPANDED) - Mobile bottom drawer */
+  /* CARD (EXPANDED) - Mobile drawer < 640px with 24px top radius */
   .movie-card.expanded {
     position: fixed;
     inset: auto 0 0 0;
     max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
-    border-radius: 16px 16px 0 0;
-    clip-path: inset(0 round 16px 16px 0 0);
+    border-radius: 24px 24px 0 0;
+    clip-path: inset(0 round 24px 24px 0 0);
     cursor: default;
     box-shadow: none;
     z-index: 1;
     transition: none;
+  }
+
+  /* CARD (EXPANDED) - Desktop modal >= 640px */
+  @media (min-width: 640px) {
+    .movie-card.expanded {
+      inset: 0;
+      margin: auto;
+      width: 520px;
+      height: fit-content;
+      border-radius: 16px;
+      clip-path: inset(0 round 16px);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+    }
   }
 
   /* OVERLAY */
@@ -606,7 +665,7 @@ const movies = [
 
   :global(.close-btn:active) { transform: scale(0.9); }
 
-  /* DRAG HANDLE */
+  /* DRAG HANDLE (mobile only) */
   :global(.drag-handle) {
     position: absolute;
     top: 0;
@@ -620,41 +679,16 @@ const movies = [
     touch-action: none;
   }
 
+  @media (min-width: 640px) {
+    :global(.drag-handle) { display: none; }
+  }
+
   :global(.handle-pill) {
     width: 48px;
     height: 5px;
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.7);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  /* DEMO NAV */
-  .demo-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px;
-    background: var(--bg-body);
-    border-bottom: 1px solid var(--border-color);
-    overflow-x: auto;
-  }
-
-  .demo-nav a {
-    padding: 6px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-radius: 6px;
-    white-space: nowrap;
-    transition: background 0.15s, color 0.15s;
-  }
-
-  .demo-nav a:hover {
-    background: var(--bg-movie);
-    color: var(--text-primary);
   }
 
   /* DRAGGING STATE */
