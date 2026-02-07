@@ -264,6 +264,8 @@ const movies = [
       clearTimeout(safetyTimeout);
       overlay.dataset.open = 'true';
       document.body.style.overflow = 'hidden';
+      closeBtn.style.opacity = '1';
+      closeBtn.style.transform = 'scale(1)';
       isAnimating = false;
       return;
     }
@@ -308,6 +310,11 @@ const movies = [
     card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
     card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
     card.style.opacity = '1';
+
+    // Reset close button to initial state (hidden, scaled down)
+    closeBtn.style.transition = 'none';
+    closeBtn.style.opacity = '0';
+    closeBtn.style.transform = 'scale(0.8)';
     void card.offsetHeight;
 
     // PLAY: animate to final position, reveal body via clip
@@ -315,6 +322,13 @@ const movies = [
     card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, clip-path ${DURATION}ms ${IOS_EASE}`;
     card.style.clipPath = `inset(0px 0px 0px 0px round ${finalRound})`;
     card.style.transform = 'translate(0px, 0px) scale(1)';
+
+    // Animate close button in with delay (after hero is visible)
+    const closeButtonDelay = Math.round(DURATION * 0.5);
+    const closeButtonDuration = 300;
+    closeBtn.style.transition = `opacity ${closeButtonDuration}ms ease-out ${closeButtonDelay}ms, transform ${closeButtonDuration}ms ease-out ${closeButtonDelay}ms`;
+    closeBtn.style.opacity = '1';
+    closeBtn.style.transform = 'scale(1)';
 
     // Body sections fade in with staggered delays (progressive reveal during clip expansion)
     const description = document.getElementById('expansion-description');
@@ -351,6 +365,7 @@ const movies = [
         card.style.transition = '';
         body.style.transition = '';
         body.style.opacity = '';
+        closeBtn.style.transition = '';
 
         const description = document.getElementById('expansion-description');
         const castSection = document.getElementById('expansion-cast');
@@ -407,11 +422,19 @@ const movies = [
       clearTimeout(safetyTimeout);
       overlay.dataset.open = 'false';
       document.body.style.overflow = '';
+      closeBtn.style.opacity = '0';
+      closeBtn.style.transform = 'scale(0.8)';
       sourceEl = null;
       sourceRect = null;
       isAnimating = false;
       return;
     }
+
+    // Animate close button out immediately
+    const closeFadeDuration = Math.round(DURATION * 0.35);
+    closeBtn.style.transition = `opacity ${closeFadeDuration}ms ease-in, transform ${closeFadeDuration}ms ease-in`;
+    closeBtn.style.opacity = '0';
+    closeBtn.style.transform = 'scale(0.8)';
 
     // Scroll to top so hero is visible for FLIP
     scroll.scrollTop = 0;
@@ -492,6 +515,9 @@ const movies = [
         card.style.willChange = '';
         body.style.transition = '';
         body.style.opacity = '';
+        closeBtn.style.transition = '';
+        closeBtn.style.opacity = '';
+        closeBtn.style.transform = '';
 
         const description = document.getElementById('expansion-description');
         const castSection = document.getElementById('expansion-cast');
@@ -1289,6 +1315,11 @@ const movies = [
     }
 
     .action-btn:active {
+      transform: none;
+    }
+
+    /* Close button snaps to final state without scale animation */
+    .expansion-close {
       transform: none;
     }
   }
