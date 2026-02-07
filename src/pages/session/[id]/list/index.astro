@@ -358,29 +358,86 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     (window as any).openDrawer('saved-list-drawer');
   });
 
+  // --- FLIP animation helpers ---
+  function capturePositions(): Map<string, DOMRect> {
+    const positions = new Map<string, DOMRect>();
+    document.querySelectorAll('.saved-item[data-movie-id]').forEach(el => {
+      const movieId = (el as HTMLElement).dataset.movieId!;
+      positions.set(movieId, el.getBoundingClientRect());
+    });
+    return positions;
+  }
+
+  function animateFlip(oldPositions: Map<string, DOMRect>) {
+    document.querySelectorAll('.saved-item[data-movie-id]').forEach(el => {
+      const movieId = (el as HTMLElement).dataset.movieId!;
+      const oldRect = oldPositions.get(movieId);
+      const newRect = el.getBoundingClientRect();
+
+      if (oldRect) {
+        // Item existed before — FLIP it
+        const dx = oldRect.left - newRect.left;
+        const dy = oldRect.top - newRect.top;
+
+        if (Math.abs(dy) > 2 || Math.abs(dx) > 2) {
+          const item = el as HTMLElement;
+          item.style.transform = `translate(${dx}px, ${dy}px)`;
+          item.style.transition = 'none';
+
+          requestAnimationFrame(() => {
+            item.classList.add('saved-item--flip');
+            item.style.transform = '';
+            item.style.transition = '';
+
+            const onEnd = () => {
+              item.classList.remove('saved-item--flip');
+              item.removeEventListener('transitionend', onEnd);
+            };
+            item.addEventListener('transitionend', onEnd);
+          });
+        }
+      } else {
+        // New item — enter animation
+        (el as HTMLElement).classList.add('saved-item--entering');
+        el.addEventListener('animationend', () => {
+          (el as HTMLElement).classList.remove('saved-item--entering');
+        }, { once: true });
+      }
+    });
+  }
+
   function updateSavedListDrawer() {
     const reactions = getReactions(sessionId);
     const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
     const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
     const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
-    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
+    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
+    const hasAnyReaction = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
 
-    // Update empty state
+    // Update empty state — only show if nothing has been categorized AND no unmarked exist
+    // (Since unmarked always has items when there are movies, hide empty state whenever movies exist)
     const emptyEl = document.getElementById('saved-empty');
-    if (emptyEl) emptyEl.classList.toggle('hidden', hasAny);
+    if (emptyEl) emptyEl.classList.toggle('hidden', allMovies.length > 0);
+
+    // Capture old positions for FLIP
+    const oldPositions = capturePositions();
 
     // Update sections
     updateSavedSection('saved-yes', yesMovies);
     updateSavedSection('saved-maybe', maybeMovies);
     updateSavedSection('saved-no', noMovies);
+    updateSavedSection('saved-unmarked', unmarkedMovies);
+
+    // Animate FLIP
+    requestAnimationFrame(() => animateFlip(oldPositions));
 
     // Update actions
     const actionsEl = document.getElementById('saved-actions');
-    if (actionsEl) actionsEl.classList.toggle('has-items', hasAny);
+    if (actionsEl) actionsEl.classList.toggle('has-items', hasAnyReaction);
 
     // Update share button
     const shareBtn = document.getElementById('saved-share-btn') as HTMLButtonElement;
-    if (shareBtn) shareBtn.disabled = !hasAny;
+    if (shareBtn) shareBtn.disabled = !hasAnyReaction;
   }
 
   function updateSavedSection(prefix: string, movies: UniqueMovie[]) {
@@ -392,7 +449,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     if (count) count.textContent = String(movies.length);
 
     if (items) {
-      const reactionMap: Record<string, string> = { 'saved-yes': 'yes', 'saved-maybe': 'maybe', 'saved-no': 'no' };
+      const reactionMap: Record<string, string> = { 'saved-yes': 'yes', 'saved-maybe': 'maybe', 'saved-no': 'no', 'saved-unmarked': 'none' };
       const currentReaction = reactionMap[prefix] || 'none';
 
       items.innerHTML = movies.map(um => {

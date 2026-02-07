@@ -15,7 +15,7 @@ const { sessionId } = Astro.props;
 <Drawer id="saved-list-drawer" title="Your Saved Movies" maxHeight="85vh">
   <div class="saved-list" data-session-id={sessionId}>
     <div class="saved-section" id="saved-yes-section">
-      <h3 class="saved-section-title">
+      <h3 class="saved-section-title saved-section-title--yes">
         <span class="saved-dot saved-dot--yes"></span>
         Yes
         <span class="saved-section-count" id="saved-yes-count">0</span>
@@ -26,7 +26,7 @@ const { sessionId } = Astro.props;
     </div>
 
     <div class="saved-section" id="saved-maybe-section">
-      <h3 class="saved-section-title">
+      <h3 class="saved-section-title saved-section-title--maybe">
         <span class="saved-dot saved-dot--maybe"></span>
         Maybe
         <span class="saved-section-count" id="saved-maybe-count">0</span>
@@ -37,12 +37,23 @@ const { sessionId } = Astro.props;
     </div>
 
     <div class="saved-section" id="saved-no-section">
-      <h3 class="saved-section-title">
+      <h3 class="saved-section-title saved-section-title--no">
         <span class="saved-dot saved-dot--no"></span>
         No
         <span class="saved-section-count" id="saved-no-count">0</span>
       </h3>
       <div class="saved-items" id="saved-no-items">
+        <!-- Populated via JS -->
+      </div>
+    </div>
+
+    <div class="saved-section" id="saved-unmarked-section">
+      <h3 class="saved-section-title saved-section-title--unmarked">
+        <span class="saved-dot saved-dot--unmarked"></span>
+        Unmarked
+        <span class="saved-section-count" id="saved-unmarked-count">0</span>
+      </h3>
+      <div class="saved-items" id="saved-unmarked-items">
         <!-- Populated via JS -->
       </div>
     </div>
@@ -103,15 +114,33 @@ const { sessionId } = Astro.props;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .saved-section-title--yes {
+    color: var(--reaction-yes, #22c55e);
+  }
+
+  .saved-section-title--maybe {
+    color: var(--reaction-maybe, #f59e0b);
+  }
+
+  .saved-section-title--no {
+    color: var(--reaction-no, #ef4444);
+  }
+
+  .saved-section-title--unmarked {
+    color: var(--text-tertiary);
   }
 
   .saved-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
   }
 
@@ -127,10 +156,15 @@ const { sessionId } = Astro.props;
     background: var(--reaction-no, #ef4444);
   }
 
+  .saved-dot--unmarked {
+    background: var(--text-tertiary);
+    opacity: 0.5;
+  }
+
   .saved-section-count {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
-    color: var(--text-tertiary);
+    opacity: 0.7;
   }
 
   .saved-items {
@@ -148,6 +182,43 @@ const { sessionId } = Astro.props;
     background: var(--bg-movie);
     border-radius: 8px;
     transition: background-color 0.15s;
+    will-change: transform, opacity;
+  }
+
+  /* FLIP animation for items moving between sections */
+  .saved-list :global(.saved-item--flip) {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  }
+
+  .saved-list :global(.saved-item--entering) {
+    animation: savedItemEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .saved-list :global(.saved-item--exiting) {
+    animation: savedItemExit 0.25s ease both;
+    pointer-events: none;
+  }
+
+  @keyframes savedItemEnter {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes savedItemExit {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95);
+    }
   }
 
   .saved-list :global(.saved-item:hover) {
