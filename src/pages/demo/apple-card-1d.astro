@@ -19,6 +19,7 @@ const movies = [
     <a href="/demo/apple-card-1d">1D: Responsive</a>
     <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
     <a href="/demo/apple-card-2b">2B: Mobile+Body</a>
+    <a href="/demo/apple-card-2c">2C: Pointer Swipe</a>
   </nav>
   <div class="page-wrapper" id="page-wrapper">
     <div class="demo-page">
@@ -100,10 +101,11 @@ const movies = [
       const sourceRect = el.getBoundingClientRect();
       savedSourceRect = sourceRect;
 
-      // 2. Placeholder holds grid space - use aspect-ratio so it resizes naturally
+      // 2. Placeholder holds grid space - match source aspect ratio for resilience
       placeholder = document.createElement('div');
       placeholder.className = 'card-placeholder';
-      placeholder.style.aspectRatio = '4 / 3';
+      const aspectRatio = sourceRect.width / sourceRect.height;
+      placeholder.style.aspectRatio = String(aspectRatio);
       el.parentNode!.insertBefore(placeholder, el);
 
       // 3. Move card to overlay
@@ -562,7 +564,6 @@ const movies = [
   /* CARD (COLLAPSED) */
   .movie-card {
     position: relative;
-    aspect-ratio: 4 / 3;
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
@@ -590,11 +591,9 @@ const movies = [
   }
 
   .card-img {
-    position: absolute;
-    inset: -1px;
-    width: calc(100% + 2px);
-    height: calc(100% + 2px);
-    object-fit: cover;
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   /* CARD (EXPANDED) - Mobile drawer < 640px with 24px top radius */
@@ -616,7 +615,6 @@ const movies = [
       inset: 0;
       margin: auto;
       width: 520px;
-      aspect-ratio: 4 / 3;
       height: fit-content;
       border-radius: 16px;
       clip-path: inset(0 round 16px);
