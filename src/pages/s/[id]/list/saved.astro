@@ -90,26 +90,77 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '../../../../utils/storageManager';
+  import { getReactions, setReaction, getUserId } from '../../../../utils/storageManager';
+  import { decodeReactionsCompact, encodeReactionsCompact } from '../../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
+  // Debug logging flag - set to true to enable detailed console logs
+  const DEBUG = false;
+
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
+
+  // Safety check: If movie data isn't loaded, show error
+  if (!allMovies || !Array.isArray(allMovies) || allMovies.length === 0) {
+    console.error('FATAL: Movie data not loaded!', {
+      movieData: (window as any).__movieData,
+      type: typeof (window as any).__movieData,
+      isArray: Array.isArray((window as any).__movieData),
+    });
+    document.getElementById('shared-empty')!.innerHTML = `
+      <p class="empty-title">Error loading movie data</p>
+      <p class="empty-hint">Please refresh the page. If the problem persists, the deployment may have an issue.</p>
+    `;
+    throw new Error('Movie data not loaded');
+  }
 
   // Parse userId and reactions from URL query params
   const urlParams = new URLSearchParams(window.location.search);
   const friendUserId = urlParams.get('u') || 'unknown';
   const encodedReactions = urlParams.get('r') || '';
-  const friendReactions = decodeReactions(encodedReactions);
+
+  // DEBUG: Log everything (only if DEBUG is true)
+  if (DEBUG) {
+    console.log('=== SHARE LIST DEBUG ===');
+    console.log('1. Encoded from URL:', encodedReactions);
+    console.log('2. window.__movieData exists?', typeof (window as any).__movieData);
+    console.log('3. All movies is array?', Array.isArray(allMovies));
+    console.log('4. All movies count:', allMovies?.length || 0);
+    if (allMovies && allMovies.length > 0) {
+      console.log('5. First 3 movie IDs:', allMovies.slice(0, 3).map(m => m.id));
+      console.log('6. Movie at index 2:', allMovies[2]?.id);
+      console.log('7. Movie at index 3:', allMovies[3]?.id);
+      console.log('8. Movie at index 5:', allMovies[5]?.id);
+    }
+  }
+
+  let friendReactions: ReactionMap = {};
+  try {
+    friendReactions = decodeReactionsCompact(encodedReactions, allMovies || []);
+    if (DEBUG) {
+      console.log('9. Decoded successfully');
+      console.log('10. Decoded reaction keys:', Object.keys(friendReactions));
+      console.log('11. Decoded reactions:', friendReactions);
+    }
+  } catch (error) {
+    console.error('ERROR decoding:', error);
+  }
 
   // Display friend ID
   const friendIdEl = document.getElementById('friend-id');
   if (friendIdEl) friendIdEl.textContent = friendUserId;
 
-  const yesMovies = allMovies.filter(m => friendReactions[m.id] === 'yes');
-  const maybeMovies = allMovies.filter(m => friendReactions[m.id] === 'maybe');
+  const yesMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'yes');
+  const maybeMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'maybe');
   const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
+
+  if (DEBUG) {
+    console.log('12. Yes movies:', yesMovies.map(m => m.id));
+    console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
+    console.log('14. hasAny:', hasAny);
+    console.log('========================');
+  }
 
   // Show/hide empty state
   const emptyEl = document.getElementById('shared-empty');
@@ -179,7 +230,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // Compare button
   document.getElementById('compare-btn')?.addEventListener('click', () => {
     const myReactions = getReactions(sessionId);
-    const myEncoded = encodeReactions(myReactions);
+    const myEncoded = encodeReactionsCompact(myReactions, allMovies);
     const friendEncoded = encodedReactions;
     window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });
