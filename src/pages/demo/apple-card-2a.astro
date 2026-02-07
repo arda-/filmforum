@@ -431,6 +431,13 @@ const movies = [
     savedSourceRect = null;
   }
 
+  // Handle window resize - update placeholder position
+  window.addEventListener('resize', () => {
+    if (!expandedCard || !placeholder) return;
+    // Re-measure placeholder position so close animation returns to correct location
+    savedSourceRect = placeholder.getBoundingClientRect();
+  });
+
   // Event listeners
   document.querySelectorAll('.movie-card').forEach(cardEl => {
     cardEl.addEventListener('click', () => {
