@@ -41,7 +41,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 <Layout title={`Shared List — ${config.name}`}>
   <main class="shared-list-page" data-session-id={id}>
     <header class="page-header">
-      <a href={`/session/${id}/list`} class="back-link">
+      <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -182,7 +182,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const myReactions = getReactions(sessionId);
     const myEncoded = encodeReactions(myReactions);
     const friendEncoded = encodedReactions;
-    window.location.href = `/session/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
+    window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });
 </script>
 
