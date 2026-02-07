@@ -105,6 +105,14 @@ for (const series of activeSeries) {
         </div>
       </section>
     )}
+
+    <section class="demos-section">
+      <h2 class="section-heading">Demos</h2>
+      <a href="/demo/apple-card" class="demo-link">
+        <span class="demo-title">Apple Card Expansion</span>
+        <span class="demo-description">Interactive FLIP animation demos with swipe-to-dismiss</span>
+      </a>
+    </section>
   </main>
 </Layout>
 
@@ -147,6 +155,41 @@ for (const series of activeSeries) {
     letter-spacing: 0.06em;
     color: var(--text-tertiary);
     margin-bottom: 16px;
+  }
+
+  /* Demos section */
+  .demos-section {
+    margin-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .demo-link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 20px 24px;
+    border-radius: 10px;
+    background: var(--bg-day-movies);
+    border: 1px solid var(--bg-grid);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .demo-link:hover {
+    background: var(--bg-movie-hover);
+    border-color: var(--accent);
+  }
+
+  .demo-title {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+  }
+
+  .demo-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
   }
 
   /* Series cards */
