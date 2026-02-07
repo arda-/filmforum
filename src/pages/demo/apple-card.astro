@@ -316,9 +316,25 @@ const movies = [
     card.style.clipPath = `inset(0px 0px 0px 0px round ${finalRound})`;
     card.style.transform = 'translate(0px, 0px) scale(1)';
 
-    // Body fades in with delay (progressive reveal during clip expansion)
-    body.style.transition = `opacity ${Math.round(DURATION * 0.5)}ms ease-out ${Math.round(DURATION * 0.4)}ms`;
-    body.style.opacity = '1';
+    // Body sections fade in with staggered delays (progressive reveal during clip expansion)
+    const description = document.getElementById('expansion-description');
+    const castSection = document.getElementById('expansion-cast');
+    const actionsSection = document.querySelector('.expansion-actions');
+    const showtimesSection = document.getElementById('expansion-showtimes');
+
+    const baseDelay = Math.round(DURATION * 0.4);
+    const transitionDuration = Math.round(DURATION * 0.5);
+    const staggerInterval = 80;
+
+    if (description) description.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay}ms`;
+    if (castSection) castSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval}ms`;
+    if (actionsSection) actionsSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval * 2}ms`;
+    if (showtimesSection) showtimesSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval * 3}ms`;
+
+    description.style.opacity = '1';
+    castSection.style.opacity = '1';
+    actionsSection.style.opacity = '1';
+    showtimesSection.style.opacity = '1';
 
     // Backdrop
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
@@ -335,6 +351,17 @@ const movies = [
         card.style.transition = '';
         body.style.transition = '';
         body.style.opacity = '';
+
+        const description = document.getElementById('expansion-description');
+        const castSection = document.getElementById('expansion-cast');
+        const actionsSection = document.querySelector('.expansion-actions');
+        const showtimesSection = document.getElementById('expansion-showtimes');
+
+        if (description) description.style.transition = '';
+        if (castSection) castSection.style.transition = '';
+        if (actionsSection) actionsSection.style.transition = '';
+        if (showtimesSection) showtimesSection.style.transition = '';
+
         scroll.style.overflowY = '';
         pageWrapper.style.transition = '';
         isAnimating = false;
@@ -418,9 +445,22 @@ const movies = [
     card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
     card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
 
-    // Body fades out quickly
-    body.style.transition = `opacity ${Math.round(DURATION * 0.35)}ms ease-in`;
-    body.style.opacity = '0';
+    // Body sections fade out quickly
+    const description = document.getElementById('expansion-description');
+    const castSection = document.getElementById('expansion-cast');
+    const actionsSection = document.querySelector('.expansion-actions');
+    const showtimesSection = document.getElementById('expansion-showtimes');
+
+    const fadeOutDuration = Math.round(DURATION * 0.35);
+    if (description) description.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
+    if (castSection) castSection.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
+    if (actionsSection) actionsSection.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
+    if (showtimesSection) showtimesSection.style.transition = `opacity ${fadeOutDuration}ms ease-in`;
+
+    description.style.opacity = '0';
+    castSection.style.opacity = '0';
+    actionsSection.style.opacity = '0';
+    showtimesSection.style.opacity = '0';
 
     // Backdrop
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
@@ -452,6 +492,29 @@ const movies = [
         card.style.willChange = '';
         body.style.transition = '';
         body.style.opacity = '';
+
+        const description = document.getElementById('expansion-description');
+        const castSection = document.getElementById('expansion-cast');
+        const actionsSection = document.querySelector('.expansion-actions');
+        const showtimesSection = document.getElementById('expansion-showtimes');
+
+        if (description) {
+          description.style.transition = '';
+          description.style.opacity = '';
+        }
+        if (castSection) {
+          castSection.style.transition = '';
+          castSection.style.opacity = '';
+        }
+        if (actionsSection) {
+          actionsSection.style.transition = '';
+          actionsSection.style.opacity = '';
+        }
+        if (showtimesSection) {
+          showtimesSection.style.transition = '';
+          showtimesSection.style.opacity = '';
+        }
+
         scroll.style.overflowY = '';
         document.body.style.overflow = '';
         pageWrapper.style.willChange = '';
@@ -1013,6 +1076,7 @@ const movies = [
   @media (hover: hover) {
     .expansion-close:hover {
       background: rgba(0, 0, 0, 0.65);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
     }
   }
 
@@ -1092,12 +1156,14 @@ const movies = [
     line-height: 1.6;
     color: var(--text-primary);
     margin: 0;
+    opacity: 0;
   }
 
   .expansion-cast {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    opacity: 0;
   }
 
   .cast-label {
@@ -1120,6 +1186,7 @@ const movies = [
   .expansion-actions {
     display: flex;
     gap: 10px;
+    opacity: 0;
   }
 
   .action-btn {
@@ -1149,7 +1216,7 @@ const movies = [
 
   @media (hover: hover) {
     .action-primary:hover {
-      opacity: 0.9;
+      transform: scale(1.05);
     }
 
     .action-secondary:hover {
@@ -1167,6 +1234,7 @@ const movies = [
     display: flex;
     flex-direction: column;
     gap: 10px;
+    opacity: 0;
   }
 
   .showtimes-label {
