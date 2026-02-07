@@ -165,7 +165,7 @@ const movies = [
 
 <script define:vars={{ moviesJson: JSON.stringify(movies) }}>
   const IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
-  const DURATION = 500;
+  const DURATION = 400;
   const movieData = JSON.parse(moviesJson);
 
   const overlay = document.getElementById('expansion-overlay');
@@ -174,12 +174,11 @@ const movies = [
   const scroll = document.getElementById('expansion-scroll');
   const body = document.getElementById('expansion-body');
   const closeBtn = document.getElementById('expansion-close');
-  const pageContent = document.getElementById('page-content');
 
   let isAnimating = false;
   let sourceEl = null;
+  let sourceRect = null; // Stored at open time for reliable close positioning
 
-  // Populate expanded card content
   function populate(movie) {
     document.getElementById('expansion-img').src = movie.poster;
     document.getElementById('expansion-img').alt = movie.title;
@@ -202,22 +201,22 @@ const movies = [
     if (isAnimating) return;
     isAnimating = true;
     sourceEl = el;
+    sourceRect = el.getBoundingClientRect(); // Store BEFORE anything moves
 
     populate(movieData[index]);
     scroll.scrollTop = 0;
 
-    // FIRST: record source card position
-    const first = el.getBoundingClientRect();
+    const first = sourceRect;
 
     // Hide original card
     el.style.opacity = '0';
 
-    // Show overlay and enter animation mode (hides body, makes card hero-only)
+    // Show overlay, enter animation mode (hero-only for uniform scale)
     overlay.dataset.open = 'true';
     card.classList.add('animating');
     document.body.style.overflow = 'hidden';
 
-    // Force card to its hero-only layout to measure
+    // Measure hero-only card
     card.style.transition = 'none';
     card.style.transform = 'none';
     card.style.opacity = '1';
@@ -225,56 +224,43 @@ const movies = [
 
     const last = card.getBoundingClientRect();
 
-    // INVERT: uniform scale (hero and source share 4:3 ratio, no distortion)
+    // Uniform scale (both hero and source are 4:3, no distortion)
     const scale = first.width / last.width;
-
     const dx = (first.left + first.width / 2) - (last.left + last.width / 2);
     const dy = (first.top + first.height / 2) - (last.top + last.height / 2);
 
-    // Apply inverted state (card appears at source position)
+    // Invert
     card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
     card.style.borderRadius = '20px';
-
     void card.offsetHeight;
 
-    // PLAY: animate to final hero position
-    const transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    card.style.transition = transition;
+    // Play
+    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     card.style.transform = 'translate(0, 0) scale(1)';
     card.style.borderRadius = window.innerWidth < 768 ? '0' : '16px';
 
-    // Backdrop fade in
+    // Backdrop
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
 
-    // Scale page content behind
-    if (pageContent) {
-      pageContent.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      pageContent.style.transform = 'scale(0.94)';
-      pageContent.style.borderRadius = '12px';
-    }
-
-    // After FLIP completes: exit animation mode, expand to full card, show body
+    // After FLIP: expand to full card, show body
     setTimeout(() => {
       card.style.transition = '';
       card.style.transform = '';
       card.style.borderRadius = '';
       card.classList.remove('animating');
 
-      // Fade in body content
       if (body) {
         body.style.opacity = '0';
         void body.offsetHeight;
-        body.style.transition = 'opacity 300ms ease';
+        body.style.transition = 'opacity 250ms ease';
         body.style.opacity = '1';
       }
 
       setTimeout(() => {
-        if (body) {
-          body.style.transition = '';
-        }
+        if (body) body.style.transition = '';
         isAnimating = false;
-      }, 300);
+      }, 250);
     }, DURATION);
   }
 
@@ -291,70 +277,115 @@ const movies = [
       return;
     }
 
-    // Scroll to top and hide body immediately
-    scroll.scrollTop = 0;
+    // Immediately hide body and switch to hero-only (no delay)
     if (body) body.style.opacity = '0';
+    scroll.scrollTop = 0;
+    card.classList.add('animating');
+    void card.offsetHeight;
 
-    // Enter animation mode (collapse to hero-only) after a brief body fade
+    // Use stored sourceRect — position hasn't shifted since we don't scale the page
+    const targetRect = sourceRect;
+    const cardRect = card.getBoundingClientRect();
+
+    const scale = targetRect.width / cardRect.width;
+    const dx = (targetRect.left + targetRect.width / 2) - (cardRect.left + cardRect.width / 2);
+    const dy = (targetRect.top + targetRect.height / 2) - (cardRect.top + cardRect.height / 2);
+
+    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    card.style.borderRadius = '20px';
+
+    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+    backdrop.style.opacity = '0';
+
     setTimeout(() => {
-      card.classList.add('animating');
-      void card.offsetHeight;
-
-      // Measure hero-only card and target
-      const cardRect = card.getBoundingClientRect();
-      const targetRect = el.getBoundingClientRect();
-
-      const scale = targetRect.width / cardRect.width;
-      const dx = (targetRect.left + targetRect.width / 2) - (cardRect.left + cardRect.width / 2);
-      const dy = (targetRect.top + targetRect.height / 2) - (cardRect.top + cardRect.height / 2);
-
-      // Animate card back to source
-      const transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      card.style.transition = transition;
-      card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-      card.style.borderRadius = '20px';
-
-      // Fade backdrop
-      backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
-      backdrop.style.opacity = '0';
-
-      // Unscale page
-      if (pageContent) {
-        pageContent.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-        pageContent.style.transform = '';
-        pageContent.style.borderRadius = '';
+      el.style.opacity = '';
+      overlay.dataset.open = 'false';
+      card.classList.remove('animating');
+      card.style.transition = '';
+      card.style.transform = '';
+      card.style.borderRadius = '';
+      card.style.opacity = '';
+      if (body) {
+        body.style.transition = '';
+        body.style.opacity = '';
       }
-
-      setTimeout(() => {
-        el.style.opacity = '';
-        overlay.dataset.open = 'false';
-        card.classList.remove('animating');
-        card.style.transition = '';
-        card.style.transform = '';
-        card.style.borderRadius = '';
-        card.style.opacity = '';
-        if (body) {
-          body.style.transition = '';
-          body.style.opacity = '';
-        }
-        document.body.style.overflow = '';
-        sourceEl = null;
-        isAnimating = false;
-      }, DURATION);
-    }, 100);
+      document.body.style.overflow = '';
+      sourceEl = null;
+      sourceRect = null;
+      isAnimating = false;
+    }, DURATION);
   }
 
   // --- SWIPE-TO-DISMISS ---
+  // Uses touch events for reliable iOS Safari behavior.
+  // Pointer events used as fallback for desktop.
   let isDragging = false;
+  let isTracking = false;
   let dragStartY = 0;
   let dragCurrentY = 0;
   let dragStartTime = 0;
   const CLOSE_THRESHOLD = 0.25;
   const VELOCITY_THRESHOLD = 0.5;
 
-  function onPointerDown(e) {
+  // Touch events (mobile)
+  scroll.addEventListener('touchstart', (e) => {
     if (isAnimating || overlay.dataset.open !== 'true') return;
-    // Only allow drag when scrolled to top
+    dragStartY = e.touches[0].clientY;
+    dragStartTime = Date.now();
+    dragCurrentY = 0;
+    isTracking = true;
+    isDragging = false;
+  }, { passive: true });
+
+  scroll.addEventListener('touchmove', (e) => {
+    if (!isTracking) return;
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - dragStartY;
+
+    if (!isDragging) {
+      if (Math.abs(deltaY) < 8) return;
+
+      if (deltaY > 0 && scroll.scrollTop <= 0) {
+        // Pulling down from scroll top → start dismiss gesture
+        isDragging = true;
+        card.classList.add('dragging');
+      } else {
+        // Normal content scroll
+        isTracking = false;
+        return;
+      }
+    }
+
+    e.preventDefault(); // Stop scroll, we own the gesture now
+
+    if (deltaY < 0) {
+      const damped = Math.sqrt(Math.abs(deltaY)) * 3;
+      dragCurrentY = -damped;
+      card.style.transform = `translateY(${-damped}px)`;
+    } else {
+      dragCurrentY = deltaY;
+      card.style.transform = `translateY(${deltaY}px)`;
+      const height = card.offsetHeight;
+      const percent = Math.min(deltaY / height, 1);
+      backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
+    }
+  }, { passive: false });
+
+  scroll.addEventListener('touchend', () => {
+    const wasDragging = isDragging;
+    isTracking = false;
+    isDragging = false;
+    if (!wasDragging) return;
+
+    card.classList.remove('dragging');
+    finishDrag();
+  }, { passive: true });
+
+  // Pointer events (desktop fallback — bound to hero handle only)
+  const hero = document.getElementById('expansion-hero');
+  hero.addEventListener('pointerdown', (e) => {
+    if (isAnimating || overlay.dataset.open !== 'true') return;
     if (scroll && scroll.scrollTop > 0) return;
 
     isDragging = true;
@@ -364,48 +395,40 @@ const movies = [
     card.classList.add('dragging');
     card.setPointerCapture(e.pointerId);
     e.preventDefault();
-  }
+  });
 
-  function onPointerMove(e) {
-    if (!isDragging) return;
+  document.addEventListener('pointermove', (e) => {
+    if (!isDragging || isTracking) return; // isTracking = touch is active, skip pointer
     const deltaY = e.clientY - dragStartY;
 
     if (deltaY < 0) {
-      // Rubber-band resistance when dragging up
       const damped = Math.sqrt(Math.abs(deltaY)) * 3;
       dragCurrentY = -damped;
       card.style.transform = `translateY(${-damped}px)`;
     } else {
       dragCurrentY = deltaY;
       card.style.transform = `translateY(${deltaY}px)`;
-
-      // Fade backdrop proportionally
       const height = card.offsetHeight;
       const percent = Math.min(deltaY / height, 1);
       backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
-
-      // Ease page content back toward normal scale
-      if (pageContent) {
-        const s = 0.94 + (percent * 0.06);
-        pageContent.style.transform = `scale(${Math.min(s, 1)})`;
-        pageContent.style.borderRadius = `${Math.max(0, 12 * (1 - percent))}px`;
-      }
     }
-  }
+  });
 
-  function onPointerUp(e) {
-    if (!isDragging) return;
+  document.addEventListener('pointerup', (e) => {
+    if (!isDragging || isTracking) return;
     isDragging = false;
     card.classList.remove('dragging');
     card.releasePointerCapture(e.pointerId);
+    finishDrag();
+  });
 
+  function finishDrag() {
     const height = card.offsetHeight;
     const percentDragged = dragCurrentY / height;
     const timeTaken = Date.now() - dragStartTime;
     const velocity = timeTaken > 0 ? dragCurrentY / timeTaken : 0;
 
     if (percentDragged > CLOSE_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
-      // Clear drag transform, then let close() handle FLIP back
       card.style.transform = '';
       close();
     } else {
@@ -419,11 +442,6 @@ const movies = [
     card.style.transform = '';
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
-    if (pageContent) {
-      pageContent.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      pageContent.style.transform = 'scale(0.94)';
-      pageContent.style.borderRadius = '12px';
-    }
     setTimeout(() => {
       card.style.transition = '';
     }, DURATION);
@@ -431,13 +449,6 @@ const movies = [
 
   // --- Event listeners ---
 
-  // Swipe gesture on hero area
-  const hero = document.getElementById('expansion-hero');
-  hero.addEventListener('pointerdown', onPointerDown);
-  document.addEventListener('pointermove', onPointerMove);
-  document.addEventListener('pointerup', onPointerUp);
-
-  // Card clicks
   document.querySelectorAll('.movie-card').forEach(cardEl => {
     cardEl.addEventListener('click', () => {
       const index = parseInt(cardEl.dataset.cardIndex, 10);
@@ -452,13 +463,8 @@ const movies = [
     });
   });
 
-  // Close button
   closeBtn.addEventListener('click', close);
-
-  // Backdrop click
   backdrop.addEventListener('click', close);
-
-  // Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && overlay.dataset.open === 'true') {
       close();
@@ -475,8 +481,6 @@ const movies = [
     max-width: 900px;
     margin: 0 auto;
     padding: 0 16px 60px;
-    transform-origin: center top;
-    will-change: transform;
   }
 
   .page-header {
@@ -660,7 +664,7 @@ const movies = [
   .expansion-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.85);
     opacity: 0;
   }
 
@@ -693,8 +697,9 @@ const movies = [
   .expansion-scroll {
     height: 100%;
     overflow-y: auto;
-    overscroll-behavior: contain;
+    overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
+    background: var(--bg-body);
   }
 
   /* Animation mode: card is hero-only (body hidden, no extra height).
