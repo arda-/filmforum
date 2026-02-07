@@ -385,15 +385,17 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           item.style.transition = 'none';
 
           requestAnimationFrame(() => {
-            item.classList.add('saved-item--flip');
-            item.style.transform = '';
-            item.style.transition = '';
+            requestAnimationFrame(() => {
+              item.classList.add('saved-item--flip');
+              item.style.transform = '';
+              item.style.transition = '';
 
-            const onEnd = () => {
-              item.classList.remove('saved-item--flip');
-              item.removeEventListener('transitionend', onEnd);
-            };
-            item.addEventListener('transitionend', onEnd);
+              const onEnd = () => {
+                item.classList.remove('saved-item--flip');
+                item.removeEventListener('transitionend', onEnd);
+              };
+              item.addEventListener('transitionend', onEnd);
+            });
           });
         }
       } else {
