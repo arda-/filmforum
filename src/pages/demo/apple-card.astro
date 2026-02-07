@@ -178,10 +178,11 @@ const movies = [
   const body = document.getElementById('expansion-body');
   const closeBtn = document.getElementById('expansion-close');
   const pageWrapper = document.getElementById('page-wrapper');
+  const heroEl = document.getElementById('expansion-hero');
 
   let isAnimating = false;
   let sourceEl = null;
-  let sourceRect = null; // Stored at open time for reliable close positioning
+  let sourceRect = null;
 
   function populate(movie) {
     document.getElementById('expansion-img').src = movie.poster;
@@ -200,32 +201,30 @@ const movies = [
       .join('');
   }
 
-  // Compute transform-origin so page scales centered on the visible viewport
   function setPageOrigin() {
     const rect = pageWrapper.getBoundingClientRect();
     const originY = window.innerHeight / 2 - rect.top;
     pageWrapper.style.transformOrigin = `center ${originY}px`;
   }
 
-  // --- FLIP OPEN ---
+  // --- FLIP OPEN (clip-path approach) ---
   function open(index, el) {
     if (isAnimating) return;
     isAnimating = true;
     sourceEl = el;
-    sourceRect = el.getBoundingClientRect(); // Store BEFORE anything moves
+    sourceRect = el.getBoundingClientRect();
 
     populate(movieData[index]);
     scroll.scrollTop = 0;
 
     const first = sourceRect;
-
-    // Hide original card
     el.style.opacity = '0';
 
-    // Show overlay, enter animation mode (hero-only for uniform scale)
+    // Show overlay — body in layout but invisible
     overlay.dataset.open = 'true';
-    card.classList.add('animating');
     document.body.style.overflow = 'hidden';
+    scroll.style.overflowY = 'hidden';
+    body.style.opacity = '0';
 
     // Scale page down (Apple effect)
     setPageOrigin();
@@ -234,59 +233,60 @@ const movies = [
     pageWrapper.style.borderRadius = '12px';
     pageWrapper.style.overflow = 'hidden';
 
-    // Measure hero-only card
+    // Prepare card for measurement (no clip, no transform)
     card.style.transition = 'none';
+    card.style.clipPath = 'none';
     card.style.transform = 'none';
+    card.style.transformOrigin = 'top left';
+    card.style.borderRadius = '0';
     card.style.opacity = '1';
     void card.offsetHeight;
 
-    const last = card.getBoundingClientRect();
+    // Measure full card and hero
+    const cardRect = card.getBoundingClientRect();
+    const heroRect = heroEl.getBoundingClientRect();
+    const bodyClip = cardRect.bottom - heroRect.bottom;
 
-    // Uniform scale (both hero and source are 4:3, no distortion)
-    const scale = first.width / last.width;
-    const dx = (first.left + first.width / 2) - (last.left + last.width / 2);
-    const dy = (first.top + first.height / 2) - (last.top + last.height / 2);
+    // Uniform width-based scale (hero 4:3 matches source card 4:3)
+    const scale = first.width / cardRect.width;
+    const dx = first.left - cardRect.left;
+    const dy = first.top - cardRect.top;
 
-    // Invert
+    // INVERT: clip to hero-only, position at source card
+    card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
     card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-    card.style.borderRadius = '20px';
     void card.offsetHeight;
 
-    // Play
-    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    card.style.transform = 'translate(0, 0) scale(1)';
-    card.style.borderRadius = window.innerWidth < 768 ? '0' : '16px';
+    // PLAY: animate to final position, reveal body via clip
+    const finalRound = window.innerWidth < 768 ? '0px' : '16px';
+    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, clip-path ${DURATION}ms ${IOS_EASE}`;
+    card.style.clipPath = `inset(0px 0px 0px 0px round ${finalRound})`;
+    card.style.transform = 'translate(0px, 0px) scale(1)';
+
+    // Body fades in with delay (progressive reveal during clip expansion)
+    body.style.transition = `opacity ${Math.round(DURATION * 0.5)}ms ease-out ${Math.round(DURATION * 0.4)}ms`;
+    body.style.opacity = '1';
 
     // Backdrop
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
 
-    // Slightly before FLIP ends, start showing body for progressive reveal
-    setTimeout(() => {
-      card.classList.remove('animating');
-      if (body) {
-        body.style.opacity = '0';
-        void body.offsetHeight;
-        body.style.transition = 'opacity 200ms ease';
-        body.style.opacity = '1';
-      }
-    }, DURATION - 60);
-
-    // After FLIP: clean up
+    // Clean up after animation completes
     setTimeout(() => {
       card.style.transition = '';
       card.style.transform = '';
+      card.style.clipPath = '';
       card.style.borderRadius = '';
+      card.style.transformOrigin = '';
+      body.style.transition = '';
+      body.style.opacity = '';
+      scroll.style.overflowY = '';
       pageWrapper.style.transition = '';
-
-      setTimeout(() => {
-        if (body) body.style.transition = '';
-        isAnimating = false;
-      }, 160);
-    }, DURATION);
+      isAnimating = false;
+    }, DURATION + 80);
   }
 
-  // --- FLIP CLOSE ---
+  // --- FLIP CLOSE (clip-path approach) ---
   function close() {
     if (isAnimating) return;
     isAnimating = true;
@@ -300,57 +300,66 @@ const movies = [
       return;
     }
 
-    // Fade body out quickly, then FLIP
-    if (body) {
-      body.style.transition = 'opacity 80ms ease';
-      body.style.opacity = '0';
-    }
+    // Scroll to top so hero is visible for FLIP
+    scroll.scrollTop = 0;
+    scroll.style.overflowY = 'hidden';
+
+    // Prepare card for measurement
+    card.style.transition = 'none';
+    card.style.transformOrigin = 'top left';
+    card.style.borderRadius = '0';
+    void card.offsetHeight;
+
+    // Measure from resting position
+    const cardRect = card.getBoundingClientRect();
+    const heroRect = heroEl.getBoundingClientRect();
+    const bodyClip = cardRect.bottom - heroRect.bottom;
+    const targetRect = sourceRect;
+    const scale = targetRect.width / cardRect.width;
+    const dx = targetRect.left - cardRect.left;
+    const dy = targetRect.top - cardRect.top;
+
+    // Set starting clip-path (full card visible, current state)
+    const startRound = window.innerWidth < 768 ? '0px' : '16px';
+    card.style.clipPath = `inset(0px 0px 0px 0px round ${startRound})`;
+    void card.offsetHeight;
+
+    // Animate: shrink to source, clip to hero-only
+    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, clip-path ${DURATION}ms ${IOS_EASE}`;
+    card.style.clipPath = `inset(0px 0px ${bodyClip}px 0px round 16px)`;
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+
+    // Body fades out quickly
+    body.style.transition = `opacity ${Math.round(DURATION * 0.35)}ms ease-in`;
+    body.style.opacity = '0';
+
+    // Backdrop
+    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+    backdrop.style.opacity = '0';
+
+    // Un-scale page simultaneously
+    pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+    pageWrapper.style.transform = '';
+    pageWrapper.style.borderRadius = '';
 
     setTimeout(() => {
-      scroll.scrollTop = 0;
-      card.classList.add('animating');
-      void card.offsetHeight;
-
-      // Target stored sourceRect — page un-scales simultaneously,
-      // both reach final state at the same time with matching easing
-      const targetRect = sourceRect;
-      const cardRect = card.getBoundingClientRect();
-
-      const scale = targetRect.width / cardRect.width;
-      const dx = (targetRect.left + targetRect.width / 2) - (cardRect.left + cardRect.width / 2);
-      const dy = (targetRect.top + targetRect.height / 2) - (cardRect.top + cardRect.height / 2);
-
-      card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-      card.style.borderRadius = '20px';
-
-      backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
-      backdrop.style.opacity = '0';
-
-      // Un-scale page simultaneously
-      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-      pageWrapper.style.transform = '';
-      pageWrapper.style.borderRadius = '';
-
-      setTimeout(() => {
-        el.style.opacity = '';
-        overlay.dataset.open = 'false';
-        card.classList.remove('animating');
-        card.style.transition = '';
-        card.style.transform = '';
-        card.style.borderRadius = '';
-        card.style.opacity = '';
-        if (body) {
-          body.style.transition = '';
-          body.style.opacity = '';
-        }
-        document.body.style.overflow = '';
-        resetPage();
-        sourceEl = null;
-        sourceRect = null;
-        isAnimating = false;
-      }, DURATION);
-    }, 80);
+      el.style.opacity = '';
+      overlay.dataset.open = 'false';
+      card.style.transition = '';
+      card.style.transform = '';
+      card.style.clipPath = '';
+      card.style.borderRadius = '';
+      card.style.transformOrigin = '';
+      card.style.opacity = '';
+      body.style.transition = '';
+      body.style.opacity = '';
+      scroll.style.overflowY = '';
+      document.body.style.overflow = '';
+      resetPage();
+      sourceEl = null;
+      sourceRect = null;
+      isAnimating = false;
+    }, DURATION);
   }
 
   function resetPage() {
@@ -373,7 +382,6 @@ const movies = [
   function applyDragVisuals(deltaY) {
     const height = card.offsetHeight;
     if (deltaY < 0) {
-      // Rubber-band upward
       const damped = Math.sqrt(Math.abs(deltaY)) * 3;
       dragCurrentY = -damped;
       card.style.transform = `translateY(${-damped}px)`;
@@ -381,11 +389,8 @@ const movies = [
       dragCurrentY = deltaY;
       card.style.transform = `translateY(${deltaY}px)`;
       const percent = Math.min(deltaY / height, 1);
-      // Fade backdrop
       backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
-      // Round card corners as it pulls down
       card.style.borderRadius = `${Math.min(percent * 80, 20)}px`;
-      // Interpolate page scale from PAGE_SCALE → 1.0
       const pageScale = PAGE_SCALE + (1 - PAGE_SCALE) * percent;
       pageWrapper.style.transition = 'none';
       pageWrapper.style.transform = `scale(${pageScale})`;
@@ -434,8 +439,8 @@ const movies = [
     finishDrag();
   }, { passive: true });
 
-  // Pointer events (desktop fallback — bound to hero handle only)
-  const hero = document.getElementById('expansion-hero');
+  // Pointer events (desktop — hero handle)
+  const hero = heroEl;
   hero.addEventListener('pointerdown', (e) => {
     if (isAnimating || overlay.dataset.open !== 'true') return;
     if (scroll && scroll.scrollTop > 0) return;
@@ -470,7 +475,7 @@ const movies = [
     const velocity = timeTaken > 0 ? dragCurrentY / timeTaken : 0;
 
     if (percentDragged > CLOSE_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
-      // Reset drag styles before close() takes over
+      card.style.transition = 'none';
       card.style.transform = '';
       card.style.borderRadius = '';
       close();
@@ -486,7 +491,6 @@ const movies = [
     card.style.borderRadius = '';
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
-    // Restore page scale
     pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
     pageWrapper.style.borderRadius = '12px';
@@ -734,7 +738,7 @@ const movies = [
     background: var(--bg-body);
     overflow: hidden;
     transform-origin: center center;
-    will-change: transform;
+    will-change: transform, clip-path;
   }
 
   /* Desktop: centered dialog with margins */
@@ -755,34 +759,6 @@ const movies = [
     overscroll-behavior-y: none;
     -webkit-overflow-scrolling: touch;
     background: var(--bg-body);
-  }
-
-  /* Animation mode: card is hero-only (body hidden, no extra height).
-     This ensures uniform scale during FLIP — no image distortion. */
-  .expansion-card.animating {
-    inset: auto;
-    top: 0;
-    left: 0;
-    width: 100%;
-    overflow: hidden;
-  }
-
-  .expansion-card.animating .expansion-body {
-    display: none;
-  }
-
-  .expansion-card.animating .expansion-scroll {
-    height: auto;
-    overflow: hidden;
-  }
-
-  @media (min-width: 768px) {
-    .expansion-card.animating {
-      top: 20px;
-      left: 50%;
-      width: 520px;
-      margin-left: -260px;
-    }
   }
 
   /* =============================================
