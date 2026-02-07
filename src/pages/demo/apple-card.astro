@@ -84,6 +84,7 @@ const movies = [
 ---
 
 <Layout title="Apple Card Expansion">
+  <div class="page-wrapper" id="page-wrapper">
   <div class="apple-card-page" id="page-content">
     <header class="page-header">
       <h1>Apple Card Expansion</h1>
@@ -107,6 +108,7 @@ const movies = [
         </article>
       ))}
     </div>
+  </div>
   </div>
 
   <!-- Expansion overlay (hidden by default) -->
@@ -166,6 +168,7 @@ const movies = [
 <script define:vars={{ moviesJson: JSON.stringify(movies) }}>
   const IOS_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
   const DURATION = 400;
+  const PAGE_SCALE = 0.94;
   const movieData = JSON.parse(moviesJson);
 
   const overlay = document.getElementById('expansion-overlay');
@@ -174,6 +177,7 @@ const movies = [
   const scroll = document.getElementById('expansion-scroll');
   const body = document.getElementById('expansion-body');
   const closeBtn = document.getElementById('expansion-close');
+  const pageWrapper = document.getElementById('page-wrapper');
 
   let isAnimating = false;
   let sourceEl = null;
@@ -196,6 +200,13 @@ const movies = [
       .join('');
   }
 
+  // Compute transform-origin so page scales centered on the visible viewport
+  function setPageOrigin() {
+    const rect = pageWrapper.getBoundingClientRect();
+    const originY = window.innerHeight / 2 - rect.top;
+    pageWrapper.style.transformOrigin = `center ${originY}px`;
+  }
+
   // --- FLIP OPEN ---
   function open(index, el) {
     if (isAnimating) return;
@@ -215,6 +226,13 @@ const movies = [
     overlay.dataset.open = 'true';
     card.classList.add('animating');
     document.body.style.overflow = 'hidden';
+
+    // Scale page down (Apple effect)
+    setPageOrigin();
+    pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+    pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
+    pageWrapper.style.borderRadius = '12px';
+    pageWrapper.style.overflow = 'hidden';
 
     // Measure hero-only card
     card.style.transition = 'none';
@@ -243,24 +261,28 @@ const movies = [
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
 
-    // After FLIP: expand to full card, show body
+    // Slightly before FLIP ends, start showing body for progressive reveal
+    setTimeout(() => {
+      card.classList.remove('animating');
+      if (body) {
+        body.style.opacity = '0';
+        void body.offsetHeight;
+        body.style.transition = 'opacity 200ms ease';
+        body.style.opacity = '1';
+      }
+    }, DURATION - 60);
+
+    // After FLIP: clean up
     setTimeout(() => {
       card.style.transition = '';
       card.style.transform = '';
       card.style.borderRadius = '';
-      card.classList.remove('animating');
-
-      if (body) {
-        body.style.opacity = '0';
-        void body.offsetHeight;
-        body.style.transition = 'opacity 250ms ease';
-        body.style.opacity = '1';
-      }
+      pageWrapper.style.transition = '';
 
       setTimeout(() => {
         if (body) body.style.transition = '';
         isAnimating = false;
-      }, 250);
+      }, 160);
     }, DURATION);
   }
 
@@ -273,53 +295,73 @@ const movies = [
     if (!el) {
       overlay.dataset.open = 'false';
       document.body.style.overflow = '';
+      resetPage();
       isAnimating = false;
       return;
     }
 
-    // Immediately hide body and switch to hero-only (no delay)
-    if (body) body.style.opacity = '0';
-    scroll.scrollTop = 0;
-    card.classList.add('animating');
-    void card.offsetHeight;
-
-    // Use stored sourceRect — position hasn't shifted since we don't scale the page
-    const targetRect = sourceRect;
-    const cardRect = card.getBoundingClientRect();
-
-    const scale = targetRect.width / cardRect.width;
-    const dx = (targetRect.left + targetRect.width / 2) - (cardRect.left + cardRect.width / 2);
-    const dy = (targetRect.top + targetRect.height / 2) - (cardRect.top + cardRect.height / 2);
-
-    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
-    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-    card.style.borderRadius = '20px';
-
-    backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
-    backdrop.style.opacity = '0';
+    // Fade body out quickly, then FLIP
+    if (body) {
+      body.style.transition = 'opacity 80ms ease';
+      body.style.opacity = '0';
+    }
 
     setTimeout(() => {
-      el.style.opacity = '';
-      overlay.dataset.open = 'false';
-      card.classList.remove('animating');
-      card.style.transition = '';
-      card.style.transform = '';
-      card.style.borderRadius = '';
-      card.style.opacity = '';
-      if (body) {
-        body.style.transition = '';
-        body.style.opacity = '';
-      }
-      document.body.style.overflow = '';
-      sourceEl = null;
-      sourceRect = null;
-      isAnimating = false;
-    }, DURATION);
+      scroll.scrollTop = 0;
+      card.classList.add('animating');
+      void card.offsetHeight;
+
+      // Target stored sourceRect — page un-scales simultaneously,
+      // both reach final state at the same time with matching easing
+      const targetRect = sourceRect;
+      const cardRect = card.getBoundingClientRect();
+
+      const scale = targetRect.width / cardRect.width;
+      const dx = (targetRect.left + targetRect.width / 2) - (cardRect.left + cardRect.width / 2);
+      const dy = (targetRect.top + targetRect.height / 2) - (cardRect.top + cardRect.height / 2);
+
+      card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+      card.style.borderRadius = '20px';
+
+      backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
+      backdrop.style.opacity = '0';
+
+      // Un-scale page simultaneously
+      pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+      pageWrapper.style.transform = '';
+      pageWrapper.style.borderRadius = '';
+
+      setTimeout(() => {
+        el.style.opacity = '';
+        overlay.dataset.open = 'false';
+        card.classList.remove('animating');
+        card.style.transition = '';
+        card.style.transform = '';
+        card.style.borderRadius = '';
+        card.style.opacity = '';
+        if (body) {
+          body.style.transition = '';
+          body.style.opacity = '';
+        }
+        document.body.style.overflow = '';
+        resetPage();
+        sourceEl = null;
+        sourceRect = null;
+        isAnimating = false;
+      }, DURATION);
+    }, 80);
+  }
+
+  function resetPage() {
+    pageWrapper.style.transition = '';
+    pageWrapper.style.transform = '';
+    pageWrapper.style.borderRadius = '';
+    pageWrapper.style.overflow = '';
+    pageWrapper.style.transformOrigin = '';
   }
 
   // --- SWIPE-TO-DISMISS ---
-  // Uses touch events for reliable iOS Safari behavior.
-  // Pointer events used as fallback for desktop.
   let isDragging = false;
   let isTracking = false;
   let dragStartY = 0;
@@ -327,6 +369,29 @@ const movies = [
   let dragStartTime = 0;
   const CLOSE_THRESHOLD = 0.25;
   const VELOCITY_THRESHOLD = 0.5;
+
+  function applyDragVisuals(deltaY) {
+    const height = card.offsetHeight;
+    if (deltaY < 0) {
+      // Rubber-band upward
+      const damped = Math.sqrt(Math.abs(deltaY)) * 3;
+      dragCurrentY = -damped;
+      card.style.transform = `translateY(${-damped}px)`;
+    } else {
+      dragCurrentY = deltaY;
+      card.style.transform = `translateY(${deltaY}px)`;
+      const percent = Math.min(deltaY / height, 1);
+      // Fade backdrop
+      backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
+      // Round card corners as it pulls down
+      card.style.borderRadius = `${Math.min(percent * 80, 20)}px`;
+      // Interpolate page scale from PAGE_SCALE → 1.0
+      const pageScale = PAGE_SCALE + (1 - PAGE_SCALE) * percent;
+      pageWrapper.style.transition = 'none';
+      pageWrapper.style.transform = `scale(${pageScale})`;
+      pageWrapper.style.borderRadius = `${Math.max(0, 12 * (1 - percent))}px`;
+    }
+  }
 
   // Touch events (mobile)
   scroll.addEventListener('touchstart', (e) => {
@@ -347,29 +412,16 @@ const movies = [
       if (Math.abs(deltaY) < 8) return;
 
       if (deltaY > 0 && scroll.scrollTop <= 0) {
-        // Pulling down from scroll top → start dismiss gesture
         isDragging = true;
         card.classList.add('dragging');
       } else {
-        // Normal content scroll
         isTracking = false;
         return;
       }
     }
 
-    e.preventDefault(); // Stop scroll, we own the gesture now
-
-    if (deltaY < 0) {
-      const damped = Math.sqrt(Math.abs(deltaY)) * 3;
-      dragCurrentY = -damped;
-      card.style.transform = `translateY(${-damped}px)`;
-    } else {
-      dragCurrentY = deltaY;
-      card.style.transform = `translateY(${deltaY}px)`;
-      const height = card.offsetHeight;
-      const percent = Math.min(deltaY / height, 1);
-      backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
-    }
+    e.preventDefault();
+    applyDragVisuals(deltaY);
   }, { passive: false });
 
   scroll.addEventListener('touchend', () => {
@@ -398,20 +450,9 @@ const movies = [
   });
 
   document.addEventListener('pointermove', (e) => {
-    if (!isDragging || isTracking) return; // isTracking = touch is active, skip pointer
+    if (!isDragging || isTracking) return;
     const deltaY = e.clientY - dragStartY;
-
-    if (deltaY < 0) {
-      const damped = Math.sqrt(Math.abs(deltaY)) * 3;
-      dragCurrentY = -damped;
-      card.style.transform = `translateY(${-damped}px)`;
-    } else {
-      dragCurrentY = deltaY;
-      card.style.transform = `translateY(${deltaY}px)`;
-      const height = card.offsetHeight;
-      const percent = Math.min(deltaY / height, 1);
-      backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
-    }
+    applyDragVisuals(deltaY);
   });
 
   document.addEventListener('pointerup', (e) => {
@@ -429,7 +470,9 @@ const movies = [
     const velocity = timeTaken > 0 ? dragCurrentY / timeTaken : 0;
 
     if (percentDragged > CLOSE_THRESHOLD || velocity > VELOCITY_THRESHOLD) {
+      // Reset drag styles before close() takes over
       card.style.transform = '';
+      card.style.borderRadius = '';
       close();
     } else {
       snapBack();
@@ -438,12 +481,18 @@ const movies = [
   }
 
   function snapBack() {
-    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}`;
+    card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
     card.style.transform = '';
+    card.style.borderRadius = '';
     backdrop.style.transition = `opacity ${DURATION}ms ${IOS_EASE}`;
     backdrop.style.opacity = '1';
+    // Restore page scale
+    pageWrapper.style.transition = `transform ${DURATION}ms ${IOS_EASE}, border-radius ${DURATION}ms ${IOS_EASE}`;
+    pageWrapper.style.transform = `scale(${PAGE_SCALE})`;
+    pageWrapper.style.borderRadius = '12px';
     setTimeout(() => {
       card.style.transition = '';
+      pageWrapper.style.transition = '';
     }, DURATION);
   }
 
@@ -476,6 +525,12 @@ const movies = [
   /* =============================================
      PAGE LAYOUT
      ============================================= */
+
+  .page-wrapper {
+    background: var(--bg-body);
+    min-height: 100vh;
+    will-change: transform;
+  }
 
   .apple-card-page {
     max-width: 900px;
