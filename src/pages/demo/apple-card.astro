@@ -258,7 +258,7 @@ const movies = [
     void card.offsetHeight;
 
     // PLAY: animate to final position, reveal body via clip
-    const finalRound = window.innerWidth < 768 ? '0px' : '16px';
+    const finalRound = window.innerWidth < 640 ? '0px' : '16px';
     card.style.transition = `transform ${DURATION}ms ${IOS_EASE}, clip-path ${DURATION}ms ${IOS_EASE}`;
     card.style.clipPath = `inset(0px 0px 0px 0px round ${finalRound})`;
     card.style.transform = 'translate(0px, 0px) scale(1)';
@@ -320,7 +320,7 @@ const movies = [
     const dy = targetRect.top - cardRect.top;
 
     // Set starting clip-path (full card visible, current state)
-    const startRound = window.innerWidth < 768 ? '0px' : '16px';
+    const startRound = window.innerWidth < 640 ? '0px' : '16px';
     card.style.clipPath = `inset(0px 0px 0px 0px round ${startRound})`;
     void card.offsetHeight;
 
@@ -733,7 +733,7 @@ const movies = [
 
   .expansion-card {
     position: absolute;
-    /* Mobile: fill viewport */
+    /* Mobile: bottom-aligned drawer, fills viewport */
     inset: 0;
     background: var(--bg-body);
     overflow: hidden;
@@ -742,14 +742,13 @@ const movies = [
   }
 
   /* Desktop: centered dialog, content-driven height */
-  @media (min-width: 768px) {
+  @media (min-width: 640px) {
     .expansion-card {
-      inset: auto;
-      top: 40px;
-      left: 50%;
+      inset: 0;
+      margin: auto;
       width: 520px;
+      height: fit-content;
       max-height: calc(100vh - 80px);
-      margin-left: -260px;
       border-radius: 16px;
       box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
     }
