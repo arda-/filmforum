@@ -95,6 +95,9 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
+  // Debug logging flag - set to true to enable detailed console logs
+  const DEBUG = false;
+
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
@@ -117,25 +120,29 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const friendUserId = urlParams.get('u') || 'unknown';
   const encodedReactions = urlParams.get('r') || '';
 
-  // DEBUG: Log everything
-  console.log('=== SHARE LIST DEBUG ===');
-  console.log('1. Encoded from URL:', encodedReactions);
-  console.log('2. window.__movieData exists?', typeof (window as any).__movieData);
-  console.log('3. All movies is array?', Array.isArray(allMovies));
-  console.log('4. All movies count:', allMovies?.length || 0);
-  if (allMovies && allMovies.length > 0) {
-    console.log('5. First 3 movie IDs:', allMovies.slice(0, 3).map(m => m.id));
-    console.log('6. Movie at index 2:', allMovies[2]?.id);
-    console.log('7. Movie at index 3:', allMovies[3]?.id);
-    console.log('8. Movie at index 5:', allMovies[5]?.id);
+  // DEBUG: Log everything (only if DEBUG is true)
+  if (DEBUG) {
+    console.log('=== SHARE LIST DEBUG ===');
+    console.log('1. Encoded from URL:', encodedReactions);
+    console.log('2. window.__movieData exists?', typeof (window as any).__movieData);
+    console.log('3. All movies is array?', Array.isArray(allMovies));
+    console.log('4. All movies count:', allMovies?.length || 0);
+    if (allMovies && allMovies.length > 0) {
+      console.log('5. First 3 movie IDs:', allMovies.slice(0, 3).map(m => m.id));
+      console.log('6. Movie at index 2:', allMovies[2]?.id);
+      console.log('7. Movie at index 3:', allMovies[3]?.id);
+      console.log('8. Movie at index 5:', allMovies[5]?.id);
+    }
   }
 
   let friendReactions: ReactionMap = {};
   try {
     friendReactions = decodeReactionsCompact(encodedReactions, allMovies || []);
-    console.log('9. Decoded successfully');
-    console.log('10. Decoded reaction keys:', Object.keys(friendReactions));
-    console.log('11. Decoded reactions:', friendReactions);
+    if (DEBUG) {
+      console.log('9. Decoded successfully');
+      console.log('10. Decoded reaction keys:', Object.keys(friendReactions));
+      console.log('11. Decoded reactions:', friendReactions);
+    }
   } catch (error) {
     console.error('ERROR decoding:', error);
   }
@@ -148,10 +155,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const maybeMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'maybe');
   const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
 
-  console.log('12. Yes movies:', yesMovies.map(m => m.id));
-  console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
-  console.log('14. hasAny:', hasAny);
-  console.log('========================');
+  if (DEBUG) {
+    console.log('12. Yes movies:', yesMovies.map(m => m.id));
+    console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
+    console.log('14. hasAny:', hasAny);
+    console.log('========================');
+  }
 
   // Show/hide empty state
   const emptyEl = document.getElementById('shared-empty');
