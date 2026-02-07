@@ -86,7 +86,7 @@ for (const series of activeSeries) {
         <div class="today-grid">
           {showingToday.map(({ film, seriesId }) => (
             <a href={`/s/${seriesId}/calendar`} class="poster-card">
-              <img src={film.poster_url} alt={film.Movie} class="poster-image" loading="lazy" />
+              <img src={film.poster_url} alt={film.Movie} class="poster-image" loading="lazy" width="145" height="193" />
               <div class="poster-scrim"></div>
               <div class="progressive-blur">
                 <div class="blur-layer layer-1"></div>
