@@ -336,9 +336,10 @@ const movies = [
     const actionsSection = document.querySelector('.expansion-actions');
     const showtimesSection = document.getElementById('expansion-showtimes');
 
-    const baseDelay = Math.round(DURATION * 0.4);
-    const transitionDuration = Math.round(DURATION * 0.5);
-    const staggerInterval = 80;
+    // Start content fade sooner, with tighter stagger for snappier reveal
+    const baseDelay = Math.round(DURATION * 0.15);  // Start at 60ms (was 160ms)
+    const transitionDuration = Math.round(DURATION * 0.4);  // Faster fade (was 200ms)
+    const staggerInterval = 40;  // Tighter spacing between elements (was 80ms)
 
     if (description) description.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay}ms`;
     if (castSection) castSection.style.transition = `opacity ${transitionDuration}ms ease-out ${baseDelay + staggerInterval}ms`;
