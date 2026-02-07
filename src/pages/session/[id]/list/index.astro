@@ -386,7 +386,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
           // Distance-based timing: longer moves take longer
           const distance = Math.sqrt(dx * dx + dy * dy);
-          const duration = Math.max(300, Math.min(600, distance * 1.5));
+          const duration = Math.max(450, Math.min(900, distance * 2.5));
           const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
           requestAnimationFrame(() => {
