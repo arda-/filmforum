@@ -65,20 +65,20 @@ const movies = [
 ];
 ---
 
-<Layout title="2B: Mobile Drawer - With Body Content">
+<Layout title="2B: Floating Bottom Dialog">
+  <nav class="demo-nav">
+    <a href="/demo/apple-card-1a">1A: Desktop</a>
+    <a href="/demo/apple-card-1b">1B: Mobile 16px</a>
+    <a href="/demo/apple-card-1c">1C: Mobile 24px</a>
+    <a href="/demo/apple-card-1d">1D: Responsive</a>
+    <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
+    <a href="/demo/apple-card-2b">2B: Floating Bottom</a>
+  </nav>
   <div class="page-wrapper" id="page-wrapper">
-    <nav class="demo-nav">
-      <a href="/demo/apple-card-1a">1A: Desktop</a>
-      <a href="/demo/apple-card-1b">1B: Mobile 16px</a>
-      <a href="/demo/apple-card-1c">1C: Mobile 24px</a>
-      <a href="/demo/apple-card-1d">1D: Responsive</a>
-      <a href="/demo/apple-card-2a">2A: Desktop+Body</a>
-      <a href="/demo/apple-card-2b">2B: Mobile+Body</a>
-    </nav>
     <div class="demo-page">
       <header class="page-header">
-        <h1>2B: Mobile Drawer - With Body Content</h1>
-        <p>Pointer-based swipe (touch + mouse). Hero image + scrollable body content. Drag handle FIFO. Works like Vaul.</p>
+        <h1>2B: Floating Bottom Dialog</h1>
+        <p>Floating dialog with 24px radius. Pointer swipe to dismiss. Works with home indicators and gesture areas.</p>
       </header>
 
       <div class="card-grid">
@@ -289,7 +289,7 @@ const movies = [
       const animOptions = { duration: DURATION, easing: IOS_EASE, fill: 'forwards' };
       const cardAnim = el.animate([
         { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, clipPath: `inset(0px 0px ${bodyClip}px 0px round 16px)` },
-        { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0px 0px 0px 0px round 16px 16px 0 0)' }
+        { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0px 0px 0px 0px round 16px)' }
       ], animOptions);
 
       // Backdrop
@@ -410,7 +410,7 @@ const movies = [
       // 3. Animate to source
       const animOptions = { duration: DURATION, easing: IOS_EASE, fill: 'forwards' };
       const cardAnim = el.animate([
-        { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0px 0px 0px 0px round 16px 16px 0 0)' },
+        { transform: 'translate(0px, 0px) scale(1)', clipPath: 'inset(0px 0px 0px 0px round 16px)' },
         { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, clipPath: `inset(0px 0px ${bodyClip}px 0px round 16px)` }
       ], animOptions);
 
@@ -506,7 +506,7 @@ const movies = [
       expandedCard.style.transform = `translateY(${deltaY}px)`;
       const percent = Math.min(deltaY / height, 1);
       backdrop.style.opacity = String(Math.max(0, 1 - percent * 1.5));
-      expandedCard.style.borderRadius = `${Math.min(percent * 80, 20)}px`;
+      expandedCard.style.borderRadius = `${Math.min(percent * 80, 32)}px`;
       const pageScale = PAGE_SCALE + (1 - PAGE_SCALE) * percent;
       pageWrapper.style.transition = 'none';
       pageWrapper.style.transform = `scale(${pageScale})`;
@@ -724,27 +724,31 @@ const movies = [
     display: block;
     width: 100%;
     height: auto;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
   }
 
-  /* CARD (EXPANDED) - Mobile drawer */
+  /* CARD (EXPANDED) - Floating bottom dialog */
   .movie-card.expanded {
     position: fixed;
-    inset: auto 0 0 0;
-    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 20px);
-    border-radius: 16px 16px 0 0;
-    clip-path: inset(0 round 16px 16px 0 0);
+    inset: auto 0 8px 0;
+    margin: 0 auto;
+    max-width: 100vw;
+    max-height: calc(100svh - env(safe-area-inset-top, 0px) - 60px);
+    border-radius: 24px;
+    clip-path: inset(0 round 24px);
     cursor: default;
-    box-shadow: none;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
     overscroll-behavior-y: none;
     z-index: 1;
     transition: none;
+  }
+
+  /* Add padding at 640px+ for floating effect */
+  @media (min-width: 640px) {
+    .movie-card.expanded {
+      inset: auto 16px 16px 16px;
+      max-width: 640px;
+    }
   }
 
   /* DEMO NAV */
@@ -885,9 +889,19 @@ const movies = [
     pointer-events: none;
   }
 
+  /* Prevent image dragging */
+  .card-img {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+  }
+
   /* REDUCED MOTION */
   @media (prefers-reduced-motion: reduce) {
-    .movie-card, .backdrop, .page-wrapper { transition: none !important; }
+    .movie-card, .backdrop { transition: none !important; }
     .movie-card:hover, .movie-card:active { transform: none; }
   }
 </style>
