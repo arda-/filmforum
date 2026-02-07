@@ -10,11 +10,6 @@ const { id } = Astro.params;
 const series = getSeriesConfig(id)!;
 
 // Load movie data at build time to extract series stats
-const dataUrl = new URL(series.dataFile, Astro.url.origin);
-const moviesRaw = await fetch(`http://localhost:4321${series.dataFile}`)
-  .catch(() => null);
-
-// Read the data file directly from the filesystem at build time
 const fs = await import('node:fs');
 const path = await import('node:path');
 const dataPath = path.default.join(process.cwd(), 'public', series.dataFile);
@@ -31,11 +26,6 @@ for (const m of movieData) {
 }
 const films = Array.from(filmMap.values());
 const totalShowtimes = movieData.length;
-
-// Date range
-const dates = movieData.map((m: any) => m.Datetime.split('T')[0]).sort();
-const firstDate = new Date(dates[0] + 'T12:00:00');
-const lastDate = new Date(dates[dates.length - 1] + 'T12:00:00');
 ---
 
 <Layout title={`${series.name}: ${series.subtitle}`}>
@@ -60,36 +50,7 @@ const lastDate = new Date(dates[dates.length - 1] + 'T12:00:00');
       <span class="calendar-link-arrow">&rarr;</span>
     </a>
 
-    <section class="films-section">
-      <h3 class="section-heading">All Films</h3>
-      <div class="film-grid">
-        {films
-          .sort((a: any, b: any) => a.Movie.localeCompare(b.Movie))
-          .map((film: any) => (
-            <div class="film-card">
-              {film.poster_url ? (
-                <img src={film.poster_url} alt={film.Movie} class="film-poster" loading="lazy" />
-              ) : (
-                <div class="film-poster-placeholder" />
-              )}
-              <div class="film-scrim"></div>
-              <div class="progressive-blur">
-                <div class="blur-layer layer-1"></div>
-                <div class="blur-layer layer-2"></div>
-                <div class="blur-layer layer-3"></div>
-                <div class="blur-layer layer-4"></div>
-                <div class="blur-layer layer-5"></div>
-                <div class="blur-layer layer-6"></div>
-              </div>
-              <div class="film-info">
-                <span class="film-title">{film.Movie.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')}</span>
-                <span class="film-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
-              </div>
-            </div>
-          ))
-        }
-      </div>
-    </section>
+    <!-- TODO: Integrate session list explorer here for browsing all films -->
   </main>
 </Layout>
 
@@ -182,150 +143,5 @@ const lastDate = new Date(dates[dates.length - 1] + 'T12:00:00');
 
   .calendar-link-arrow {
     font-size: 1.2em;
-  }
-
-  .section-heading {
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 500;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-tertiary);
-    margin-bottom: 16px;
-    text-align: center;
-  }
-
-  .film-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-  }
-
-  @media (min-width: 640px) {
-    .film-grid {
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
-    }
-  }
-
-  .film-card {
-    position: relative;
-    aspect-ratio: 3 / 4;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--bg-movie);
-  }
-
-  .film-poster {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .film-poster-placeholder {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-movie-hover);
-  }
-
-  /* Dark scrim for text readability */
-  .film-scrim {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60%;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.75) 0%,
-      rgba(0, 0, 0, 0.35) 40%,
-      transparent 100%
-    );
-    pointer-events: none;
-  }
-
-  /* Progressive blur — scoped to bottom 45% (text region only) */
-  .progressive-blur {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 45%;
-    pointer-events: none;
-  }
-
-  .blur-layer {
-    position: absolute;
-    inset: 0;
-  }
-
-  /* Scaled blur values for small cards, masks within the 45% container */
-  .layer-1 {
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-    mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
-  }
-  .layer-2 {
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
-  }
-  .layer-3 {
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
-    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
-  }
-  .layer-4 {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
-  }
-  .layer-5 {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
-  }
-  .layer-6 {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
-  }
-
-  .film-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .film-title {
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    line-height: 1.2;
-  }
-
-  .film-meta {
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   }
 </style>
