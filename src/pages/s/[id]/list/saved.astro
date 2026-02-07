@@ -90,7 +90,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '../../../../utils/storageManager';
+  import { getReactions, setReaction, getUserId } from '../../../../utils/storageManager';
+  import { decodeReactionsCompact, encodeReactionsCompact } from '../../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
@@ -101,7 +102,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const urlParams = new URLSearchParams(window.location.search);
   const friendUserId = urlParams.get('u') || 'unknown';
   const encodedReactions = urlParams.get('r') || '';
-  const friendReactions = decodeReactions(encodedReactions);
+  const friendReactions = decodeReactionsCompact(encodedReactions, allMovies);
 
   // Display friend ID
   const friendIdEl = document.getElementById('friend-id');
@@ -179,7 +180,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // Compare button
   document.getElementById('compare-btn')?.addEventListener('click', () => {
     const myReactions = getReactions(sessionId);
-    const myEncoded = encodeReactions(myReactions);
+    const myEncoded = encodeReactionsCompact(myReactions, allMovies);
     const friendEncoded = encodedReactions;
     window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });

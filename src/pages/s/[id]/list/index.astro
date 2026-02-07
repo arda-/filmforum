@@ -89,8 +89,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { getReactions, setReaction, getReactionCounts, encodeReactions } from '../../../../utils/storageManager';
-  import { getUserId } from '../../../../utils/storageManager';
+  import { getReactions, setReaction, getReactionCounts, getUserId } from '../../../../utils/storageManager';
+  import { encodeReactionsCompact } from '../../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
   import { sortMovies } from '../../../../utils/sessionUtils';
   import type { MovieReaction, UniqueMovie } from '../../../../types/session';
@@ -437,7 +437,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // --- Share ---
   document.getElementById('saved-share-btn')?.addEventListener('click', async () => {
     const reactions = getReactions(sessionId);
-    const encoded = encodeReactions(reactions);
+    const encoded = encodeReactionsCompact(reactions, allMovies);
     const userId = getUserId();
     const url = `${window.location.origin}/s/${sessionId}/list/saved?u=${userId}&r=${encoded}`;
 
