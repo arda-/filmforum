@@ -16,7 +16,6 @@ const { sessionId } = Astro.props;
   <div class="saved-list" data-session-id={sessionId}>
     <div class="saved-section" id="saved-yes-section">
       <h3 class="saved-section-title saved-section-title--yes">
-        <span class="saved-dot saved-dot--yes"></span>
         Yes
         <span class="saved-section-count" id="saved-yes-count">0</span>
       </h3>
@@ -27,7 +26,6 @@ const { sessionId } = Astro.props;
 
     <div class="saved-section" id="saved-maybe-section">
       <h3 class="saved-section-title saved-section-title--maybe">
-        <span class="saved-dot saved-dot--maybe"></span>
         Maybe
         <span class="saved-section-count" id="saved-maybe-count">0</span>
       </h3>
@@ -38,7 +36,6 @@ const { sessionId } = Astro.props;
 
     <div class="saved-section" id="saved-no-section">
       <h3 class="saved-section-title saved-section-title--no">
-        <span class="saved-dot saved-dot--no"></span>
         No
         <span class="saved-section-count" id="saved-no-count">0</span>
       </h3>
@@ -49,7 +46,6 @@ const { sessionId } = Astro.props;
 
     <div class="saved-section" id="saved-unmarked-section">
       <h3 class="saved-section-title saved-section-title--unmarked">
-        <span class="saved-dot saved-dot--unmarked"></span>
         Unmarked
         <span class="saved-section-count" id="saved-unmarked-count">0</span>
       </h3>
@@ -136,29 +132,6 @@ const { sessionId } = Astro.props;
 
   .saved-section-title--unmarked {
     color: var(--text-tertiary);
-  }
-
-  .saved-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .saved-dot--yes {
-    background: var(--reaction-yes, #22c55e);
-  }
-
-  .saved-dot--maybe {
-    background: var(--reaction-maybe, #f59e0b);
-  }
-
-  .saved-dot--no {
-    background: var(--reaction-no, #ef4444);
-  }
-
-  .saved-dot--unmarked {
-    background: var(--text-tertiary);
-    opacity: 0.5;
   }
 
   .saved-section-count {
