@@ -38,7 +38,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--z-drawer);
   }
 
   .drawer[data-open="true"] {
@@ -147,9 +147,11 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     transition: background-color 0.15s, color 0.15s;
   }
 
-  .drawer-close-btn:hover {
-    background: var(--bg-movie-hover);
-    color: var(--text-primary);
+  @media (hover: hover) {
+    .drawer-close-btn:hover {
+      background: var(--bg-movie-hover);
+      color: var(--text-primary);
+    }
   }
 
   .drawer-body {

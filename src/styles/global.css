@@ -1,6 +1,25 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { touch-action: manipulation; }
 
+/* Z-index scale — centralized for consistent stacking */
+:root {
+  --z-base: 0;
+  --z-drawer-bg: 100;
+  --z-drawer: 200;
+  --z-modal: 300;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Light mode (default) */
 :root {
   --bg-body: #ffffff;
