@@ -1,14 +1,14 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/Header.astro';
-import MovieModal from '../../components/MovieModal.astro';
-import ToggleGroup from '../../components/ToggleGroup.astro';
-import Switch from '../../components/Switch.astro';
-import Toggle from '../../components/Toggle.astro';
-import Dialog from '../../components/Dialog.astro';
-import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../components/Dialog/index';
-import Button from '../../components/Button.astro';
-import { getAllSeriesIds, getSeriesConfig } from '../../config/series';
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+import MovieModal from '../../../components/MovieModal.astro';
+import ToggleGroup from '../../../components/ToggleGroup.astro';
+import Switch from '../../../components/Switch.astro';
+import Toggle from '../../../components/Toggle.astro';
+import Dialog from '../../../components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
+import Button from '../../../components/Button.astro';
+import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -131,9 +131,9 @@ const series = getSeriesConfig(id)!;
     SINGLE_SHOWTIMES_MODE,
     type HoursFilterMode,
     type SingleShowtimesMode,
-  } from '../../constants';
-  import { downloadICS, type Movie } from '../../utils/icsGenerator';
-  import { createMovieElement, updateTextHeights, toTitleCase, processFFJr } from '../../components/MovieTile';
+  } from '../../../constants';
+  import { downloadICS, type Movie } from '../../../utils/icsGenerator';
+  import { createMovieElement, updateTextHeights, toTitleCase, processFFJr } from '../../../components/MovieTile';
 
   // Read data file path from config element
   const configEl = document.getElementById('schedule-config');
