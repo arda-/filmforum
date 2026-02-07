@@ -387,12 +387,13 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           // Distance-based timing: longer moves take longer
           const distance = Math.sqrt(dx * dx + dy * dy);
           const duration = Math.max(300, Math.min(600, distance * 1.5));
+          const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               item.classList.add('saved-item--flip');
               item.style.transform = '';
-              item.style.transitionDuration = `${duration}ms`;
+              item.style.transition = `transform ${duration}ms ${easing}, opacity 0.3s ease`;
 
               const onEnd = () => {
                 item.classList.remove('saved-item--flip');
