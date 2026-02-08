@@ -11,6 +11,8 @@
   line-height: 1;
   border-left: none;
   cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 50px;
 }
 
 @media (min-width: 1024px) {
@@ -37,6 +39,8 @@
   justify-content: flex-start;
   padding: 4px;
   color: var(--text-primary);
+  position: relative;
+  z-index: 2;
 }
 
 @media (min-width: 768px) {
@@ -168,11 +172,26 @@ body.show-actors .movie-actors {
 
 /* ===== Poster as Background (all modes) ===== */
 
+/* Poster image styling - positioned absolutely behind text */
+.movie-poster-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+}
+
+/* Hide poster image when show-image is disabled */
+body:not(.show-image) .movie-poster-img {
+  display: none;
+}
+
 /* Only show background when show-image is enabled */
 body.show-image .movie.has-poster {
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+  will-change: transform;
 }
 
 /* Minimum height for non-timeline mode with images */
