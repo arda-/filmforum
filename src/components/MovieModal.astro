@@ -16,9 +16,9 @@ const hasThumbnails = fs.existsSync(thumbDir);
     <div class="movie-poster">
       <!-- Thumbnail loads immediately while full quality loads in background -->
       {hasThumbnails && (
-        <img id="modal-poster-thumb" src="" alt="" loading="lazy" decoding="async" width="640" height="360" style="position:absolute;width:100%;height:100%;object-fit:cover;z-index:1;" />
+        <img id="modal-poster-thumb" src="" alt="" loading="lazy" decoding="async" width="640" height="360" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1;" />
       )}
-      <img id="modal-poster" src="" alt="" loading="lazy" decoding="async" width="640" height="360" style="position:absolute;width:100%;height:100%;object-fit:cover;z-index:2;" />
+      <img id="modal-poster" src="" alt="" loading="lazy" decoding="async" width="640" height="360" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2;" />
       <span class="poster-placeholder">No Image Available</span>
     </div>
 
