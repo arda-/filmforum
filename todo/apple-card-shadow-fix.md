@@ -120,28 +120,32 @@ When `.expanded` class is added, the CSS border-radius and shadow change **insta
 
 ---
 
-## PR Review Summary
+## PR Review Summary (Updated)
 
-**PR**: [#12](https://github.com/arda-/filmforum/pull/12) | **Status**: NEEDS CHANGES
+**PR**: [#12](https://github.com/arda-/filmforum/pull/12) | **Status**: APPROVABLE (minor cleanup needed)
 
-### Critical Issues to Fix
-- **⚠️ Pointer capture leak** in 2C and 2D (`pointerup` and `pointercancel` handlers)
-  - `isPointerCaptured` set to `false` before checking it to call `releasePointerCapture`
-  - Fix: Call `releasePointerCapture` before resetting the flag
-- **⚠️ Test artifact committed**: `test-results/.last-run.json` should be removed and gitignored
+### All Critical Issues Resolved ✅
+- ✅ Pointer capture leak fixed in 2C and 2D
+- ✅ Test artifact removed and gitignored
+- ✅ Movie data extracted to shared data file
+- ✅ Resize handlers now debounced across all demos
 
-### Other Findings
-- **2000ms animation duration** - intentionally slow for debugging/observation (OK for demos)
-- **Massive code duplication** - 8 demos share ~80% code (~5,500 lines total)
-  - Acceptable for demo/experiment pages
-  - Consider extracting if any variant goes to production
-- **Movie data duplicated 9x** - could extract to shared data file
-- **llm-best-practices folder** - 3,000+ line general-purpose docs, consider if belongs in this repo
+### Remaining Issues (Non-blocking)
+- **⚠️ `return` at module scope in `define:vars` scripts** (2A, 2B, 2C, 2D, main)
+  - Should wrap in IIFE or use `throw` instead
+- **⚠️ TypeScript annotations in inline scripts** (2C line 444, 2D line 92)
+  - `let resizeTimeout: number;` in non-TypeScript-processed scripts
+- **⚠️ Noisy .claude/settings.local.json** - clean up one-off permission entries
+- **2000ms animation duration** - intentionally slow for demos (OK, but document)
+
+### Suggestions
+- **Code duplication** - 8 demos share ~80% code (~5,500 lines). Acceptable for demos.
+- **Accessibility gaps** - Missing focus trap, `role="dialog"`, event listener cleanup
 
 ### Positives
-- ✅ Excellent FLIP animation engineering (proper timing, safety timeouts, cleanup)
-- ✅ Strong accessibility (tabindex, ARIA labels, keyboard support, reduced motion)
-- ✅ Progressive enhancement across variants
-- ✅ Clean build (25 pages, 962ms, zero errors)
+- All previous critical issues resolved
+- Clean progressive demo structure
+- Proper FLIP animation implementation
+- Consistent reduced motion support
 
-**Full review**: https://github.com/arda-/filmforum/pull/12#issuecomment-3867729989
+**Latest review**: https://github.com/arda-/filmforum/pull/12#issuecomment-3867759909
