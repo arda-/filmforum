@@ -1,0 +1,167 @@
+# [PROJECT_NAME] Roadmap
+
+## Overview
+
+**Duration:** [TOTAL_DURATION]
+**Target:** [TARGET_DESCRIPTION]
+
+**Key Milestones:**
+- [MILESTONE_DATE_1]: [PHASE_NAME_1] complete
+- [MILESTONE_DATE_2]: [PHASE_NAME_2] complete
+- [MILESTONE_DATE_3]: [PHASE_NAME_3] complete
+
+---
+
+## Phases
+
+### Phase 1: [PHASE_NAME_1] ([DURATION_1])
+
+**Goal:** [PHASE_GOAL_1]
+
+**Domains:**
+- [PHASE_PREFIX]-[DOMAIN_1] — [DOMAIN_DESCRIPTION]
+- [PHASE_PREFIX]-[DOMAIN_2] — [DOMAIN_DESCRIPTION]
+- [PHASE_PREFIX]-[DOMAIN_3] — [DOMAIN_DESCRIPTION]
+
+**Deliverable:** [PHASE_DELIVERABLE]
+**Dependencies:** None (first phase)
+
+---
+
+### Phase 2: [PHASE_NAME_2] ([DURATION_2])
+
+**Goal:** [PHASE_GOAL_2]
+
+**Domains:**
+- [PHASE_PREFIX]-[DOMAIN_1] — [DOMAIN_DESCRIPTION]
+- [PHASE_PREFIX]-[DOMAIN_2] — [DOMAIN_DESCRIPTION]
+
+**Deliverable:** [PHASE_DELIVERABLE]
+**Dependencies:** Requires Phase 1 complete
+
+---
+
+### Phase 3: [PHASE_NAME_3] ([DURATION_3])
+
+**Goal:** [PHASE_GOAL_3]
+
+**Domains:**
+- [PHASE_PREFIX]-[DOMAIN_1] — [DOMAIN_DESCRIPTION]
+- [PHASE_PREFIX]-[DOMAIN_2] — [DOMAIN_DESCRIPTION]
+
+**Deliverable:** [PHASE_DELIVERABLE]
+**Dependencies:** Requires Phase [N] complete
+
+---
+
+## Parallel Development Strategy
+
+### Critical Path
+
+```
+Phase 1 ([DURATION_1])
+    ↓
+Phase 2 ([DURATION_2])
+    ↓
+Phase 3 ([DURATION_3])
+```
+
+### Parallelization Within Phases
+
+Domains within a phase can often run in parallel. Use Phase.Domain.Step naming to track:
+
+```
+[PHASE_PREFIX].[DOMAIN].[STEP]
+
+Example:
+  1-foundation.1-schema.1-tables     (sequential within domain)
+  1-foundation.2-api.1-endpoints     (parallel with schema domain)
+  1-foundation.3-ui.1-components     (parallel with both above)
+```
+
+### Agent Allocation
+
+When using parallel agents, distribute by domain:
+
+- **Agent 1:** [DOMAIN_1] — [DESCRIPTION]
+- **Agent 2:** [DOMAIN_2] — [DESCRIPTION]
+- **Agent 3:** [DOMAIN_3] — [DESCRIPTION]
+
+Stay within your memory budget (see sops/sop-agent-limits.md).
+
+---
+
+## Success Metrics
+
+### Phase 1
+- [ ] [METRIC_1]
+- [ ] [METRIC_2]
+- [ ] [METRIC_3]
+
+### Phase 2
+- [ ] [METRIC_1]
+- [ ] [METRIC_2]
+
+### Phase 3
+- [ ] [METRIC_1]
+- [ ] [METRIC_2]
+
+---
+
+## Risk Management
+
+### [RISK_CATEGORY_1]
+- **Risk:** [RISK_DESCRIPTION]
+  - **Mitigation:** [MITIGATION_STRATEGY]
+
+### [RISK_CATEGORY_2]
+- **Risk:** [RISK_DESCRIPTION]
+  - **Mitigation:** [MITIGATION_STRATEGY]
+
+---
+
+## Resource Planning
+
+### Team Size
+- **Optimal:** [N] developers
+- **With AI assistance:** [SPEEDUP_ESTIMATE] faster, up to [N] parallel agents
+
+### Tool Requirements
+- Source control (Git)
+- [BUILD_TOOL]
+- [DATABASE]
+- [CI_CD]
+
+---
+
+## How to Adapt This Roadmap
+
+1. **Change phases** — Replace with your product phases
+2. **Change domains** — Match your system architecture
+3. **Change timelines** — Adjust based on team size
+4. **Change deliverables** — Define what "done" means for each phase
+5. **Change metrics** — Use your own success criteria
+
+---
+
+## Using This Roadmap with LLM Agents
+
+### For Planning
+```
+"Create implementation plan for Phase [N] using Phase.Domain.Step structure.
+Identify parallel work streams and dependencies."
+```
+
+### For Execution
+```
+"Launch agents for:
+- Agent 1: [PHASE].[DOMAIN_1].[STEP]
+- Agent 2: [PHASE].[DOMAIN_2].[STEP]"
+```
+
+### For Tracking
+Mark items as:
+- Completed
+- In progress
+- Planned
+- Blocked (with dependency reference)
