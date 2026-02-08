@@ -441,6 +441,7 @@ import { movies } from '../../../data/demo-movies';
   let dragCurrentY = 0;
   let dragStartTime = 0;
   let activePointerId = null;
+  let resizeTimeout: number;
   const CLOSE_THRESHOLD = 0.25;
   const VELOCITY_THRESHOLD = 0.5;
   const DIRECTION_THRESHOLD = 10; // Pixels to determine direction
@@ -608,8 +609,12 @@ import { movies } from '../../../data/demo-movies';
   // Handle window resize - update placeholder position
   window.addEventListener('resize', () => {
     if (!expandedCard || !placeholder) return;
-    // Re-measure placeholder position so close animation returns to correct location
-    savedSourceRect = placeholder.getBoundingClientRect();
+    
+    clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(() => {
+      if (!expandedCard || !placeholder) return;
+      savedSourceRect = placeholder.getBoundingClientRect();
+    }, 150);
   });
 
   // Event listeners

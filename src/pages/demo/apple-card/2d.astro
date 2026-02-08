@@ -89,6 +89,7 @@ import { movies } from '../../../data/demo-movies';
   let bodyEl = null;
   let placeholder = null;
   let savedSourceRect = null;
+  let resizeTimeout: number;
 
   function populateBody(movie, bodyFrag) {
     const desc = bodyFrag.querySelector('.body-description');
@@ -600,8 +601,12 @@ import { movies } from '../../../data/demo-movies';
   // Handle window resize - update placeholder position
   window.addEventListener('resize', () => {
     if (!expandedCard || !placeholder) return;
-    // Re-measure placeholder position so close animation returns to correct location
-    savedSourceRect = placeholder.getBoundingClientRect();
+    
+    clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(() => {
+      if (!expandedCard || !placeholder) return;
+      savedSourceRect = placeholder.getBoundingClientRect();
+    }, 150);
   });
 
   // Event listeners
