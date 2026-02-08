@@ -4,11 +4,13 @@ import { webcore } from 'webcoreui/integration';
 import fs from 'node:fs';
 import path from 'node:path';
 
-// Build-time validation integration
+// Build-time validation + thumbnail generation
 const validatePosterImages = {
   name: 'validate-poster-images',
   hooks: {
     'astro:build:start': async () => {
+      const sharp = await import('sharp');
+
       // Import validation function
       const { validatePosterImages: validate } = await import('./src/config/posterImages.ts');
 
@@ -33,6 +35,30 @@ const validatePosterImages = {
       if (allMovies.length > 0) {
         validate(allMovies);
         console.log(`✓ Validated ${allMovies.length} movies have poster images`);
+      }
+
+      // Generate tiny thumbnail images for modal fast loading
+      const thumbDir = path.join(process.cwd(), 'public/posters-thumb');
+      if (!fs.existsSync(thumbDir)) {
+        fs.mkdirSync(thumbDir, { recursive: true });
+      }
+
+      const posterDir = path.join(process.cwd(), 'src/assets/posters');
+      const posterFiles = fs.readdirSync(posterDir).filter(f => f.match(/\.(png|jpg|jpeg)$/i));
+
+      for (const file of posterFiles) {
+        const input = path.join(posterDir, file);
+        const output = path.join(thumbDir, file.replace(/\.(png|jpg|jpeg)$/i, '.jpg'));
+
+        try {
+          await sharp.default(input)
+            .resize(100, 133, { fit: 'cover' })
+            .blur(5)
+            .jpeg({ quality: 30, progressive: true })
+            .toFile(output);
+        } catch (e) {
+          console.warn(`Failed to generate thumbnail for ${file}:`, e.message);
+        }
       }
     }
   }

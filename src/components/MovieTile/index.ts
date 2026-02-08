@@ -67,6 +67,7 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
 
   el.innerHTML = `
     ${badge}
+    ${movie.poster_url ? `<img class="movie-poster-img" src="${movie.poster_url}" alt="${movie.Movie}" loading="lazy" width="300" height="300" />` : ''}
     <div class="movie-clickable">
       <div class="movie-text">
         <div class="movie-header">
