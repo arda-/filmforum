@@ -1,15 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 import AppleCardDemoNav from '../../../components/AppleCardDemoNav.astro';
-
-const movies = [
-  { title: 'Taxi Driver', poster: '/posters/taxi-driver.png' },
-  { title: 'Mean Streets', poster: '/posters/mean-streets.png' },
-  { title: 'The Godfather Part II', poster: '/posters/the-godfather-part-ii.png' },
-  { title: 'West Side Story', poster: '/posters/west-side-story.png' },
-  { title: 'The Naked City', poster: '/posters/the-naked-city.png' },
-  { title: 'Once Upon a Time in America', poster: '/posters/once-upon-a-time-in-america.png' },
-];
+import { simpleMovies as movies } from '../../../data/demo-movies';
 ---
 
 <Layout title="1B: Mobile Drawer - Image Only">
