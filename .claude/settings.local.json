@@ -69,7 +69,8 @@
       "WebFetch(domain:tahazsh.com)",
       "WebFetch(domain:vaul.emilkowal.ski)",
       "Bash(git rm:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(gh pr list:*)"
     ]
   }
 }
