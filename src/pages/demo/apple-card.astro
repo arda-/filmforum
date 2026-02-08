@@ -84,8 +84,7 @@ import { moviesWithMeta as movies } from '../../data/demo-movies';
   const pageWrapper = document.getElementById('page-wrapper');
 
   if (!overlay || !backdrop || !pageWrapper) {
-    console.error('Required DOM elements not found');
-    return;
+    throw new Error('Required DOM elements not found');
   }
 
   let isAnimating = false;

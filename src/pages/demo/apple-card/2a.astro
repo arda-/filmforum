@@ -73,8 +73,7 @@ import { movies } from '../../../data/demo-movies';
   const pageWrapper = document.getElementById('page-wrapper');
 
   if (!overlay || !backdrop || !pageWrapper) {
-    console.error('Required DOM elements not found');
-    return;
+    throw new Error('Required DOM elements not found');
   }
 
   let isAnimating = false;
@@ -83,7 +82,7 @@ import { movies } from '../../../data/demo-movies';
   let bodyEl = null;
   let placeholder = null;
   let savedSourceRect = null;
-  let resizeTimeout: number;
+  let resizeTimeout;
 
   function populateBody(movie, bodyFrag) {
     const desc = bodyFrag.querySelector('.body-description');

@@ -78,8 +78,8 @@ import { movies } from '../../../data/demo-movies';
   const pageWrapper = document.getElementById('page-wrapper');
 
   if (!overlay || !backdrop || !pageWrapper) {
-    console.error('Required DOM elements not found');
-    return;
+    throw new Error('Required DOM elements not found');
+
   }
 
   let isAnimating = false;
@@ -441,7 +441,7 @@ import { movies } from '../../../data/demo-movies';
   let dragCurrentY = 0;
   let dragStartTime = 0;
   let activePointerId = null;
-  let resizeTimeout: number;
+  let resizeTimeout;
   const CLOSE_THRESHOLD = 0.25;
   const VELOCITY_THRESHOLD = 0.5;
   const DIRECTION_THRESHOLD = 10; // Pixels to determine direction
