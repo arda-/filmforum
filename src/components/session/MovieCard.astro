@@ -1,6 +1,31 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import type { UniqueMovie, MovieReaction } from '../../types/session';
 import { toTitleCase, formatRuntime } from '../../utils/movieUtils';
+
+// Build-time import of all poster images from src/assets/posters/
+// Enables Astro to optimize them to WebP/AVIF with responsive srcsets
+const posterGlob = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/posters/*.{png,jpg,jpeg}',
+  { eager: true }
+);
+
+// Create a lookup map from poster filenames to image modules
+const posterMap = Object.entries(posterGlob).reduce((map, [path, mod]) => {
+  const filename = path.split('/').pop()?.replace(/\.(png|jpg|jpeg)$/, '');
+  if (filename && mod.default) {
+    map[filename] = mod.default;
+  }
+  return map;
+}, {} as Record<string, ImageMetadata>);
+
+// Get poster image module by URL
+function getPosterImage(posterUrl: string | undefined): ImageMetadata | undefined {
+  if (!posterUrl) return undefined;
+  const filename = posterUrl.split('/').pop()?.replace(/\.(png|jpg|jpeg)$/, '');
+  return filename ? posterMap[filename] : undefined;
+}
 
 interface Props {
   uniqueMovie: UniqueMovie;
@@ -21,6 +46,7 @@ const { movie, id } = uniqueMovie;
 const title = toTitleCase(movie.Movie);
 const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
 const hasPoster = !!movie.poster_url;
+const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
 ---
 
 <div
@@ -29,8 +55,8 @@ const hasPoster = !!movie.poster_url;
   data-reaction={reaction}
 >
   <div class="card-image">
-    {hasPoster && (
-      <img class="card-poster-img" src={movie.poster_url} alt={title} loading="lazy" width="400" height="300" style={showImage ? undefined : 'display:none'} />
+    {hasPoster && posterImage && (
+      <Image class="card-poster-img" src={posterImage} alt={title} width={400} height={300} loading="lazy" style={showImage ? undefined : 'display:none'} />
     )}
 
     {hasPoster && (

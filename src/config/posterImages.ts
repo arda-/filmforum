@@ -1,18 +1,16 @@
 /**
- * Poster Image Validation & Lookup
+ * Poster Image Validation
  *
- * This module provides:
- * - Build-time validation that all movie data has corresponding poster images
- * - Runtime lookup for available poster images
- * - Clear audit trail of image status
+ * Provides build-time validation that all movie data has corresponding poster images.
+ * Validation runs at build start and fails the build if any images are missing.
  *
- * Images are stored in:
- * - src/assets/posters/ - For Astro optimization (WebP/AVIF conversion)
- * - public/posters/ - Fallback for dynamic runtime loading
+ * For optimized image loading in components, use getPosterImageModule() which
+ * uses import.meta.glob to load images from src/assets/posters/ at build time.
  */
 
 import fs from 'node:fs';
 import path from 'node:path';
+import type { ImageMetadata } from 'astro';
 
 /**
  * Get list of available poster files at build time
@@ -41,24 +39,6 @@ function getAvailablePosterFiles(): Set<string> {
 }
 
 /**
- * Extract poster filename from URL
- * Handles both full paths and simple filenames
- *
- * @example
- * extractPosterFilename('/posters/taxi-driver.png') -> 'taxi-driver'
- * extractPosterFilename('taxi-driver.png') -> 'taxi-driver'
- */
-function extractPosterFilename(posterUrl: string | undefined): string | null {
-  if (!posterUrl) return null;
-
-  return posterUrl
-    .split('/')
-    .pop()
-    ?.replace('.png', '')
-    ?.replace(/\..*$/, '') || null;
-}
-
-/**
  * Validate that all movies in the dataset have corresponding poster images
  * Called at build time to catch missing images early
  *
@@ -73,7 +53,11 @@ export function validatePosterImages(
   for (const movie of movies) {
     if (!movie.poster_url) continue;
 
-    const posterFilename = extractPosterFilename(movie.poster_url);
+    const posterFilename = movie.poster_url
+      .split('/')
+      .pop()
+      ?.replace(/\.(png|jpg|jpeg)$/, '');
+
     if (!posterFilename || !availablePosters.has(posterFilename)) {
       missing.push(`${movie.Movie} (${movie.poster_url})`);
     }
@@ -84,7 +68,7 @@ export function validatePosterImages(
     const availableList = Array.from(availablePosters)
       .sort()
       .slice(0, 5)
-      .map(f => `  - ${f}.png`)
+      .map(f => `  - ${f}`)
       .join('\n');
 
     throw new Error(
@@ -96,32 +80,9 @@ export function validatePosterImages(
 }
 
 /**
- * Get poster image URL for runtime use
- * Used by components that load images dynamically
- *
- * @param posterUrl - The poster URL or filename
- * @returns The poster URL for use with img tags
- */
-export function getPosterImageUrl(posterUrl: string | undefined): string | null {
-  if (!posterUrl) return null;
-  // Return as-is - will be served from public/posters or src/assets/posters
-  return posterUrl;
-}
-
-/**
  * List all available poster filenames
- * Useful for debugging and monitoring
+ * Useful for debugging and monitoring which images are available
  */
 export function listAvailablePosterImages(): string[] {
   return Array.from(getAvailablePosterFiles()).sort();
 }
-
-/**
- * Type definition for image metadata (matches Astro's ImageMetadata)
- */
-export type ImageMetadata = {
-  src: string;
-  width: number;
-  height: number;
-  format: 'png' | 'jpg' | 'jpeg' | 'tiff' | 'webp' | 'gif' | 'svg';
-};
