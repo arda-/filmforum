@@ -52,8 +52,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     <div class="cart-sections" id="cart-sections">
       <div class="cart-section" id="cart-yes-section">
-        <h2 class="section-title">
-          <span class="section-dot section-dot--yes"></span>
+        <h2 class="section-title section-title--yes">
           Yes
           <span class="section-count" id="cart-yes-count">0</span>
         </h2>
@@ -61,8 +60,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       </div>
 
       <div class="cart-section" id="cart-maybe-section">
-        <h2 class="section-title">
-          <span class="section-dot section-dot--maybe"></span>
+        <h2 class="section-title section-title--maybe">
           Maybe
           <span class="section-count" id="cart-maybe-count">0</span>
         </h2>
@@ -70,12 +68,19 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       </div>
 
       <div class="cart-section" id="cart-no-section">
-        <h2 class="section-title">
-          <span class="section-dot section-dot--no"></span>
+        <h2 class="section-title section-title--no">
           No
           <span class="section-count" id="cart-no-count">0</span>
         </h2>
         <div class="section-items" id="cart-no-items"></div>
+      </div>
+
+      <div class="cart-section" id="cart-unmarked-section">
+        <h2 class="section-title section-title--unmarked">
+          Unmarked
+          <span class="section-count" id="cart-unmarked-count">0</span>
+        </h2>
+        <div class="section-items" id="cart-unmarked-items"></div>
       </div>
 
       <div class="cart-empty" id="cart-empty">
@@ -149,20 +154,23 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
     const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
     const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
-    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
+    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
+    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0 || unmarkedMovies.length > 0;
 
     // Show/hide empty state
     const emptyEl = document.getElementById('cart-empty');
     if (emptyEl) emptyEl.style.display = hasAny ? 'none' : 'flex';
 
-    // Show/hide floating actions
+    // Show/hide floating actions (only show if has reactions, not just unmarked)
+    const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
     const actionsEl = document.getElementById('floating-actions');
-    if (actionsEl) actionsEl.style.display = hasAny ? 'flex' : 'none';
+    if (actionsEl) actionsEl.style.display = hasReactions ? 'flex' : 'none';
 
     // Render sections
     renderSection('cart-yes', yesMovies, 'yes');
     renderSection('cart-maybe', maybeMovies, 'maybe');
     renderSection('cart-no', noMovies, 'no');
+    renderSection('cart-unmarked', unmarkedMovies, 'none');
 
     // Update share preview
     updateSharePreview(yesMovies);
@@ -189,12 +197,15 @@ const movieDataJson = JSON.stringify(uniqueMovies);
             <div class="cart-item-reactions">
               <button class="cart-reaction-btn cart-reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${um.id}" title="Yes" aria-label="Mark as Yes">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="btn-label">Yes</span>
               </button>
               <button class="cart-reaction-btn cart-reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${um.id}" title="Maybe" aria-label="Mark as Maybe">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span class="btn-label">Maybe</span>
               </button>
               <button class="cart-reaction-btn cart-reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${um.id}" title="No" aria-label="Mark as No">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                <span class="btn-label">No</span>
               </button>
             </div>
           </div>
@@ -367,26 +378,23 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 
-  .section-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-
-  .section-dot--yes { background: var(--reaction-yes); }
-  .section-dot--maybe { background: var(--reaction-maybe); }
-  .section-dot--no { background: var(--reaction-no); }
+  .section-title--yes { color: var(--reaction-yes, #22c55e); }
+  .section-title--maybe { color: var(--reaction-maybe, #f59e0b); }
+  .section-title--no { color: var(--reaction-no, #ef4444); }
+  .section-title--unmarked { color: var(--text-tertiary); }
 
   .section-count {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
-    color: var(--text-tertiary);
+    opacity: 0.7;
   }
 
   .section-items {
@@ -437,7 +445,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
+    gap: 4px;
+    min-width: 28px;
     height: 28px;
     padding: 0;
     background: transparent;
@@ -445,6 +454,24 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Hide text labels on mobile (< 640px) */
+  :global(.cart-reaction-btn .btn-label) {
+    display: none;
+  }
+
+  /* Show text labels on desktop (>= 640px) */
+  @media (min-width: 640px) {
+    :global(.cart-reaction-btn) {
+      padding: 0 10px;
+    }
+    :global(.cart-reaction-btn .btn-label) {
+      display: inline;
+    }
   }
 
   :global(.cart-reaction-btn--yes) {
