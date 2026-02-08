@@ -1,6 +1,14 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ToggleGroup from '../../components/ToggleGroup.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { Movie } from '../../utils/icsGenerator';
+
+// Load movie data at build time
+const dataPath = path.join(process.cwd(), 'public', 'tenement-stories-full.json');
+const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+const movieDataJson = JSON.stringify(movieData);
 ---
 
 <Layout title="Timeline Tile Debug">
@@ -61,14 +69,17 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   </div>
 </Layout>
 
+<script define:vars={{ movieDataJson }}>
+  window.__movieData = JSON.parse(movieDataJson);
+</script>
+
 <script>
   import type { Movie } from '../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
 
-  // Fetch real movie data
-  fetch('/tenement-stories-full.json')
-    .then(res => res.json())
-    .then((movies: Movie[]) => {
+  // Load movie data from build-time inlined data
+  const movies: Movie[] = (window as any).__movieData;
+  {
       // Filter to movies with posters
       const moviesWithPosters = movies.filter(m => m.poster_url);
 
@@ -163,9 +174,9 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         comparisonGrid.appendChild(createComparisonSlider('Normal vs Darken', 'force-blend-normal', 'force-blend-darken', 'Normal', 'Darken'));
       }
 
-      // Initial height calculation
-      updateTextHeights();
-    });
+    // Initial height calculation
+    updateTextHeights();
+  }
 
   // Control toggles
   const showImagesToggle = document.getElementById('show-images-toggle') as HTMLInputElement;

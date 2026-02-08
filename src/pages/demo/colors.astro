@@ -2,6 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import Toggle from '../../components/Toggle.astro';
 import Switch from '../../components/Switch.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { Movie } from '../../utils/icsGenerator';
+
+// Load movie data at build time
+const dataPath = path.join(process.cwd(), 'public', 'tenement-stories-full.json');
+const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+const movieDataJson = JSON.stringify(movieData);
 ---
 
 <Layout title="Color Palette Demo">
@@ -79,6 +87,10 @@ import Switch from '../../components/Switch.astro';
     <Toggle id="toggle-actors" label="Actors" variant="outline" size="sm" />
   </div>
 </Layout>
+
+<script define:vars={{ movieDataJson }}>
+  window.__movieData = JSON.parse(movieDataJson);
+</script>
 
 <script>
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
@@ -294,9 +306,8 @@ import Switch from '../../components/Switch.astro';
   updateUrlParams();
 
   // Load movies and render calendars
-  fetch('/tenement-stories-full.json')
-    .then(res => res.json())
-    .then((movies: Movie[]) => {
+  const movies: Movie[] = (window as any).__movieData;
+  {
       // Group by date
       movies.forEach(movie => {
         const date = movie.Datetime.split('T')[0];
@@ -304,12 +315,12 @@ import Switch from '../../components/Switch.astro';
         moviesByDate[date].push(movie);
       });
 
-      // Get unique movie dates
-      allMovieDates = Object.keys(moviesByDate);
+    // Get unique movie dates
+    allMovieDates = Object.keys(moviesByDate);
 
-      // Initial render
-      renderAllCalendars();
-    });
+    // Initial render
+    renderAllCalendars();
+  }
 </script>
 
 <style>

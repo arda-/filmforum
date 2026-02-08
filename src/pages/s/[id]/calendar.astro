@@ -9,6 +9,9 @@ import Dialog from '../../../components/Dialog.astro';
 import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
 import Button from '../../../components/Button.astro';
 import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import fs from 'node:fs';
+import path from 'node:path';
+import type { Movie } from '../../../utils/icsGenerator';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -16,11 +19,14 @@ export function getStaticPaths() {
 
 const { id } = Astro.params;
 const series = getSeriesConfig(id)!;
+
+// Load movie data at build time
+const dataPath = path.join(process.cwd(), 'public', series.dataFile);
+const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+const movieDataJson = JSON.stringify(movieData);
 ---
 
 <Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
-  <div id="schedule-config" data-file={series.dataFile} data-slug={id}></div>
-
   <Header
     seriesName={series.name}
     seriesSubtitle={series.subtitle}
@@ -121,6 +127,10 @@ const series = getSeriesConfig(id)!;
   </Dialog>
 </Layout>
 
+<script define:vars={{ movieDataJson }}>
+  window.__movieData = JSON.parse(movieDataJson);
+</script>
+
 <script>
   import {
     PX_PER_MIN,
@@ -137,9 +147,6 @@ const series = getSeriesConfig(id)!;
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
 
   // --- State ---
-  const configEl = document.getElementById('schedule-config');
-  const dataFile = configEl?.dataset.file || '/tenement-stories-full.json';
-
   let moviesByDate: Record<string, Movie[]> = {};
   let globalRange = { start: Infinity, end: 0, range: 0 };
   let uniformHeight = 0;
@@ -345,31 +352,28 @@ const series = getSeriesConfig(id)!;
     radio.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
   });
 
-  // --- Fetch data and render ---
-  fetch(dataFile)
-    .then(res => res.json())
-    .then((movies: Movie[]) => {
-      allMovies = movies;
-      movies.forEach(movie => {
-        const date = movie.Datetime.split('T')[0];
-        if (!moviesByDate[date]) moviesByDate[date] = [];
-        moviesByDate[date].push(movie);
-        movieByKey.set(`${movie.Datetime}_${movie.Movie}`, movie);
-      });
+  // --- Load data and render ---
+  const movies: Movie[] = (window as any).__movieData;
+  allMovies = movies;
+  movies.forEach(movie => {
+    const date = movie.Datetime.split('T')[0];
+    if (!moviesByDate[date]) moviesByDate[date] = [];
+    moviesByDate[date].push(movie);
+    movieByKey.set(`${movie.Datetime}_${movie.Movie}`, movie);
+  });
 
-      allMovieDates = Object.keys(moviesByDate);
+  allMovieDates = Object.keys(moviesByDate);
 
-      Object.values(moviesByDate).forEach(dayMovies => {
-        const range = getDayTimeRange(dayMovies);
-        if (range.start < globalRange.start) globalRange.start = range.start;
-        if (range.end > globalRange.end) globalRange.end = range.end;
-      });
-      globalRange.range = globalRange.end - globalRange.start;
-      uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
+  Object.values(moviesByDate).forEach(dayMovies => {
+    const range = getDayTimeRange(dayMovies);
+    if (range.start < globalRange.start) globalRange.start = range.start;
+    if (range.end > globalRange.end) globalRange.end = range.end;
+  });
+  globalRange.range = globalRange.end - globalRange.start;
+  uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
-      renderCalendar();
-      setTimeout(updateTextHeights, 10);
-    });
+  renderCalendar();
+  setTimeout(updateTextHeights, 10);
 
   // --- DOMContentLoaded: event delegation + URL state restore ---
   document.addEventListener('DOMContentLoaded', () => {
