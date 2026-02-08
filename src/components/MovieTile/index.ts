@@ -91,6 +91,15 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
   return el;
 }
 
+/**
+ * Updates --text-height CSS variable for movie tiles with posters.
+ *
+ * Uses read-write batching to avoid layout thrashing: all DOM reads happen
+ * in phase 1 (single layout calculation), then all writes in phase 2.
+ *
+ * Note: All call sites wrap this in setTimeout() for additional batching,
+ * which defers execution until after other synchronous work completes.
+ */
 export function updateTextHeights(): void {
   // Phase 1: Read all measurements (single layout calculation)
   const measurements: { clickable: HTMLElement; textHeight: number }[] = [];
@@ -100,6 +109,7 @@ export function updateTextHeights(): void {
     const textWrapper = tile.querySelector('.movie-text') as HTMLElement;
 
     if (clickable && textWrapper) {
+      // Add 8px for .movie-clickable's vertical padding (4px top + 4px bottom)
       const textHeight = textWrapper.offsetHeight + 8;
       measurements.push({ clickable, textHeight });
     }
