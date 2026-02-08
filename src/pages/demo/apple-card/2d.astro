@@ -72,7 +72,7 @@ const movies = [
     <div class="demo-page">
       <header class="page-header">
         <h1>2D: Fixed Shadow Scaling</h1>
-        <p>Fixed shadow "popping" issue by using filter: drop-shadow() which doesn't scale with transforms.</p>
+        <p>Fixed shadow "popping" by keeping shadow constant throughout animation - it scales naturally with the card.</p>
       </header>
 
       <div class="card-grid">
@@ -740,7 +740,9 @@ const movies = [
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.15s ease;
     outline: none;
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.15));
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.25),
+      0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
   @media (hover: hover) {
@@ -773,7 +775,7 @@ const movies = [
     max-height: calc(100svh - env(safe-area-inset-top, 0px) - 60px);
     border-radius: 24px;
     cursor: default;
-    filter: drop-shadow(0 25px 80px rgba(0, 0, 0, 0.5));
+    /* Shadow inherited from .movie-card - scales naturally with transform */
     overflow-y: auto;
     overscroll-behavior-y: none;
     z-index: 1;
