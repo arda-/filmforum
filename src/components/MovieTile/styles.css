@@ -11,6 +11,8 @@
   line-height: 1;
   border-left: none;
   cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 50px;
 }
 
 @media (min-width: 1024px) {
@@ -173,6 +175,7 @@ body.show-image .movie.has-poster {
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
+  will-change: transform;
 }
 
 /* Minimum height for non-timeline mode with images */
