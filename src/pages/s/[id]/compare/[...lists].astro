@@ -35,9 +35,23 @@ try {
 
 const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 const movieDataJson = JSON.stringify(uniqueMovies);
+
+// SEO metadata - noindex to prevent indexing user-generated comparison URLs
+const title = `Compare Lists - ${config.name}`;
+const description = `Compare two movie lists from ${config.name}. Find overlaps, disagreements, and plan your cinema visits together.`;
+const canonical = `/s/${id}/compare`;
+const ogImage = `/og-images/compare-lists.jpg`;
 ---
 
-<Layout title={`Compare Lists — ${config.name}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`Compare movie lists from ${config.name}`}
+  noindex={true}
+  twitterCard="summary"
+>
   <main class="compare-page" data-session-id={id}>
     <header class="page-header">
       <a href={`/s/${id}/list`} class="back-link">
