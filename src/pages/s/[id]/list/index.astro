@@ -5,7 +5,6 @@ import MovieListItem from '../../../../components/session/MovieListItem.astro';
 import MovieCard from '../../../../components/session/MovieCard.astro';
 import BottomToolbar from '../../../../components/session/BottomToolbar.astro';
 import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
-import SavedListDrawer from '../../../../components/session/SavedListDrawer.astro';
 import SingleCardView from '../../../../components/session/SingleCardView.astro';
 import type { Movie } from '../../../../utils/movieUtils';
 import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
@@ -79,7 +78,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     <BottomToolbar sessionId={id!} />
     <MovieDetailDrawer />
-    <SavedListDrawer sessionId={id!} />
   </main>
 </Layout>
 
@@ -89,8 +87,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { getReactions, setReaction, getReactionCounts, getUserId } from '../../../../utils/storageManager';
-  import { encodeReactionsCompact } from '../../../../utils/compactEncoder';
+  import { getReactions, setReaction, getReactionCounts } from '../../../../utils/storageManager';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
   import { sortMovies } from '../../../../utils/sessionUtils';
   import type { MovieReaction, UniqueMovie } from '../../../../types/session';
@@ -334,127 +331,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       return;
     }
 
-    // Click on a saved item to open detail
-    const savedItem = target.closest('.saved-item') as HTMLElement | null;
-    if (savedItem && !target.closest('button, a, [data-action]')) {
-      const movieId = savedItem.dataset.movieId;
-      if (movieId) openMovieDetail(movieId);
-      return;
-    }
-
     // Click on a card or list item body (not on buttons)
     const item = target.closest('.card, .list-item') as HTMLElement | null;
     if (item && !target.closest('button, a')) {
       const movieId = item.dataset.movieId;
       const sourceCard = item.classList.contains('card') ? item : undefined;
       if (movieId) openMovieDetail(movieId, sourceCard);
-    }
-  });
-
-  // --- Saved List Drawer ---
-  document.querySelector('[data-action="open-saved"]')?.addEventListener('click', () => {
-    updateSavedListDrawer();
-    (window as any).openDrawer('saved-list-drawer');
-  });
-
-  function updateSavedListDrawer() {
-    const reactions = getReactions(sessionId);
-    const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
-    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
-    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
-    const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
-
-    // Update empty state
-    const emptyEl = document.getElementById('saved-empty');
-    if (emptyEl) emptyEl.classList.toggle('hidden', hasAny);
-
-    // Update sections
-    updateSavedSection('saved-yes', yesMovies);
-    updateSavedSection('saved-maybe', maybeMovies);
-    updateSavedSection('saved-no', noMovies);
-
-    // Update actions
-    const actionsEl = document.getElementById('saved-actions');
-    if (actionsEl) actionsEl.classList.toggle('has-items', hasAny);
-
-    // Update share button
-    const shareBtn = document.getElementById('saved-share-btn') as HTMLButtonElement;
-    if (shareBtn) shareBtn.disabled = !hasAny;
-  }
-
-  function updateSavedSection(prefix: string, movies: UniqueMovie[]) {
-    const section = document.getElementById(`${prefix}-section`);
-    const items = document.getElementById(`${prefix}-items`);
-    const count = document.getElementById(`${prefix}-count`);
-
-    if (section) section.classList.toggle('has-items', movies.length > 0);
-    if (count) count.textContent = String(movies.length);
-
-    if (items) {
-      const reactionMap: Record<string, string> = { 'saved-yes': 'yes', 'saved-maybe': 'maybe', 'saved-no': 'no' };
-      const currentReaction = reactionMap[prefix] || 'none';
-
-      items.innerHTML = movies.map(um => {
-        const title = toTitleCase(um.movie.Movie);
-        const meta = [um.movie.director, um.movie.year].filter(Boolean).join(', ');
-        return `
-          <div class="saved-item" data-movie-id="${um.id}">
-            <div class="saved-item-info">
-              <p class="saved-item-title">${title}</p>
-              <p class="saved-item-meta">${meta}</p>
-            </div>
-            <div class="saved-item-toggle">
-              <button class="saved-toggle-btn saved-toggle-btn--yes ${currentReaction === 'yes' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="yes" title="Yes">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <button class="saved-toggle-btn saved-toggle-btn--maybe ${currentReaction === 'maybe' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="maybe" title="Maybe">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              </button>
-              <button class="saved-toggle-btn saved-toggle-btn--no ${currentReaction === 'no' ? 'active' : ''}" data-action="set-reaction" data-movie-id="${um.id}" data-set-reaction="no" title="No">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-  }
-
-  // Saved list toggle handler (Yes / Maybe / Remove)
-  document.addEventListener('click', (e) => {
-    const toggleBtn = (e.target as HTMLElement).closest('[data-action="set-reaction"]') as HTMLElement | null;
-    if (!toggleBtn) return;
-
-    const movieId = toggleBtn.dataset.movieId;
-    const newReaction = toggleBtn.dataset.setReaction as MovieReaction | 'none';
-    if (!movieId) return;
-
-    setReaction(sessionId, movieId, newReaction as MovieReaction);
-    loadReactions();
-    updateSavedListDrawer();
-  });
-
-  // --- Share ---
-  document.getElementById('saved-share-btn')?.addEventListener('click', async () => {
-    const reactions = getReactions(sessionId);
-    const encoded = encodeReactionsCompact(reactions, allMovies);
-    const userId = getUserId();
-    const url = `${window.location.origin}/s/${sessionId}/list/saved?u=${userId}&r=${encoded}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'My Movie List', url });
-      } catch {
-        // User cancelled or share failed
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-      const btn = document.getElementById('saved-share-btn');
-      if (btn) {
-        const orig = btn.innerHTML;
-        btn.textContent = 'Link copied!';
-        setTimeout(() => { btn.innerHTML = orig; }, 2000);
-      }
     }
   });
 
