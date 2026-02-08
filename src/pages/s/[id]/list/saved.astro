@@ -221,10 +221,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       textEl.textContent = `These are the movies I want to see at Film Forum's ${seriesName} series:`;
     }
 
-    // Update list (show first 5, then "and X more")
+    // Update list (show first 3, then "and X more")
     const listEl = document.getElementById('share-preview-list');
     if (listEl) {
-      const displayCount = 5;
+      const displayCount = 3;
       const displayMovies = yesMovies.slice(0, displayCount);
       const remaining = yesMovies.length - displayCount;
 
@@ -234,7 +234,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       }).join('');
 
       if (remaining > 0) {
-        listEl.innerHTML += `<li class="more-count">[and ${remaining} more...]</li>`;
+        listEl.innerHTML += `<li class="more-count">...and ${remaining} more</li>`;
       }
     }
 
@@ -289,12 +289,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
 
     // Format share text
-    const displayCount = 5;
+    const displayCount = 3;
     const displayMovies = yesMovies.slice(0, displayCount);
     const remaining = yesMovies.length - displayCount;
 
     const movieList = displayMovies.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-    const moreText = remaining > 0 ? `\n[and ${remaining} more...]\n` : '\n';
+    const moreText = remaining > 0 ? `\n...and ${remaining} more\n` : '\n';
     const shareText = `These are the movies I want to see at Film Forum's ${seriesName} series:\n\n${movieList}${moreText}\nFull list: ${url}`;
 
     if (navigator.share) {
