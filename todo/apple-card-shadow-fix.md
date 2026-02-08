@@ -117,3 +117,31 @@ When `.expanded` class is added, the CSS border-radius and shadow change **insta
 - What's the cleanest way to animate shadow without popping?
 - Should we use `box-shadow` or `filter: drop-shadow()` in animations?
 - Can we keep 2C's scroll-aware behavior while fixing the visual issues?
+
+---
+
+## PR Review Summary
+
+**PR**: [#12](https://github.com/arda-/filmforum/pull/12) | **Status**: NEEDS CHANGES
+
+### Critical Issues to Fix
+- **⚠️ Pointer capture leak** in 2C and 2D (`pointerup` and `pointercancel` handlers)
+  - `isPointerCaptured` set to `false` before checking it to call `releasePointerCapture`
+  - Fix: Call `releasePointerCapture` before resetting the flag
+- **⚠️ Test artifact committed**: `test-results/.last-run.json` should be removed and gitignored
+
+### Other Findings
+- **2000ms animation duration** - intentionally slow for debugging/observation (OK for demos)
+- **Massive code duplication** - 8 demos share ~80% code (~5,500 lines total)
+  - Acceptable for demo/experiment pages
+  - Consider extracting if any variant goes to production
+- **Movie data duplicated 9x** - could extract to shared data file
+- **llm-best-practices folder** - 3,000+ line general-purpose docs, consider if belongs in this repo
+
+### Positives
+- ✅ Excellent FLIP animation engineering (proper timing, safety timeouts, cleanup)
+- ✅ Strong accessibility (tabindex, ARIA labels, keyboard support, reduced motion)
+- ✅ Progressive enhancement across variants
+- ✅ Clean build (25 pages, 962ms, zero errors)
+
+**Full review**: https://github.com/arda-/filmforum/pull/12#issuecomment-3867729989
