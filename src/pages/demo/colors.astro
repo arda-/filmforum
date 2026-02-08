@@ -2,14 +2,10 @@
 import Layout from '../../layouts/Layout.astro';
 import Toggle from '../../components/Toggle.astro';
 import Switch from '../../components/Switch.astro';
-import fs from 'node:fs';
-import path from 'node:path';
-import type { Movie } from '../../utils/icsGenerator';
+import { loadMovieData } from '../../utils/loadMovieData';
 
 // Load movie data at build time
-const dataPath = path.join(process.cwd(), 'public', 'tenement-stories-full.json');
-const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-const movieDataJson = JSON.stringify(movieData);
+const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 ---
 
 <Layout title="Color Palette Demo">
@@ -306,21 +302,20 @@ const movieDataJson = JSON.stringify(movieData);
   updateUrlParams();
 
   // Load movies and render calendars
-  const movies: Movie[] = (window as any).__movieData;
-  {
-      // Group by date
-      movies.forEach(movie => {
-        const date = movie.Datetime.split('T')[0];
-        if (!moviesByDate[date]) moviesByDate[date] = [];
-        moviesByDate[date].push(movie);
-      });
+  const movies: Movie[] = window.__movieData;
 
-    // Get unique movie dates
-    allMovieDates = Object.keys(moviesByDate);
+  // Group by date
+  movies.forEach(movie => {
+    const date = movie.Datetime.split('T')[0];
+    if (!moviesByDate[date]) moviesByDate[date] = [];
+    moviesByDate[date].push(movie);
+  });
 
-    // Initial render
-    renderAllCalendars();
-  }
+  // Get unique movie dates
+  allMovieDates = Object.keys(moviesByDate);
+
+  // Initial render
+  renderAllCalendars();
 </script>
 
 <style>

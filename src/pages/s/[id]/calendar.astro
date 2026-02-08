@@ -9,9 +9,7 @@ import Dialog from '../../../components/Dialog.astro';
 import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
 import Button from '../../../components/Button.astro';
 import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
-import fs from 'node:fs';
-import path from 'node:path';
-import type { Movie } from '../../../utils/icsGenerator';
+import { loadMovieData } from '../../../utils/loadMovieData';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -21,9 +19,7 @@ const { id } = Astro.params;
 const series = getSeriesConfig(id)!;
 
 // Load movie data at build time
-const dataPath = path.join(process.cwd(), 'public', series.dataFile);
-const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-const movieDataJson = JSON.stringify(movieData);
+const { movieDataJson } = loadMovieData(series.dataFile);
 ---
 
 <Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
@@ -353,7 +349,7 @@ const movieDataJson = JSON.stringify(movieData);
   });
 
   // --- Load data and render ---
-  const movies: Movie[] = (window as any).__movieData;
+  const movies: Movie[] = window.__movieData;
   allMovies = movies;
   movies.forEach(movie => {
     const date = movie.Datetime.split('T')[0];
