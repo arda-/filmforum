@@ -95,10 +95,8 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
  * Updates --text-height CSS variable for movie tiles with posters.
  *
  * Uses read-write batching to avoid layout thrashing: all DOM reads happen
- * in phase 1 (single layout calculation), then all writes in phase 2.
- *
- * Note: All call sites wrap this in setTimeout() for additional batching,
- * which defers execution until after other synchronous work completes.
+ * in phase 1 (single layout calculation), then all writes are deferred to
+ * phase 2 via requestAnimationFrame for optimal timing before the next paint.
  */
 export function updateTextHeights(): void {
   // Phase 1: Read all measurements (single layout calculation)
@@ -115,9 +113,11 @@ export function updateTextHeights(): void {
     }
   });
 
-  // Phase 2: Write all styles (no layout recalc needed)
-  measurements.forEach(({ clickable, textHeight }) => {
-    clickable.style.setProperty('--text-height', `${textHeight}px`);
+  // Phase 2: Write all styles at optimal time before next paint
+  requestAnimationFrame(() => {
+    measurements.forEach(({ clickable, textHeight }) => {
+      clickable.style.setProperty('--text-height', `${textHeight}px`);
+    });
   });
 }
 
