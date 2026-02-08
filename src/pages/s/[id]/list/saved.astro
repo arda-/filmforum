@@ -219,67 +219,31 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   }
 
   function updateSharePreview(yesMovies: UniqueMovie[]) {
-    const reactions = getReactions(sessionId);
-    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
-    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
-    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
-
     // Update preview text
     const textEl = document.getElementById('share-preview-text');
     if (textEl) {
-      textEl.textContent = `My picks for Film Forum's ${seriesName} series:`;
+      textEl.textContent = `These are the movies I want to see at Film Forum's ${seriesName} series:`;
     }
 
-    // Build list with all sections
+    // Update list (show only Yes movies, first 3)
     const listEl = document.getElementById('share-preview-list');
     if (listEl) {
-      let html = '';
       const displayCount = 3;
+      const displayMovies = yesMovies.slice(0, displayCount);
+      const remaining = yesMovies.length - displayCount;
 
-      // Yes section
-      if (yesMovies.length > 0) {
-        html += '<li class="section-header">Yes</li>';
-        const displayYes = yesMovies.slice(0, displayCount);
-        html += displayYes.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
-        if (yesMovies.length > displayCount) {
-          html += `<li class="more-count">...and ${yesMovies.length - displayCount} more</li>`;
-        }
+      listEl.innerHTML = displayMovies.map(um => {
+        const title = toTitleCase(um.movie.Movie);
+        return `<li>${title}</li>`;
+      }).join('');
+
+      if (remaining > 0) {
+        listEl.innerHTML += `<li class="more-count">...and ${remaining} more</li>`;
       }
-
-      // Maybe section
-      if (maybeMovies.length > 0) {
-        html += '<li class="section-header">Maybe</li>';
-        const displayMaybe = maybeMovies.slice(0, displayCount);
-        html += displayMaybe.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
-        if (maybeMovies.length > displayCount) {
-          html += `<li class="more-count">...and ${maybeMovies.length - displayCount} more</li>`;
-        }
-      }
-
-      // No section
-      if (noMovies.length > 0) {
-        html += '<li class="section-header">No</li>';
-        const displayNo = noMovies.slice(0, displayCount);
-        html += displayNo.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
-        if (noMovies.length > displayCount) {
-          html += `<li class="more-count">...and ${noMovies.length - displayCount} more</li>`;
-        }
-      }
-
-      // Unmarked section
-      if (unmarkedMovies.length > 0) {
-        html += '<li class="section-header">Unmarked</li>';
-        const displayUnmarked = unmarkedMovies.slice(0, displayCount);
-        html += displayUnmarked.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
-        if (unmarkedMovies.length > displayCount) {
-          html += `<li class="more-count">...and ${unmarkedMovies.length - displayCount} more</li>`;
-        }
-      }
-
-      listEl.innerHTML = html;
     }
 
     // Update shareable URL
+    const reactions = getReactions(sessionId);
     const encoded = encodeReactionsCompact(reactions, allMovies);
     const userId = getUserId();
     const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
@@ -287,13 +251,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const urlInput = document.getElementById('share-url-input') as HTMLInputElement;
     if (urlInput) urlInput.value = url;
 
-    // Enable/disable share button (enable if any reactions exist)
-    const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
+    // Enable/disable share button (enable if have Yes movies)
     const shareBtn = document.getElementById('share-btn') as HTMLButtonElement;
-    if (shareBtn) shareBtn.disabled = !hasReactions;
+    if (shareBtn) shareBtn.disabled = yesMovies.length === 0;
 
     const openShareBtn = document.getElementById('open-share-btn') as HTMLButtonElement;
-    if (openShareBtn) openShareBtn.disabled = !hasReactions;
+    if (openShareBtn) openShareBtn.disabled = yesMovies.length === 0;
   }
 
   // Handle clicks on cart items and reaction buttons
