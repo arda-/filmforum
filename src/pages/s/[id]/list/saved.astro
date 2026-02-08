@@ -121,17 +121,24 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     <!-- Share dialog -->
     <Drawer id="share-drawer" title="Share Your List">
       <div class="share-content">
-        <p class="share-preview-text" id="share-preview-text"></p>
-        <ul class="share-preview-list" id="share-preview-list"></ul>
-        <div class="share-preview-url">
-          <input type="text" readonly class="share-url-input" id="share-url-input" />
+        <div class="share-preview-embed">
+          <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
         </div>
-        <button class="share-action-btn" id="share-btn">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Share
-        </button>
+        <div class="share-actions-row">
+          <button class="share-action-btn share-action-btn--secondary" id="copy-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <path d="M3 10.5V3.5A1.5 1.5 0 014.5 2h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Copy
+          </button>
+          <button class="share-action-btn share-action-btn--primary" id="share-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Share
+          </button>
+        </div>
       </div>
     </Drawer>
   </main>
@@ -219,44 +226,80 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   }
 
   function updateSharePreview(yesMovies: UniqueMovie[]) {
-    // Update preview text
-    const textEl = document.getElementById('share-preview-text');
-    if (textEl) {
-      textEl.textContent = `These are the movies I want to see at Film Forum's ${seriesName} series:`;
-    }
-
-    // Update list (show only Yes movies, first 3)
-    const listEl = document.getElementById('share-preview-list');
-    if (listEl) {
-      const displayCount = 3;
-      const displayMovies = yesMovies.slice(0, displayCount);
-      const remaining = yesMovies.length - displayCount;
-
-      listEl.innerHTML = displayMovies.map(um => {
-        const title = toTitleCase(um.movie.Movie);
-        return `<li>${title}</li>`;
-      }).join('');
-
-      if (remaining > 0) {
-        listEl.innerHTML += `<li class="more-count">...and ${remaining} more</li>`;
-      }
-    }
-
-    // Update shareable URL
     const reactions = getReactions(sessionId);
+    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
+    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
+    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
+
+    // Generate shareable URL
     const encoded = encodeReactionsCompact(reactions, allMovies);
     const userId = getUserId();
     const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
 
-    const urlInput = document.getElementById('share-url-input') as HTMLInputElement;
-    if (urlInput) urlInput.value = url;
+    // Build full share text
+    const displayCount = 3;
+    let shareText = `My picks for Film Forum's ${seriesName} series:\n\n`;
 
-    // Enable/disable share button (enable if have Yes movies)
+    // Yes section
+    if (yesMovies.length > 0) {
+      shareText += 'YES:\n';
+      const displayYes = yesMovies.slice(0, displayCount);
+      shareText += displayYes.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (yesMovies.length > displayCount) {
+        shareText += `\n...and ${yesMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    // Maybe section
+    if (maybeMovies.length > 0) {
+      shareText += 'MAYBE:\n';
+      const displayMaybe = maybeMovies.slice(0, displayCount);
+      shareText += displayMaybe.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (maybeMovies.length > displayCount) {
+        shareText += `\n...and ${maybeMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    // No section
+    if (noMovies.length > 0) {
+      shareText += 'NO:\n';
+      const displayNo = noMovies.slice(0, displayCount);
+      shareText += displayNo.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (noMovies.length > displayCount) {
+        shareText += `\n...and ${noMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    // Unmarked section (optional - only if there are some and not all)
+    if (unmarkedMovies.length > 0 && unmarkedMovies.length < allMovies.length) {
+      shareText += 'UNMARKED:\n';
+      const displayUnmarked = unmarkedMovies.slice(0, displayCount);
+      shareText += displayUnmarked.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (unmarkedMovies.length > displayCount) {
+        shareText += `\n...and ${unmarkedMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    shareText += `Full list: ${url}`;
+
+    // Update textarea with share text
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (textEmbed) textEmbed.value = shareText;
+
+    // Enable/disable buttons (enable if have any reactions)
+    const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
     const shareBtn = document.getElementById('share-btn') as HTMLButtonElement;
-    if (shareBtn) shareBtn.disabled = yesMovies.length === 0;
+    if (shareBtn) shareBtn.disabled = !hasReactions;
+
+    const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
+    if (copyBtn) copyBtn.disabled = !hasReactions;
 
     const openShareBtn = document.getElementById('open-share-btn') as HTMLButtonElement;
-    if (openShareBtn) openShareBtn.disabled = yesMovies.length === 0;
+    if (openShareBtn) openShareBtn.disabled = !hasReactions;
   }
 
   // Handle clicks on cart items and reaction buttons
@@ -374,100 +417,54 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     (window as any).openDrawer('share-drawer');
   });
 
-  // Share button
-  document.getElementById('share-btn')?.addEventListener('click', async () => {
-    const reactions = getReactions(sessionId);
-    const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
-    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
-    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
-    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
+  // Copy button
+  document.getElementById('copy-btn')?.addEventListener('click', async () => {
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (!textEmbed) return;
 
-    const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
-    if (!hasReactions) return;
-
-    const encoded = encodeReactionsCompact(reactions, allMovies);
-    const userId = getUserId();
-    const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
-
-    // Format share text with all sections
-    const displayCount = 3;
-    let shareText = `My picks for Film Forum's ${seriesName} series:\n\n`;
-
-    // Yes section
-    if (yesMovies.length > 0) {
-      shareText += 'YES:\n';
-      const displayYes = yesMovies.slice(0, displayCount);
-      shareText += displayYes.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (yesMovies.length > displayCount) {
-        shareText += `\n...and ${yesMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
-    }
-
-    // Maybe section
-    if (maybeMovies.length > 0) {
-      shareText += 'MAYBE:\n';
-      const displayMaybe = maybeMovies.slice(0, displayCount);
-      shareText += displayMaybe.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (maybeMovies.length > displayCount) {
-        shareText += `\n...and ${maybeMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
-    }
-
-    // No section
-    if (noMovies.length > 0) {
-      shareText += 'NO:\n';
-      const displayNo = noMovies.slice(0, displayCount);
-      shareText += displayNo.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (noMovies.length > displayCount) {
-        shareText += `\n...and ${noMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
-    }
-
-    // Unmarked section (optional - only if there are some)
-    if (unmarkedMovies.length > 0 && unmarkedMovies.length < allMovies.length) {
-      shareText += 'UNMARKED:\n';
-      const displayUnmarked = unmarkedMovies.slice(0, displayCount);
-      shareText += displayUnmarked.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (unmarkedMovies.length > displayCount) {
-        shareText += `\n...and ${unmarkedMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
-    }
-
-    shareText += `Full list: ${url}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ text: shareText });
-        (window as any).closeDrawer('share-drawer');
-      } catch {
-        // User cancelled or share failed, fallback to clipboard
-        fallbackCopy(shareText);
-      }
-    } else {
-      fallbackCopy(shareText);
-    }
-  });
-
-  async function fallbackCopy(text: string) {
     try {
-      await navigator.clipboard.writeText(text);
-      const btn = document.getElementById('share-btn');
+      await navigator.clipboard.writeText(textEmbed.value);
+      const btn = document.getElementById('copy-btn');
       if (btn) {
         const orig = btn.innerHTML;
-        btn.textContent = 'Copied!';
-        setTimeout(() => {
-          btn.innerHTML = orig;
-          (window as any).closeDrawer('share-drawer');
-        }, 1500);
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
       }
     } catch {
       console.error('Failed to copy to clipboard');
     }
-  }
+  });
+
+  // Share button
+  document.getElementById('share-btn')?.addEventListener('click', async () => {
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (!textEmbed || !textEmbed.value) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: textEmbed.value });
+        (window as any).closeDrawer('share-drawer');
+      } catch {
+        // User cancelled - don't show error
+      }
+    } else {
+      // Fallback to copy
+      try {
+        await navigator.clipboard.writeText(textEmbed.value);
+        const btn = document.getElementById('share-btn');
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.textContent = 'Copied!';
+          setTimeout(() => {
+            btn.innerHTML = orig;
+            (window as any).closeDrawer('share-drawer');
+          }, 1500);
+        }
+      } catch {
+        console.error('Failed to copy to clipboard');
+      }
+    }
+  });
 
   // Initialize
   renderCart();
@@ -749,100 +746,78 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   .share-content {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
 
-  .share-preview-text {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  .share-preview-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 14px;
-    color: var(--text-primary);
-    line-height: 1.6;
-  }
-
-  .share-preview-list li {
-    padding-left: 16px;
+  .share-preview-embed {
     position: relative;
   }
 
-  .share-preview-list li::before {
-    content: '•';
-    position: absolute;
-    left: 4px;
-    color: var(--text-tertiary);
-  }
-
-  .share-preview-list li.more-count {
-    color: var(--text-secondary);
-    font-style: italic;
-  }
-
-  .share-preview-list li.section-header {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--text-primary);
-    margin-top: 12px;
-    padding-left: 0;
-  }
-
-  .share-preview-list li.section-header::before {
-    content: none;
-  }
-
-  .share-preview-list li.section-header:first-child {
-    margin-top: 0;
-  }
-
-  .share-preview-url {
-    margin-top: 4px;
-  }
-
-  .share-url-input {
+  .share-text-embed {
     width: 100%;
-    padding: 10px 12px;
-    font-size: 12px;
-    font-family: monospace;
-    color: var(--text-secondary);
+    min-height: 200px;
+    max-height: 400px;
+    padding: 12px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    line-height: 1.6;
+    color: var(--text-primary);
     background: var(--bg-movie);
     border: 1px solid var(--bg-grid);
-    border-radius: 6px;
+    border-radius: 8px;
     outline: none;
+    resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
-  .share-url-input:focus {
+  .share-text-embed:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  .share-text-embed::selection {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .share-actions-row {
+    display: flex;
+    gap: 8px;
   }
 
   .share-action-btn {
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    width: 100%;
-    padding: 12px 16px;
+    padding: 10px 16px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     font-family: inherit;
-    background: var(--accent);
-    color: #fff;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s;
-    margin-top: 8px;
   }
 
-  .share-action-btn:hover {
+  .share-action-btn--secondary {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-grid);
+  }
+
+  .share-action-btn--secondary:hover {
+    background: var(--bg-movie-hover);
+    border-color: var(--text-tertiary);
+  }
+
+  .share-action-btn--primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .share-action-btn--primary:hover {
     background: var(--accent-bg);
   }
 
