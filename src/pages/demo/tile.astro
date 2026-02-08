@@ -1,6 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ToggleGroup from '../../components/ToggleGroup.astro';
+import { loadMovieData } from '../../utils/loadMovieData';
+
+// Load movie data at build time
+const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 ---
 
 <Layout title="Timeline Tile Debug">
@@ -61,111 +65,113 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   </div>
 </Layout>
 
+<script define:vars={{ movieDataJson }}>
+  window.__movieData = JSON.parse(movieDataJson);
+</script>
+
 <script>
   import type { Movie } from '../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
 
-  // Fetch real movie data
-  fetch('/tenement-stories-full.json')
-    .then(res => res.json())
-    .then((movies: Movie[]) => {
-      // Filter to movies with posters
-      const moviesWithPosters = movies.filter(m => m.poster_url);
+  // Load movie data from build-time inlined data
+  const movies: Movie[] = window.__movieData;
 
-      // Demo tile heights to test
-      const heights = [50, 75, 100, 150, 200, 300];
+  // Filter to movies with posters
+  const moviesWithPosters = movies.filter(m => m.poster_url);
 
-      const demoGrid = document.getElementById('demo-tiles');
-      const comparisonGrid = document.getElementById('comparison-tiles');
+  // Demo tile heights to test
+  const heights = [50, 75, 100, 150, 200, 300];
 
-      if (demoGrid) {
-        heights.forEach((height, i) => {
-          const movie = moviesWithPosters[i % moviesWithPosters.length];
-          const wrapper = document.createElement('div');
-          wrapper.className = 'demo-tile-wrapper';
-          wrapper.innerHTML = `<span class="demo-label">${height}px</span>`;
+  const demoGrid = document.getElementById('demo-tiles');
+  const comparisonGrid = document.getElementById('comparison-tiles');
 
-          const tile = createMovieElement(movie, { isTimeline: true, heightPx: height });
-          tile.classList.add('demo-tile');
-          wrapper.appendChild(tile);
-          demoGrid.appendChild(wrapper);
-        });
-      }
+  if (demoGrid) {
+    heights.forEach((height, i) => {
+      const movie = moviesWithPosters[i % moviesWithPosters.length];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'demo-tile-wrapper';
+      wrapper.innerHTML = `<span class="demo-label">${height}px</span>`;
 
-      if (comparisonGrid) {
-        const movie = moviesWithPosters[3];
-
-        function createComparisonSlider(label: string, beforeClass: string, afterClass: string, beforeLabelText: string, afterLabelText: string) {
-          const container = document.createElement('div');
-          container.className = 'comparison-container';
-
-          const labelEl = document.createElement('span');
-          labelEl.className = 'comparison-label';
-          labelEl.textContent = label;
-          container.appendChild(labelEl);
-
-          const slider = document.createElement('div');
-          slider.className = 'comparison-slider';
-
-          const beforeTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
-          beforeTile.classList.add('comparison-tile', 'comparison-before', beforeClass);
-          slider.appendChild(beforeTile);
-
-          const afterWrapper = document.createElement('div');
-          afterWrapper.className = 'comparison-after-wrapper';
-          const afterTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
-          afterTile.classList.add('comparison-tile', 'comparison-after', afterClass);
-          afterWrapper.appendChild(afterTile);
-          slider.appendChild(afterWrapper);
-
-          const handle = document.createElement('div');
-          handle.className = 'comparison-handle';
-          handle.innerHTML = '<div class="handle-line"></div><div class="handle-grip">⋮</div><div class="handle-line"></div>';
-          slider.appendChild(handle);
-
-          const beforeLabel = document.createElement('span');
-          beforeLabel.className = 'comparison-side-label before';
-          beforeLabel.textContent = beforeLabelText;
-          slider.appendChild(beforeLabel);
-
-          const afterLabel = document.createElement('span');
-          afterLabel.className = 'comparison-side-label after';
-          afterLabel.textContent = afterLabelText;
-          slider.appendChild(afterLabel);
-
-          container.appendChild(slider);
-
-          let isDragging = false;
-          function updatePosition(x: number) {
-            const rect = slider.getBoundingClientRect();
-            let percent = ((x - rect.left) / rect.width) * 100;
-            percent = Math.max(0, Math.min(100, percent));
-            afterWrapper.style.clipPath = `inset(0 0 0 ${percent}%)`;
-            handle.style.left = `${percent}%`;
-          }
-
-          handle.addEventListener('mousedown', () => { isDragging = true; });
-          slider.addEventListener('mousedown', (e) => { isDragging = true; updatePosition(e.clientX); });
-          document.addEventListener('mousemove', (e) => { if (isDragging) updatePosition(e.clientX); });
-          document.addEventListener('mouseup', () => { isDragging = false; });
-          handle.addEventListener('touchstart', () => { isDragging = true; });
-          slider.addEventListener('touchstart', (e) => { isDragging = true; updatePosition(e.touches[0].clientX); });
-          document.addEventListener('touchmove', (e) => { if (isDragging) updatePosition(e.touches[0].clientX); });
-          document.addEventListener('touchend', () => { isDragging = false; });
-
-          setTimeout(() => updatePosition(slider.getBoundingClientRect().left + slider.offsetWidth / 2), 100);
-
-          return container;
-        }
-
-        comparisonGrid.appendChild(createComparisonSlider('No Gradient vs Normal', 'no-gradient', 'force-blend-normal', 'None', 'Normal'));
-        comparisonGrid.appendChild(createComparisonSlider('No Gradient vs Darken', 'no-gradient', 'force-blend-darken', 'None', 'Darken'));
-        comparisonGrid.appendChild(createComparisonSlider('Normal vs Darken', 'force-blend-normal', 'force-blend-darken', 'Normal', 'Darken'));
-      }
-
-      // Initial height calculation
-      updateTextHeights();
+      const tile = createMovieElement(movie, { isTimeline: true, heightPx: height });
+      tile.classList.add('demo-tile');
+      wrapper.appendChild(tile);
+      demoGrid.appendChild(wrapper);
     });
+  }
+
+  if (comparisonGrid) {
+    const movie = moviesWithPosters[3];
+
+    function createComparisonSlider(label: string, beforeClass: string, afterClass: string, beforeLabelText: string, afterLabelText: string) {
+      const container = document.createElement('div');
+      container.className = 'comparison-container';
+
+      const labelEl = document.createElement('span');
+      labelEl.className = 'comparison-label';
+      labelEl.textContent = label;
+      container.appendChild(labelEl);
+
+      const slider = document.createElement('div');
+      slider.className = 'comparison-slider';
+
+      const beforeTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
+      beforeTile.classList.add('comparison-tile', 'comparison-before', beforeClass);
+      slider.appendChild(beforeTile);
+
+      const afterWrapper = document.createElement('div');
+      afterWrapper.className = 'comparison-after-wrapper';
+      const afterTile = createMovieElement(movie, { isTimeline: true, heightPx: 200 });
+      afterTile.classList.add('comparison-tile', 'comparison-after', afterClass);
+      afterWrapper.appendChild(afterTile);
+      slider.appendChild(afterWrapper);
+
+      const handle = document.createElement('div');
+      handle.className = 'comparison-handle';
+      handle.innerHTML = '<div class="handle-line"></div><div class="handle-grip">⋮</div><div class="handle-line"></div>';
+      slider.appendChild(handle);
+
+      const beforeLabel = document.createElement('span');
+      beforeLabel.className = 'comparison-side-label before';
+      beforeLabel.textContent = beforeLabelText;
+      slider.appendChild(beforeLabel);
+
+      const afterLabel = document.createElement('span');
+      afterLabel.className = 'comparison-side-label after';
+      afterLabel.textContent = afterLabelText;
+      slider.appendChild(afterLabel);
+
+      container.appendChild(slider);
+
+      let isDragging = false;
+      function updatePosition(x: number) {
+        const rect = slider.getBoundingClientRect();
+        let percent = ((x - rect.left) / rect.width) * 100;
+        percent = Math.max(0, Math.min(100, percent));
+        afterWrapper.style.clipPath = `inset(0 0 0 ${percent}%)`;
+        handle.style.left = `${percent}%`;
+      }
+
+      handle.addEventListener('mousedown', () => { isDragging = true; });
+      slider.addEventListener('mousedown', (e) => { isDragging = true; updatePosition(e.clientX); });
+      document.addEventListener('mousemove', (e) => { if (isDragging) updatePosition(e.clientX); });
+      document.addEventListener('mouseup', () => { isDragging = false; });
+      handle.addEventListener('touchstart', () => { isDragging = true; });
+      slider.addEventListener('touchstart', (e) => { isDragging = true; updatePosition(e.touches[0].clientX); });
+      document.addEventListener('touchmove', (e) => { if (isDragging) updatePosition(e.touches[0].clientX); });
+      document.addEventListener('touchend', () => { isDragging = false; });
+
+      setTimeout(() => updatePosition(slider.getBoundingClientRect().left + slider.offsetWidth / 2), 100);
+
+      return container;
+    }
+
+    comparisonGrid.appendChild(createComparisonSlider('No Gradient vs Normal', 'no-gradient', 'force-blend-normal', 'None', 'Normal'));
+    comparisonGrid.appendChild(createComparisonSlider('No Gradient vs Darken', 'no-gradient', 'force-blend-darken', 'None', 'Darken'));
+    comparisonGrid.appendChild(createComparisonSlider('Normal vs Darken', 'force-blend-normal', 'force-blend-darken', 'Normal', 'Darken'));
+  }
+
+  // Initial height calculation
+  updateTextHeights();
 
   // Control toggles
   const showImagesToggle = document.getElementById('show-images-toggle') as HTMLInputElement;

@@ -2,6 +2,10 @@
 import Layout from '../../layouts/Layout.astro';
 import Toggle from '../../components/Toggle.astro';
 import Switch from '../../components/Switch.astro';
+import { loadMovieData } from '../../utils/loadMovieData';
+
+// Load movie data at build time
+const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 ---
 
 <Layout title="Color Palette Demo">
@@ -79,6 +83,10 @@ import Switch from '../../components/Switch.astro';
     <Toggle id="toggle-actors" label="Actors" variant="outline" size="sm" />
   </div>
 </Layout>
+
+<script define:vars={{ movieDataJson }}>
+  window.__movieData = JSON.parse(movieDataJson);
+</script>
 
 <script>
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
@@ -294,22 +302,20 @@ import Switch from '../../components/Switch.astro';
   updateUrlParams();
 
   // Load movies and render calendars
-  fetch('/tenement-stories-full.json')
-    .then(res => res.json())
-    .then((movies: Movie[]) => {
-      // Group by date
-      movies.forEach(movie => {
-        const date = movie.Datetime.split('T')[0];
-        if (!moviesByDate[date]) moviesByDate[date] = [];
-        moviesByDate[date].push(movie);
-      });
+  const movies: Movie[] = window.__movieData;
 
-      // Get unique movie dates
-      allMovieDates = Object.keys(moviesByDate);
+  // Group by date
+  movies.forEach(movie => {
+    const date = movie.Datetime.split('T')[0];
+    if (!moviesByDate[date]) moviesByDate[date] = [];
+    moviesByDate[date].push(movie);
+  });
 
-      // Initial render
-      renderAllCalendars();
-    });
+  // Get unique movie dates
+  allMovieDates = Object.keys(moviesByDate);
+
+  // Initial render
+  renderAllCalendars();
 </script>
 
 <style>
