@@ -92,14 +92,22 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
 }
 
 export function updateTextHeights(): void {
+  // Phase 1: Read all measurements (single layout calculation)
+  const measurements: { clickable: HTMLElement; textHeight: number }[] = [];
+
   document.querySelectorAll('.movie.has-poster').forEach(tile => {
     const clickable = tile.querySelector('.movie-clickable') as HTMLElement;
     const textWrapper = tile.querySelector('.movie-text') as HTMLElement;
 
     if (clickable && textWrapper) {
       const textHeight = textWrapper.offsetHeight + 8;
-      clickable.style.setProperty('--text-height', `${textHeight}px`);
+      measurements.push({ clickable, textHeight });
     }
+  });
+
+  // Phase 2: Write all styles (no layout recalc needed)
+  measurements.forEach(({ clickable, textHeight }) => {
+    clickable.style.setProperty('--text-height', `${textHeight}px`);
   });
 }
 
