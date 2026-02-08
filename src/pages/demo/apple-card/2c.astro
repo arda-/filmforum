@@ -626,13 +626,13 @@ const movies = [
     if (e.pointerId !== activePointerId) return;
 
     if (isDragging) {
-      isDragging = false;
-      isPointerCaptured = false;
-      activePointerId = null;
       if (expandedCard) {
         expandedCard.classList.remove('dragging');
         if (isPointerCaptured) expandedCard.releasePointerCapture(e.pointerId);
       }
+      isDragging = false;
+      isPointerCaptured = false;
+      activePointerId = null;
       finishDrag();
     } else {
       // Clean up tracking if gesture wasn't captured
@@ -645,13 +645,13 @@ const movies = [
     if (e.pointerId !== activePointerId) return;
 
     if (isDragging) {
-      isDragging = false;
-      isPointerCaptured = false;
-      activePointerId = null;
       if (expandedCard) {
         expandedCard.classList.remove('dragging');
         if (isPointerCaptured) expandedCard.releasePointerCapture(e.pointerId);
       }
+      isDragging = false;
+      isPointerCaptured = false;
+      activePointerId = null;
       snapBack();
     } else {
       activePointerId = null;
