@@ -1,0 +1,66 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  ogImageAlt?: string;
+  noindex?: boolean;
+  structuredData?: object | object[];
+  twitterCard?: 'summary' | 'summary_large_image';
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogType = 'website',
+  ogImage = '/og-default.jpg',
+  ogImageAlt = 'FilmForum',
+  noindex = false,
+  structuredData,
+  twitterCard = 'summary_large_image',
+} = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://filmforum.org';
+const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
+const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+const siteName = 'FilmForum';
+
+// Ensure description is not too long (recommended: 150-160 chars for Google)
+const truncatedDescription = description.length > 160
+  ? description.substring(0, 157) + '...'
+  : description;
+---
+
+<!-- Basic SEO -->
+<title>{title}</title>
+<meta name="description" content={truncatedDescription} />
+<link rel="canonical" href={fullCanonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+<!-- OpenGraph -->
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={truncatedDescription} />
+<meta property="og:url" content={fullCanonical} />
+<meta property="og:image" content={fullOgImage} />
+<meta property="og:image:alt" content={ogImageAlt} />
+<meta property="og:site_name" content={siteName} />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content={twitterCard} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={truncatedDescription} />
+<meta name="twitter:image" content={fullOgImage} />
+<meta name="twitter:image:alt" content={ogImageAlt} />
+
+<!-- JSON-LD Structured Data -->
+{structuredData && (
+  Array.isArray(structuredData)
+    ? structuredData.map((data) => (
+        <script type="application/ld+json" set:html={JSON.stringify(data)} />
+      ))
+    : <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+)}
