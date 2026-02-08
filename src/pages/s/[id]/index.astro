@@ -27,9 +27,58 @@ for (const m of movieData) {
 }
 const films = Array.from(filmMap.values());
 const totalShowtimes = movieData.length;
+
+// SEO metadata
+const title = `${series.name}: ${series.subtitle} - Film Forum`;
+const description = `Explore ${films.length} films in ${series.name}: ${series.subtitle} at ${series.venueName}, ${series.dateRange}. Browse the complete calendar and movie list.`;
+const canonical = `/s/${id}/`;
+const ogImage = `/og-images/series/${id}.jpg`;
+
+// Parse date range for structured data
+const dateRangeParts = series.dateRange.match(/([A-Za-z]+)\s+(\d+)[-–](\d+),\s+(\d{4})/);
+let startDate = '';
+let endDate = '';
+if (dateRangeParts) {
+  const [, month, startDay, endDay, year] = dateRangeParts;
+  const monthNum = new Date(`${month} 1, ${year}`).getMonth() + 1;
+  startDate = `${year}-${String(monthNum).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`;
+  endDate = `${year}-${String(monthNum).padStart(2, '0')}-${String(endDay).padStart(2, '0')}`;
+}
+
+// Structured data for the series
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "EventSeries",
+  "name": `${series.name}: ${series.subtitle}`,
+  "description": description,
+  "location": {
+    "@type": "Place",
+    "name": series.venueName,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "New York",
+      "addressRegion": "NY"
+    }
+  },
+  "startDate": startDate,
+  "endDate": endDate,
+  "url": `https://filmforum.org/s/${id}/`,
+  "organizer": {
+    "@type": "Organization",
+    "name": series.venueName,
+    "url": series.seriesUrl
+  }
+};
 ---
 
-<Layout title={`${series.name}: ${series.subtitle}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${series.name}: ${series.subtitle}`}
+  structuredData={structuredData}
+>
   <main class="series-landing">
     <header class="series-header">
       <a href="/" class="back-link">&larr; FilmForum</a>

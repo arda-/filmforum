@@ -20,9 +20,24 @@ const series = getSeriesConfig(id)!;
 
 // Load movie data at build time
 const { movieDataJson } = loadMovieData(series.dataFile);
+
+// Count showtimes for SEO description
+const showtimeCount = JSON.parse(movieDataJson).length;
+
+// SEO metadata
+const title = `${series.name} Calendar - ${series.venueName} Showtimes`;
+const description = `Interactive calendar for ${series.name} at ${series.venueName}. Browse ${showtimeCount}+ showtimes, filter by day, and plan your visits. ${series.dateRange}.`;
+const canonical = `/s/${id}/calendar`;
+const ogImage = `/og-images/calendar/${id}.jpg`;
 ---
 
-<Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${series.name} calendar view`}
+>
   <Header
     seriesName={series.name}
     seriesSubtitle={series.subtitle}
