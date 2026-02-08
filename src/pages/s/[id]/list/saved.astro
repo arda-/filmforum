@@ -6,6 +6,7 @@
  */
 import Layout from '../../../../layouts/Layout.astro';
 import Drawer from '../../../../components/Drawer.astro';
+import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
 import type { Movie } from '../../../../utils/movieUtils';
 import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
 import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
@@ -114,6 +115,9 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       </button>
     </div>
 
+    <!-- Movie detail drawer -->
+    <MovieDetailDrawer />
+
     <!-- Share dialog -->
     <Drawer id="share-drawer" title="Share Your List">
       <div class="share-content">
@@ -215,31 +219,67 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   }
 
   function updateSharePreview(yesMovies: UniqueMovie[]) {
+    const reactions = getReactions(sessionId);
+    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
+    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
+    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
+
     // Update preview text
     const textEl = document.getElementById('share-preview-text');
     if (textEl) {
-      textEl.textContent = `These are the movies I want to see at Film Forum's ${seriesName} series:`;
+      textEl.textContent = `My picks for Film Forum's ${seriesName} series:`;
     }
 
-    // Update list (show first 3, then "and X more")
+    // Build list with all sections
     const listEl = document.getElementById('share-preview-list');
     if (listEl) {
+      let html = '';
       const displayCount = 3;
-      const displayMovies = yesMovies.slice(0, displayCount);
-      const remaining = yesMovies.length - displayCount;
 
-      listEl.innerHTML = displayMovies.map(um => {
-        const title = toTitleCase(um.movie.Movie);
-        return `<li>${title}</li>`;
-      }).join('');
-
-      if (remaining > 0) {
-        listEl.innerHTML += `<li class="more-count">...and ${remaining} more</li>`;
+      // Yes section
+      if (yesMovies.length > 0) {
+        html += '<li class="section-header">Yes</li>';
+        const displayYes = yesMovies.slice(0, displayCount);
+        html += displayYes.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
+        if (yesMovies.length > displayCount) {
+          html += `<li class="more-count">...and ${yesMovies.length - displayCount} more</li>`;
+        }
       }
+
+      // Maybe section
+      if (maybeMovies.length > 0) {
+        html += '<li class="section-header">Maybe</li>';
+        const displayMaybe = maybeMovies.slice(0, displayCount);
+        html += displayMaybe.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
+        if (maybeMovies.length > displayCount) {
+          html += `<li class="more-count">...and ${maybeMovies.length - displayCount} more</li>`;
+        }
+      }
+
+      // No section
+      if (noMovies.length > 0) {
+        html += '<li class="section-header">No</li>';
+        const displayNo = noMovies.slice(0, displayCount);
+        html += displayNo.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
+        if (noMovies.length > displayCount) {
+          html += `<li class="more-count">...and ${noMovies.length - displayCount} more</li>`;
+        }
+      }
+
+      // Unmarked section
+      if (unmarkedMovies.length > 0) {
+        html += '<li class="section-header">Unmarked</li>';
+        const displayUnmarked = unmarkedMovies.slice(0, displayCount);
+        html += displayUnmarked.map(um => `<li>${toTitleCase(um.movie.Movie)}</li>`).join('');
+        if (unmarkedMovies.length > displayCount) {
+          html += `<li class="more-count">...and ${unmarkedMovies.length - displayCount} more</li>`;
+        }
+      }
+
+      listEl.innerHTML = html;
     }
 
     // Update shareable URL
-    const reactions = getReactions(sessionId);
     const encoded = encodeReactionsCompact(reactions, allMovies);
     const userId = getUserId();
     const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
@@ -247,17 +287,105 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const urlInput = document.getElementById('share-url-input') as HTMLInputElement;
     if (urlInput) urlInput.value = url;
 
-    // Enable/disable share button
+    // Enable/disable share button (enable if any reactions exist)
+    const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
     const shareBtn = document.getElementById('share-btn') as HTMLButtonElement;
-    if (shareBtn) shareBtn.disabled = yesMovies.length === 0;
+    if (shareBtn) shareBtn.disabled = !hasReactions;
 
     const openShareBtn = document.getElementById('open-share-btn') as HTMLButtonElement;
-    if (openShareBtn) openShareBtn.disabled = yesMovies.length === 0;
+    if (openShareBtn) openShareBtn.disabled = !hasReactions;
   }
 
-  // Handle reaction clicks
+  // Handle clicks on cart items and reaction buttons
   document.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest('.cart-reaction-btn') as HTMLElement | null;
+    const target = e.target as HTMLElement;
+
+    // Handle reaction button clicks
+    const btn = target.closest('.cart-reaction-btn') as HTMLElement | null;
+    if (btn) {
+      const movieId = btn.dataset.movieId;
+      const reaction = btn.dataset.reaction as MovieReaction;
+      if (!movieId || !reaction) return;
+
+      const reactions = getReactions(sessionId);
+      const current = reactions[movieId] || 'none';
+      const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
+      setReaction(sessionId, movieId, newReaction);
+
+      renderCart();
+      return;
+    }
+
+    // Handle cart item clicks (open movie detail)
+    const item = target.closest('.cart-item') as HTMLElement | null;
+    if (item && !target.closest('button, a')) {
+      const movieId = item.dataset.movieId;
+      if (movieId) {
+        openMovieDetail(movieId);
+      }
+    }
+  });
+
+  function openMovieDetail(movieId: string) {
+    const idx = allMovies.findIndex(m => m.id === movieId);
+    if (idx === -1) return;
+    showMovieDetail(idx);
+    (window as any).openDrawer('movie-detail-drawer');
+  }
+
+  function showMovieDetail(index: number) {
+    const um = allMovies[index];
+    if (!um) return;
+
+    const { movie, id } = um;
+    const reactions = getReactions(sessionId);
+    const reaction = reactions[id] || 'none';
+
+    // Update poster
+    const img = document.getElementById('detail-poster-img') as HTMLImageElement;
+    if (img) {
+      img.src = movie.poster_url || '';
+      img.alt = movie.Movie;
+    }
+
+    // Update text
+    const titleEl = document.getElementById('detail-title');
+    if (titleEl) titleEl.textContent = toTitleCase(movie.Movie);
+
+    const metaEl = document.getElementById('detail-meta');
+    if (metaEl) metaEl.textContent = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
+
+    const actorsEl = document.getElementById('detail-actors');
+    if (actorsEl) actorsEl.textContent = movie.actors || '';
+
+    const descEl = document.getElementById('detail-description');
+    if (descEl) descEl.textContent = movie.description || '';
+
+    // Update links
+    const filmUrl = document.getElementById('detail-film-url') as HTMLAnchorElement;
+    if (filmUrl) {
+      filmUrl.href = movie.film_url || '#';
+      filmUrl.style.display = movie.film_url ? '' : 'none';
+    }
+
+    const ticketsUrl = document.getElementById('detail-tickets-url') as HTMLAnchorElement;
+    if (ticketsUrl) {
+      ticketsUrl.href = um.showtimes[0]?.tickets || '#';
+      ticketsUrl.style.display = um.showtimes[0]?.tickets ? '' : 'none';
+    }
+
+    // Update detail drawer reaction buttons
+    document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(btn => {
+      (btn as HTMLElement).dataset.movieId = id;
+      const btnReaction = (btn as HTMLElement).dataset.reaction;
+      btn.classList.toggle('active', btnReaction === reaction);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(btnReaction === reaction));
+    });
+  }
+
+  // Handle reactions from detail drawer
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.detail-rbtn') as HTMLElement | null;
     if (!btn) return;
 
     const movieId = btn.dataset.movieId;
@@ -268,6 +396,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const current = reactions[movieId] || 'none';
     const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
     setReaction(sessionId, movieId, newReaction);
+
+    // Update detail drawer buttons
+    document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(b => {
+      const r = (b as HTMLElement).dataset.reaction;
+      b.classList.toggle('active', r === newReaction);
+    });
 
     renderCart();
   });
@@ -281,21 +415,66 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   document.getElementById('share-btn')?.addEventListener('click', async () => {
     const reactions = getReactions(sessionId);
     const yesMovies = allMovies.filter(m => reactions[m.id] === 'yes');
+    const maybeMovies = allMovies.filter(m => reactions[m.id] === 'maybe');
+    const noMovies = allMovies.filter(m => reactions[m.id] === 'no');
+    const unmarkedMovies = allMovies.filter(m => !reactions[m.id] || reactions[m.id] === 'none');
 
-    if (yesMovies.length === 0) return;
+    const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
+    if (!hasReactions) return;
 
     const encoded = encodeReactionsCompact(reactions, allMovies);
     const userId = getUserId();
     const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
 
-    // Format share text
+    // Format share text with all sections
     const displayCount = 3;
-    const displayMovies = yesMovies.slice(0, displayCount);
-    const remaining = yesMovies.length - displayCount;
+    let shareText = `My picks for Film Forum's ${seriesName} series:\n\n`;
 
-    const movieList = displayMovies.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-    const moreText = remaining > 0 ? `\n...and ${remaining} more\n` : '\n';
-    const shareText = `These are the movies I want to see at Film Forum's ${seriesName} series:\n\n${movieList}${moreText}\nFull list: ${url}`;
+    // Yes section
+    if (yesMovies.length > 0) {
+      shareText += 'YES:\n';
+      const displayYes = yesMovies.slice(0, displayCount);
+      shareText += displayYes.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (yesMovies.length > displayCount) {
+        shareText += `\n...and ${yesMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    // Maybe section
+    if (maybeMovies.length > 0) {
+      shareText += 'MAYBE:\n';
+      const displayMaybe = maybeMovies.slice(0, displayCount);
+      shareText += displayMaybe.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (maybeMovies.length > displayCount) {
+        shareText += `\n...and ${maybeMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    // No section
+    if (noMovies.length > 0) {
+      shareText += 'NO:\n';
+      const displayNo = noMovies.slice(0, displayCount);
+      shareText += displayNo.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (noMovies.length > displayCount) {
+        shareText += `\n...and ${noMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    // Unmarked section (optional - only if there are some)
+    if (unmarkedMovies.length > 0 && unmarkedMovies.length < allMovies.length) {
+      shareText += 'UNMARKED:\n';
+      const displayUnmarked = unmarkedMovies.slice(0, displayCount);
+      shareText += displayUnmarked.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
+      if (unmarkedMovies.length > displayCount) {
+        shareText += `\n...and ${unmarkedMovies.length - displayCount} more`;
+      }
+      shareText += '\n\n';
+    }
+
+    shareText += `Full list: ${url}`;
 
     if (navigator.share) {
       try {
@@ -411,6 +590,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     background: var(--bg-movie);
     border-radius: 8px;
     transition: background-color 0.15s;
+    cursor: pointer;
   }
 
   :global(.cart-item:hover) {
@@ -640,6 +820,24 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   .share-preview-list li.more-count {
     color: var(--text-secondary);
     font-style: italic;
+  }
+
+  .share-preview-list li.section-header {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-primary);
+    margin-top: 12px;
+    padding-left: 0;
+  }
+
+  .share-preview-list li.section-header::before {
+    content: none;
+  }
+
+  .share-preview-list li.section-header:first-child {
+    margin-top: 0;
   }
 
   .share-preview-url {
