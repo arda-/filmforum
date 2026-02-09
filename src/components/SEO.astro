@@ -16,7 +16,7 @@ const {
   description,
   canonical,
   ogType = 'website',
-  ogImage = '/og-default.jpg',
+  ogImage,
   ogImageAlt = 'FilmForum',
   noindex = false,
   structuredData,
@@ -27,7 +27,7 @@ const {
 // This allows the site to work correctly regardless of where it's deployed
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
-const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : undefined;
 
 // Derive site name from the domain (e.g., "localhost:4321", "filmforum.example.com")
 const siteName = new URL(siteUrl).host;
@@ -71,16 +71,28 @@ const truncatedDescription = truncateDescription(description);
 <meta property="og:title" content={title} />
 <meta property="og:description" content={truncatedDescription} />
 <meta property="og:url" content={fullCanonical} />
-<meta property="og:image" content={fullOgImage} />
-<meta property="og:image:alt" content={ogImageAlt} />
+{fullOgImage && (
+  <>
+    <meta property="og:image" content={fullOgImage} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    {/* TODO: Add og:image:width and og:image:height for better social previews.
+        Standard size is 1200x630 for custom OG images. For movie posters with
+        varying dimensions, consider using Astro's image service or a CMS that
+        exposes image metadata. */}
+  </>
+)}
 <meta property="og:site_name" content={siteName} />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content={twitterCard} />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={truncatedDescription} />
-<meta name="twitter:image" content={fullOgImage} />
-<meta name="twitter:image:alt" content={ogImageAlt} />
+{fullOgImage && (
+  <>
+    <meta name="twitter:image" content={fullOgImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+  </>
+)}
 
 <!-- JSON-LD Structured Data -->
 {structuredData && (
