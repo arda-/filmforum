@@ -89,10 +89,15 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       </div>
     </div>
 
-    <div class="shared-actions" id="shared-actions">
-      <button class="compare-btn" id="compare-btn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Spacer for floating button -->
+    <div class="bottom-spacer"></div>
+
+    <!-- Floating action button -->
+    <div class="floating-actions" id="floating-actions">
+      <button class="action-btn action-btn--primary" id="compare-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="6.5" cy="9" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <circle cx="11.5" cy="9" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
         </svg>
         Compare with my list
       </button>
@@ -187,8 +192,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const emptyEl = document.getElementById('shared-empty');
   if (emptyEl) emptyEl.style.display = hasAny ? 'none' : 'block';
 
-  const actionsEl = document.getElementById('shared-actions');
-  if (actionsEl) actionsEl.style.display = hasAny ? 'block' : 'none';
+  const actionsEl = document.getElementById('floating-actions');
+  if (actionsEl) actionsEl.style.display = hasAny ? 'flex' : 'none';
 
   function renderSection(containerId: string, sectionId: string, countId: string, movies: UniqueMovie[]) {
     const section = document.getElementById(sectionId);
@@ -265,7 +270,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   .shared-list-page {
     max-width: 600px;
     margin: 0 auto;
-    padding: 0 16px;
+    padding: 0 16px 100px;
   }
 
   .page-header {
@@ -434,12 +439,34 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     margin: 4px 0 0 0;
   }
 
-  .shared-actions {
-    padding: 16px 0;
-    display: none;
+  .bottom-spacer {
+    height: 20px;
   }
 
-  .compare-btn {
+  /* Floating action button */
+  .floating-actions {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-body);
+    border-top: 1px solid var(--bg-grid);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  @supports (backdrop-filter: blur(12px)) {
+    .floating-actions {
+      background: color-mix(in srgb, var(--bg-body) 85%, transparent);
+    }
+  }
+
+  .action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -449,15 +476,22 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     font-size: 14px;
     font-weight: 500;
     font-family: inherit;
-    background: var(--accent);
-    color: #fff;
-    border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.15s;
+    transition: all 0.15s;
+    border: none;
   }
 
-  .compare-btn:hover {
+  .action-btn:active {
+    transform: scale(0.97);
+  }
+
+  .action-btn--primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .action-btn--primary:hover {
     background: var(--accent-bg);
   }
 </style>
