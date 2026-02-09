@@ -65,6 +65,7 @@ const routes = [
 ];
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
+const siteName = new URL(siteUrl).host;
 ---
 
 <Layout title="SEO Preview - OpenGraph Share Examples" noindex={true}>
@@ -291,7 +292,7 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
                 <div class="og-content">
                   <div class="og-title">{route.title}</div>
                   <div class="og-description">{route.description}</div>
-                  <div class="og-url">filmforum.org</div>
+                  <div class="og-url">{siteName}</div>
                 </div>
               </div>
 
@@ -318,7 +319,7 @@ const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
                   <strong>og:type:</strong> <span class="value">"website"</span>
                 </div>
                 <div class="meta-tag">
-                  <strong>og:site_name:</strong> <span class="value">"FilmForum"</span>
+                  <strong>og:site_name:</strong> <span class="value">"{siteName}"</span>
                 </div>
               </div>
 
