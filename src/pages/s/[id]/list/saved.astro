@@ -140,12 +140,12 @@ const ogImage = `/og-images/shared-list.jpg`;
     const myReactions = getReactions(sessionId);
 
     container.innerHTML = movies.map(um => {
-      const title = toTitleCase(um.movie.Movie);
-      const meta = [um.movie.director, um.movie.year, formatRuntime(um.movie.runtime)].filter(Boolean).join(' · ');
+      const title = escapeHtml(toTitleCase(um.movie.Movie));
+      const meta = escapeHtml([um.movie.director, um.movie.year, formatRuntime(um.movie.runtime)].filter(Boolean).join(' · '));
       const myReaction = myReactions[um.id] || 'none';
 
       return `
-        <div class="shared-item" data-movie-id="${um.id}">
+        <div class="shared-item" data-movie-id="${escapeHtml(um.id)}">
           <div class="shared-item-info">
             <p class="shared-item-title">${title}</p>
             <p class="shared-item-meta">${meta}</p>
@@ -154,7 +154,7 @@ const ogImage = `/og-images/shared-list.jpg`;
             ${['yes', 'maybe', 'no'].map(r => {
               const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
               const active = r === myReaction ? 'active' : '';
-              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${um.id}">${labels[r]}</button>`;
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${escapeHtml(um.id)}">${labels[r]}</button>`;
             }).join('')}
           </div>
         </div>
@@ -164,6 +164,18 @@ const ogImage = `/og-images/shared-list.jpg`;
 
   renderSection('shared-yes-items', 'shared-yes-section', yesMovies);
   renderSection('shared-maybe-items', 'shared-maybe-section', maybeMovies);
+
+  // HTML escape helper to prevent XSS
+  function escapeHtml(text: string): string {
+    const map: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
 
   // Handle reaction clicks
   document.addEventListener('click', (e) => {

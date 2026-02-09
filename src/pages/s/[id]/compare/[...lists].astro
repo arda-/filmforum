@@ -143,6 +143,18 @@ const ogImage = `/og-images/compare-lists.jpg`;
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
+  // HTML escape helper to prevent XSS
+  function escapeHtml(text: string): string {
+    const map: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
   // Parse two list encodings from URL path
   const pathParts = window.location.pathname.split('/compare/')[1]?.split('/') || [];
   const listAEncoded = pathParts[0] || '';
@@ -200,8 +212,8 @@ const ogImage = `/og-images/compare-lists.jpg`;
 
     if (container) {
       container.innerHTML = catItems.map(item => {
-        const title = toTitleCase(item.movie.movie.Movie);
-        const meta = [item.movie.movie.director, item.movie.movie.year].filter(Boolean).join(', ');
+        const title = escapeHtml(toTitleCase(item.movie.movie.Movie));
+        const meta = escapeHtml([item.movie.movie.director, item.movie.movie.year].filter(Boolean).join(', '));
         const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No', none: '—' };
 
         return `
