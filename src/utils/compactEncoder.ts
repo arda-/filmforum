@@ -106,8 +106,16 @@ function unpack2Bits(bytes: number[], count: number): number[] {
  * Convert byte array to base64 string.
  */
 function bytesToBase64(bytes: number[]): string {
-  const binary = String.fromCharCode(...bytes);
-  return btoa(binary);
+  // Process in chunks to avoid RangeError from spread operator
+  const CHUNK_SIZE = 8192;
+  let binaryString = '';
+
+  for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+    const chunk = bytes.slice(i, i + CHUNK_SIZE);
+    binaryString += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binaryString);
 }
 
 /**
