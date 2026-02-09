@@ -235,7 +235,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     // Generate shareable URL
     const encoded = encodeReactionsCompact(reactions, allMovies);
     const userId = getUserId();
-    const url = `${window.location.origin}/s/${sessionId}/shared?u=${userId}&r=${encoded}`;
+    const url = `${window.location.origin}/s/${sessionId}/shared?u=${encodeURIComponent(userId)}&r=${encodeURIComponent(encoded)}`;
 
     // Build full share text
     const displayCount = 3;

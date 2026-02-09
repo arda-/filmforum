@@ -67,7 +67,8 @@
       "Bash(gh pr list:*)",
       "Bash(pnpm test:run:*)",
       "Bash(npx vitest run:*)",
-      "Bash(gh pr review:*)"
+      "Bash(gh pr review:*)",
+      "Bash(rg:*)"
     ]
   }
 }
