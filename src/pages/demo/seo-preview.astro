@@ -1,0 +1,355 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getSeriesConfig } from '../../config/series';
+
+const seriesId = 'tenement-stories';
+const series = getSeriesConfig(seriesId)!;
+
+// Load first movie poster
+const fs = await import('node:fs');
+const path = await import('node:path');
+const dataPath = path.join(process.cwd(), 'public', series.dataFile);
+const movieData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+const firstPoster = movieData[0]?.poster_url;
+
+// Define all route types and their expected meta tags
+const routes = [
+  {
+    name: 'Home Page',
+    url: '/',
+    title: 'FilmForum - Discover and Plan Your Film Series',
+    description: 'Explore curated film series, browse showtimes, and plan your cinema visits. Interactive calendars and movie lists for film enthusiasts at Film Forum.',
+    image: null,
+    hasImage: false,
+  },
+  {
+    name: 'Series Landing',
+    url: `/s/${seriesId}/`,
+    title: `${series.name}: ${series.subtitle} - Film Forum`,
+    description: `Explore films in ${series.name}: ${series.subtitle} at ${series.venueName}, ${series.dateRange}. Browse the complete calendar and movie list.`,
+    image: firstPoster,
+    hasImage: true,
+  },
+  {
+    name: 'Series Calendar',
+    url: `/s/${seriesId}/calendar`,
+    title: `${series.name} Calendar - ${series.venueName} Showtimes`,
+    description: `Interactive calendar for ${series.name} at ${series.venueName}. Browse showtimes, filter by day, and plan your visits. ${series.dateRange}.`,
+    image: firstPoster,
+    hasImage: true,
+  },
+  {
+    name: 'Movie List',
+    url: `/s/${seriesId}/list`,
+    title: `${series.name} Movie List - Browse Films`,
+    description: `Browse all films in ${series.name}. Mark your favorites (Yes/Maybe/No), create a shareable list, and plan your ${series.venueName} visits.`,
+    image: firstPoster,
+    hasImage: true,
+  },
+  {
+    name: 'Shared List',
+    url: `/s/${seriesId}/list/saved`,
+    title: `Shared List - ${series.name} Recommendations`,
+    description: `Check out this curated list of films from ${series.name} at ${series.venueName}. See what your friend recommends!`,
+    image: null,
+    hasImage: false,
+  },
+  {
+    name: 'Compare Lists',
+    url: `/s/${seriesId}/compare/placeholder`,
+    title: `Compare Lists - ${series.name}`,
+    description: `Compare two movie lists from ${series.name}. Find overlaps, disagreements, and plan your cinema visits together.`,
+    image: null,
+    hasImage: false,
+  },
+];
+
+const siteUrl = 'https://filmforum.org';
+---
+
+<Layout title="SEO Preview - OpenGraph Share Examples" noindex={true}>
+  <style>
+    .seo-preview {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .header p {
+      color: #999;
+      font-size: 1rem;
+    }
+
+    .routes-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .route-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .route-header {
+      padding: 1rem 1.5rem;
+      background: #111;
+      border-bottom: 1px solid #333;
+    }
+
+    .route-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .route-url {
+      font-size: 0.9rem;
+      color: #666;
+      font-family: 'Courier New', monospace;
+    }
+
+    .preview-container {
+      padding: 1.5rem;
+    }
+
+    .og-card {
+      border: 1px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0a0a0a;
+      max-width: 600px;
+      transition: transform 0.2s;
+    }
+
+    .og-card:hover {
+      transform: translateY(-2px);
+      border-color: #555;
+    }
+
+    .og-image {
+      width: 100%;
+      aspect-ratio: 1.91 / 1;
+      object-fit: cover;
+      background: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .og-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .og-content {
+      padding: 1rem;
+    }
+
+    .og-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .og-description {
+      font-size: 0.875rem;
+      color: #999;
+      line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+
+    .og-url {
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-details {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #0a0a0a;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+    }
+
+    .meta-tag {
+      margin: 0.25rem 0;
+      color: #999;
+    }
+
+    .meta-tag strong {
+      color: #4a9eff;
+    }
+
+    .meta-tag .value {
+      color: #6ee7b7;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .has-image {
+      background: #064e3b;
+      color: #6ee7b7;
+    }
+
+    .no-image {
+      background: #422006;
+      color: #fbbf24;
+    }
+
+    .debugger-links {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #111;
+      border-radius: 4px;
+    }
+
+    .debugger-links h3 {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 0.5rem;
+    }
+
+    .debugger-links a {
+      display: inline-block;
+      margin-right: 1rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #333;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .debugger-links a:hover {
+      background: #444;
+    }
+  </style>
+
+  <div class="seo-preview">
+    <div class="header">
+      <h1>SEO & OpenGraph Preview</h1>
+      <p>Visual preview of how each route appears when shared on social media</p>
+    </div>
+
+    <div class="routes-grid">
+      {routes.map(route => {
+        const fullUrl = `${siteUrl}${route.url}`;
+        const encodedUrl = encodeURIComponent(fullUrl);
+
+        return (
+          <div class="route-card">
+            <div class="route-header">
+              <div class="route-name">
+                {route.name}
+                <span class={`status-badge ${route.hasImage ? 'has-image' : 'no-image'}`}>
+                  {route.hasImage ? 'With Image' : 'Text Only'}
+                </span>
+              </div>
+              <div class="route-url">{route.url}</div>
+            </div>
+
+            <div class="preview-container">
+              <div class="og-card">
+                <div class="og-image">
+                  {route.image ? (
+                    <img src={route.image} alt={route.title} />
+                  ) : (
+                    <span>No OpenGraph Image</span>
+                  )}
+                </div>
+                <div class="og-content">
+                  <div class="og-title">{route.title}</div>
+                  <div class="og-description">{route.description}</div>
+                  <div class="og-url">filmforum.org</div>
+                </div>
+              </div>
+
+              <div class="meta-details">
+                <div class="meta-tag">
+                  <strong>og:title:</strong> <span class="value">"{route.title}"</span>
+                </div>
+                <div class="meta-tag">
+                  <strong>og:description:</strong> <span class="value">"{route.description}"</span>
+                </div>
+                <div class="meta-tag">
+                  <strong>og:url:</strong> <span class="value">"{fullUrl}"</span>
+                </div>
+                {route.image ? (
+                  <div class="meta-tag">
+                    <strong>og:image:</strong> <span class="value">"{siteUrl}{route.image}"</span>
+                  </div>
+                ) : (
+                  <div class="meta-tag">
+                    <strong>og:image:</strong> <span style="color: #666;">(not set)</span>
+                  </div>
+                )}
+                <div class="meta-tag">
+                  <strong>og:type:</strong> <span class="value">"website"</span>
+                </div>
+                <div class="meta-tag">
+                  <strong>og:site_name:</strong> <span class="value">"FilmForum"</span>
+                </div>
+              </div>
+
+              <div class="debugger-links">
+                <h3>Test with official debuggers:</h3>
+                <a
+                  href={`https://developers.facebook.com/tools/debug/?q=${encodedUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Facebook Debugger
+                </a>
+                <a
+                  href={`https://cards-dev.twitter.com/validator?url=${encodedUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Twitter Validator
+                </a>
+                <a
+                  href={`https://www.linkedin.com/post-inspector/inspect/${encodedUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  LinkedIn Inspector
+                </a>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</Layout>
