@@ -44,7 +44,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 const title = `${config.name} Movie List - Browse ${uniqueMovies.length} Films`;
 const description = `Browse all ${uniqueMovies.length} films in ${config.name}. Mark your favorites (Yes/Maybe/No), create a shareable list, and plan your ${config.venueName} visits.`;
 const canonical = `/s/${id}/list`;
-const ogImage = `/og-images/list/${id}.jpg`;
+const ogImage = allMovies[0]?.poster_url || null;
 
 // Structured data for movie list
 const structuredData = {
