@@ -124,6 +124,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 <script>
   import { decodeReactionsCompact } from '../../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '../../../../utils/htmlEscape';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
   const sessionId = (window as any).__sessionId as string;
@@ -186,8 +187,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     if (container) {
       container.innerHTML = catItems.map(item => {
-        const title = toTitleCase(item.movie.movie.Movie);
-        const meta = [item.movie.movie.director, item.movie.movie.year].filter(Boolean).join(', ');
+        const title = escapeHtml(toTitleCase(item.movie.movie.Movie));
+        const meta = escapeHtml([item.movie.movie.director, item.movie.movie.year].filter(Boolean).join(', '));
         const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No', none: '—' };
 
         return `
@@ -197,8 +198,8 @@ const movieDataJson = JSON.stringify(uniqueMovies);
               <p class="compare-item-meta">${meta}</p>
             </div>
             <div class="compare-item-badges">
-              <span class="compare-badge compare-badge--${item.reactionA}">A: ${labels[item.reactionA]}</span>
-              <span class="compare-badge compare-badge--${item.reactionB}">B: ${labels[item.reactionB]}</span>
+              <span class="compare-badge compare-badge--${escapeAttr(item.reactionA)}">A: ${labels[item.reactionA]}</span>
+              <span class="compare-badge compare-badge--${escapeAttr(item.reactionB)}">B: ${labels[item.reactionB]}</span>
             </div>
           </div>
         `;

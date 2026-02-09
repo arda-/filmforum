@@ -154,6 +154,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   import { getReactions, setReaction, getUserId } from '../../../../utils/storageManager';
   import { encodeReactionsCompact } from '../../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '../../../../utils/htmlEscape';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
   const sessionId = (window as any).__sessionId as string;
@@ -197,24 +198,24 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     if (items) {
       items.innerHTML = movies.map(um => {
-        const title = toTitleCase(um.movie.Movie);
-        const meta = [um.movie.director, um.movie.year].filter(Boolean).join(', ');
+        const title = escapeHtml(toTitleCase(um.movie.Movie));
+        const meta = escapeHtml([um.movie.director, um.movie.year].filter(Boolean).join(', '));
         return `
-          <div class="cart-item" data-movie-id="${um.id}">
+          <div class="cart-item" data-movie-id="${escapeAttr(um.id)}">
             <div class="cart-item-info">
               <p class="cart-item-title">${title}</p>
               <p class="cart-item-meta">${meta}</p>
             </div>
             <div class="cart-item-reactions">
-              <button class="cart-reaction-btn cart-reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${um.id}" title="Yes" aria-label="Mark as Yes">
+              <button class="cart-reaction-btn cart-reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${escapeAttr(um.id)}" title="Yes" aria-label="Mark as Yes">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="btn-label">Yes</span>
               </button>
-              <button class="cart-reaction-btn cart-reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${um.id}" title="Maybe" aria-label="Mark as Maybe">
+              <button class="cart-reaction-btn cart-reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${escapeAttr(um.id)}" title="Maybe" aria-label="Mark as Maybe">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 <span class="btn-label">Maybe</span>
               </button>
-              <button class="cart-reaction-btn cart-reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${um.id}" title="No" aria-label="Mark as No">
+              <button class="cart-reaction-btn cart-reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${escapeAttr(um.id)}" title="No" aria-label="Mark as No">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span class="btn-label">No</span>
               </button>

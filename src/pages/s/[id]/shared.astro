@@ -90,10 +90,11 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { getReactions, setReaction, getUserId } from '../../../utils/storageManager';
+  import { getReactions, setReaction } from '../../../utils/storageManager';
   import { decodeReactionsCompact, encodeReactionsCompact } from '../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
-  import type { UniqueMovie, MovieReaction } from '../../../types/session';
+  import { escapeHtml, escapeAttr } from '../../../utils/htmlEscape';
+  import type { UniqueMovie, MovieReaction, ReactionMap } from '../../../types/session';
 
   // Debug logging flag - set to true to enable detailed console logs
   const DEBUG = false;
@@ -178,12 +179,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const myReactions = getReactions(sessionId);
 
     container.innerHTML = movies.map(um => {
-      const title = toTitleCase(um.movie.Movie);
-      const meta = [um.movie.director, um.movie.year, formatRuntime(um.movie.runtime)].filter(Boolean).join(' · ');
+      const title = escapeHtml(toTitleCase(um.movie.Movie));
+      const meta = escapeHtml([um.movie.director, um.movie.year, formatRuntime(um.movie.runtime)].filter(Boolean).join(' · '));
       const myReaction = myReactions[um.id] || 'none';
 
       return `
-        <div class="shared-item" data-movie-id="${um.id}">
+        <div class="shared-item" data-movie-id="${escapeAttr(um.id)}">
           <div class="shared-item-info">
             <p class="shared-item-title">${title}</p>
             <p class="shared-item-meta">${meta}</p>
@@ -192,7 +193,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
             ${['yes', 'maybe', 'no'].map(r => {
               const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
               const active = r === myReaction ? 'active' : '';
-              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${um.id}">${labels[r]}</button>`;
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${escapeAttr(r)}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
             }).join('')}
           </div>
         </div>
