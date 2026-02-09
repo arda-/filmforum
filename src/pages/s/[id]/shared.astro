@@ -52,19 +52,35 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     <div class="shared-sections" id="shared-sections">
       <div class="shared-section" id="shared-yes-section">
-        <h2 class="section-title">
-          <span class="section-dot section-dot--yes"></span>
+        <h2 class="section-title section-title--yes">
           Yes
+          <span class="section-count" id="shared-yes-count">0</span>
         </h2>
         <div class="section-items" id="shared-yes-items"></div>
       </div>
 
       <div class="shared-section" id="shared-maybe-section">
-        <h2 class="section-title">
-          <span class="section-dot section-dot--maybe"></span>
+        <h2 class="section-title section-title--maybe">
           Maybe
+          <span class="section-count" id="shared-maybe-count">0</span>
         </h2>
         <div class="section-items" id="shared-maybe-items"></div>
+      </div>
+
+      <div class="shared-section" id="shared-no-section">
+        <h2 class="section-title section-title--no">
+          No
+          <span class="section-count" id="shared-no-count">0</span>
+        </h2>
+        <div class="section-items" id="shared-no-items"></div>
+      </div>
+
+      <div class="shared-section" id="shared-unmarked-section">
+        <h2 class="section-title section-title--unmarked">
+          Unmarked
+          <span class="section-count" id="shared-unmarked-count">0</span>
+        </h2>
+        <div class="section-items" id="shared-unmarked-items"></div>
       </div>
 
       <div class="shared-empty" id="shared-empty">
@@ -154,12 +170,16 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   const yesMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'yes');
   const maybeMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'maybe');
-  const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
+  const noMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'no');
+  const unmarkedMovies = (allMovies || []).filter(m => !friendReactions[m.id] || friendReactions[m.id] === 'none');
+  const hasAny = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0 || unmarkedMovies.length > 0;
 
   if (DEBUG) {
     console.log('12. Yes movies:', yesMovies.map(m => m.id));
     console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
-    console.log('14. hasAny:', hasAny);
+    console.log('14. No movies:', noMovies.map(m => m.id));
+    console.log('15. Unmarked movies:', unmarkedMovies.map(m => m.id));
+    console.log('16. hasAny:', hasAny);
     console.log('========================');
   }
 
@@ -170,10 +190,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   const actionsEl = document.getElementById('shared-actions');
   if (actionsEl) actionsEl.style.display = hasAny ? 'block' : 'none';
 
-  function renderSection(containerId: string, sectionId: string, movies: UniqueMovie[]) {
+  function renderSection(containerId: string, sectionId: string, countId: string, movies: UniqueMovie[]) {
     const section = document.getElementById(sectionId);
     const container = document.getElementById(containerId);
+    const count = document.getElementById(countId);
     if (section) section.style.display = movies.length > 0 ? 'block' : 'none';
+    if (count) count.textContent = String(movies.length);
     if (!container) return;
 
     const myReactions = getReactions(sessionId);
@@ -201,8 +223,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     }).join('');
   }
 
-  renderSection('shared-yes-items', 'shared-yes-section', yesMovies);
-  renderSection('shared-maybe-items', 'shared-maybe-section', maybeMovies);
+  renderSection('shared-yes-items', 'shared-yes-section', 'shared-yes-count', yesMovies);
+  renderSection('shared-maybe-items', 'shared-maybe-section', 'shared-maybe-count', maybeMovies);
+  renderSection('shared-no-items', 'shared-no-section', 'shared-no-count', noMovies);
+  renderSection('shared-unmarked-items', 'shared-unmarked-section', 'shared-unmarked-count', unmarkedMovies);
 
   // Handle reaction clicks
   document.addEventListener('click', (e) => {
@@ -295,20 +319,24 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--text-primary);
     margin: 0 0 10px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
 
-  .section-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
+  .section-title--yes { color: var(--reaction-yes, #22c55e); }
+  .section-title--maybe { color: var(--reaction-maybe, #f59e0b); }
+  .section-title--no { color: var(--reaction-no, #ef4444); }
+  .section-title--unmarked { color: var(--text-tertiary); }
 
-  .section-dot--yes { background: var(--reaction-yes); }
-  .section-dot--maybe { background: var(--reaction-maybe); }
+  .section-count {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.7;
+  }
 
   .section-items {
     display: flex;
