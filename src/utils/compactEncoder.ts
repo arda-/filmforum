@@ -104,6 +104,7 @@ function unpack2Bits(bytes: number[], count: number): number[] {
 
 /**
  * Convert byte array to base64 string.
+ * Uses URL-safe base64 encoding (RFC 4648 section 5).
  */
 function bytesToBase64(bytes: number[]): string {
   // Process in chunks to avoid RangeError from spread operator
@@ -115,14 +116,29 @@ function bytesToBase64(bytes: number[]): string {
     binaryString += String.fromCharCode(...chunk);
   }
 
-  return btoa(binaryString);
+  // Convert to URL-safe base64: replace + with -, / with _, remove padding
+  return btoa(binaryString)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
 }
 
 /**
  * Convert base64 string to byte array.
+ * Handles URL-safe base64 encoding (RFC 4648 section 5).
  */
 function base64ToBytes(base64: string): number[] {
-  const binary = atob(base64);
+  // Convert URL-safe base64 back to standard
+  let standard = base64
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
+  // Add padding if needed
+  while (standard.length % 4) {
+    standard += '=';
+  }
+
+  const binary = atob(standard);
   return Array.from(binary, c => c.charCodeAt(0));
 }
 
@@ -146,7 +162,7 @@ export function encodeReactionsCompact(
 
   // Handle empty case
   if (entries.length === 0) {
-    return btoa(''); // Empty string
+    return ''; // Empty string
   }
 
   // Build byte array
