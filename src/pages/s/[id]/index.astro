@@ -108,6 +108,9 @@ function parseDateRange(dateRange: string): { startDate: string; endDate: string
 
 const { startDate, endDate } = parseDateRange(series.dateRange);
 
+// Use Astro.site from config, or fall back to the current request origin
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
+
 // Structured data for the series
 const structuredData = {
   "@context": "https://schema.org",
@@ -125,7 +128,7 @@ const structuredData = {
   },
   "startDate": startDate,
   "endDate": endDate,
-  "url": `https://filmforum.org/s/${id}/`,
+  "url": `${siteUrl}/s/${id}/`,
   "organizer": {
     "@type": "Organization",
     "name": series.venueName,
