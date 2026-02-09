@@ -99,7 +99,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           <circle cx="6.5" cy="9" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
           <circle cx="11.5" cy="9" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/>
         </svg>
-        Compare with my list
+        <span class="btn-label">Compare with my list</span>
       </button>
     </div>
   </main>
@@ -480,6 +480,18 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     cursor: pointer;
     transition: all 0.15s;
     border: none;
+  }
+
+  /* Hide text label on mobile (< 640px) */
+  .action-btn .btn-label {
+    display: none;
+  }
+
+  /* Show text label on desktop (>= 640px) */
+  @media (min-width: 640px) {
+    .action-btn .btn-label {
+      display: inline;
+    }
   }
 
   .action-btn:active {
