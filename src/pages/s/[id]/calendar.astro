@@ -421,10 +421,15 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     });
   }
 
+  // Restore URL state silently before first render (no events, no re-renders)
+  restoreFromUrl();
+  updateTileDisplayState();
+
+  // Single render with all state already applied
   renderCalendar();
   setTimeout(updateTextHeights, 10);
 
-  // --- DOMContentLoaded: event delegation + URL state restore ---
+  // --- DOMContentLoaded: event delegation ---
   document.addEventListener('DOMContentLoaded', () => {
     // Hidden showtimes modal handlers
     document.getElementById('hours-filter-status')?.addEventListener('click', () => {
@@ -445,9 +450,6 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       document.querySelectorAll('.desktop-only').forEach(el => el.classList.add('has-pointer'));
     }
-
-    // Restore URL state
-    restoreFromUrl();
 
     // Movie tile click → modal
     function getMovieFromEl(el: Element): Movie | undefined {

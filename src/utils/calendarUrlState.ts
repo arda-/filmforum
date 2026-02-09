@@ -59,67 +59,74 @@ export function updateUrlParams(): void {
   history.replaceState(null, '', newUrl);
 }
 
-/** Restore UI state from URL parameters. */
+/**
+ * Restore UI state from URL parameters.
+ * Sets all control states silently (no events dispatched) so the caller
+ * can do a single render pass afterward instead of one per control.
+ */
 export function restoreFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
+  if (params.size === 0) return;
+
+  // --- Switches (set .checked directly) ---
 
   if (params.has('timeline')) {
-    const timelineToggle = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
-    const wantTimeline = params.get('timeline') === '1';
-    if (timelineToggle && timelineToggle.checked !== wantTimeline) timelineToggle.click();
+    const input = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
+    if (input) input.checked = params.get('timeline') === '1';
   }
 
   if (params.has('fit-width')) {
-    const fitWidthToggle = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
-    const wantFitWidth = params.get('fit-width') === '1';
-    if (fitWidthToggle && fitWidthToggle.checked !== wantFitWidth) fitWidthToggle.click();
+    const input = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
+    if (input) {
+      const wantFitWidth = params.get('fit-width') === '1';
+      input.checked = wantFitWidth;
+      document.body.classList.toggle('natural-width', !wantFitWidth);
+    }
   }
 
   if (params.has('week-start')) {
-    const weekStartToggle = document.querySelector('#week-start-toggle input') as HTMLInputElement;
-    const wantWeekStart = params.get('week-start') === '1';
-    if (weekStartToggle && weekStartToggle.checked !== wantWeekStart) weekStartToggle.click();
+    const input = document.querySelector('#week-start-toggle input') as HTMLInputElement;
+    if (input) {
+      const wantMonday = params.get('week-start') === '1';
+      input.checked = wantMonday;
+      document.body.classList.toggle('monday-start', wantMonday);
+      document.body.classList.toggle('sunday-start', !wantMonday);
+    }
   }
+
+  // --- Tile display toggles (set data-state + body classes) ---
 
   ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
     const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
     const toggle = document.getElementById(id) as HTMLButtonElement;
+    const className = key === 'year-director' ? 'year-director' : key;
     if (params.has(key)) {
       const wantPressed = params.get(key) === '1';
-      if (toggle && isTogglePressed(toggle) !== wantPressed) toggle.click();
+      if (toggle) setToggleState(toggle, wantPressed);
+      document.body.classList.toggle(`show-${className}`, wantPressed);
     } else if (toggle) {
-      const className = key === 'year-director' ? 'year-director' : key;
       document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
     }
   });
 
+  // --- Radio groups (set .checked on the target radio) ---
+
   if (params.has('hours')) {
-    const hoursValue = params.get('hours');
-    const radio = document.querySelector(`input[name="hours-filter-mode"][value="${hoursValue}"]`) as HTMLInputElement;
-    if (radio) radio.click();
+    const radio = document.querySelector(`input[name="hours-filter-mode"][value="${params.get('hours')}"]`) as HTMLInputElement;
+    if (radio) radio.checked = true;
   }
 
   if (params.has('single')) {
-    const singleValue = params.get('single');
-    const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${singleValue}"]`) as HTMLInputElement;
-    if (radio) radio.click();
+    const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${params.get('single')}"]`) as HTMLInputElement;
+    if (radio) radio.checked = true;
   }
+
+  // --- Saved filter checkboxes ---
 
   if (params.has('saved')) {
     const savedValues = new Set(params.get('saved')!.split(','));
-    let anyChanged = false;
-    // Set all checkbox states without dispatching events to avoid redundant re-renders
     document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]').forEach(cb => {
-      const shouldBeChecked = savedValues.has(cb.value);
-      if (cb.checked !== shouldBeChecked) {
-        cb.checked = shouldBeChecked;
-        anyChanged = true;
-      }
+      cb.checked = savedValues.has(cb.value);
     });
-    // Dispatch a single change event to trigger one render pass
-    if (anyChanged) {
-      const first = document.querySelector<HTMLInputElement>('input[name="saved-filter"]');
-      first?.dispatchEvent(new Event('change', { bubbles: true }));
-    }
   }
 }
