@@ -23,15 +23,40 @@ const {
   twitterCard = 'summary_large_image',
 } = Astro.props;
 
+// Fallback URL for SEO tags when Astro.site is not configured
+// This is used during development or if the `site` option is missing in astro.config.mjs
+// The fallback value should match the production site URL configured in astro.config.mjs
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://filmforum.org';
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 const siteName = 'FilmForum';
 
-// Ensure description is not too long (recommended: 150-160 chars for Google)
-const truncatedDescription = description.length > 160
-  ? description.substring(0, 157) + '...'
-  : description;
+/**
+ * Smart description truncation that:
+ * 1. Truncates at word boundaries (not mid-word)
+ * 2. Targets 150-160 chars (optimal for SEO)
+ * 3. Adds "..." only if truncated
+ * 4. Never exceeds 160 chars
+ */
+function truncateDescription(text: string, maxLength: number = 160): string {
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  // Leave room for "..." (3 chars)
+  const targetLength = maxLength - 3;
+
+  // Find the last space before the target length
+  const truncated = text.substring(0, targetLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+
+  // If we found a space, truncate there; otherwise use the full target length
+  const finalText = lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated;
+
+  return finalText + '...';
+}
+
+const truncatedDescription = truncateDescription(description);
 ---
 
 <!-- Basic SEO -->
