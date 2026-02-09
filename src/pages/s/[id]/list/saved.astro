@@ -102,6 +102,7 @@ const canonical = `/s/${id}/list/saved`;
 <script>
   import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '../../../../utils/storageManager';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '../../../../utils/htmlEscape';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
   const sessionId = (window as any).__sessionId as string;
@@ -142,7 +143,7 @@ const canonical = `/s/${id}/list/saved`;
       const myReaction = myReactions[um.id] || 'none';
 
       return `
-        <div class="shared-item" data-movie-id="${escapeHtml(um.id)}">
+        <div class="shared-item" data-movie-id="${escapeAttr(um.id)}">
           <div class="shared-item-info">
             <p class="shared-item-title">${title}</p>
             <p class="shared-item-meta">${meta}</p>
@@ -151,7 +152,7 @@ const canonical = `/s/${id}/list/saved`;
             ${['yes', 'maybe', 'no'].map(r => {
               const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
               const active = r === myReaction ? 'active' : '';
-              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${escapeHtml(um.id)}">${labels[r]}</button>`;
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
             }).join('')}
           </div>
         </div>
@@ -161,18 +162,6 @@ const canonical = `/s/${id}/list/saved`;
 
   renderSection('shared-yes-items', 'shared-yes-section', yesMovies);
   renderSection('shared-maybe-items', 'shared-maybe-section', maybeMovies);
-
-  // HTML escape helper to prevent XSS
-  function escapeHtml(text: string): string {
-    const map: Record<string, string> = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    };
-    return text.replace(/[&<>"']/g, m => map[m]);
-  }
 
   // Handle reaction clicks
   document.addEventListener('click', (e) => {
