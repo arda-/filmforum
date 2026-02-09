@@ -252,24 +252,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       shareText += '\n\n';
     }
 
-    // Maybe section - show count only
-    if (maybeMovies.length > 0) {
-      const movieWord = maybeMovies.length === 1 ? 'movie' : 'movies';
-      shareText += `MAYBE: ${maybeMovies.length} ${movieWord}\n\n`;
-    }
-
-    // No section - show count only
-    if (noMovies.length > 0) {
-      const movieWord = noMovies.length === 1 ? 'movie' : 'movies';
-      shareText += `NO: ${noMovies.length} ${movieWord}\n\n`;
-    }
-
-    // Unmarked section - show count only (optional - only if there are some and not all)
-    if (unmarkedMovies.length > 0 && unmarkedMovies.length < allMovies.length) {
-      const movieWord = unmarkedMovies.length === 1 ? 'movie' : 'movies';
-      shareText += `UNMARKED: ${unmarkedMovies.length} ${movieWord}\n\n`;
-    }
-
     shareText += `Full list: ${url}`;
 
     // Update textarea with share text
