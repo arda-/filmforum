@@ -8,6 +8,8 @@
     "build:verify": "astro build && node scripts/validate-seo.js",
     "preview": "astro preview",
     "astro": "astro",
+    "test": "vitest",
+    "test:run": "vitest run",
     "test:seo": "node scripts/validate-seo.js"
   },
   "dependencies": {
@@ -18,6 +20,8 @@
   "devDependencies": {
     "@playwright/test": "^1.58.1",
     "playwright": "^1.58.1",
-    "sass-embedded": "^1.97.3"
+    "sass-embedded": "^1.97.3",
+    "sharp": "^0.34.5",
+    "vitest": "^4.0.18"
   }
 }

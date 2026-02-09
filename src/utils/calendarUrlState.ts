@@ -3,6 +3,8 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
+import { SAVED_FILTER_COUNT, HOURS_FILTER_MODE, SINGLE_SHOWTIMES_MODE } from '../constants';
+
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {
   return el?.getAttribute('data-state') === 'on';
@@ -45,53 +47,93 @@ export function updateUrlParams(): void {
   const singleFilter = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
   if (singleFilter?.value && singleFilter.value !== 'none') params.set('single', singleFilter.value);
 
+  // Saved filter: encode checked values as comma-separated string
+  const savedChecked = document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]:checked');
+  const savedValues = Array.from(savedChecked).map(cb => cb.value);
+  // Only persist if not all are checked (all checked = default/no filter)
+  if (savedValues.length > 0 && savedValues.length < SAVED_FILTER_COUNT) {
+    params.set('saved', savedValues.join(','));
+  }
+
   const newUrl = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
   history.replaceState(null, '', newUrl);
 }
 
-/** Restore UI state from URL parameters. */
+/**
+ * Restore UI state from URL parameters.
+ * Sets all control states silently (no events dispatched) so the caller
+ * can do a single render pass afterward instead of one per control.
+ */
 export function restoreFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
+  if (params.size === 0) return;
+
+  // --- Switches (set .checked directly) ---
 
   if (params.has('timeline')) {
-    const timelineToggle = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
-    const wantTimeline = params.get('timeline') === '1';
-    if (timelineToggle && timelineToggle.checked !== wantTimeline) timelineToggle.click();
+    const input = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
+    if (input) input.checked = params.get('timeline') === '1';
   }
 
   if (params.has('fit-width')) {
-    const fitWidthToggle = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
-    const wantFitWidth = params.get('fit-width') === '1';
-    if (fitWidthToggle && fitWidthToggle.checked !== wantFitWidth) fitWidthToggle.click();
+    const input = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
+    if (input) {
+      const wantFitWidth = params.get('fit-width') === '1';
+      input.checked = wantFitWidth;
+      document.body.classList.toggle('natural-width', !wantFitWidth);
+    }
   }
 
   if (params.has('week-start')) {
-    const weekStartToggle = document.querySelector('#week-start-toggle input') as HTMLInputElement;
-    const wantWeekStart = params.get('week-start') === '1';
-    if (weekStartToggle && weekStartToggle.checked !== wantWeekStart) weekStartToggle.click();
+    const input = document.querySelector('#week-start-toggle input') as HTMLInputElement;
+    if (input) {
+      const wantMonday = params.get('week-start') === '1';
+      input.checked = wantMonday;
+      document.body.classList.toggle('monday-start', wantMonday);
+      document.body.classList.toggle('sunday-start', !wantMonday);
+    }
   }
+
+  // --- Tile display toggles (set data-state + body classes) ---
 
   ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
     const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
     const toggle = document.getElementById(id) as HTMLButtonElement;
+    const className = key === 'year-director' ? 'year-director' : key;
     if (params.has(key)) {
       const wantPressed = params.get(key) === '1';
-      if (toggle && isTogglePressed(toggle) !== wantPressed) toggle.click();
+      if (toggle) setToggleState(toggle, wantPressed);
+      document.body.classList.toggle(`show-${className}`, wantPressed);
     } else if (toggle) {
-      const className = key === 'year-director' ? 'year-director' : key;
       document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
     }
   });
 
-  if (params.has('hours')) {
-    const hoursValue = params.get('hours');
+  // --- Radio groups (set .checked on the target radio) ---
+  // Values are validated against known constants before interpolation into
+  // querySelector strings. Without this check, a crafted URL param like
+  // ?hours="]injected could produce an invalid CSS selector and throw.
+
+  const hoursValues = new Set(Object.values(HOURS_FILTER_MODE));
+  const hoursValue = params.get('hours');
+  if (hoursValue && hoursValues.has(hoursValue as any)) {
     const radio = document.querySelector(`input[name="hours-filter-mode"][value="${hoursValue}"]`) as HTMLInputElement;
-    if (radio) radio.click();
+    if (radio) radio.checked = true;
   }
 
-  if (params.has('single')) {
-    const singleValue = params.get('single');
+  const singleValues = new Set(Object.values(SINGLE_SHOWTIMES_MODE));
+  const singleValue = params.get('single');
+  if (singleValue && singleValues.has(singleValue as any)) {
     const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${singleValue}"]`) as HTMLInputElement;
-    if (radio) radio.click();
+    if (radio) radio.checked = true;
+  }
+
+  // --- Saved filter checkboxes ---
+
+  if (params.has('saved')) {
+    const savedValues = new Set(params.get('saved')!.split(','));
+    document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]').forEach(cb => {
+      cb.checked = savedValues.has(cb.value);
+    });
   }
 }

@@ -3,6 +3,7 @@ import Layout from '../../../layouts/Layout.astro';
 import Header from '../../../components/Header.astro';
 import MovieModal from '../../../components/MovieModal.astro';
 import ToggleGroup from '../../../components/ToggleGroup.astro';
+import CheckboxGroup from '../../../components/CheckboxGroup.astro';
 import Switch from '../../../components/Switch.astro';
 import Toggle from '../../../components/Toggle.astro';
 import Dialog from '../../../components/Dialog.astro';
@@ -87,6 +88,17 @@ const ogImage = movieData[0]?.poster_url || null;
             { label: 'Only show unique', value: 'only' }
           ]}
         />
+        <CheckboxGroup
+          label="Saved movies:"
+          name="saved-filter"
+          options={[
+            { label: 'Yes', value: 'yes', checked: true, color: 'var(--reaction-yes)' },
+            { label: 'Maybe', value: 'maybe', checked: true, color: 'var(--reaction-maybe)' },
+            { label: 'No', value: 'no', color: 'var(--reaction-no)' },
+            { label: 'Unmarked', value: 'unmarked' }
+          ]}
+          statusId="saved-filter-status"
+        />
         <div class="desktop-only">
           <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" small />
         </div>
@@ -138,8 +150,9 @@ const ogImage = movieData[0]?.poster_url || null;
   </Dialog>
 </Layout>
 
-<script define:vars={{ movieDataJson }}>
+<script define:vars={{ movieDataJson, sessionId: id }}>
   window.__movieData = JSON.parse(movieDataJson);
+  window.__sessionId = sessionId;
 </script>
 
 <script>
@@ -147,15 +160,19 @@ const ogImage = movieData[0]?.poster_url || null;
     PX_PER_MIN,
     HOURS_FILTER_MODE,
     SINGLE_SHOWTIMES_MODE,
+    SAVED_FILTER_COUNT,
     type HoursFilterMode,
     type SingleShowtimesMode,
+    type SavedFilter,
   } from '../../../constants';
   import type { Movie } from '../../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../../components/MovieTile';
   import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange } from '../../../utils/calendarTime';
-  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies } from '../../../utils/calendarFilters';
+  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '../../../utils/calendarFilters';
   import { openMovieModal, renderMovieList } from '../../../utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
+  import { getReactions } from '../../../utils/storageManager';
+  import type { ReactionMap } from '../../../types/session';
 
   // --- State ---
   let moviesByDate: Record<string, Movie[]> = {};
@@ -164,6 +181,19 @@ const ogImage = movieData[0]?.poster_url || null;
   let allMovies: Movie[] = [];
   let allMovieDates: string[] = [];
   let movieByKey: Map<string, Movie> = new Map();
+  const sessionId = window.__sessionId;
+  let currentReactions: ReactionMap = getReactions(sessionId);
+
+  /** Read which saved filter checkboxes are currently checked. */
+  function getActiveSavedFilters(): SavedFilter[] {
+    const checked = document.querySelectorAll('input[name="saved-filter"]:checked');
+    return Array.from(checked).map(el => (el as HTMLInputElement).value as SavedFilter);
+  }
+
+  /** Whether the user has any reactions at all. */
+  function hasAnyReactions(reactions: ReactionMap): boolean {
+    return Object.keys(reactions).length > 0;
+  }
 
   // --- Calendar rendering ---
   function createDayCell(date: string): HTMLElement {
@@ -195,6 +225,9 @@ const ogImage = movieData[0]?.poster_url || null;
   }
 
   function renderAllDays() {
+    // Re-read reactions from localStorage so modal changes are reflected
+    currentReactions = getReactions(sessionId);
+
     const timelineToggle = document.getElementById('timeline-mode-toggle');
     const timelineInput = timelineToggle?.tagName === 'INPUT' ? timelineToggle : timelineToggle?.querySelector('input');
     const timelineMode = (timelineInput as HTMLInputElement)?.checked ?? false;
@@ -205,8 +238,14 @@ const ogImage = movieData[0]?.poster_url || null;
     const singleShowtimesRadio = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
     const singleShowtimesMode = (singleShowtimesRadio?.value || SINGLE_SHOWTIMES_MODE.NONE) as SingleShowtimesMode;
 
-    updateHoursFilterStatus(hoursFilterMode, allMovies);
+    const activeSavedFilters = getActiveSavedFilters();
+    const savedFilterSet = new Set(activeSavedFilters);
 
+    updateHoursFilterStatus(hoursFilterMode, allMovies);
+    updateSavedFilterStatus(savedFilterSet, allMovies, currentReactions);
+
+    // Showtime counts are computed before the saved filter so that "single showtime"
+    // means one showtime across the entire festival, not one among visible results.
     // Build count of filtered showtimes per movie title
     const filteredShowtimeCounts: Record<string, number> = {};
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
@@ -217,6 +256,11 @@ const ogImage = movieData[0]?.poster_url || null;
 
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
       let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
+
+      // Apply saved movie filter (unless all categories are checked = show all)
+      if (savedFilterSet.size < SAVED_FILTER_COUNT) {
+        filteredMovies = filterBySavedStatus(filteredMovies, currentReactions, savedFilterSet);
+      }
 
       if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
         filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
@@ -363,6 +407,10 @@ const ogImage = movieData[0]?.poster_url || null;
     radio.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
   });
 
+  document.querySelectorAll('input[name="saved-filter"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
+  });
+
   // --- Load data and render ---
   const movies: Movie[] = window.__movieData;
   allMovies = movies;
@@ -383,10 +431,22 @@ const ogImage = movieData[0]?.poster_url || null;
   globalRange.range = globalRange.end - globalRange.start;
   uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
+  // If user has no reactions, check all saved filter boxes (show everything)
+  if (!hasAnyReactions(currentReactions)) {
+    document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]').forEach(cb => {
+      cb.checked = true;
+    });
+  }
+
+  // Restore URL state silently before first render (no events, no re-renders)
+  restoreFromUrl();
+  updateTileDisplayState();
+
+  // Single render with all state already applied
   renderCalendar();
   setTimeout(updateTextHeights, 10);
 
-  // --- DOMContentLoaded: event delegation + URL state restore ---
+  // --- DOMContentLoaded: event delegation ---
   document.addEventListener('DOMContentLoaded', () => {
     // Hidden showtimes modal handlers
     document.getElementById('hours-filter-status')?.addEventListener('click', () => {
@@ -407,9 +467,6 @@ const ogImage = movieData[0]?.poster_url || null;
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
       document.querySelectorAll('.desktop-only').forEach(el => el.classList.add('has-pointer'));
     }
-
-    // Restore URL state
-    restoreFromUrl();
 
     // Movie tile click → modal
     function getMovieFromEl(el: Element): Movie | undefined {

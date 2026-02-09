@@ -19,10 +19,28 @@ export function openMovieModal(movie: Movie): void {
   const posterEl = document.getElementById('modal-poster') as HTMLImageElement;
   const posterPlaceholder = document.querySelector('.poster-placeholder') as HTMLElement;
 
-  // Set poster image
+  // Set poster image with thumbnail + full quality loading
   if (posterEl && posterPlaceholder) {
     if (movie.poster_url) {
-      posterEl.src = movie.poster_url;
+      // Get poster filename
+      const posterFilename = movie.poster_url.split('/').pop();
+
+      // Load tiny thumbnail first (fast, blurry)
+      const thumbEl = document.getElementById('modal-poster-thumb') as HTMLImageElement;
+      if (thumbEl) {
+        thumbEl.src = `/posters-thumb/${posterFilename?.replace(/\.(png|jpg|jpeg)$/i, '.jpg')}`;
+        thumbEl.alt = movie.Movie;
+        thumbEl.style.display = 'block';
+      }
+
+      // Load full quality in background and swap when ready
+      const fullQualityImg = new Image();
+      fullQualityImg.onload = () => {
+        posterEl.src = fullQualityImg.src;
+        if (thumbEl) thumbEl.style.opacity = '0'; // Fade out thumb
+      };
+      fullQualityImg.src = movie.poster_url;
+
       posterEl.alt = movie.Movie;
       posterEl.style.display = 'block';
       posterPlaceholder.style.display = 'none';

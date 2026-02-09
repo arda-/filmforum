@@ -133,8 +133,9 @@ const canonical = `/s/${id}/compare`;
 </script>
 
 <script>
-  import { decodeReactions } from '../../../../utils/storageManager';
+  import { decodeReactionsCompact } from '../../../../utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '../../../../utils/htmlEscape';
   import type { UniqueMovie, MovieReaction } from '../../../../types/session';
 
   const sessionId = (window as any).__sessionId as string;
@@ -157,8 +158,8 @@ const canonical = `/s/${id}/compare`;
   const listAEncoded = pathParts[0] || '';
   const listBEncoded = pathParts[1] || '';
 
-  const listA = decodeReactions(listAEncoded);
-  const listB = decodeReactions(listBEncoded);
+  const listA = decodeReactionsCompact(listAEncoded, allMovies);
+  const listB = decodeReactionsCompact(listBEncoded, allMovies);
 
   type Category = 'strong' | 'possible' | 'disagree' | 'pass' | 'unreviewed';
 
@@ -220,8 +221,8 @@ const canonical = `/s/${id}/compare`;
               <p class="compare-item-meta">${meta}</p>
             </div>
             <div class="compare-item-badges">
-              <span class="compare-badge compare-badge--${item.reactionA}">A: ${labels[item.reactionA]}</span>
-              <span class="compare-badge compare-badge--${item.reactionB}">B: ${labels[item.reactionB]}</span>
+              <span class="compare-badge compare-badge--${escapeAttr(item.reactionA)}">A: ${labels[item.reactionA]}</span>
+              <span class="compare-badge compare-badge--${escapeAttr(item.reactionB)}">B: ${labels[item.reactionB]}</span>
             </div>
           </div>
         `;
