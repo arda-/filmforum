@@ -49,7 +49,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">2:1</span>
         <div class="poster-card aspect-2-1">
-          <img src="/posters/the-naked-city.png" alt="The Naked City" class="poster-image" />
+          <img src="/posters/the-naked-city.png" alt="The Naked City" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -63,7 +64,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">16:9</span>
         <div class="poster-card aspect-16-9">
-          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
+          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -77,7 +79,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">4:3</span>
         <div class="poster-card aspect-4-3">
-          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" />
+          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -91,7 +94,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">1:1</span>
         <div class="poster-card aspect-1-1">
-          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" />
+          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -105,7 +109,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">3:4</span>
         <div class="poster-card aspect-3-4">
-          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" />
+          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -119,7 +124,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">2:3</span>
         <div class="poster-card aspect-2-3">
-          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -133,7 +139,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">9:16</span>
         <div class="poster-card aspect-9-16">
-          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
+          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -147,7 +154,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">1:2</span>
         <div class="poster-card aspect-1-2">
-          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" />
+          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer"></div>
           <div class="debug-line debug-line-reach"></div>
           <div class="debug-line debug-line-full"></div>
@@ -202,18 +210,20 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
         </label>
       </div>
       <div class="control-row">
-        <ToggleGroup
-          label="Blur ends at:"
-          name="rel-end-mult"
-          options={[
-            { label: '0.75×', value: '0.75' },
-            { label: '0.85×', value: '0.85' },
-            { label: '0.9×', value: '0.9' },
-            { label: '1.0×', value: '1' },
-            { label: '1.1×', value: '1.1' },
-            { label: '1.25×', value: '1.25', checked: true }
-          ]}
-        />
+        <div class="slider-control">
+          <label>
+            <span class="slider-label">Blur ends at: <span id="rel-end-mult-value">1.25×</span></span>
+            <input
+              type="range"
+              id="rel-end-mult-slider"
+              name="rel-end-mult"
+              min="0.75"
+              max="1.25"
+              step="0.05"
+              value="1.25"
+            />
+          </label>
+        </div>
       </div>
     </div>
 
@@ -221,7 +231,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">2:1 (ultra-wide)</span>
         <div class="poster-card text-relative-card aspect-2-1" data-aspect="2-1">
-          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" />
+          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -235,7 +246,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">16:9 (widescreen)</span>
         <div class="poster-card text-relative-card aspect-16-9" data-aspect="16-9">
-          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
+          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -249,7 +261,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">4:3 (standard)</span>
         <div class="poster-card text-relative-card aspect-4-3" data-aspect="4-3">
-          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" />
+          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -263,7 +276,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">1:1 (square)</span>
         <div class="poster-card text-relative-card aspect-1-1" data-aspect="1-1">
-          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" />
+          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -277,7 +291,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">3:4 (portrait)</span>
         <div class="poster-card text-relative-card aspect-3-4" data-aspect="3-4">
-          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" />
+          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -291,7 +306,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">2:3 (poster)</span>
         <div class="poster-card text-relative-card aspect-2-3" data-aspect="2-3">
-          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -305,7 +321,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">9:16 (vertical)</span>
         <div class="poster-card text-relative-card aspect-9-16" data-aspect="9-16">
-          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
+          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -319,7 +336,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">1:2 (tall banner)</span>
         <div class="poster-card text-relative-card aspect-1-2" data-aspect="1-2">
-          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" />
+          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" loading="lazy" />
+          <div class="scrim-layer"></div>
           <div class="blur-layer rel-blur-layer"></div>
           <div class="debug-line rel-debug-line-text"></div>
           <div class="debug-line rel-debug-line-blur"></div>
@@ -342,9 +360,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">2:1 (ultra-wide)</span>
         <div class="comparison-card aspect-2-1">
-          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" />
+          <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" />
+            <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -356,7 +375,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" />
+            <img src="/posters/taxi-driver.png" alt="Taxi Driver" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -376,9 +396,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">16:9 (widescreen)</span>
         <div class="comparison-card aspect-16-9">
-          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" />
+          <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="comparison-image" />
+            <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -390,7 +411,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="comparison-image" />
+            <img src="/posters/once-upon-a-time-in-america.png" alt="Once Upon a Time in America" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -410,9 +432,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">4:3 (standard)</span>
         <div class="comparison-card aspect-4-3">
-          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" />
+          <img src="/posters/the-landlord.png" alt="The Landlord" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/the-landlord.png" alt="The Landlord" class="comparison-image" />
+            <img src="/posters/the-landlord.png" alt="The Landlord" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -424,7 +447,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/the-landlord.png" alt="The Landlord" class="comparison-image" />
+            <img src="/posters/the-landlord.png" alt="The Landlord" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -444,9 +468,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">1:1 (square)</span>
         <div class="comparison-card aspect-1-1">
-          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" />
+          <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="comparison-image" />
+            <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -458,7 +483,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="comparison-image" />
+            <img src="/posters/the-godfather-part-ii.png" alt="The Godfather Part II" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -478,9 +504,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">3:4 (portrait)</span>
         <div class="comparison-card aspect-3-4">
-          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" />
+          <img src="/posters/west-side-story.png" alt="West Side Story" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/west-side-story.png" alt="West Side Story" class="comparison-image" />
+            <img src="/posters/west-side-story.png" alt="West Side Story" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -492,7 +519,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/west-side-story.png" alt="West Side Story" class="comparison-image" />
+            <img src="/posters/west-side-story.png" alt="West Side Story" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -512,9 +540,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">2:3 (poster)</span>
         <div class="comparison-card aspect-2-3">
-          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" />
+          <img src="/posters/mean-streets.png" alt="Mean Streets" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
+            <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -526,7 +555,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" />
+            <img src="/posters/mean-streets.png" alt="Mean Streets" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -546,9 +576,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">9:16 (vertical)</span>
         <div class="comparison-card aspect-9-16">
-          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" />
+          <img src="/posters/the-crowd.png" alt="The Crowd" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/the-crowd.png" alt="The Crowd" class="comparison-image" />
+            <img src="/posters/the-crowd.png" alt="The Crowd" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -560,7 +591,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/the-crowd.png" alt="The Crowd" class="comparison-image" />
+            <img src="/posters/the-crowd.png" alt="The Crowd" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -580,9 +612,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <div class="aspect-card-wrapper">
         <span class="aspect-label">1:2 (tall banner)</span>
         <div class="comparison-card aspect-1-2">
-          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" />
+          <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="poster-image" loading="lazy" />
           <div class="comparison-side comparison-left">
-            <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="comparison-image" />
+            <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-left"></div>
             <div class="debug-line comparison-debug-left-full"></div>
             <div class="debug-line comparison-debug-left-end"></div>
@@ -594,7 +627,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
             <span class="comparison-label">Percent</span>
           </div>
           <div class="comparison-side comparison-right">
-            <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="comparison-image" />
+            <img src="/posters/a-raisin-in-the-sun.png" alt="A Raisin in the Sun" class="comparison-image" loading="lazy" />
+            <div class="scrim-layer"></div>
             <div class="blur-layer comparison-blur-right"></div>
             <div class="debug-line comparison-debug-right-text"></div>
             <div class="debug-line comparison-debug-right-blur"></div>
@@ -656,6 +690,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       <input type="checkbox" id="global-card-shadow" />
       <span>Card Shadow</span>
     </label>
+    <label class="debug-toggle">
+      <input type="checkbox" id="enable-scrim" />
+      <span>Scrim</span>
+    </label>
   </div>
 </Layout>
 
@@ -670,6 +708,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   // Global controls (floating bar)
   const globalTextShadowToggle = document.getElementById('global-text-shadow') as HTMLInputElement;
   const globalCardShadowToggle = document.getElementById('global-card-shadow') as HTMLInputElement;
+  const enableScrimToggle = document.getElementById('enable-scrim') as HTMLInputElement;
 
   // Read initial values from URL params
   const params = new URLSearchParams(window.location.search);
@@ -682,6 +721,7 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   let textShadowEnabled = params.get('textshadow') === '1';
   let cardShadowEnabled = params.get('cardshadow') === '1';
   let textLevel = params.get('text') || 'full';
+  let scrimEnabled = params.get('scrim') === '1';
 
   function updateURL() {
     // Merge with existing params to preserve text-relative settings
@@ -710,6 +750,9 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
     if (textLevel !== 'full') newParams.set('text', textLevel);
     else newParams.delete('text');
+
+    if (scrimEnabled) newParams.set('scrim', '1');
+    else newParams.delete('scrim');
 
     const newURL = newParams.toString()
       ? `${window.location.pathname}?${newParams.toString()}`
@@ -785,6 +828,13 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       globalCardShadowToggle.checked = cardShadowEnabled;
       document.body.classList.toggle('no-card-shadow', !cardShadowEnabled);
     }
+
+    // Scrim toggle
+    if (enableScrimToggle) {
+      enableScrimToggle.checked = scrimEnabled;
+      document.body.classList.toggle('scrim-enabled', scrimEnabled);
+      updateScrim();
+    }
   }
 
   // Map direction to CSS gradient direction and text position
@@ -834,6 +884,16 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
       line.style.bottom = direction === 'bottom' ? `${fullBlur}%` : 'auto';
       line.style.top = direction === 'top' ? `${fullBlur}%` : 'auto';
     });
+
+    updateScrim();
+  }
+
+  function updateScrim() {
+    const config = directionConfig[direction];
+    const scrims = document.querySelectorAll('.scrim-layer') as NodeListOf<HTMLElement>;
+    // Simple gradient from bottom (0%) to where blur ends (blurEnd%)
+    const gradient = `linear-gradient(${config.gradientDir}, rgba(10, 10, 10, 0.6) 0%, transparent ${blurEnd}%)`;
+    scrims.forEach(scrim => { scrim.style.background = gradient; });
   }
 
   debugToggle?.addEventListener('change', () => {
@@ -853,6 +913,14 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   globalCardShadowToggle?.addEventListener('change', () => {
     cardShadowEnabled = globalCardShadowToggle.checked;
     document.body.classList.toggle('no-card-shadow', !cardShadowEnabled);
+    updateURL();
+  });
+
+  // Scrim toggle
+  enableScrimToggle?.addEventListener('change', () => {
+    scrimEnabled = enableScrimToggle.checked;
+    document.body.classList.toggle('scrim-enabled', scrimEnabled);
+    updateScrim();
     updateURL();
   });
 
@@ -1058,6 +1126,8 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
   // Multiplier controls
   const fullMultSlider = document.getElementById('rel-full-mult-slider') as HTMLInputElement;
   const fullMultValue = document.getElementById('rel-full-mult-value') as HTMLElement;
+  const endMultSlider = document.getElementById('rel-end-mult-slider') as HTMLInputElement;
+  const endMultValue = document.getElementById('rel-end-mult-value') as HTMLElement;
 
   fullMultSlider?.addEventListener('input', (e) => {
     relFullBlurMult = parseFloat((e.target as HTMLInputElement).value);
@@ -1066,12 +1136,11 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     updateRelURL();
   });
 
-  document.querySelectorAll('input[name="rel-end-mult"]').forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      relBlurEndMult = parseFloat((e.target as HTMLInputElement).value);
-      updateRelBlur();
-      updateRelURL();
-    });
+  endMultSlider?.addEventListener('input', (e) => {
+    relBlurEndMult = parseFloat((e.target as HTMLInputElement).value);
+    if (endMultValue) endMultValue.textContent = `${relBlurEndMult.toFixed(2)}×`;
+    updateRelBlur();
+    updateRelURL();
   });
 
   // ========================================
@@ -1375,6 +1444,21 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 50%);
     pointer-events: none;
     z-index: 1;
+  }
+
+  /* Scrim layer - dark overlay for improved text readability */
+  .scrim-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    mix-blend-mode: darken;
+    z-index: 1;
+  }
+
+  body.scrim-enabled .scrim-layer {
+    opacity: 1;
   }
 
   .text-overlay {

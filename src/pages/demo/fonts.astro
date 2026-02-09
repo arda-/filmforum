@@ -1,6 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import ToggleGroup from '../../components/ToggleGroup.astro';
+import { loadMovieData } from '../../utils/loadMovieData';
+
+// Load movie data at build time
+const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 ---
 
 <Layout title="Font Responsiveness Demo">
@@ -81,6 +85,10 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
 
 </Layout>
 
+<script define:vars={{ movieDataJson }}>
+  window.__movieData = JSON.parse(movieDataJson);
+</script>
+
 <script>
   import type { Movie } from '../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
@@ -98,16 +106,13 @@ import ToggleGroup from '../../components/ToggleGroup.astro';
     return h * 60 + m;
   }
 
-  // Fetch real movie data
-  fetch('/tenement-stories-full.json')
-    .then(res => res.json())
-    .then((movies: Movie[]) => {
-      allMovies = movies;
-      renderViewportTiles();
-      renderWeekView();
-      renderFontComparison();
-      setTimeout(updateTextHeights, 10);
-    });
+  // Load movie data from build-time inlined data
+  const movies: Movie[] = window.__movieData;
+  allMovies = movies;
+  renderViewportTiles();
+  renderWeekView();
+  renderFontComparison();
+  setTimeout(updateTextHeights, 10);
 
   function renderViewportTiles() {
     const viewportGrid = document.getElementById('viewport-tiles');

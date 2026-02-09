@@ -67,15 +67,18 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
 
   el.innerHTML = `
     ${badge}
+    ${movie.poster_url ? `<img class="movie-poster-img" src="${movie.poster_url}" alt="${movie.Movie}" loading="lazy" width="300" height="300" />` : ''}
     <div class="movie-clickable">
-      <div class="movie-header">
-        <span class="movie-time">${displayTime}</span>
-        <span class="movie-title">${displayTitle}</span>
-      </div>
-      <div class="movie-meta">
-        ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
-        ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
-        ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
+      <div class="movie-text">
+        <div class="movie-header">
+          <span class="movie-time">${displayTime}</span>
+          <span class="movie-title">${displayTitle}</span>
+        </div>
+        <div class="movie-meta">
+          ${yearDirector ? `<span class="movie-year-director">${yearDirector}</span>` : ''}
+          ${runtime ? `<span class="movie-runtime">${runtime}</span>` : ''}
+          ${actors ? `<span class="movie-actors">${actors}</span>` : ''}
+        </div>
       </div>
     </div>
   `;
@@ -89,19 +92,33 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
   return el;
 }
 
+/**
+ * Updates --text-height CSS variable for movie tiles with posters.
+ *
+ * Uses read-write batching to avoid layout thrashing: all DOM reads happen
+ * in phase 1 (single layout calculation), then all writes are deferred to
+ * phase 2 via requestAnimationFrame for optimal timing before the next paint.
+ */
 export function updateTextHeights(): void {
+  // Phase 1: Read all measurements (single layout calculation)
+  const measurements: { clickable: HTMLElement; textHeight: number }[] = [];
+
   document.querySelectorAll('.movie.has-poster').forEach(tile => {
     const clickable = tile.querySelector('.movie-clickable') as HTMLElement;
-    const header = tile.querySelector('.movie-header') as HTMLElement;
-    const meta = tile.querySelector('.movie-meta') as HTMLElement;
+    const textWrapper = tile.querySelector('.movie-text') as HTMLElement;
 
-    if (clickable && header) {
-      let textHeight = header.offsetHeight + 8;
-      if (meta && getComputedStyle(meta).display !== 'none') {
-        textHeight += meta.offsetHeight + 4;
-      }
-      clickable.style.setProperty('--text-height', `${textHeight}px`);
+    if (clickable && textWrapper) {
+      // Add 8px for .movie-clickable's vertical padding (4px top + 4px bottom)
+      const textHeight = textWrapper.offsetHeight + 8;
+      measurements.push({ clickable, textHeight });
     }
+  });
+
+  // Phase 2: Write all styles at optimal time before next paint
+  requestAnimationFrame(() => {
+    measurements.forEach(({ clickable, textHeight }) => {
+      clickable.style.setProperty('--text-height', `${textHeight}px`);
+    });
   });
 }
 

@@ -1,0 +1,181 @@
+# Contributing Guide
+
+## Local Validation - Run BEFORE Pushing
+
+**IMPORTANT:** Always validate locally before pushing to avoid wasting CI budget.
+
+### Quick Validation (Required before every push)
+
+```bash
+# 1. Validate lockfile is in sync
+[your lockfile check command]
+
+# 2. Test production build
+[your build command]
+
+# 3. If both pass, you're good to push
+git push
+```
+
+**Or use the combined command:**
+```bash
+[your validate:quick command] && git push
+```
+
+### Full Validation (Before opening PR)
+
+```bash
+# Validates everything: lockfile, build, lint, tests
+[your validate command]
+```
+
+---
+
+## Why This Matters
+
+### The Lockfile Problem
+
+When `[lockfile]` is out of sync with `package.json`:
+- ❌ [Your CI system] build fails immediately
+- 💸 Wastes CI budget
+- ⏱️ Wastes team time debugging
+
+**Common causes:**
+- Switching branches with different dependencies
+- Merging branches
+- Adding/removing packages but not committing lockfile
+
+### The Build Problem
+
+When code doesn't build in production:
+- ❌ [Your deployment system] deployment fails
+- 💸 Wastes CI budget
+- 🐛 Breaks the deployment pipeline
+
+**Common causes:**
+- TypeScript errors
+- Linting errors
+- Missing environment variables
+- Import/export issues
+
+---
+
+## Local Validation Commands
+
+### `[your validate:lockfile command]`
+Checks if lockfile matches package.json.
+
+**What it does:**
+```bash
+[actual command]
+```
+
+**If it fails:**
+```bash
+# Lockfile is out of sync - update it
+[your install command]
+
+# Commit the updated lockfile
+git add [lockfile]
+git commit -m "Update [lockfile]"
+```
+
+### `[your validate:quick command]`
+Runs lockfile + build validation.
+
+**What it does:**
+```bash
+[actual command]
+```
+
+### `[your validate command]`
+Full validation: lockfile + build + lint + tests.
+
+**What it does:**
+```bash
+[actual command]
+```
+
+---
+
+## Recommended Workflow
+
+### Daily Development
+```bash
+# Make changes
+# ...
+
+# Before pushing
+[your validate:quick command] && git push
+```
+
+### Before Opening PR
+```bash
+# Run full validation
+[your validate command]
+
+# If all pass
+git push
+```
+
+### After Switching Branches
+```bash
+# Always reinstall after switching branches with different deps
+[your install command]
+
+# Check if lockfile changed
+git status [lockfile]
+
+# If changed, commit it
+git add [lockfile]
+git commit -m "Update lockfile after branch switch"
+```
+
+### After Merging/Rebasing
+```bash
+# Reinstall to update lockfile
+[your install command]
+
+# Validate everything still works
+[your validate:quick command]
+```
+
+---
+
+## Scripts Reference
+
+| Command | Speed | What It Checks | When To Use |
+|---------|-------|----------------|-------------|
+| `validate:lockfile` | Fast (~2s) | Lockfile sync | After branch switch |
+| `validate:quick` | Medium (~30s) | Lockfile + Build | Before every push |
+| `validate` | Slow (~1-2m) | Everything | Before opening PR |
+
+---
+
+## Pro Tips
+
+1. **Create an alias** in your shell:
+   ```bash
+   # Add to ~/.zshrc or ~/.bashrc
+   alias pushv="[your validate:quick command] && git push"
+
+   # Then just run:
+   pushv
+   ```
+
+2. **Check status before committing:**
+   ```bash
+   git status | grep [lockfile]
+   # If lockfile changed, commit it!
+   ```
+
+---
+
+## The Bottom Line
+
+**Before pushing, run:**
+```bash
+[your validate:quick command] && git push
+```
+
+That's it. This one command saves CI budget and keeps the deployment pipeline healthy.

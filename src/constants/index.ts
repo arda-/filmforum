@@ -32,3 +32,17 @@ export const SINGLE_SHOWTIMES_MODE = {
   ONLY: 'only',
 } as const;
 export type SingleShowtimesMode = typeof SINGLE_SHOWTIMES_MODE[keyof typeof SINGLE_SHOWTIMES_MODE];
+
+// Saved movie filter categories
+export const SAVED_FILTER = {
+  YES: 'yes',
+  MAYBE: 'maybe',
+  NO: 'no',
+  UNMARKED: 'unmarked',
+} as const;
+export type SavedFilter = typeof SAVED_FILTER[keyof typeof SAVED_FILTER];
+
+// All saved filter values, derived from the object so it stays in sync
+export const ALL_SAVED_FILTERS = Object.values(SAVED_FILTER);
+export const SAVED_FILTER_COUNT = ALL_SAVED_FILTERS.length;
+

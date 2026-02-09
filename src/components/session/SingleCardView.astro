@@ -23,7 +23,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     <div class="drawer-scroll" id="drawer-scroll">
       <!-- Hero section: full-bleed poster + floating controls + text overlay -->
       <div class="drawer-hero" id="drawer-hero">
-        <img class="drawer-hero-img" id="drawer-hero-img" src="" alt="" />
+        <img class="drawer-hero-img" id="drawer-hero-img" src="" alt="" loading="lazy" width="400" height="300" />
         <div class="drawer-hero-placeholder" id="drawer-hero-placeholder">No Image</div>
 
         <!-- Blur scrim on hero -->
@@ -538,7 +538,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
     bottom: 0;
     display: flex;
     align-items: flex-end;
-    z-index: 999;
+    z-index: var(--z-modal);
     pointer-events: none;
   }
 

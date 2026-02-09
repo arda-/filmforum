@@ -1,0 +1,246 @@
+# CLAUDE.md
+
+This file provides guidance for AI assistants working on this codebase.
+
+## Conversation Awareness
+
+### When You Ask for Permission or Input
+
+**CRITICAL: If you ask the user a question, you MUST wait for their response before proceeding.**
+
+When you ask for permission, confirmation, or input:
+- **STOP and WAIT** - do not make any more tool calls until the user responds
+- **Never proceed with the action you asked about** - asking "Would you like me to X?" and then doing X anyway is completely unacceptable
+- **Respect stop hooks** - if a stop hook fires, STOP ALL WORK until user explicitly gives permission to continue
+- **No assumptions** - silence or delay does not mean "yes", it means wait
+
+**Examples:**
+
+❌ **Wrong:**
+```
+Agent: "Would you like me to commit this change to the branch?"
+Agent: [immediately commits and pushes without waiting for response]
+```
+
+✅ **Correct:**
+```
+Agent: "Would you like me to commit this change to the branch?"
+[WAITS for user response]
+User: "Yes, go ahead"
+Agent: [now commits and pushes]
+```
+
+### When User Raises Concerns
+
+When the user raises concerns about approach or design:
+- **STOP executing immediately** - no more tool calls until the concern is addressed
+- Engage with their concern fully before any more work
+- "This smells wrong", "this feels bad", or similar = halt and discuss, don't acknowledge and continue
+- The user's input is the priority, not your current task queue
+- When in doubt, ask questions rather than continue working
+
+### When User Is Asking vs. Directing
+
+**These phrases mean "analyze and discuss", NOT "implement":**
+- "tell me about..."
+- "question for you..."
+- "what do you think about..."
+- "how should we approach..." (when asked as an opening question)
+- "I'm curious about..."
+- "help me understand..."
+
+**When you see these:**
+1. Provide analysis and discussion first
+2. Do NOT create todo lists or start planning during analysis
+3. Do NOT make any code changes
+4. After analysis, ask "Would you like me to implement this?"
+
+**Examples:**
+
+❌ **Wrong:**
+```
+User: "Tell me about adding dark mode"
+Agent: "I'll create a todo list for dark mode..."
+[Creates TodoWrite with implementation tasks]
+```
+
+✅ **Correct:**
+```
+User: "Tell me about adding dark mode"
+Agent: "Dark mode typically involves: [analysis]...
+        Would you like me to implement this?"
+```
+
+**When uncertain whether user wants discussion or action: default to discussion.**
+
+### When User Redirects Your Approach
+
+When the user suggests a different approach mid-task:
+- **STOP current work immediately** - acknowledge their suggestion before continuing
+- **Respond to the user's question or suggestion** - don't ignore it to finish current work
+- **Never continue with your original approach after user redirects you**
+- User's input is the priority, not completing your current task queue
+
+**When redirected:** STOP → ACKNOWLEDGE → SWITCH to their approach.
+
+❌ **Wrong:** User suggests a different approach; agent ignores it and continues with original plan.
+✅ **Correct:** Agent stops, acknowledges the suggestion, and adopts the new approach.
+
+### When to Use Parallel Subagents
+
+**Before starting any multi-step work, check:**
+- Are there multiple independent tasks that can run concurrently?
+- Could I use parallel Task calls instead of sequential work?
+- Did the user explicitly ask for parallel execution?
+
+**If yes to any:**
+1. Use parallel subagents by making multiple Task calls in a single message
+2. Never do sequential work when parallel is possible and beneficial
+3. When user asks "can you parallelize this?", the answer is almost always yes
+
+See `sops/sop-parallel-agents.md` for detailed patterns and examples.
+
+### When Implementing PR Feedback
+
+When asked to implement changes related to a PR (e.g. review suggestions, requested fixes):
+- **Always checkout the PR branch first** — run `gh pr view <number> --json headRefName` to find it
+- **Never commit PR-related changes directly to main**
+- If unsure which branch to use, ask before committing
+
+## Project Context
+
+This is a **[PROJECT TYPE]** with [KEY ARCHITECTURAL APPROACH].
+
+**Important**: Read `[LINK TO ROADMAP/PLAN]` for the full roadmap and target architecture.
+
+## Current Architecture
+
+### [Architecture Component 1]
+
+[Brief description]
+
+**Key patterns:**
+- [Pattern 1]
+- [Pattern 2]
+- [Pattern 3]
+
+### [Architecture Component 2]
+
+[Brief description]
+
+## Development Environment
+
+- **Package manager**: [npm/pnpm/yarn] (use `[npx/pnpx/...]` for one-off commands)
+- **[Database/Backend]**: [Details about setup]
+  - Do NOT use [dangerous commands]
+  - Apply [type of changes] via [method]
+
+### Git Worktrees (if applicable)
+
+Use worktrees for parallel work on multiple features.
+
+```bash
+# Create worktree
+git worktree add ../[project]-[feature-name] -b [branch-name] [base-branch]
+
+# Setup the new worktree
+cp .env.local ../[project]-[feature-name]/
+cd ../[project]-[feature-name] && [install command]
+```
+
+See `.claude/preferences.md` for detailed workflow preferences.
+
+## CRITICAL: Pre-Push Checklist
+
+**NEVER push broken builds.** Before every push:
+
+```bash
+[build command]          # Must pass with zero errors
+[test command]           # Must pass all tests
+[lint command]           # Should pass (fix warnings)
+```
+
+If any fail, debug and fix locally BEFORE pushing.
+
+## CRITICAL: Pre-Push Validation
+
+**ALWAYS validate locally before committing/pushing.**
+
+### Required Before Every Push
+```bash
+# Quick validation
+[your validate:quick command]
+
+# If passes, safe to push
+git push
+```
+
+### Before Opening PR
+```bash
+# Full validation
+[your validate command]
+```
+
+## Commands
+
+```bash
+[dev command]          # Start dev server
+[build command]        # Production build
+[test command]         # Run tests
+[test:watch command]   # Tests in watch mode
+[lint command]         # Linting
+```
+
+## Code Patterns to Follow
+
+### [Category 1: e.g., State Management]
+- **[Type of state]**: [Approach and library]
+- **[Type of state]**: [Approach and library]
+- **[Type of state]**: [Approach and library]
+
+### [Category 2: e.g., Component Conventions]
+- [Convention 1]
+- [Convention 2]
+- Use `[utility]` from `[path]` for [purpose]
+
+### [Category 3: e.g., API Route Pattern]
+```typescript
+// [Brief description]
+// Example code showing the pattern
+```
+
+## Key Files
+
+| File | What It Does |
+|------|--------------|
+| `[path/to/key/file1]` | [Brief description] |
+| `[path/to/key/file2]` | [Brief description] |
+| `[path/to/key/file3]` | [Brief description] |
+| `[path/to/key/file4]` | [Brief description] |
+| `[path/to/key/file5]` | [Brief description] |
+
+## Gotchas
+
+1. **[Gotcha 1]**: [Explanation and how to avoid]
+2. **[Gotcha 2]**: [Explanation and how to avoid]
+3. **[Gotcha 3]**: [Explanation and how to avoid]
+
+## Roadmap Phases (Summary)
+
+See `[link to detailed plan]` for details:
+
+1. **Phase 1**: [Name] - [Status]
+2. **Phase 2**: [Name] - [Status]
+3. **Phase 3**: [Name] - [Status]
+
+### Current Phase Progress
+
+**Phase [N]**: [X]% complete
+
+Completed:
+- [Item 1]
+- [Item 2]
+
+Remaining:
+- [Item 3]
+- [Item 4]

@@ -11,6 +11,8 @@
   line-height: 1;
   border-left: none;
   cursor: pointer;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 50px;
 }
 
 @media (min-width: 1024px) {
@@ -37,6 +39,8 @@
   justify-content: flex-start;
   padding: 4px;
   color: var(--text-primary);
+  position: relative;
+  z-index: 2;
 }
 
 @media (min-width: 768px) {
@@ -168,11 +172,26 @@ body.show-actors .movie-actors {
 
 /* ===== Poster as Background (all modes) ===== */
 
+/* Poster image styling - positioned absolutely behind text */
+.movie-poster-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+}
+
+/* Hide poster image when show-image is disabled */
+body:not(.show-image) .movie-poster-img {
+  display: none;
+}
+
 /* Only show background when show-image is enabled */
 body.show-image .movie.has-poster {
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
+  will-change: transform;
 }
 
 /* Minimum height for non-timeline mode with images */
@@ -201,28 +220,60 @@ body.show-image .movie.has-poster .movie-clickable {
   background: none;
 }
 
-/* Content-based gradient overlay for readability (darken blend mode) */
-body.show-image .movie.has-poster .movie-clickable::before {
+/* Scrim layer with darken blend mode - darkens crisp image first */
+body.show-image.scrim-enabled .movie.has-poster .movie-clickable::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+  height: calc(var(--text-height, 60px) * 1.25);
   z-index: 0;
-  height: var(--text-height, 60px);
   mix-blend-mode: darken;
   background: linear-gradient(
     to bottom,
-    rgba(17, 17, 17, 1) 0%,
-    rgba(15, 15, 15, 0.7) 60%,
-    rgba(0, 0, 0, 0) 100%
+    rgba(15, 15, 15, 0.9) 0%,
+    rgba(15, 15, 15, 0.85) 40%,
+    rgba(15, 15, 15, 0.65) 60%,
+    rgba(15, 15, 15, 0.35) 80%,
+    transparent 95%
   );
   pointer-events: none;
 }
 
-/* Ensure text sits above gradient */
-body.show-image .movie.has-poster .movie-header,
-body.show-image .movie.has-poster .movie-meta {
+/* Backdrop-filter blur overlay - softens the darkened result */
+body.show-image.blur-enabled .movie.has-poster .movie-clickable::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--text-height, 60px) * 1.25);
+  z-index: 0;
+  backdrop-filter: blur(0.5rem);
+  -webkit-backdrop-filter: blur(0.5rem);
+  /* Mask gradient: extends to 125% of text height, lighter ease-out */
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 30%,
+    #0009 50%,
+    #0005 70%,
+    #0000 90%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 30%,
+    #0009 50%,
+    #0005 70%,
+    #0000 90%
+  );
+  pointer-events: none;
+}
+
+/* Text wrapper sits above blur and scrim layers */
+body.show-image .movie.has-poster .movie-text {
   position: relative;
   z-index: 1;
 }

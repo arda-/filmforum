@@ -68,7 +68,8 @@
       "Bash(pnpm test:run:*)",
       "Bash(npx vitest run:*)",
       "Bash(gh pr review:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(git rm:*)"
     ]
   }
 }
