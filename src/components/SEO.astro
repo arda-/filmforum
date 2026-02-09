@@ -23,10 +23,9 @@ const {
   twitterCard = 'summary_large_image',
 } = Astro.props;
 
-// Fallback URL for SEO tags when Astro.site is not configured
-// This is used during development or if the `site` option is missing in astro.config.mjs
-// The fallback value should match the production site URL configured in astro.config.mjs
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://filmforum.org';
+// Use Astro.site from config, or fall back to the current request origin
+// This allows the site to work correctly regardless of where it's deployed
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
 const siteName = 'FilmForum';

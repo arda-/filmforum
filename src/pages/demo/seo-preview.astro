@@ -64,7 +64,7 @@ const routes = [
   },
 ];
 
-const siteUrl = 'https://filmforum.org';
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
 ---
 
 <Layout title="SEO Preview - OpenGraph Share Examples" noindex={true}>

@@ -67,7 +67,7 @@ const validatePosterImages = {
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://filmforum.org',
+  site: process.env.SITE_URL || process.env.URL || 'http://localhost:4321',
   integrations: [
     webcore(),
     validatePosterImages,
