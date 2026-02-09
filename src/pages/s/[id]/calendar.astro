@@ -271,12 +271,22 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       }
 
       if (timelineMode) {
-        dayCell.style.height = `${uniformHeight}px`;
+        // Calculate dynamic height based on filtered movies for this specific day
+        let dayHeight = 100 + 32; // Minimum height + padding
+        let dayStartTime = globalRange.start; // Default to global range
+
+        if (filteredMovies.length > 0) {
+          const dayRange = getDayTimeRange(filteredMovies);
+          dayHeight = Math.max(dayRange.range * PX_PER_MIN, 100) + 32;
+          dayStartTime = dayRange.start;
+        }
+
+        dayCell.style.height = `${dayHeight}px`;
         dayCell.classList.add('timeline-view');
         assignOverlapColumns(filteredMovies).forEach(movie => {
           const start = parseTimeToMins(movie.Time);
           const runtime = parseInt(movie.runtime || '90');
-          const topPx = (start - globalRange.start) * PX_PER_MIN;
+          const topPx = (start - dayStartTime) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
           dayCell.appendChild(createMovieElement(movie, {
             isTimeline: true, topPx, heightPx,
