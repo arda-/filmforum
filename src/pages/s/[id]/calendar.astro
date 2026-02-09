@@ -239,17 +239,50 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       });
     });
 
+    // First pass: compute filtered movies per date
+    const filteredByDate: Record<string, Movie[]> = {};
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
       let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
-
-      // Apply saved movie filter (unless all categories are checked = show all)
       if (savedFilterSet.size < SAVED_FILTER_COUNT) {
         filteredMovies = filterBySavedStatus(filteredMovies, currentReactions, savedFilterSet);
       }
-
       if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
         filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
       }
+      filteredByDate[date] = filteredMovies;
+    });
+
+    // Compute per-week time ranges so each row only gets as tall as its visible movies
+    const dateWeekRange: Map<string, { start: number; height: number }> = new Map();
+    if (timelineMode) {
+      const allDayCells = document.querySelectorAll('.calendar .day');
+      const dates = Array.from(allDayCells).map(el => (el as HTMLElement).dataset.date!);
+
+      for (let i = 0; i < dates.length; i += 7) {
+        const weekDates = dates.slice(i, i + 7);
+        let weekStart = Infinity, weekEnd = 0;
+
+        weekDates.forEach(date => {
+          const movies = filteredByDate[date];
+          if (movies && movies.length > 0) {
+            const range = getDayTimeRange(movies);
+            if (range.start < weekStart) weekStart = range.start;
+            if (range.end > weekEnd) weekEnd = range.end;
+          }
+        });
+
+        const weekRange = weekEnd > weekStart ? weekEnd - weekStart : 0;
+        const weekHeight = weekRange > 0 ? Math.max(weekRange * PX_PER_MIN, 100) + 32 : 0;
+
+        weekDates.forEach(date => {
+          dateWeekRange.set(date, { start: weekStart, height: weekHeight });
+        });
+      }
+    }
+
+    // Second pass: render each day
+    Object.keys(filteredByDate).forEach(date => {
+      const filteredMovies = filteredByDate[date];
 
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
       if (!dayCell) return;
@@ -271,12 +304,16 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       }
 
       if (timelineMode) {
-        dayCell.style.height = `${uniformHeight}px`;
+        const weekRange = dateWeekRange.get(date);
+        const timelineHeight = weekRange?.height || uniformHeight;
+        const timelineStart = weekRange?.start ?? globalRange.start;
+
+        dayCell.style.height = `${timelineHeight}px`;
         dayCell.classList.add('timeline-view');
         assignOverlapColumns(filteredMovies).forEach(movie => {
           const start = parseTimeToMins(movie.Time);
           const runtime = parseInt(movie.runtime || '90');
-          const topPx = (start - globalRange.start) * PX_PER_MIN;
+          const topPx = (start - timelineStart) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
           dayCell.appendChild(createMovieElement(movie, {
             isTimeline: true, topPx, heightPx,
