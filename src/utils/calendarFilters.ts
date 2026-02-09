@@ -1,11 +1,14 @@
 /**
  * Calendar filtering logic.
- * Functions for filtering movies by availability (work hours, weekends).
+ * Functions for filtering movies by availability (work hours, weekends)
+ * and by saved reaction status.
  */
 
 import type { Movie } from './icsGenerator';
-import { WORK_START, WORK_END, HOURS_FILTER_MODE, type HoursFilterMode } from '../constants';
+import { WORK_START, WORK_END, HOURS_FILTER_MODE, type HoursFilterMode, type SavedFilter } from '../constants';
 import { parseTimeToMins } from './calendarTime';
+import type { ReactionMap } from '../types/session';
+import { movieId } from './sessionUtils';
 
 /** Get movies hidden by the "after 5pm" work-hours filter. */
 export function getHiddenWorkHoursMovies(allMovies: Movie[]): Movie[] {
@@ -74,4 +77,53 @@ export function filterDayMovies(
   }
 
   return dayMovies;
+}
+
+/**
+ * Filter movies by saved reaction status.
+ * When activeSavedFilters includes all 4 categories, no filtering occurs.
+ */
+export function filterBySavedStatus(
+  movies: Movie[],
+  reactions: ReactionMap,
+  activeSavedFilters: SavedFilter[]
+): Movie[] {
+  // All 4 checked = show everything (no filter active)
+  if (activeSavedFilters.length === 4) return movies;
+  // None checked = hide everything
+  if (activeSavedFilters.length === 0) return [];
+
+  const filterSet = new Set(activeSavedFilters);
+  return movies.filter(movie => {
+    const id = movieId(movie.Movie);
+    const reaction = reactions[id] || 'none';
+    if (reaction === 'none') return filterSet.has('unmarked');
+    return filterSet.has(reaction as SavedFilter);
+  });
+}
+
+/** Update the saved filter status text. */
+export function updateSavedFilterStatus(
+  activeSavedFilters: SavedFilter[],
+  allMovies: Movie[],
+  reactions: ReactionMap
+): void {
+  const statusEl = document.getElementById('saved-filter-status');
+  if (!statusEl) return;
+
+  if (activeSavedFilters.length === 4) {
+    statusEl.textContent = '';
+    statusEl.style.display = 'none';
+    return;
+  }
+
+  const hiddenMovies = allMovies.filter(movie => {
+    const id = movieId(movie.Movie);
+    const reaction = reactions[id] || 'none';
+    const category: SavedFilter = reaction === 'none' ? 'unmarked' : reaction as SavedFilter;
+    return !activeSavedFilters.includes(category);
+  });
+  const uniqueTitles = new Set(hiddenMovies.map(m => m.Movie));
+  statusEl.textContent = `(${hiddenMovies.length} showtimes, ${uniqueTitles.size} films hidden)`;
+  statusEl.style.display = 'inline';
 }

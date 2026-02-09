@@ -32,3 +32,15 @@ export const SINGLE_SHOWTIMES_MODE = {
   ONLY: 'only',
 } as const;
 export type SingleShowtimesMode = typeof SINGLE_SHOWTIMES_MODE[keyof typeof SINGLE_SHOWTIMES_MODE];
+
+// Saved movie filter categories
+export const SAVED_FILTER = {
+  YES: 'yes',
+  MAYBE: 'maybe',
+  NO: 'no',
+  UNMARKED: 'unmarked',
+} as const;
+export type SavedFilter = typeof SAVED_FILTER[keyof typeof SAVED_FILTER];
+
+// Default: show yes + maybe when user has reactions, otherwise show all
+export const SAVED_FILTER_DEFAULTS: SavedFilter[] = ['yes', 'maybe'] as const;

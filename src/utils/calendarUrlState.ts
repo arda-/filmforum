@@ -45,6 +45,14 @@ export function updateUrlParams(): void {
   const singleFilter = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
   if (singleFilter?.value && singleFilter.value !== 'none') params.set('single', singleFilter.value);
 
+  // Saved filter: encode checked values as comma-separated string
+  const savedChecked = document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]:checked');
+  const savedValues = Array.from(savedChecked).map(cb => cb.value);
+  // Only persist if not all 4 are checked (all checked = default/no filter)
+  if (savedValues.length > 0 && savedValues.length < 4) {
+    params.set('saved', savedValues.join(','));
+  }
+
   const newUrl = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
   history.replaceState(null, '', newUrl);
 }
@@ -93,5 +101,16 @@ export function restoreFromUrl(): void {
     const singleValue = params.get('single');
     const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${singleValue}"]`) as HTMLInputElement;
     if (radio) radio.click();
+  }
+
+  if (params.has('saved')) {
+    const savedValues = new Set(params.get('saved')!.split(','));
+    document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]').forEach(cb => {
+      const shouldBeChecked = savedValues.has(cb.value);
+      if (cb.checked !== shouldBeChecked) {
+        cb.checked = shouldBeChecked;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
   }
 }
