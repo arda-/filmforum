@@ -181,7 +181,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const container = document.getElementById(`items-${cat}`);
     const count = document.getElementById(`count-${cat}`);
 
-    if (section) section.style.display = catItems.length > 0 ? '' : 'none';
+    if (section) section.style.display = catItems.length > 0 ? 'block' : 'none';
     if (count) count.textContent = String(catItems.length);
     if (catItems.length > 0) totalCategorized += catItems.length;
 
