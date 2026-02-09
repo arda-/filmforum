@@ -243,7 +243,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     // Yes section
     if (yesMovies.length > 0) {
-      shareText += 'YES:\n';
       const displayYes = yesMovies.slice(0, displayCount);
       shareText += displayYes.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
       if (yesMovies.length > displayCount) {
