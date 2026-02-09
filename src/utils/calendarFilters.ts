@@ -104,14 +104,14 @@ export function filterBySavedStatus(
 
 /** Update the saved filter status text. */
 export function updateSavedFilterStatus(
-  activeSavedFilters: SavedFilter[],
+  filterSet: Set<SavedFilter>,
   allMovies: Movie[],
   reactions: ReactionMap
 ): void {
   const statusEl = document.getElementById('saved-filter-status');
   if (!statusEl) return;
 
-  if (activeSavedFilters.length === SAVED_FILTER_COUNT) {
+  if (filterSet.size === SAVED_FILTER_COUNT) {
     statusEl.textContent = '';
     statusEl.style.display = 'none';
     return;
@@ -121,7 +121,7 @@ export function updateSavedFilterStatus(
     const id = movieId(movie.Movie);
     const reaction = reactions[id] || 'none';
     const category: SavedFilter = reaction === 'none' ? 'unmarked' : reaction as SavedFilter;
-    return !activeSavedFilters.includes(category);
+    return !filterSet.has(category);
   });
   const uniqueTitles = new Set(hiddenMovies.map(m => m.Movie));
   statusEl.textContent = `(${hiddenMovies.length} showtimes, ${uniqueTitles.size} films hidden)`;

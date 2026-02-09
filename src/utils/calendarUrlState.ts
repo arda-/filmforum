@@ -3,7 +3,7 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
-import { SAVED_FILTER_COUNT } from '../constants';
+import { SAVED_FILTER_COUNT, HOURS_FILTER_MODE, SINGLE_SHOWTIMES_MODE } from '../constants';
 
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {
@@ -110,14 +110,21 @@ export function restoreFromUrl(): void {
   });
 
   // --- Radio groups (set .checked on the target radio) ---
+  // Values are validated against known constants before interpolation into
+  // querySelector strings. Without this check, a crafted URL param like
+  // ?hours="]injected could produce an invalid CSS selector and throw.
 
-  if (params.has('hours')) {
-    const radio = document.querySelector(`input[name="hours-filter-mode"][value="${params.get('hours')}"]`) as HTMLInputElement;
+  const hoursValues = new Set(Object.values(HOURS_FILTER_MODE));
+  const hoursValue = params.get('hours');
+  if (hoursValue && hoursValues.has(hoursValue as any)) {
+    const radio = document.querySelector(`input[name="hours-filter-mode"][value="${hoursValue}"]`) as HTMLInputElement;
     if (radio) radio.checked = true;
   }
 
-  if (params.has('single')) {
-    const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${params.get('single')}"]`) as HTMLInputElement;
+  const singleValues = new Set(Object.values(SINGLE_SHOWTIMES_MODE));
+  const singleValue = params.get('single');
+  if (singleValue && singleValues.has(singleValue as any)) {
+    const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${singleValue}"]`) as HTMLInputElement;
     if (radio) radio.checked = true;
   }
 

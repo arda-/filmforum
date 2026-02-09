@@ -227,8 +227,10 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     const savedFilterSet = new Set(activeSavedFilters);
 
     updateHoursFilterStatus(hoursFilterMode, allMovies);
-    updateSavedFilterStatus(activeSavedFilters, allMovies, currentReactions);
+    updateSavedFilterStatus(savedFilterSet, allMovies, currentReactions);
 
+    // Showtime counts are computed before the saved filter so that "single showtime"
+    // means one showtime across the entire festival, not one among visible results.
     // Build count of filtered showtimes per movie title
     const filteredShowtimeCounts: Record<string, number> = {};
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
