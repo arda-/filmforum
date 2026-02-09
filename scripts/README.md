@@ -15,7 +15,7 @@ pnpm build:verify
 
 ## What Gets Validated
 
-### ✅ **155 Checks Across All Routes**
+### ✅ **150+ Checks Across All Routes**
 
 - **Basic SEO** (title, description, canonical)
 - **OpenGraph** (og:title, og:description, og:image, og:url, og:type, og:site_name)
@@ -104,7 +104,7 @@ Testing: /
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Test Results
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ Passed:   155
+✓ Passed:   150+
 ✗ Failed:   0
 ⚠ Warnings: 0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
