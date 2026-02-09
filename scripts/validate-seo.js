@@ -131,7 +131,9 @@ function validateOpenGraph(html) {
 
   assert(ogTitle, `Has og:title: "${ogTitle}"`);
   assert(ogDescription, `Has og:description`);
-  assert(ogImage, `Has og:image: ${ogImage}`);
+  // og:image is optional - some pages don't have images (home, shared-list, compare-lists)
+  // Only warn if missing rather than fail, as this is valid for text-only sharing
+  warn(ogImage, `Has og:image: ${ogImage || '(not set - will share as text-only)'}`);
   assert(ogUrl, `Has og:url: ${ogUrl}`);
   assert(ogType, `Has og:type: ${ogType}`);
 
@@ -153,7 +155,8 @@ function validateTwitterCard(html) {
   assert(twitterCard, `Has twitter:card: ${twitterCard}`);
   assert(twitterTitle, `Has twitter:title`);
   assert(twitterDescription, `Has twitter:description`);
-  assert(twitterImage, `Has twitter:image`);
+  // twitter:image is optional (follows og:image availability)
+  warn(twitterImage, `Has twitter:image: ${twitterImage || '(not set - matches missing og:image)'}`);
 }
 
 /**
