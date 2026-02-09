@@ -219,8 +219,13 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           <div class="shared-item-reactions">
             ${['yes', 'maybe', 'no'].map(r => {
               const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
+              const icons: Record<string, string> = {
+                yes: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                maybe: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+                no: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+              };
               const active = r === myReaction ? 'active' : '';
-              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${escapeAttr(r)}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${escapeAttr(r)}" data-movie-id="${escapeAttr(um.id)}">${icons[r]}<span class="btn-label">${labels[r]}</span></button>`;
             }).join('')}
           </div>
         </div>
@@ -378,20 +383,41 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   :global(.shared-item-reactions) {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     flex-shrink: 0;
   }
 
   :global(.shared-reaction-btn) {
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 500;
-    font-family: inherit;
-    border-radius: 6px;
-    border: 1.5px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0;
     background: transparent;
+    border: 1.5px solid transparent;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Hide text labels on mobile (< 640px) */
+  :global(.shared-reaction-btn .btn-label) {
+    display: none;
+  }
+
+  /* Show text labels on desktop (>= 640px) */
+  @media (min-width: 640px) {
+    :global(.shared-reaction-btn) {
+      padding: 0 10px;
+    }
+    :global(.shared-reaction-btn .btn-label) {
+      display: inline;
+    }
   }
 
   :global(.shared-reaction-btn--yes) {
