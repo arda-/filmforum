@@ -1,0 +1,435 @@
+---
+/**
+ * Shareable saved list page.
+ * Displays a friend's saved movies from URL-encoded reactions.
+ * userId and reactions come from query params: ?u=userId&r=encodedReactions
+ */
+import Layout from '../../../layouts/Layout.astro';
+import type { Movie } from '../../../utils/movieUtils';
+import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import {
+  deduplicateMovies,
+  sortMovies,
+} from '../../../utils/sessionUtils';
+
+export function getStaticPaths() {
+  return getAllSeriesIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const config = getSeriesConfig(id!);
+if (!config) return Astro.redirect('/');
+
+// Load movie data at build time
+let allMovies: Movie[] = [];
+try {
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const dataPath = path.join(process.cwd(), 'public', config.dataFile);
+  const data = fs.readFileSync(dataPath, 'utf-8');
+  allMovies = JSON.parse(data);
+} catch {
+  allMovies = [];
+}
+
+const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
+const movieDataJson = JSON.stringify(uniqueMovies);
+---
+
+<Layout title={`Shared List — ${config.name}`}>
+  <main class="shared-list-page" data-session-id={id}>
+    <header class="page-header">
+      <a href={`/s/${id}/list`} class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to full list
+      </a>
+      <h1 class="page-title">Friend's Picks</h1>
+      <p class="page-subtitle">from <span class="friend-id" id="friend-id"></span></p>
+    </header>
+
+    <div class="shared-sections" id="shared-sections">
+      <div class="shared-section" id="shared-yes-section">
+        <h2 class="section-title">
+          <span class="section-dot section-dot--yes"></span>
+          Yes
+        </h2>
+        <div class="section-items" id="shared-yes-items"></div>
+      </div>
+
+      <div class="shared-section" id="shared-maybe-section">
+        <h2 class="section-title">
+          <span class="section-dot section-dot--maybe"></span>
+          Maybe
+        </h2>
+        <div class="section-items" id="shared-maybe-items"></div>
+      </div>
+
+      <div class="shared-empty" id="shared-empty">
+        <p class="empty-title">No movies in this list</p>
+        <p class="empty-hint">The link may be invalid or the list is empty.</p>
+      </div>
+    </div>
+
+    <div class="shared-actions" id="shared-actions">
+      <button class="compare-btn" id="compare-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Compare with my list
+      </button>
+    </div>
+  </main>
+</Layout>
+
+<script define:vars={{ movieDataJson, sessionId: id }}>
+  window.__movieData = JSON.parse(movieDataJson);
+  window.__sessionId = sessionId;
+</script>
+
+<script>
+  import { getReactions, setReaction } from '../../../utils/storageManager';
+  import { decodeReactionsCompact, encodeReactionsCompact } from '../../../utils/compactEncoder';
+  import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '../../../utils/htmlEscape';
+  import type { UniqueMovie, MovieReaction, ReactionMap } from '../../../types/session';
+
+  // Debug logging flag - set to true to enable detailed console logs
+  const DEBUG = false;
+
+  const sessionId = (window as any).__sessionId as string;
+  const allMovies = (window as any).__movieData as UniqueMovie[];
+
+  // Safety check: If movie data isn't loaded, show error
+  if (!allMovies || !Array.isArray(allMovies) || allMovies.length === 0) {
+    console.error('FATAL: Movie data not loaded!', {
+      movieData: (window as any).__movieData,
+      type: typeof (window as any).__movieData,
+      isArray: Array.isArray((window as any).__movieData),
+    });
+    document.getElementById('shared-empty')!.innerHTML = `
+      <p class="empty-title">Error loading movie data</p>
+      <p class="empty-hint">Please refresh the page. If the problem persists, the deployment may have an issue.</p>
+    `;
+    throw new Error('Movie data not loaded');
+  }
+
+  // Parse userId and reactions from URL query params
+  const urlParams = new URLSearchParams(window.location.search);
+  const friendUserId = urlParams.get('u') || 'unknown';
+  const encodedReactions = urlParams.get('r') || '';
+
+  // DEBUG: Log everything (only if DEBUG is true)
+  if (DEBUG) {
+    console.log('=== SHARE LIST DEBUG ===');
+    console.log('1. Encoded from URL:', encodedReactions);
+    console.log('2. window.__movieData exists?', typeof (window as any).__movieData);
+    console.log('3. All movies is array?', Array.isArray(allMovies));
+    console.log('4. All movies count:', allMovies?.length || 0);
+    if (allMovies && allMovies.length > 0) {
+      console.log('5. First 3 movie IDs:', allMovies.slice(0, 3).map(m => m.id));
+      console.log('6. Movie at index 2:', allMovies[2]?.id);
+      console.log('7. Movie at index 3:', allMovies[3]?.id);
+      console.log('8. Movie at index 5:', allMovies[5]?.id);
+    }
+  }
+
+  let friendReactions: ReactionMap = {};
+  try {
+    friendReactions = decodeReactionsCompact(encodedReactions, allMovies || []);
+    if (DEBUG) {
+      console.log('9. Decoded successfully');
+      console.log('10. Decoded reaction keys:', Object.keys(friendReactions));
+      console.log('11. Decoded reactions:', friendReactions);
+    }
+  } catch (error) {
+    console.error('ERROR decoding:', error);
+  }
+
+  // Display friend ID
+  const friendIdEl = document.getElementById('friend-id');
+  if (friendIdEl) friendIdEl.textContent = friendUserId;
+
+  const yesMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'yes');
+  const maybeMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'maybe');
+  const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
+
+  if (DEBUG) {
+    console.log('12. Yes movies:', yesMovies.map(m => m.id));
+    console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
+    console.log('14. hasAny:', hasAny);
+    console.log('========================');
+  }
+
+  // Show/hide empty state
+  const emptyEl = document.getElementById('shared-empty');
+  if (emptyEl) emptyEl.style.display = hasAny ? 'none' : 'block';
+
+  const actionsEl = document.getElementById('shared-actions');
+  if (actionsEl) actionsEl.style.display = hasAny ? 'block' : 'none';
+
+  function renderSection(containerId: string, sectionId: string, movies: UniqueMovie[]) {
+    const section = document.getElementById(sectionId);
+    const container = document.getElementById(containerId);
+    if (section) section.style.display = movies.length > 0 ? 'block' : 'none';
+    if (!container) return;
+
+    const myReactions = getReactions(sessionId);
+
+    container.innerHTML = movies.map(um => {
+      const title = escapeHtml(toTitleCase(um.movie.Movie));
+      const meta = escapeHtml([um.movie.director, um.movie.year, formatRuntime(um.movie.runtime)].filter(Boolean).join(' · '));
+      const myReaction = myReactions[um.id] || 'none';
+
+      return `
+        <div class="shared-item" data-movie-id="${escapeAttr(um.id)}">
+          <div class="shared-item-info">
+            <p class="shared-item-title">${title}</p>
+            <p class="shared-item-meta">${meta}</p>
+          </div>
+          <div class="shared-item-reactions">
+            ${['yes', 'maybe', 'no'].map(r => {
+              const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
+              const active = r === myReaction ? 'active' : '';
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${escapeAttr(r)}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderSection('shared-yes-items', 'shared-yes-section', yesMovies);
+  renderSection('shared-maybe-items', 'shared-maybe-section', maybeMovies);
+
+  // Handle reaction clicks
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.shared-reaction-btn') as HTMLElement | null;
+    if (!btn) return;
+
+    const movieId = btn.dataset.movieId;
+    const reaction = btn.dataset.reaction as MovieReaction;
+    if (!movieId || !reaction) return;
+
+    const reactions = getReactions(sessionId);
+    const current = reactions[movieId] || 'none';
+    const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
+    setReaction(sessionId, movieId, newReaction);
+
+    // Update buttons for this movie
+    const item = btn.closest('.shared-item');
+    if (item) {
+      item.querySelectorAll('.shared-reaction-btn').forEach(b => {
+        const r = (b as HTMLElement).dataset.reaction;
+        b.classList.toggle('active', r === newReaction);
+      });
+    }
+  });
+
+  // Compare button
+  document.getElementById('compare-btn')?.addEventListener('click', () => {
+    const myReactions = getReactions(sessionId);
+    const myEncoded = encodeReactionsCompact(myReactions, allMovies);
+    const friendEncoded = encodedReactions;
+    window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
+  });
+</script>
+
+<style>
+  .shared-list-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .page-header {
+    padding: 16px 0 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+  }
+
+  .friend-id {
+    font-family: monospace;
+    color: var(--accent);
+  }
+
+  .shared-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .shared-section {
+    display: none;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 10px 0;
+  }
+
+  .section-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .section-dot--yes { background: var(--reaction-yes); }
+  .section-dot--maybe { background: var(--reaction-maybe); }
+
+  .section-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  :global(.shared-item) {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+  }
+
+  :global(.shared-item-info) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  :global(.shared-item-title) {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  :global(.shared-item-meta) {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 2px 0 0 0;
+  }
+
+  :global(.shared-item-reactions) {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  :global(.shared-reaction-btn) {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  :global(.shared-reaction-btn--yes) {
+    color: var(--reaction-yes);
+    border-color: var(--reaction-yes);
+  }
+  :global(.shared-reaction-btn--yes.active) {
+    background: var(--reaction-yes);
+    color: #fff;
+  }
+
+  :global(.shared-reaction-btn--maybe) {
+    color: var(--reaction-maybe);
+    border-color: var(--reaction-maybe);
+  }
+  :global(.shared-reaction-btn--maybe.active) {
+    background: var(--reaction-maybe);
+    color: #fff;
+  }
+
+  :global(.shared-reaction-btn--no) {
+    color: var(--reaction-no);
+    border-color: var(--reaction-no);
+  }
+  :global(.shared-reaction-btn--no.active) {
+    background: var(--reaction-no);
+    color: #fff;
+  }
+
+  .shared-empty {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .empty-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+  }
+
+  .shared-actions {
+    padding: 16px 0;
+    display: none;
+  }
+
+  .compare-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.15s;
+  }
+
+  .compare-btn:hover {
+    background: var(--accent-bg);
+  }
+</style>
