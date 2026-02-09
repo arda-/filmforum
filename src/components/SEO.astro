@@ -28,7 +28,9 @@ const {
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
 const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
 const fullOgImage = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
-const siteName = 'FilmForum';
+
+// Derive site name from the domain (e.g., "localhost:4321", "filmforum.example.com")
+const siteName = new URL(siteUrl).host;
 
 /**
  * Smart description truncation that:
