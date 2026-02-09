@@ -252,37 +252,22 @@ const movieDataJson = JSON.stringify(uniqueMovies);
       shareText += '\n\n';
     }
 
-    // Maybe section
+    // Maybe section - show count only
     if (maybeMovies.length > 0) {
-      shareText += 'MAYBE:\n';
-      const displayMaybe = maybeMovies.slice(0, displayCount);
-      shareText += displayMaybe.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (maybeMovies.length > displayCount) {
-        shareText += `\n...and ${maybeMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
+      const movieWord = maybeMovies.length === 1 ? 'movie' : 'movies';
+      shareText += `MAYBE: ${maybeMovies.length} ${movieWord}\n\n`;
     }
 
-    // No section
+    // No section - show count only
     if (noMovies.length > 0) {
-      shareText += 'NO:\n';
-      const displayNo = noMovies.slice(0, displayCount);
-      shareText += displayNo.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (noMovies.length > displayCount) {
-        shareText += `\n...and ${noMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
+      const movieWord = noMovies.length === 1 ? 'movie' : 'movies';
+      shareText += `NO: ${noMovies.length} ${movieWord}\n\n`;
     }
 
-    // Unmarked section (optional - only if there are some and not all)
+    // Unmarked section - show count only (optional - only if there are some and not all)
     if (unmarkedMovies.length > 0 && unmarkedMovies.length < allMovies.length) {
-      shareText += 'UNMARKED:\n';
-      const displayUnmarked = unmarkedMovies.slice(0, displayCount);
-      shareText += displayUnmarked.map(um => `- ${toTitleCase(um.movie.Movie)}`).join('\n');
-      if (unmarkedMovies.length > displayCount) {
-        shareText += `\n...and ${unmarkedMovies.length - displayCount} more`;
-      }
-      shareText += '\n\n';
+      const movieWord = unmarkedMovies.length === 1 ? 'movie' : 'movies';
+      shareText += `UNMARKED: ${unmarkedMovies.length} ${movieWord}\n\n`;
     }
 
     shareText += `Full list: ${url}`;
