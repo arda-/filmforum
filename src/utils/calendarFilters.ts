@@ -5,7 +5,7 @@
  */
 
 import type { Movie } from './icsGenerator';
-import { WORK_START, WORK_END, HOURS_FILTER_MODE, type HoursFilterMode, type SavedFilter } from '../constants';
+import { WORK_START, WORK_END, HOURS_FILTER_MODE, SAVED_FILTER_COUNT, type HoursFilterMode, type SavedFilter } from '../constants';
 import { parseTimeToMins } from './calendarTime';
 import type { ReactionMap } from '../types/session';
 import { movieId } from './sessionUtils';
@@ -81,23 +81,23 @@ export function filterDayMovies(
 
 /**
  * Filter movies by saved reaction status.
- * When activeSavedFilters includes all 4 categories, no filtering occurs.
+ * Accepts a pre-built Set to avoid re-creating it per day in the render loop.
  */
 export function filterBySavedStatus(
   movies: Movie[],
   reactions: ReactionMap,
-  activeSavedFilters: SavedFilter[]
+  filterSet: Set<SavedFilter>
 ): Movie[] {
-  // All 4 checked = show everything (no filter active)
-  if (activeSavedFilters.length === 4) return movies;
+  // All checked = show everything (no filter active)
+  if (filterSet.size === SAVED_FILTER_COUNT) return movies;
   // None checked = hide everything
-  if (activeSavedFilters.length === 0) return [];
+  if (filterSet.size === 0) return [];
 
-  const filterSet = new Set(activeSavedFilters);
   return movies.filter(movie => {
     const id = movieId(movie.Movie);
     const reaction = reactions[id] || 'none';
     if (reaction === 'none') return filterSet.has('unmarked');
+    // Safe cast: 'none' is handled above, so reaction is 'yes' | 'maybe' | 'no'
     return filterSet.has(reaction as SavedFilter);
   });
 }
@@ -111,7 +111,7 @@ export function updateSavedFilterStatus(
   const statusEl = document.getElementById('saved-filter-status');
   if (!statusEl) return;
 
-  if (activeSavedFilters.length === 4) {
+  if (activeSavedFilters.length === SAVED_FILTER_COUNT) {
     statusEl.textContent = '';
     statusEl.style.display = 'none';
     return;

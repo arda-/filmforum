@@ -42,5 +42,7 @@ export const SAVED_FILTER = {
 } as const;
 export type SavedFilter = typeof SAVED_FILTER[keyof typeof SAVED_FILTER];
 
-// Default: show yes + maybe when user has reactions, otherwise show all
-export const SAVED_FILTER_DEFAULTS: SavedFilter[] = ['yes', 'maybe'] as const;
+// All saved filter values, derived from the object so it stays in sync
+export const ALL_SAVED_FILTERS = Object.values(SAVED_FILTER);
+export const SAVED_FILTER_COUNT = ALL_SAVED_FILTERS.length;
+

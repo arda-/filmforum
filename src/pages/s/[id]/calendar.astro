@@ -145,7 +145,7 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     PX_PER_MIN,
     HOURS_FILTER_MODE,
     SINGLE_SHOWTIMES_MODE,
-    SAVED_FILTER_DEFAULTS,
+    SAVED_FILTER_COUNT,
     type HoursFilterMode,
     type SingleShowtimesMode,
     type SavedFilter,
@@ -166,7 +166,7 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   let allMovies: Movie[] = [];
   let allMovieDates: string[] = [];
   let movieByKey: Map<string, Movie> = new Map();
-  const sessionId = (window as any).__sessionId as string;
+  const sessionId = window.__sessionId;
   let currentReactions: ReactionMap = getReactions(sessionId);
 
   /** Read which saved filter checkboxes are currently checked. */
@@ -178,11 +178,6 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   /** Whether the user has any reactions at all. */
   function hasAnyReactions(reactions: ReactionMap): boolean {
     return Object.keys(reactions).length > 0;
-  }
-
-  /** Check whether saved filter is in its "all shown" state (all 4 checked). */
-  function isSavedFilterShowAll(): boolean {
-    return getActiveSavedFilters().length === 4;
   }
 
   // --- Calendar rendering ---
@@ -215,6 +210,9 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   }
 
   function renderAllDays() {
+    // Re-read reactions from localStorage so modal changes are reflected
+    currentReactions = getReactions(sessionId);
+
     const timelineToggle = document.getElementById('timeline-mode-toggle');
     const timelineInput = timelineToggle?.tagName === 'INPUT' ? timelineToggle : timelineToggle?.querySelector('input');
     const timelineMode = (timelineInput as HTMLInputElement)?.checked ?? false;
@@ -226,6 +224,7 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     const singleShowtimesMode = (singleShowtimesRadio?.value || SINGLE_SHOWTIMES_MODE.NONE) as SingleShowtimesMode;
 
     const activeSavedFilters = getActiveSavedFilters();
+    const savedFilterSet = new Set(activeSavedFilters);
 
     updateHoursFilterStatus(hoursFilterMode, allMovies);
     updateSavedFilterStatus(activeSavedFilters, allMovies, currentReactions);
@@ -241,9 +240,9 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
       let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
 
-      // Apply saved movie filter (unless all 4 are checked = show all)
-      if (activeSavedFilters.length < 4) {
-        filteredMovies = filterBySavedStatus(filteredMovies, currentReactions, activeSavedFilters);
+      // Apply saved movie filter (unless all categories are checked = show all)
+      if (savedFilterSet.size < SAVED_FILTER_COUNT) {
+        filteredMovies = filterBySavedStatus(filteredMovies, currentReactions, savedFilterSet);
       }
 
       if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {

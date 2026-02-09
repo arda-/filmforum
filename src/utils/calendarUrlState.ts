@@ -3,6 +3,8 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
+import { SAVED_FILTER_COUNT } from '../constants';
+
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {
   return el?.getAttribute('data-state') === 'on';
@@ -48,8 +50,8 @@ export function updateUrlParams(): void {
   // Saved filter: encode checked values as comma-separated string
   const savedChecked = document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]:checked');
   const savedValues = Array.from(savedChecked).map(cb => cb.value);
-  // Only persist if not all 4 are checked (all checked = default/no filter)
-  if (savedValues.length > 0 && savedValues.length < 4) {
+  // Only persist if not all are checked (all checked = default/no filter)
+  if (savedValues.length > 0 && savedValues.length < SAVED_FILTER_COUNT) {
     params.set('saved', savedValues.join(','));
   }
 
@@ -105,12 +107,19 @@ export function restoreFromUrl(): void {
 
   if (params.has('saved')) {
     const savedValues = new Set(params.get('saved')!.split(','));
+    let anyChanged = false;
+    // Set all checkbox states without dispatching events to avoid redundant re-renders
     document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]').forEach(cb => {
       const shouldBeChecked = savedValues.has(cb.value);
       if (cb.checked !== shouldBeChecked) {
         cb.checked = shouldBeChecked;
-        cb.dispatchEvent(new Event('change', { bubbles: true }));
+        anyChanged = true;
       }
     });
+    // Dispatch a single change event to trigger one render pass
+    if (anyChanged) {
+      const first = document.querySelector<HTMLInputElement>('input[name="saved-filter"]');
+      first?.dispatchEvent(new Event('change', { bubbles: true }));
+    }
   }
 }

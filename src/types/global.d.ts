@@ -7,6 +7,8 @@ declare global {
      * Available on pages that use loadMovieData utility.
      */
     __movieData: Movie[];
+    /** Series/session ID, set by define:vars on calendar page. */
+    __sessionId: string;
   }
 }
 
