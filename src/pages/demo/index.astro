@@ -11,26 +11,30 @@ import Layout from '../../layouts/Layout.astro';
       <h2>SEO Preview</h2>
       <p>Visual preview of OpenGraph share cards for all route types</p>
     </a>
-    <a href="/demo/tile" class="demo-link">
-      <h2>Tile</h2>
-      <p>Timeline tile gradient overlay testing at various heights</p>
-    </a>
-    <a href="/demo/fonts" class="demo-link">
-      <h2>Fonts</h2>
-      <p>Font responsiveness testing at various viewport widths</p>
+
+    <h3 class="demo-section-heading">Components</h3>
+    <a href="/demo/button" class="demo-link">
+      <h2>Button</h2>
+      <p>Button component with primary, secondary, and danger variants</p>
     </a>
     <a href="/demo/dialog" class="demo-link">
       <h2>Dialog</h2>
       <p>Dialog component with sizes, animations, and variants</p>
     </a>
-    <a href="/demo/button" class="demo-link">
-      <h2>Button</h2>
-      <p>Button component with primary, secondary, and danger variants</p>
+    <a href="/demo/apple-card" class="demo-link">
+      <h2>Apple Card Expansion</h2>
+      <p>App Store-style card with FLIP expansion animation and progressive blur</p>
     </a>
-    <a href="/demo/colors" class="demo-link">
-      <h2>Colors</h2>
-      <p>Color palette refinement - testing reduced color schemes for light mode</p>
+    <a href="/demo/tile" class="demo-link">
+      <h2>Tile</h2>
+      <p>Timeline tile gradient overlay testing at various heights</p>
     </a>
+    <a href="/demo/session-list" class="demo-link">
+      <h2>Session List</h2>
+      <p>Reaction buttons, movie cards, list items, and drawer components</p>
+    </a>
+
+    <h3 class="demo-section-heading">Effects</h3>
     <a href="/demo/blur-simple" class="demo-link">
       <h2>Blur Simple</h2>
       <p>Single-layer backdrop-filter blur with mask-image fade</p>
@@ -39,13 +43,15 @@ import Layout from '../../layouts/Layout.astro';
       <h2>Blur Progressive</h2>
       <p>7-layer stacked blur with true intensity fade (Apple-style)</p>
     </a>
-    <a href="/demo/session-list" class="demo-link">
-      <h2>Session List</h2>
-      <p>Reaction buttons, movie cards, list items, and drawer components</p>
+
+    <h3 class="demo-section-heading">Design System</h3>
+    <a href="/demo/colors" class="demo-link">
+      <h2>Colors</h2>
+      <p>Color palette refinement - testing reduced color schemes for light mode</p>
     </a>
-    <a href="/demo/apple-card" class="demo-link">
-      <h2>Apple Card Expansion</h2>
-      <p>App Store-style card with FLIP expansion animation and progressive blur</p>
+    <a href="/demo/fonts" class="demo-link">
+      <h2>Fonts</h2>
+      <p>Font responsiveness testing at various viewport widths</p>
     </a>
   </nav>
 </Layout>
@@ -61,7 +67,18 @@ import Layout from '../../layouts/Layout.astro';
     padding: 0 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+  }
+
+  .demo-section-heading {
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-top: 24px;
+    margin-bottom: 4px;
   }
 
   .demo-link {
