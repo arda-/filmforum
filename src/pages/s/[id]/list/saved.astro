@@ -759,7 +759,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   .share-text-embed {
     width: 100%;
-    min-height: 200px;
+    min-height: 240px;
     max-height: 400px;
     padding: 12px;
     padding-bottom: 48px; /* Space for floating button */
@@ -773,6 +773,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     outline: none;
     resize: vertical;
     transition: border-color 0.15s, box-shadow 0.15s;
+    overflow-y: auto;
   }
 
   .share-floating-btn {
