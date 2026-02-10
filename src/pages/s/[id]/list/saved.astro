@@ -125,12 +125,18 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
         </div>
         <div class="share-actions-row">
-          <button class="share-action-btn share-action-btn--secondary" id="copy-btn">
+          <button class="share-action-btn share-action-btn--secondary" id="copy-text-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
               <path d="M3 10.5V3.5A1.5 1.5 0 014.5 2h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Copy
+            Copy Text
+          </button>
+          <button class="share-action-btn share-action-btn--secondary" id="copy-link-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M9 7.5l-2.5 2.5m0-5L9 7.5m-2.5-2.5a2.5 2.5 0 013.5 0l1.5 1.5a2.5 2.5 0 010 3.5l-1.5 1.5a2.5 2.5 0 01-3.5 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Copy Link
           </button>
           <button class="share-action-btn share-action-btn--primary" id="share-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -255,15 +261,21 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     // Update textarea with share text
     const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
-    if (textEmbed) textEmbed.value = shareText;
+    if (textEmbed) {
+      textEmbed.value = shareText;
+      textEmbed.dataset.shareUrl = url; // Store URL for copy-link-btn
+    }
 
     // Enable/disable buttons (enable if have any reactions)
     const hasReactions = yesMovies.length > 0 || maybeMovies.length > 0 || noMovies.length > 0;
     const shareBtn = document.getElementById('share-btn') as HTMLButtonElement;
     if (shareBtn) shareBtn.disabled = !hasReactions;
 
-    const copyBtn = document.getElementById('copy-btn') as HTMLButtonElement;
-    if (copyBtn) copyBtn.disabled = !hasReactions;
+    const copyTextBtn = document.getElementById('copy-text-btn') as HTMLButtonElement;
+    if (copyTextBtn) copyTextBtn.disabled = !hasReactions;
+
+    const copyLinkBtn = document.getElementById('copy-link-btn') as HTMLButtonElement;
+    if (copyLinkBtn) copyLinkBtn.disabled = !hasReactions;
 
     const openShareBtn = document.getElementById('open-share-btn') as HTMLButtonElement;
     if (openShareBtn) openShareBtn.disabled = !hasReactions;
@@ -384,14 +396,35 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     (window as any).openDrawer('share-drawer');
   });
 
-  // Copy button
-  document.getElementById('copy-btn')?.addEventListener('click', async () => {
+  // Copy text button
+  document.getElementById('copy-text-btn')?.addEventListener('click', async () => {
     const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
     if (!textEmbed) return;
 
     try {
       await navigator.clipboard.writeText(textEmbed.value);
-      const btn = document.getElementById('copy-btn');
+      const btn = document.getElementById('copy-text-btn');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2000);
+      }
+    } catch {
+      console.error('Failed to copy to clipboard');
+    }
+  });
+
+  // Copy link button
+  document.getElementById('copy-link-btn')?.addEventListener('click', async () => {
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (!textEmbed) return;
+
+    const url = textEmbed.dataset.shareUrl;
+    if (!url) return;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('copy-link-btn');
       if (btn) {
         const orig = btn.innerHTML;
         btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied!';
