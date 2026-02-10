@@ -125,18 +125,20 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
         </div>
         <div class="share-actions-row">
+          <button class="share-action-btn share-action-btn--secondary share-action-btn--full" id="copy-link-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M9 7.5l-2.5 2.5m0-5L9 7.5m-2.5-2.5a2.5 2.5 0 013.5 0l1.5 1.5a2.5 2.5 0 010 3.5l-1.5 1.5a2.5 2.5 0 01-3.5 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Copy Link
+          </button>
+        </div>
+        <div class="share-actions-row">
           <button class="share-action-btn share-action-btn--secondary" id="copy-text-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
               <path d="M3 10.5V3.5A1.5 1.5 0 014.5 2h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
             Copy Text
-          </button>
-          <button class="share-action-btn share-action-btn--secondary" id="copy-link-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M9 7.5l-2.5 2.5m0-5L9 7.5m-2.5-2.5a2.5 2.5 0 013.5 0l1.5 1.5a2.5 2.5 0 010 3.5l-1.5 1.5a2.5 2.5 0 01-3.5 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Copy Link
           </button>
           <button class="share-action-btn share-action-btn--primary" id="share-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -819,6 +821,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   .share-action-btn--primary:hover {
     background: var(--accent-bg);
+  }
+
+  .share-action-btn--full {
+    flex: 1 1 100%;
   }
 
   .share-action-btn:active {
