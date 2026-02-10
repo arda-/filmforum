@@ -131,6 +131,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
             return (
             <button type="button" class="poster-card" data-movie-idx={idx}>
               {image && <Image src={image} alt={film.Movie} class="poster-image" width={400} height={300} loading="lazy" />}
+              <div class="poster-scrim"></div>
               <div class="poster-blur"></div>
               <span class="poster-time">{showtimes.map(s => s.time).join(', ')}</span>
               <div class="poster-info">
@@ -292,6 +293,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
 
         return `<button type="button" class="poster-card" data-movie-idx="${idx}">
           ${img}
+          <div class="poster-scrim"></div>
           <div class="poster-blur"></div>
           <span class="poster-time">${times}</span>
           <div class="poster-info">
@@ -590,20 +592,8 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     display: block;
   }
 
-  /* --- Blur + scrim: matches MovieCard .card-blur --- */
-  .today-scroll .poster-blur {
-    position: absolute;
-    inset: 0;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .today-scroll .poster-blur::after {
-    content: '';
+  /* --- Scrim: darkens image pixels before blur --- */
+  .today-scroll .poster-scrim {
     position: absolute;
     inset: 0;
     background: linear-gradient(
@@ -612,7 +602,22 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       rgba(0, 0, 0, 0.35) 30%,
       transparent 50%
     );
+    mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
     pointer-events: none;
+    z-index: 1;
+  }
+
+  /* --- Blur: blurs the already-darkened pixels --- */
+  .today-scroll .poster-blur {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    pointer-events: none;
+    z-index: 2;
   }
 
   /* --- Showtime badge: top-left --- */
@@ -620,7 +625,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     position: absolute;
     top: 8px;
     left: 8px;
-    z-index: 3;
+    z-index: 4;
     font-size: 11px;
     font-weight: 600;
     color: var(--accent);
@@ -638,7 +643,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 2;
+    z-index: 3;
     padding: 10px 10px;
     display: flex;
     flex-direction: column;
