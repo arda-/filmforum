@@ -130,9 +130,9 @@ const movieDataJson = JSON.stringify(uniqueMovies);
             </svg>
           </button>
         </div>
-        <div class="share-text-row">
-          <input readonly class="share-text-preview" id="share-text-preview" />
-          <button class="share-icon-btn" id="copy-text-btn" title="Copy text">
+        <div class="share-preview-embed">
+          <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
+          <button class="share-floating-btn" id="copy-text-btn" title="Copy text">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
               <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
@@ -261,10 +261,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     shareText += `Full list: ${url}`;
 
-    // Update text preview with share text
-    const textPreview = document.getElementById('share-text-preview') as HTMLInputElement;
-    if (textPreview) {
-      textPreview.value = shareText;
+    // Update textarea with share text
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (textEmbed) {
+      textEmbed.value = shareText;
     }
 
     // Update link input
@@ -405,11 +405,11 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // Copy text button
   document.getElementById('copy-text-btn')?.addEventListener('click', async () => {
-    const textPreview = document.getElementById('share-text-preview') as HTMLInputElement;
-    if (!textPreview) return;
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (!textEmbed) return;
 
     try {
-      await navigator.clipboard.writeText(textPreview.value);
+      await navigator.clipboard.writeText(textEmbed.value);
       const btn = document.getElementById('copy-text-btn');
       if (btn) {
         const orig = btn.innerHTML;
@@ -441,12 +441,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // Share button
   document.getElementById('share-btn')?.addEventListener('click', async () => {
-    const textPreview = document.getElementById('share-text-preview') as HTMLInputElement;
-    if (!textPreview || !textPreview.value) return;
+    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    if (!textEmbed || !textEmbed.value) return;
 
     if (navigator.share) {
       try {
-        await navigator.share({ text: textPreview.value });
+        await navigator.share({ text: textEmbed.value });
         (window as any).closeDrawer('share-drawer');
       } catch {
         // User cancelled - don't show error
@@ -454,7 +454,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     } else {
       // Fallback to copy
       try {
-        await navigator.clipboard.writeText(textPreview.value);
+        await navigator.clipboard.writeText(textEmbed.value);
         const btn = document.getElementById('share-btn');
         if (btn) {
           const orig = btn.innerHTML;
@@ -753,25 +753,64 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     gap: 12px;
   }
 
-  .share-text-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+  .share-preview-embed {
+    position: relative;
   }
 
-  .share-text-preview {
-    flex: 1;
-    padding: 10px 12px;
+  .share-text-embed {
+    width: 100%;
+    min-height: 200px;
+    max-height: 400px;
+    padding: 12px;
+    padding-bottom: 48px; /* Space for floating button */
     font-size: 13px;
     font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-    color: var(--text-secondary);
+    line-height: 1.6;
+    color: var(--text-primary);
     background: var(--bg-movie);
     border: 1px solid var(--bg-grid);
-    border-radius: 6px;
+    border-radius: 8px;
     outline: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    resize: vertical;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .share-floating-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: var(--bg-body);
+    color: var(--text-secondary);
+    border: 1px solid var(--bg-grid);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .share-floating-btn:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+  }
+
+  .share-floating-btn:active {
+    transform: scale(0.95);
+  }
+
+  .share-text-embed:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  .share-text-embed::selection {
+    background: var(--accent);
+    color: #fff;
   }
 
   .share-actions-row {
