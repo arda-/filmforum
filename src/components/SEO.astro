@@ -95,10 +95,13 @@ const truncatedDescription = truncateDescription(description);
 )}
 
 <!-- JSON-LD Structured Data -->
+{/* Defense-in-depth: Escape < as \u003c to prevent premature script tag closure
+    if data contains </script>. This protects against script injection even though
+    JSON.stringify already escapes most dangerous characters. */}
 {structuredData && (
   Array.isArray(structuredData)
     ? structuredData.map((data) => (
-        <script type="application/ld+json" set:html={JSON.stringify(data)} />
+        <script type="application/ld+json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />
       ))
-    : <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    : <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
 )}
