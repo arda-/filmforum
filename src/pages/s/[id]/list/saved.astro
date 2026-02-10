@@ -131,7 +131,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           </button>
         </div>
         <div class="share-preview-embed">
-          <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
+          <pre class="share-text-embed" id="share-text-embed"></pre>
           <button class="share-floating-btn" id="copy-text-btn" title="Copy text">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect width="8" height="4" x="8" y="2" rx="1" ry="1"/>
@@ -261,10 +261,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     shareText += `Full list: ${url}`;
 
-    // Update textarea with share text
-    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    // Update text preview with share text
+    const textEmbed = document.getElementById('share-text-embed') as HTMLPreElement;
     if (textEmbed) {
-      textEmbed.value = shareText;
+      textEmbed.textContent = shareText;
     }
 
     // Update link input
@@ -405,11 +405,11 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // Copy text button
   document.getElementById('copy-text-btn')?.addEventListener('click', async () => {
-    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
+    const textEmbed = document.getElementById('share-text-embed') as HTMLPreElement;
     if (!textEmbed) return;
 
     try {
-      await navigator.clipboard.writeText(textEmbed.value);
+      await navigator.clipboard.writeText(textEmbed.textContent || '');
       const btn = document.getElementById('copy-text-btn');
       if (btn) {
         const orig = btn.innerHTML;
@@ -441,12 +441,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // Share button
   document.getElementById('share-btn')?.addEventListener('click', async () => {
-    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
-    if (!textEmbed || !textEmbed.value) return;
+    const textEmbed = document.getElementById('share-text-embed') as HTMLPreElement;
+    if (!textEmbed || !textEmbed.textContent) return;
 
     if (navigator.share) {
       try {
-        await navigator.share({ text: textEmbed.value });
+        await navigator.share({ text: textEmbed.textContent });
         (window as any).closeDrawer('share-drawer');
       } catch {
         // User cancelled - don't show error
@@ -454,7 +454,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     } else {
       // Fallback to copy
       try {
-        await navigator.clipboard.writeText(textEmbed.value);
+        await navigator.clipboard.writeText(textEmbed.textContent);
         const btn = document.getElementById('share-btn');
         if (btn) {
           const orig = btn.innerHTML;
@@ -750,7 +750,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   .share-content {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
   .share-preview-embed {
@@ -759,8 +759,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   .share-text-embed {
     width: 100%;
-    min-height: 240px;
-    max-height: 400px;
     padding: 12px;
     padding-bottom: 48px; /* Space for floating button */
     font-size: 13px;
@@ -770,10 +768,10 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     background: var(--bg-movie);
     border: 1px solid var(--bg-grid);
     border-radius: 8px;
-    outline: none;
-    resize: vertical;
-    transition: border-color 0.15s, box-shadow 0.15s;
-    overflow-y: auto;
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .share-floating-btn {
