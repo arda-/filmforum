@@ -1,18 +1,18 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
-import ListToolbar from '../../../../components/session/ListToolbar.astro';
-import MovieListItem from '../../../../components/session/MovieListItem.astro';
-import MovieCard from '../../../../components/session/MovieCard.astro';
-import BottomToolbar from '../../../../components/session/BottomToolbar.astro';
-import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
-import SingleCardView from '../../../../components/session/SingleCardView.astro';
-import type { Movie } from '../../../../utils/movieUtils';
-import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
-import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
+import Layout from '@layouts/Layout.astro';
+import ListToolbar from '@components/session/ListToolbar.astro';
+import MovieListItem from '@components/session/MovieListItem.astro';
+import MovieCard from '@components/session/MovieCard.astro';
+import BottomToolbar from '@components/session/BottomToolbar.astro';
+import MovieDetailDrawer from '@components/session/MovieDetailDrawer.astro';
+import SingleCardView from '@components/session/SingleCardView.astro';
+import type { Movie } from '@utils/movieUtils';
+import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
-} from '../../../../utils/sessionUtils';
+} from '@utils/sessionUtils';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -115,10 +115,10 @@ const structuredData = {
 </script>
 
 <script>
-  import { getReactions, setReaction, getReactionCounts } from '../../../../utils/storageManager';
-  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
-  import { sortMovies } from '../../../../utils/sessionUtils';
-  import type { MovieReaction, UniqueMovie } from '../../../../types/session';
+  import { getReactions, setReaction, getReactionCounts } from '@utils/storageManager';
+  import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+  import { sortMovies } from '@utils/sessionUtils';
+  import type { MovieReaction, UniqueMovie } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];

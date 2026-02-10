@@ -4,14 +4,14 @@
  * Displays a friend's saved movies from URL-encoded reactions.
  * userId and reactions come from query params: ?u=userId&r=encodedReactions
  */
-import Layout from '../../../layouts/Layout.astro';
-import type { Movie } from '../../../utils/movieUtils';
-import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
-import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import Layout from '@layouts/Layout.astro';
+import type { Movie } from '@utils/movieUtils';
+import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
-} from '../../../utils/sessionUtils';
+} from '@utils/sessionUtils';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -100,10 +100,10 @@ const canonical = `/s/${id}/shared`;
 </script>
 
 <script>
-  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '../../../utils/storageManager';
-  import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
-  import { escapeHtml, escapeAttr } from '../../../utils/htmlEscape';
-  import type { UniqueMovie, MovieReaction } from '../../../types/session';
+  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '@utils/storageManager';
+  import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
+  import type { UniqueMovie, MovieReaction } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];

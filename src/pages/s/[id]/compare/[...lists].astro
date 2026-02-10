@@ -3,13 +3,13 @@
  * Compare view: /s/[id]/compare/[listA]/[listB]
  * Shows overlap, possible overlap, disagreements, etc. between two lists.
  */
-import Layout from '../../../../layouts/Layout.astro';
-import type { Movie } from '../../../../utils/movieUtils';
-import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
+import Layout from '@layouts/Layout.astro';
+import type { Movie } from '@utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
-} from '../../../../utils/sessionUtils';
+} from '@utils/sessionUtils';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({
@@ -133,10 +133,10 @@ const canonical = `/s/${id}/compare`;
 </script>
 
 <script>
-  import { decodeReactionsCompact } from '../../../../utils/compactEncoder';
-  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
-  import { escapeHtml, escapeAttr } from '../../../../utils/htmlEscape';
-  import type { UniqueMovie, MovieReaction } from '../../../../types/session';
+  import { decodeReactionsCompact } from '@utils/compactEncoder';
+  import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
+  import type { UniqueMovie, MovieReaction } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];

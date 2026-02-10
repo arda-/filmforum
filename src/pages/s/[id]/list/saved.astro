@@ -4,16 +4,16 @@
  * Fully editable - you can change or remove reactions.
  * Includes share dialog and floating action buttons.
  */
-import Layout from '../../../../layouts/Layout.astro';
-import Drawer from '../../../../components/Drawer.astro';
-import MovieDetailDrawer from '../../../../components/session/MovieDetailDrawer.astro';
-import type { Movie } from '../../../../utils/movieUtils';
-import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
-import { getAllSeriesIds, getSeriesConfig } from '../../../../config/series';
+import Layout from '@layouts/Layout.astro';
+import Drawer from '@components/Drawer.astro';
+import MovieDetailDrawer from '@components/session/MovieDetailDrawer.astro';
+import type { Movie } from '@utils/movieUtils';
+import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
-} from '../../../../utils/sessionUtils';
+} from '@utils/sessionUtils';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -159,11 +159,11 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { getReactions, setReaction, getUserId } from '../../../../utils/storageManager';
-  import { encodeReactionsCompact } from '../../../../utils/compactEncoder';
-  import { toTitleCase, formatRuntime } from '../../../../utils/movieUtils';
-  import { escapeHtml, escapeAttr } from '../../../../utils/htmlEscape';
-  import type { UniqueMovie, MovieReaction } from '../../../../types/session';
+  import { getReactions, setReaction, getUserId } from '@utils/storageManager';
+  import { encodeReactionsCompact } from '@utils/compactEncoder';
+  import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
+  import type { UniqueMovie, MovieReaction } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const seriesName = (window as any).__seriesName as string;
