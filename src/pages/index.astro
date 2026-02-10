@@ -44,37 +44,52 @@ interface MovieEntry {
   actors?: string;
 }
 
-// Gather upcoming films from all active series
-let showingToday: { film: MovieEntry; seriesId: string }[] = [];
+// Gather upcoming films from all active series, grouped by title with all showtimes
+let showingToday: { film: MovieEntry; seriesId: string; showtimes: string[] }[] = [];
+let buildDate = '';
 
 for (const series of activeSeries) {
   const dataPath = path.join(process.cwd(), 'public', series.dataFile);
   try {
     const movieData: MovieEntry[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
-    // Get today's date (build time), but since we're building statically,
-    // use the series start date to show "opening day" films as a reasonable default
-    // In production with SSR this would be dynamic
     const allDates = [...new Set(movieData.map(m => m.Datetime.split('T')[0]))].sort();
     const todayStr = new Date().toISOString().split('T')[0];
 
     // Find the nearest date with showings (today or next upcoming)
-    let targetDate = allDates.find(d => d >= todayStr) || allDates[0];
+    const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
+    if (!buildDate) buildDate = targetDate;
 
     const todayMovies = movieData.filter(m => m.Datetime.split('T')[0] === targetDate);
 
-    // Deduplicate by title (only show each film once)
-    const seen = new Set<string>();
+    // Group by title, collecting all showtimes
+    const movieMap = new Map<string, { film: MovieEntry; seriesId: string; showtimes: string[] }>();
     for (const m of todayMovies) {
-      if (!seen.has(m.Movie) && m.poster_url) {
-        seen.add(m.Movie);
-        showingToday.push({ film: m, seriesId: series.id });
+      if (!m.poster_url) continue;
+      if (movieMap.has(m.Movie)) {
+        movieMap.get(m.Movie)!.showtimes.push(m.Time);
+      } else {
+        movieMap.set(m.Movie, { film: m, seriesId: series.id, showtimes: [m.Time] });
       }
     }
+
+    showingToday.push(...movieMap.values());
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== 'ENOENT') {
       console.error(`Error loading series data for ${series.id}:`, e);
     }
+  }
+}
+
+// Build poster URL -> optimized src mapping for client-side use
+const posterUrlMap: Record<string, { src: string; width: number; height: number }> = {};
+for (const [filename, metadata] of Object.entries(posterMap)) {
+  for (const ext of ['png', 'jpg', 'jpeg']) {
+    posterUrlMap[`/posters/${filename}.${ext}`] = {
+      src: metadata.src,
+      width: metadata.width,
+      height: metadata.height,
+    };
   }
 }
 
@@ -112,8 +127,8 @@ for (const series of activeSeries) {
     {showingToday.length > 0 && (
       <section class="today-section">
         <h2 class="section-heading">Showing Today</h2>
-        <div class="today-grid">
-          {showingToday.map(({ film, seriesId }) => {
+        <div class="today-scroll" id="today-scroll" data-build-date={buildDate}>
+          {showingToday.map(({ film, seriesId, showtimes }) => {
             const image = getPosterImage(film.poster_url);
             return (
             <a href={`/s/${seriesId}/calendar`} class="poster-card">
@@ -130,6 +145,7 @@ for (const series of activeSeries) {
               <div class="poster-info">
                 <span class="poster-title">{toTitleCase(film.Movie)}</span>
                 <span class="poster-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
+                <span class="poster-showtime">{showtimes.join(', ')}</span>
               </div>
             </a>
             );
@@ -146,6 +162,119 @@ for (const series of activeSeries) {
       </a>
     </section>
   </main>
+
+  <!-- Series config + poster map for client-side live updates -->
+  <script id="series-config" type="application/json" set:html={JSON.stringify({
+    series: activeSeries.map(s => ({ id: s.id, dataFile: s.dataFile })),
+    posterMap: posterUrlMap,
+  })} />
+
+  <script>
+    function toTitleCase(str: string): string {
+      return str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function escapeHtml(text: string): string {
+      const el = document.createElement('span');
+      el.textContent = text;
+      return el.innerHTML;
+    }
+
+    interface MovieEntry {
+      Movie: string; Time: string; Datetime: string;
+      director?: string; year?: string; poster_url?: string;
+    }
+
+    interface PosterMeta { src: string; width: number; height: number; }
+
+    interface Config {
+      series: { id: string; dataFile: string }[];
+      posterMap: Record<string, PosterMeta>;
+    }
+
+    async function updateShowingToday() {
+      const scrollEl = document.getElementById('today-scroll');
+      if (!scrollEl) return;
+
+      const buildDate = scrollEl.dataset.buildDate || '';
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // If browser date matches build date, the server render is already correct
+      if (buildDate === todayStr) return;
+
+      const configEl = document.getElementById('series-config');
+      if (!configEl?.textContent) return;
+      const config: Config = JSON.parse(configEl.textContent);
+
+      const films: { film: MovieEntry; seriesId: string; showtimes: string[] }[] = [];
+
+      for (const series of config.series) {
+        try {
+          const res = await fetch(series.dataFile);
+          if (!res.ok) continue;
+          const data: MovieEntry[] = await res.json();
+
+          const allDates = [...new Set(data.map(m => m.Datetime.split('T')[0]))].sort();
+          const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
+
+          const dayMovies = data.filter(m => m.Datetime.split('T')[0] === targetDate);
+
+          const movieMap = new Map<string, typeof films[number]>();
+          for (const m of dayMovies) {
+            if (!m.poster_url) continue;
+            if (movieMap.has(m.Movie)) {
+              movieMap.get(m.Movie)!.showtimes.push(m.Time);
+            } else {
+              movieMap.set(m.Movie, { film: m, seriesId: series.id, showtimes: [m.Time] });
+            }
+          }
+          films.push(...movieMap.values());
+        } catch (e) {
+          console.error(`Error loading series ${series.id}:`, e);
+        }
+      }
+
+      if (films.length === 0) {
+        scrollEl.innerHTML = '<p style="white-space:nowrap;color:var(--text-secondary);">No films showing today</p>';
+        return;
+      }
+
+      scrollEl.innerHTML = films.map(({ film, seriesId, showtimes }) => {
+        const pm = film.poster_url ? config.posterMap[film.poster_url] : null;
+        const img = pm
+          ? `<img src="${escapeHtml(pm.src)}" alt="${escapeHtml(film.Movie)}" class="poster-image" loading="lazy" width="${pm.width}" height="${pm.height}" />`
+          : '';
+        const title = escapeHtml(toTitleCase(film.Movie));
+        const meta = [film.director, film.year].filter(Boolean).join(' \u00b7 ');
+        const times = escapeHtml(showtimes.join(', '));
+
+        return `<a href="/s/${escapeHtml(seriesId)}/calendar" class="poster-card">
+          ${img}
+          <div class="poster-scrim"></div>
+          <div class="progressive-blur">
+            <div class="blur-layer layer-1"></div>
+            <div class="blur-layer layer-2"></div>
+            <div class="blur-layer layer-3"></div>
+            <div class="blur-layer layer-4"></div>
+            <div class="blur-layer layer-5"></div>
+            <div class="blur-layer layer-6"></div>
+          </div>
+          <div class="poster-info">
+            <span class="poster-title">${title}</span>
+            ${meta ? `<span class="poster-meta">${escapeHtml(meta)}</span>` : ''}
+            <span class="poster-showtime">${times}</span>
+          </div>
+        </a>`;
+      }).join('');
+
+      // Update the build-date so subsequent checks skip re-rendering
+      scrollEl.dataset.buildDate = todayStr;
+    }
+
+    updateShowingToday();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateShowingToday(); });
+    setInterval(updateShowingToday, 5 * 60 * 1000);
+  </script>
 </Layout>
 
 <style>
@@ -274,22 +403,34 @@ for (const series of activeSeries) {
   .today-section {
     margin-top: 0;
   }
+</style>
 
-  .today-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+<!-- Global styles: these must apply to client-rendered poster cards too -->
+<style is:global>
+  .today-scroll {
+    display: flex;
     gap: 12px;
-    text-align: left;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    /* Bleed to viewport edges for a full-width scroll feel */
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 
-  @media (min-width: 480px) {
-    .today-grid {
-      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-      gap: 14px;
-    }
+  /* Hide scrollbar but keep scroll functional */
+  .today-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .today-scroll {
+    scrollbar-width: none;
   }
 
-  .poster-card {
+  .today-scroll .poster-card {
     position: relative;
     aspect-ratio: 3 / 4;
     border-radius: 8px;
@@ -298,14 +439,23 @@ for (const series of activeSeries) {
     text-decoration: none;
     display: block;
     transition: transform 0.15s, box-shadow 0.15s;
+    /* Fixed width so cards don't squish in the flex row */
+    flex: 0 0 140px;
+    scroll-snap-align: start;
   }
 
-  .poster-card:hover {
+  @media (min-width: 480px) {
+    .today-scroll .poster-card {
+      flex: 0 0 155px;
+    }
+  }
+
+  .today-scroll .poster-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   }
 
-  .poster-image {
+  .today-scroll .poster-image {
     position: absolute;
     top: 0;
     left: 0;
@@ -314,8 +464,7 @@ for (const series of activeSeries) {
     object-fit: cover;
   }
 
-  /* Dark scrim for text readability */
-  .poster-scrim {
+  .today-scroll .poster-scrim {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -330,8 +479,7 @@ for (const series of activeSeries) {
     pointer-events: none;
   }
 
-  /* Progressive blur — scoped to bottom 45% (text region only) */
-  .progressive-blur {
+  .today-scroll .progressive-blur {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -340,50 +488,49 @@ for (const series of activeSeries) {
     pointer-events: none;
   }
 
-  .blur-layer {
+  .today-scroll .blur-layer {
     position: absolute;
     inset: 0;
   }
 
-  /* Scaled blur values for small cards, masks within the 45% container */
-  .layer-1 {
+  .today-scroll .layer-1 {
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(1px);
     mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
     -webkit-mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
   }
-  .layer-2 {
+  .today-scroll .layer-2 {
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
     mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
     -webkit-mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
   }
-  .layer-3 {
+  .today-scroll .layer-3 {
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
     mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
     -webkit-mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
   }
-  .layer-4 {
+  .today-scroll .layer-4 {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
     -webkit-mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
   }
-  .layer-5 {
+  .today-scroll .layer-5 {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
     -webkit-mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
   }
-  .layer-6 {
+  .today-scroll .layer-6 {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
     -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
   }
 
-  .poster-info {
+  .today-scroll .poster-info {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -394,7 +541,7 @@ for (const series of activeSeries) {
     gap: 2px;
   }
 
-  .poster-title {
+  .today-scroll .poster-title {
     font-family: 'Barlow Semi Condensed', sans-serif;
     font-weight: 600;
     font-size: 0.85rem;
@@ -403,9 +550,17 @@ for (const series of activeSeries) {
     line-height: 1.2;
   }
 
-  .poster-meta {
+  .today-scroll .poster-meta {
     font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.85);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  .today-scroll .poster-showtime {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    font-weight: 500;
+    margin-top: 1px;
   }
 </style>
