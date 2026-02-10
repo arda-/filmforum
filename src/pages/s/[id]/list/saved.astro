@@ -125,14 +125,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
           <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
         </div>
         <div class="share-actions-row">
-          <button class="share-action-btn share-action-btn--secondary share-action-btn--full" id="copy-link-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M9 7.5l-2.5 2.5m0-5L9 7.5m-2.5-2.5a2.5 2.5 0 013.5 0l1.5 1.5a2.5 2.5 0 010 3.5l-1.5 1.5a2.5 2.5 0 01-3.5 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Copy Link
-          </button>
-        </div>
-        <div class="share-actions-row">
           <button class="share-action-btn share-action-btn--secondary" id="copy-text-btn">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -145,6 +137,16 @@ const movieDataJson = JSON.stringify(uniqueMovies);
               <path d="M4 10v2a2 2 0 002 2h4a2 2 0 002-2v-2M8 2v8M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Share
+          </button>
+        </div>
+        <div class="share-link-row">
+          <input readonly class="share-link-text" id="share-link-text" />
+          <button class="share-action-btn share-action-btn--secondary" id="copy-link-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6.5 9.5a2.5 2.5 0 003.5 0l2-2a2.5 2.5 0 00-3.5-3.5L7 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M9.5 6.5a2.5 2.5 0 00-3.5 0l-2 2a2.5 2.5 0 003.5 3.5L9 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Copy Link
           </button>
         </div>
       </div>
@@ -265,7 +267,12 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
     if (textEmbed) {
       textEmbed.value = shareText;
-      textEmbed.dataset.shareUrl = url; // Store URL for copy-link-btn
+    }
+
+    // Update link input
+    const linkText = document.getElementById('share-link-text') as HTMLInputElement;
+    if (linkText) {
+      linkText.value = url;
     }
 
     // Enable/disable buttons (enable if have any reactions)
@@ -418,14 +425,11 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   // Copy link button
   document.getElementById('copy-link-btn')?.addEventListener('click', async () => {
-    const textEmbed = document.getElementById('share-text-embed') as HTMLTextAreaElement;
-    if (!textEmbed) return;
-
-    const url = textEmbed.dataset.shareUrl;
-    if (!url) return;
+    const linkText = document.getElementById('share-link-text') as HTMLInputElement;
+    if (!linkText || !linkText.value) return;
 
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(linkText.value);
       const btn = document.getElementById('copy-link-btn');
       if (btn) {
         const orig = btn.innerHTML;
@@ -787,6 +791,24 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     gap: 8px;
   }
 
+  .share-link-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .share-link-text {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+    color: var(--text-secondary);
+    background: var(--bg-movie);
+    border: 1px solid var(--bg-grid);
+    border-radius: 6px;
+    outline: none;
+  }
+
   .share-action-btn {
     flex: 1;
     display: flex;
@@ -821,10 +843,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
   .share-action-btn--primary:hover {
     background: var(--accent-bg);
-  }
-
-  .share-action-btn--full {
-    flex: 1 1 100%;
   }
 
   .share-action-btn:active {
