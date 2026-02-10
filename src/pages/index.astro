@@ -596,8 +596,8 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     inset: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
     pointer-events: none;
     z-index: 1;
   }
@@ -609,8 +609,8 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     background: linear-gradient(
       to top,
       rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0.35) 40%,
-      transparent 100%
+      rgba(0, 0, 0, 0.35) 30%,
+      transparent 50%
     );
     pointer-events: none;
   }
@@ -623,7 +623,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     z-index: 3;
     font-size: 11px;
     font-weight: 600;
-    color: #fff;
+    color: var(--accent);
     background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
