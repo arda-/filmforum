@@ -133,15 +133,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
             return (
             <a href={`/s/${seriesId}/calendar`} class="poster-card">
               {image && <Image src={image} alt={film.Movie} class="poster-image" width={290} height={386} loading="lazy" />}
-              <div class="poster-scrim"></div>
-              <div class="progressive-blur">
-                <div class="blur-layer layer-1"></div>
-                <div class="blur-layer layer-2"></div>
-                <div class="blur-layer layer-3"></div>
-                <div class="blur-layer layer-4"></div>
-                <div class="blur-layer layer-5"></div>
-                <div class="blur-layer layer-6"></div>
-              </div>
+              <div class="poster-blur"></div>
               <div class="poster-info">
                 <span class="poster-title">{toTitleCase(film.Movie)}</span>
                 <span class="poster-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
@@ -250,15 +242,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
 
         return `<a href="/s/${escapeHtml(seriesId)}/calendar" class="poster-card">
           ${img}
-          <div class="poster-scrim"></div>
-          <div class="progressive-blur">
-            <div class="blur-layer layer-1"></div>
-            <div class="blur-layer layer-2"></div>
-            <div class="blur-layer layer-3"></div>
-            <div class="blur-layer layer-4"></div>
-            <div class="blur-layer layer-5"></div>
-            <div class="blur-layer layer-6"></div>
-          </div>
+          <div class="poster-blur"></div>
           <div class="poster-info">
             <span class="poster-title">${title}</span>
             ${meta ? `<span class="poster-meta">${escapeHtml(meta)}</span>` : ''}
@@ -405,7 +389,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   }
 </style>
 
-<!-- Global styles: these must apply to client-rendered poster cards too -->
+<!-- Global styles: must apply to client-rendered poster cards too -->
 <style is:global>
   .today-scroll {
     display: flex;
@@ -415,33 +399,30 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 4px;
-    /* Bleed to viewport edges for a full-width scroll feel */
     margin-left: -20px;
     margin-right: -20px;
     padding-left: 20px;
     padding-right: 20px;
-  }
-
-  /* Hide scrollbar but keep scroll functional */
-  .today-scroll::-webkit-scrollbar {
-    display: none;
-  }
-  .today-scroll {
     scrollbar-width: none;
   }
 
+  .today-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* --- Card: matches MovieCard.astro structure --- */
   .today-scroll .poster-card {
     position: relative;
     aspect-ratio: 3 / 4;
     border-radius: 8px;
     overflow: hidden;
     background: var(--bg-movie);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     text-decoration: none;
     display: block;
-    transition: transform 0.15s, box-shadow 0.15s;
-    /* Fixed width so cards don't squish in the flex row */
     flex: 0 0 140px;
     scroll-snap-align: start;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
 
   @media (min-width: 480px) {
@@ -450,9 +431,11 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     }
   }
 
-  .today-scroll .poster-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  @media (hover: hover) {
+    .today-scroll .poster-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
   }
 
   .today-scroll .poster-image {
@@ -462,105 +445,67 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
 
-  .today-scroll .poster-scrim {
+  /* --- Blur + scrim: single layer matching MovieCard .card-blur --- */
+  .today-scroll .poster-blur {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60%;
+    inset: 0;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .today-scroll .poster-blur::after {
+    content: '';
+    position: absolute;
+    inset: 0;
     background: linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.7) 0%,
       rgba(0, 0, 0, 0.35) 40%,
       transparent 100%
     );
     pointer-events: none;
   }
 
-  .today-scroll .progressive-blur {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 45%;
-    pointer-events: none;
-  }
-
-  .today-scroll .blur-layer {
-    position: absolute;
-    inset: 0;
-  }
-
-  .today-scroll .layer-1 {
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-    mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
-  }
-  .today-scroll .layer-2 {
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
-  }
-  .today-scroll .layer-3 {
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
-    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
-  }
-  .today-scroll .layer-4 {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
-  }
-  .today-scroll .layer-5 {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
-  }
-  .today-scroll .layer-6 {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
-  }
-
+  /* --- Text overlay: left-aligned, hierarchy matching MovieCard --- */
   .today-scroll .poster-info {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 10px 12px;
+    z-index: 2;
+    padding: 10px 10px;
     display: flex;
     flex-direction: column;
     gap: 2px;
+    text-align: left;
   }
 
   .today-scroll .poster-title {
-    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 14px;
     font-weight: 600;
-    font-size: 0.85rem;
-    color: white;
+    color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     line-height: 1.2;
   }
 
   .today-scroll .poster-meta {
-    font-size: 0.7rem;
+    font-size: 11px;
     color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   .today-scroll .poster-showtime {
-    font-size: 0.7rem;
+    font-size: 11px;
     color: var(--accent);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     margin-top: 1px;
   }
 </style>
