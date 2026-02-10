@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import { webcore } from 'webcoreui/integration';
+import sitemap from '@astrojs/sitemap';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -66,5 +67,15 @@ const validatePosterImages = {
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [webcore(), validatePosterImages]
+  site: process.env.SITE_URL || process.env.URL || 'http://localhost:4321',
+  integrations: [
+    webcore(),
+    validatePosterImages,
+    sitemap({
+      filter: (page) =>
+        !page.includes('/demo/') &&
+        !page.includes('/list/saved') &&
+        !page.includes('/compare/'),
+    })
+  ]
 });
