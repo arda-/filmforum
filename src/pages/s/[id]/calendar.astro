@@ -20,10 +20,25 @@ const { id } = Astro.params;
 const series = getSeriesConfig(id)!;
 
 // Load movie data at build time
-const { movieDataJson } = loadMovieData(series.dataFile);
+const { movieData, movieDataJson } = loadMovieData(series.dataFile);
+
+// Count showtimes for SEO description
+const showtimeCount = movieData.length;
+
+// SEO metadata
+const title = `${series.name} Calendar - ${series.venueName} Showtimes`;
+const description = `Interactive calendar for ${series.name} at ${series.venueName}. Browse ${showtimeCount}+ showtimes, filter by day, and plan your visits. ${series.dateRange}.`;
+const canonical = `/s/${id}/calendar`;
+const ogImage = movieData[0]?.poster_url || null;
 ---
 
-<Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${series.name} calendar view`}
+>
   <Header
     seriesName={series.name}
     seriesSubtitle={series.subtitle}

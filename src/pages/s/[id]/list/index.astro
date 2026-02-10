@@ -38,9 +38,37 @@ const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 
 // Serialize movie data for client-side use
 const movieDataJson = JSON.stringify(uniqueMovies);
+
+// SEO metadata
+const title = `${config.name} Movie List - Browse ${uniqueMovies.length} Films`;
+const description = `Browse all ${uniqueMovies.length} films in ${config.name}. Mark your favorites (Yes/Maybe/No), create a shareable list, and plan your ${config.venueName} visits.`;
+const canonical = `/s/${id}/list`;
+const ogImage = allMovies[0]?.poster_url || null;
+
+// Structured data for movie list
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": `${config.name} - Movie List`,
+  "numberOfItems": uniqueMovies.length,
+  "itemListElement": uniqueMovies.slice(0, 20).map((um, index) => ({
+    "@type": "Movie",
+    "position": index + 1,
+    "name": toTitleCase(um.movie.Movie),
+    "director": um.movie.director ? toTitleCase(um.movie.director) : undefined,
+    "datePublished": um.movie.year,
+  }))
+};
 ---
 
-<Layout title={`${config.name} — Movie List`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${config.name} movie list`}
+  structuredData={structuredData}
+>
   <main class="session-list-page" data-session-id={id} data-drawer-wrapper>
     <header class="page-header">
       <a href={`/s/${id}`} class="back-link">
