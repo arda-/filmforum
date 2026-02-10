@@ -23,7 +23,7 @@ const series = getSeriesConfig(id)!;
 const { movieData, movieDataJson } = loadMovieData(series.dataFile);
 
 // Count showtimes for SEO description
-const showtimeCount = JSON.parse(movieDataJson).length;
+const showtimeCount = movieData.length;
 
 // SEO metadata
 const title = `${series.name} Calendar - ${series.venueName} Showtimes`;
