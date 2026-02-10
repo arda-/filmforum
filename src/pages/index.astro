@@ -3,18 +3,16 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
-import { toTitleCase } from '../utils/movieUtils';
+import { toTitleCase, formatRuntime } from '../utils/movieUtils';
 import fs from 'node:fs';
 import path from 'node:path';
 
 // Build-time import of all poster images from src/assets/posters/
-// Enables Astro to optimize them to WebP/AVIF with responsive srcsets
 const posterGlob = import.meta.glob<{ default: ImageMetadata }>(
   '../assets/posters/*.{png,jpg,jpeg}',
   { eager: true }
 );
 
-// Create a lookup map from poster filenames to image modules
 const posterMap = Object.entries(posterGlob).reduce((map, [filePath, mod]) => {
   const filename = filePath.split('/').pop()?.replace(/\.(png|jpg|jpeg)$/, '');
   if (filename && mod.default) {
@@ -23,7 +21,6 @@ const posterMap = Object.entries(posterGlob).reduce((map, [filePath, mod]) => {
   return map;
 }, {} as Record<string, ImageMetadata>);
 
-// Get poster image module by URL
 function getPosterImage(posterUrl: string | undefined): ImageMetadata | undefined {
   if (!posterUrl) return undefined;
   const filename = posterUrl.split('/').pop()?.replace(/\.(png|jpg|jpeg)$/, '');
@@ -32,20 +29,24 @@ function getPosterImage(posterUrl: string | undefined): ImageMetadata | undefine
 
 const activeSeries = getActiveSeries();
 
-// Load movie data at build time to get "showing today" films
 interface MovieEntry {
   Movie: string;
   Time: string;
   Datetime: string;
+  Tickets?: string;
   director?: string;
   year?: string;
   poster_url?: string;
   runtime?: string;
   actors?: string;
+  description?: string;
+  film_url?: string;
 }
 
-// Gather upcoming films from all active series, grouped by title with all showtimes
-let showingToday: { film: MovieEntry; seriesId: string; showtimes: string[] }[] = [];
+interface Showtime { time: string; tickets?: string; }
+interface ShowingMovie { film: MovieEntry; seriesId: string; showtimes: Showtime[]; }
+
+let showingToday: ShowingMovie[] = [];
 let buildDate = '';
 
 for (const series of activeSeries) {
@@ -55,21 +56,18 @@ for (const series of activeSeries) {
 
     const allDates = [...new Set(movieData.map(m => m.Datetime.split('T')[0]))].sort();
     const todayStr = new Date().toISOString().split('T')[0];
-
-    // Find the nearest date with showings (today or next upcoming)
     const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
     if (!buildDate) buildDate = targetDate;
 
     const todayMovies = movieData.filter(m => m.Datetime.split('T')[0] === targetDate);
 
-    // Group by title, collecting all showtimes
-    const movieMap = new Map<string, { film: MovieEntry; seriesId: string; showtimes: string[] }>();
+    const movieMap = new Map<string, ShowingMovie>();
     for (const m of todayMovies) {
       if (!m.poster_url) continue;
       if (movieMap.has(m.Movie)) {
-        movieMap.get(m.Movie)!.showtimes.push(m.Time);
+        movieMap.get(m.Movie)!.showtimes.push({ time: m.Time, tickets: m.Tickets });
       } else {
-        movieMap.set(m.Movie, { film: m, seriesId: series.id, showtimes: [m.Time] });
+        movieMap.set(m.Movie, { film: m, seriesId: series.id, showtimes: [{ time: m.Time, tickets: m.Tickets }] });
       }
     }
 
@@ -128,23 +126,50 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       <section class="today-section">
         <h2 class="section-heading">Showing Today</h2>
         <div class="today-scroll" id="today-scroll" data-build-date={buildDate}>
-          {showingToday.map(({ film, seriesId, showtimes }) => {
+          {showingToday.map(({ film, seriesId, showtimes }, idx) => {
             const image = getPosterImage(film.poster_url);
             return (
-            <a href={`/s/${seriesId}/calendar`} class="poster-card">
-              {image && <Image src={image} alt={film.Movie} class="poster-image" width={290} height={386} loading="lazy" />}
+            <button type="button" class="poster-card" data-movie-idx={idx}>
+              {image && <Image src={image} alt={film.Movie} class="poster-image" width={400} height={300} loading="lazy" />}
               <div class="poster-blur"></div>
+              <span class="poster-time">{showtimes.map(s => s.time).join(', ')}</span>
               <div class="poster-info">
                 <span class="poster-title">{toTitleCase(film.Movie)}</span>
                 <span class="poster-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
-                <span class="poster-showtime">{showtimes.join(', ')}</span>
               </div>
-            </a>
+            </button>
             );
           })}
         </div>
       </section>
     )}
+
+    <!-- Movie detail drawer -->
+    <div class="detail-overlay" id="detail-overlay"></div>
+    <div class="detail-drawer" id="detail-drawer">
+      <div class="detail-scroll">
+        <div class="detail-hero">
+          <img class="detail-hero-img" id="detail-hero-img" src="" alt="" loading="lazy" />
+          <div class="detail-hero-scrim"></div>
+          <button class="detail-close" id="detail-close" type="button" aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="detail-hero-text">
+            <h2 class="detail-title" id="detail-title"></h2>
+            <p class="detail-meta" id="detail-meta"></p>
+          </div>
+        </div>
+        <div class="detail-body">
+          <p class="detail-actors" id="detail-actors"></p>
+          <div class="detail-description" id="detail-description-block">
+            <p class="detail-description-text" id="detail-description"></p>
+            <p class="detail-citation">&mdash; Film Forum</p>
+          </div>
+          <div class="detail-showtimes" id="detail-showtimes"></div>
+          <div class="detail-actions" id="detail-actions"></div>
+        </div>
+      </div>
+    </div>
 
     <section class="demos-section">
       <h2 class="section-heading">Demos</h2>
@@ -155,10 +180,22 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     </section>
   </main>
 
-  <!-- Series config + poster map for client-side live updates -->
+  <!-- Embedded data for client-side live updates + detail view -->
   <script id="series-config" type="application/json" set:html={JSON.stringify({
     series: activeSeries.map(s => ({ id: s.id, dataFile: s.dataFile })),
     posterMap: posterUrlMap,
+    movies: showingToday.map(({ film, seriesId, showtimes }) => ({
+      title: film.Movie,
+      director: film.director,
+      year: film.year,
+      runtime: film.runtime,
+      actors: film.actors,
+      description: film.description,
+      poster_url: film.poster_url,
+      film_url: film.film_url,
+      seriesId,
+      showtimes,
+    })),
   })} />
 
   <script>
@@ -172,52 +209,63 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       return el.innerHTML;
     }
 
-    interface MovieEntry {
-      Movie: string; Time: string; Datetime: string;
+    interface Showtime { time: string; tickets?: string; }
+    interface DetailMovie {
+      title: string; director?: string; year?: string; runtime?: string;
+      actors?: string; description?: string; poster_url?: string;
+      film_url?: string; seriesId: string; showtimes: Showtime[];
+    }
+
+    interface RawMovieEntry {
+      Movie: string; Time: string; Datetime: string; Tickets?: string;
       director?: string; year?: string; poster_url?: string;
+      runtime?: string; actors?: string; description?: string; film_url?: string;
     }
 
     interface PosterMeta { src: string; width: number; height: number; }
-
     interface Config {
       series: { id: string; dataFile: string }[];
       posterMap: Record<string, PosterMeta>;
+      movies: DetailMovie[];
     }
 
+    const configEl = document.getElementById('series-config');
+    const config: Config = configEl?.textContent ? JSON.parse(configEl.textContent) : { series: [], posterMap: {}, movies: [] };
+    let currentMovies: DetailMovie[] = config.movies;
+
+    // --- Live update ---
     async function updateShowingToday() {
       const scrollEl = document.getElementById('today-scroll');
       if (!scrollEl) return;
 
       const buildDate = scrollEl.dataset.buildDate || '';
       const todayStr = new Date().toISOString().split('T')[0];
-
-      // If browser date matches build date, the server render is already correct
       if (buildDate === todayStr) return;
 
-      const configEl = document.getElementById('series-config');
-      if (!configEl?.textContent) return;
-      const config: Config = JSON.parse(configEl.textContent);
-
-      const films: { film: MovieEntry; seriesId: string; showtimes: string[] }[] = [];
+      const films: DetailMovie[] = [];
 
       for (const series of config.series) {
         try {
           const res = await fetch(series.dataFile);
           if (!res.ok) continue;
-          const data: MovieEntry[] = await res.json();
+          const data: RawMovieEntry[] = await res.json();
 
           const allDates = [...new Set(data.map(m => m.Datetime.split('T')[0]))].sort();
           const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
-
           const dayMovies = data.filter(m => m.Datetime.split('T')[0] === targetDate);
 
-          const movieMap = new Map<string, typeof films[number]>();
+          const movieMap = new Map<string, DetailMovie>();
           for (const m of dayMovies) {
             if (!m.poster_url) continue;
             if (movieMap.has(m.Movie)) {
-              movieMap.get(m.Movie)!.showtimes.push(m.Time);
+              movieMap.get(m.Movie)!.showtimes.push({ time: m.Time, tickets: m.Tickets });
             } else {
-              movieMap.set(m.Movie, { film: m, seriesId: series.id, showtimes: [m.Time] });
+              movieMap.set(m.Movie, {
+                title: m.Movie, director: m.director, year: m.year, runtime: m.runtime,
+                actors: m.actors, description: m.description, poster_url: m.poster_url,
+                film_url: m.film_url, seriesId: series.id,
+                showtimes: [{ time: m.Time, tickets: m.Tickets }],
+              });
             }
           }
           films.push(...movieMap.values());
@@ -226,38 +274,125 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
         }
       }
 
+      currentMovies = films;
+
       if (films.length === 0) {
         scrollEl.innerHTML = '<p style="white-space:nowrap;color:var(--text-secondary);">No films showing today</p>';
         return;
       }
 
-      scrollEl.innerHTML = films.map(({ film, seriesId, showtimes }) => {
-        const pm = film.poster_url ? config.posterMap[film.poster_url] : null;
+      scrollEl.innerHTML = films.map((movie, idx) => {
+        const pm = movie.poster_url ? config.posterMap[movie.poster_url] : null;
         const img = pm
-          ? `<img src="${escapeHtml(pm.src)}" alt="${escapeHtml(film.Movie)}" class="poster-image" loading="lazy" width="${pm.width}" height="${pm.height}" />`
+          ? `<img src="${escapeHtml(pm.src)}" alt="${escapeHtml(movie.title)}" class="poster-image" loading="lazy" width="${pm.width}" height="${pm.height}" />`
           : '';
-        const title = escapeHtml(toTitleCase(film.Movie));
-        const meta = [film.director, film.year].filter(Boolean).join(' \u00b7 ');
-        const times = escapeHtml(showtimes.join(', '));
+        const title = escapeHtml(toTitleCase(movie.title));
+        const meta = [movie.director, movie.year].filter(Boolean).join(' \u00b7 ');
+        const times = escapeHtml(movie.showtimes.map(s => s.time).join(', '));
 
-        return `<a href="/s/${escapeHtml(seriesId)}/calendar" class="poster-card">
+        return `<button type="button" class="poster-card" data-movie-idx="${idx}">
           ${img}
           <div class="poster-blur"></div>
+          <span class="poster-time">${times}</span>
           <div class="poster-info">
             <span class="poster-title">${title}</span>
             ${meta ? `<span class="poster-meta">${escapeHtml(meta)}</span>` : ''}
-            <span class="poster-showtime">${times}</span>
           </div>
-        </a>`;
+        </button>`;
       }).join('');
 
-      // Update the build-date so subsequent checks skip re-rendering
       scrollEl.dataset.buildDate = todayStr;
     }
 
     updateShowingToday();
     document.addEventListener('visibilitychange', () => { if (!document.hidden) updateShowingToday(); });
     setInterval(updateShowingToday, 5 * 60 * 1000);
+
+    // --- Detail drawer ---
+    const overlay = document.getElementById('detail-overlay')!;
+    const drawer = document.getElementById('detail-drawer')!;
+
+    function openDetail(idx: number) {
+      const movie = currentMovies[idx];
+      if (!movie) return;
+
+      // Hero image
+      const heroImg = document.getElementById('detail-hero-img') as HTMLImageElement;
+      const pm = movie.poster_url ? config.posterMap[movie.poster_url] : null;
+      if (heroImg && pm) {
+        heroImg.src = pm.src;
+        heroImg.alt = movie.title;
+        heroImg.style.display = '';
+      } else if (heroImg) {
+        heroImg.style.display = 'none';
+      }
+
+      // Text
+      const titleEl = document.getElementById('detail-title');
+      if (titleEl) titleEl.textContent = toTitleCase(movie.title);
+
+      const metaEl = document.getElementById('detail-meta');
+      const rt = movie.runtime ? movie.runtime.replace(' minutes', 'min') : '';
+      if (metaEl) metaEl.textContent = [movie.director, movie.year, rt].filter(Boolean).join(' \u00b7 ');
+
+      const actorsEl = document.getElementById('detail-actors');
+      if (actorsEl) {
+        actorsEl.textContent = movie.actors || '';
+        actorsEl.style.display = movie.actors ? '' : 'none';
+      }
+
+      const descBlock = document.getElementById('detail-description-block');
+      const descEl = document.getElementById('detail-description');
+      if (descEl && descBlock) {
+        descEl.textContent = movie.description ? `\u201C${movie.description}\u201D` : '';
+        descBlock.style.display = movie.description ? '' : 'none';
+      }
+
+      // Showtimes with individual ticket links
+      const showtimesEl = document.getElementById('detail-showtimes');
+      if (showtimesEl) {
+        showtimesEl.innerHTML = movie.showtimes.map(s => {
+          if (s.tickets) {
+            return `<a href="${escapeHtml(s.tickets)}" target="_blank" rel="noopener" class="showtime-chip showtime-chip--link">${escapeHtml(s.time)}<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M5 3h8v8M13 3L6 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`;
+          }
+          return `<span class="showtime-chip">${escapeHtml(s.time)}</span>`;
+        }).join('');
+      }
+
+      // Actions
+      const actionsEl = document.getElementById('detail-actions');
+      if (actionsEl) {
+        let html = '';
+        if (movie.film_url) {
+          html += `<a href="${escapeHtml(movie.film_url)}" target="_blank" rel="noopener" class="detail-action">Film Forum Page</a>`;
+        }
+        html += `<a href="/s/${escapeHtml(movie.seriesId)}/calendar" class="detail-action">View Full Calendar</a>`;
+        actionsEl.innerHTML = html;
+      }
+
+      // Show
+      overlay.classList.add('open');
+      drawer.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail() {
+      overlay.classList.remove('open');
+      drawer.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Card click → open detail
+    document.getElementById('today-scroll')?.addEventListener('click', (e) => {
+      const card = (e.target as HTMLElement).closest('[data-movie-idx]') as HTMLElement | null;
+      if (card) openDetail(Number(card.dataset.movieIdx));
+    });
+
+    document.getElementById('detail-close')?.addEventListener('click', closeDetail);
+    overlay.addEventListener('click', closeDetail);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) closeDetail();
+    });
   </script>
 </Layout>
 
@@ -389,8 +524,9 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   }
 </style>
 
-<!-- Global styles: must apply to client-rendered poster cards too -->
+<!-- Global styles: must apply to client-rendered poster cards + detail drawer -->
 <style is:global>
+  /* --- Horizontal scroll container --- */
   .today-scroll {
     display: flex;
     gap: 12px;
@@ -410,24 +546,30 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     display: none;
   }
 
-  /* --- Card: matches MovieCard.astro structure --- */
+  /* --- Landscape poster card (4:3) --- */
   .today-scroll .poster-card {
     position: relative;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 4 / 3;
     border-radius: 8px;
     overflow: hidden;
     background: var(--bg-movie);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     text-decoration: none;
     display: block;
-    flex: 0 0 140px;
+    flex: 0 0 220px;
     scroll-snap-align: start;
     transition: transform 0.15s, box-shadow 0.15s;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    text-align: left;
   }
 
   @media (min-width: 480px) {
     .today-scroll .poster-card {
-      flex: 0 0 155px;
+      flex: 0 0 250px;
     }
   }
 
@@ -448,7 +590,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     display: block;
   }
 
-  /* --- Blur + scrim: single layer matching MovieCard .card-blur --- */
+  /* --- Blur + scrim: matches MovieCard .card-blur --- */
   .today-scroll .poster-blur {
     position: absolute;
     inset: 0;
@@ -473,7 +615,24 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     pointer-events: none;
   }
 
-  /* --- Text overlay: left-aligned, hierarchy matching MovieCard --- */
+  /* --- Showtime badge: top-left --- */
+  .today-scroll .poster-time {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 3px 7px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  /* --- Text overlay: bottom-left --- */
   .today-scroll .poster-info {
     position: absolute;
     bottom: 0;
@@ -484,11 +643,10 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    text-align: left;
   }
 
   .today-scroll .poster-title {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -501,11 +659,233 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 
-  .today-scroll .poster-showtime {
-    font-size: 11px;
-    color: var(--accent);
-    font-weight: 500;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    margin-top: 1px;
+  /* --- Movie detail drawer --- */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .detail-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .detail-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 101;
+    max-height: 90vh;
+    max-height: 90dvh;
+    border-radius: 16px 16px 0 0;
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .detail-drawer.open {
+    transform: translateY(0);
+  }
+
+  .detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hero */
+  .detail-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--bg-movie);
+    overflow: hidden;
+  }
+
+  .detail-hero-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-hero-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.3) 35%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.15s;
+  }
+
+  .detail-close:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .detail-hero-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    padding: 16px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .detail-meta {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Body */
+  .detail-body {
+    padding: 14px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detail-actors {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .detail-description {
+    padding: 12px;
+    background: var(--bg-day);
+    border-radius: 8px;
+  }
+
+  .detail-description-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .detail-citation {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  /* Showtimes */
+  .detail-showtimes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .showtime-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--bg-day-movies);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-grid);
+  }
+
+  .showtime-chip--link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .showtime-chip--link:hover {
+    border-color: var(--accent);
+    background: var(--bg-movie-hover);
+  }
+
+  .showtime-chip--link svg {
+    opacity: 0.5;
+  }
+
+  /* Actions */
+  .detail-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s;
+    background: var(--bg-day-movies);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-grid);
+  }
+
+  .detail-action:first-child {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .detail-action:hover {
+    opacity: 0.85;
   }
 </style>
