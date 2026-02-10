@@ -1,16 +1,16 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
-import Header from '../../../components/Header.astro';
-import MovieModal from '../../../components/MovieModal.astro';
-import ToggleGroup from '../../../components/ToggleGroup.astro';
-import CheckboxGroup from '../../../components/CheckboxGroup.astro';
-import Switch from '../../../components/Switch.astro';
-import Toggle from '../../../components/Toggle.astro';
-import Dialog from '../../../components/Dialog.astro';
-import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
-import Button from '../../../components/Button.astro';
-import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
-import { loadMovieData } from '../../../utils/loadMovieData';
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/Header.astro';
+import MovieModal from '@components/MovieModal.astro';
+import ToggleGroup from '@components/ToggleGroup.astro';
+import CheckboxGroup from '@components/CheckboxGroup.astro';
+import Switch from '@components/Switch.astro';
+import Toggle from '@components/Toggle.astro';
+import Dialog from '@components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@components/Dialog/index';
+import Button from '@components/Button.astro';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
+import { loadMovieData } from '@utils/loadMovieData';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -164,15 +164,15 @@ const ogImage = movieData[0]?.poster_url || null;
     type HoursFilterMode,
     type SingleShowtimesMode,
     type SavedFilter,
-  } from '../../../constants';
-  import type { Movie } from '../../../utils/icsGenerator';
-  import { createMovieElement, updateTextHeights } from '../../../components/MovieTile';
-  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange } from '../../../utils/calendarTime';
-  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '../../../utils/calendarFilters';
-  import { openMovieModal, renderMovieList } from '../../../utils/calendarModal';
-  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
-  import { getReactions } from '../../../utils/storageManager';
-  import type { ReactionMap } from '../../../types/session';
+  } from '@/constants';
+  import type { Movie } from '@utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '@components/MovieTile';
+  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange } from '@utils/calendarTime';
+  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
+  import { openMovieModal, renderMovieList } from '@utils/calendarModal';
+  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
+  import { getReactions } from '@utils/storageManager';
+  import type { ReactionMap } from '@types/session';
 
   // --- State ---
   let moviesByDate: Record<string, Movie[]> = {};
