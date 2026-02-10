@@ -123,11 +123,8 @@ const siteName = new URL(siteUrl).host;
       font-family: 'Courier New', monospace;
     }
 
-    .preview-container {
-      padding: 1.5rem;
-    }
-
     .og-card {
+      margin: 1.5rem;
       border: 1px solid var(--bg-grid);
       border-radius: 8px;
       overflow: hidden;
@@ -225,36 +222,6 @@ const siteName = new URL(siteUrl).host;
       background: #422006;
       color: #fbbf24;
     }
-
-    .debugger-links {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: var(--bg-body);
-      border-radius: 4px;
-    }
-
-    .debugger-links h3 {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-    }
-
-    .debugger-links a {
-      display: inline-block;
-      margin-right: 1rem;
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: var(--bg-movie);
-      color: var(--text-primary);
-      text-decoration: none;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      transition: background 0.2s;
-    }
-
-    .debugger-links a:hover {
-      background: var(--bg-movie-hover);
-    }
   </style>
 
   <div class="seo-preview">
@@ -280,72 +247,45 @@ const siteName = new URL(siteUrl).host;
               <div class="route-url">{route.url}</div>
             </div>
 
-            <div class="preview-container">
-              <div class="og-card">
-                <div class="og-image">
-                  {route.image ? (
-                    <img src={route.image} alt={route.title} />
-                  ) : (
-                    <span>No OpenGraph Image</span>
-                  )}
-                </div>
-                <div class="og-content">
-                  <div class="og-title">{route.title}</div>
-                  <div class="og-description">{route.description}</div>
-                  <div class="og-url">{siteName}</div>
-                </div>
-              </div>
-
-              <div class="meta-details">
-                <div class="meta-tag">
-                  <strong>og:title:</strong> <span class="value">"{route.title}"</span>
-                </div>
-                <div class="meta-tag">
-                  <strong>og:description:</strong> <span class="value">"{route.description}"</span>
-                </div>
-                <div class="meta-tag">
-                  <strong>og:url:</strong> <span class="value">"{fullUrl}"</span>
-                </div>
+            <div class="og-card">
+              <div class="og-image">
                 {route.image ? (
-                  <div class="meta-tag">
-                    <strong>og:image:</strong> <span class="value">"{siteUrl}{route.image}"</span>
-                  </div>
+                  <img src={route.image} alt={route.title} />
                 ) : (
-                  <div class="meta-tag">
-                    <strong>og:image:</strong> <span style="color: #666;">(not set)</span>
-                  </div>
+                  <span>No OpenGraph Image</span>
                 )}
-                <div class="meta-tag">
-                  <strong>og:type:</strong> <span class="value">"website"</span>
-                </div>
-                <div class="meta-tag">
-                  <strong>og:site_name:</strong> <span class="value">"{siteName}"</span>
-                </div>
               </div>
+              <div class="og-content">
+                <div class="og-title">{route.title}</div>
+                <div class="og-description">{route.description}</div>
+                <div class="og-url">{siteName}</div>
+              </div>
+            </div>
 
-              <div class="debugger-links">
-                <h3>Test with official debuggers:</h3>
-                <a
-                  href={`https://developers.facebook.com/tools/debug/?q=${encodedUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Facebook Debugger
-                </a>
-                <a
-                  href={`https://cards-dev.twitter.com/validator?url=${encodedUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Twitter Validator
-                </a>
-                <a
-                  href={`https://www.linkedin.com/post-inspector/inspect/${encodedUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LinkedIn Inspector
-                </a>
+            <div class="meta-details">
+              <div class="meta-tag">
+                <strong>og:title:</strong> <span class="value">"{route.title}"</span>
+              </div>
+              <div class="meta-tag">
+                <strong>og:description:</strong> <span class="value">"{route.description}"</span>
+              </div>
+              <div class="meta-tag">
+                <strong>og:url:</strong> <span class="value">"{fullUrl}"</span>
+              </div>
+              {route.image ? (
+                <div class="meta-tag">
+                  <strong>og:image:</strong> <span class="value">"{siteUrl}{route.image}"</span>
+                </div>
+              ) : (
+                <div class="meta-tag">
+                  <strong>og:image:</strong> <span style="color: #666;">(not set)</span>
+                </div>
+              )}
+              <div class="meta-tag">
+                <strong>og:type:</strong> <span class="value">"website"</span>
+              </div>
+              <div class="meta-tag">
+                <strong>og:site_name:</strong> <span class="value">"{siteName}"</span>
               </div>
             </div>
           </div>
