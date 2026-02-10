@@ -255,6 +255,20 @@ function testSitemap() {
 }
 
 /**
+ * Discover all series from the built dist/s/ directory
+ */
+function discoverSeries() {
+  const seriesDir = path.join(DIST_DIR, 's');
+  if (!fs.existsSync(seriesDir)) {
+    return [];
+  }
+
+  return fs.readdirSync(seriesDir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+}
+
+/**
  * Main test runner
  */
 function runTests() {
@@ -275,46 +289,52 @@ function runTests() {
     { noindex: false }
   );
 
-  // Series landing page
-  testHTMLFile(
-    path.join(DIST_DIR, 's/tenement-stories/index.html'),
-    '/s/tenement-stories/',
-    {
-      noindex: false,
-      structuredData: ['EventSeries']
-    }
-  );
+  // Dynamically test all series pages
+  const seriesIds = discoverSeries();
+  console.log(`\n${colors.cyan}Found ${seriesIds.length} series: ${seriesIds.join(', ')}${colors.reset}`);
 
-  // Calendar view
-  testHTMLFile(
-    path.join(DIST_DIR, 's/tenement-stories/calendar/index.html'),
-    '/s/tenement-stories/calendar',
-    { noindex: false }
-  );
+  for (const seriesId of seriesIds) {
+    // Series landing page
+    testHTMLFile(
+      path.join(DIST_DIR, `s/${seriesId}/index.html`),
+      `/s/${seriesId}/`,
+      {
+        noindex: false,
+        structuredData: ['EventSeries']
+      }
+    );
 
-  // Movie list
-  testHTMLFile(
-    path.join(DIST_DIR, 's/tenement-stories/list/index.html'),
-    '/s/tenement-stories/list',
-    {
-      noindex: false,
-      structuredData: ['ItemList']
-    }
-  );
+    // Calendar view
+    testHTMLFile(
+      path.join(DIST_DIR, `s/${seriesId}/calendar/index.html`),
+      `/s/${seriesId}/calendar`,
+      { noindex: false }
+    );
 
-  // Shared list (noindex)
-  testHTMLFile(
-    path.join(DIST_DIR, 's/tenement-stories/list/saved/index.html'),
-    '/s/tenement-stories/list/saved',
-    { noindex: true }
-  );
+    // Movie list
+    testHTMLFile(
+      path.join(DIST_DIR, `s/${seriesId}/list/index.html`),
+      `/s/${seriesId}/list`,
+      {
+        noindex: false,
+        structuredData: ['ItemList']
+      }
+    );
 
-  // Compare view (noindex)
-  testHTMLFile(
-    path.join(DIST_DIR, 's/tenement-stories/compare/placeholder/index.html'),
-    '/s/tenement-stories/compare/placeholder',
-    { noindex: true }
-  );
+    // Shared list (noindex)
+    testHTMLFile(
+      path.join(DIST_DIR, `s/${seriesId}/list/saved/index.html`),
+      `/s/${seriesId}/list/saved`,
+      { noindex: true }
+    );
+
+    // Compare view (noindex)
+    testHTMLFile(
+      path.join(DIST_DIR, `s/${seriesId}/compare/placeholder/index.html`),
+      `/s/${seriesId}/compare/placeholder`,
+      { noindex: true }
+    );
+  }
 
   // Demo pages (noindex)
   const demoPages = [
