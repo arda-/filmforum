@@ -15,7 +15,9 @@ pnpm build:verify
 
 ## What Gets Validated
 
-### ✅ **150+ Checks Across All Routes**
+### ✅ **Validation Coverage**
+
+The script validates essential SEO tags, social sharing metadata, structured data, and crawl directives across all routes:
 
 - **Basic SEO** (title, description, canonical)
 - **OpenGraph** (og:title, og:description, og:image, og:url, og:type, og:site_name)
@@ -104,7 +106,7 @@ Testing: /
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Test Results
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ Passed:   150+
+✓ Passed:   135
 ✗ Failed:   0
 ⚠ Warnings: 0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
