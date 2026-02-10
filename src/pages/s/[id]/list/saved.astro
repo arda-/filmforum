@@ -122,13 +122,13 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     <Drawer id="share-drawer" title="Share Your List">
       <div class="share-content">
         <div class="share-link-row">
+          <input readonly class="share-link-text" id="share-link-text" />
           <button class="share-icon-btn" id="copy-link-btn" title="Copy link">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
               <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
             </svg>
           </button>
-          <input readonly class="share-link-text" id="share-link-text" />
         </div>
         <div class="share-preview-embed">
           <textarea readonly class="share-text-embed" id="share-text-embed"></textarea>
@@ -763,7 +763,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     max-height: 400px;
     padding: 12px;
     padding-bottom: 48px; /* Space for floating button */
-    font-size: 13px;
+    font-size: 16px;
     font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     line-height: 1.6;
     color: var(--text-primary);
@@ -822,7 +822,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     display: flex;
     gap: 8px;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .share-icon-btn {
@@ -854,7 +854,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   .share-link-text {
     flex: 1;
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: 16px;
     font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
     color: var(--text-secondary);
     background: var(--bg-movie);
