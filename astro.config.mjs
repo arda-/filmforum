@@ -67,7 +67,9 @@ const validatePosterImages = {
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.SITE_URL || process.env.URL || 'http://localhost:4321',
+  // Set SITE environment variable for production builds
+  // Falls back to localhost for local development
+  site: process.env.SITE || 'http://localhost:4321',
   integrations: [
     webcore(),
     validatePosterImages,
