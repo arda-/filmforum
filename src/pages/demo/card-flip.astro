@@ -256,7 +256,7 @@ import Layout from '../../layouts/Layout.astro';
 
   cards.forEach((card) => {
     card.addEventListener('click', () => {
-      if (card.classList.contains('card-expanded')) return;
+      if (card.classList.contains('card-expanded') || card.classList.contains('card-expanded-5')) return;
       const id = parseInt(card.dataset.id, 10);
       sourceCard = card;
       sourceCardId = id;
