@@ -210,6 +210,13 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       return el.innerHTML;
     }
 
+    function safeHref(url: string | null | undefined): string {
+      if (!url) return '';
+      const trimmed = String(url).trim();
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return '';
+    }
+
     interface Showtime { time: string; tickets?: string; }
     interface DetailMovie {
       title: string; director?: string; year?: string; runtime?: string;
@@ -354,8 +361,9 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       const showtimesEl = document.getElementById('detail-showtimes');
       if (showtimesEl) {
         showtimesEl.innerHTML = movie.showtimes.map(s => {
-          if (s.tickets) {
-            return `<a href="${escapeHtml(s.tickets)}" target="_blank" rel="noopener" class="showtime-chip showtime-chip--link">${escapeHtml(s.time)}<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M5 3h8v8M13 3L6 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`;
+          const href = safeHref(s.tickets);
+          if (href) {
+            return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener" class="showtime-chip showtime-chip--link">${escapeHtml(s.time)}<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M5 3h8v8M13 3L6 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`;
           }
           return `<span class="showtime-chip">${escapeHtml(s.time)}</span>`;
         }).join('');
@@ -365,8 +373,9 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       const actionsEl = document.getElementById('detail-actions');
       if (actionsEl) {
         let html = '';
-        if (movie.film_url) {
-          html += `<a href="${escapeHtml(movie.film_url)}" target="_blank" rel="noopener" class="detail-action">Film Forum Page</a>`;
+        const filmHref = safeHref(movie.film_url);
+        if (filmHref) {
+          html += `<a href="${escapeHtml(filmHref)}" target="_blank" rel="noopener" class="detail-action">Film Forum Page</a>`;
         }
         html += `<a href="/s/${escapeHtml(movie.seriesId)}/calendar" class="detail-action">View Full Calendar</a>`;
         actionsEl.innerHTML = html;
