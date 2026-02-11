@@ -461,7 +461,7 @@ const ogImage = movieData[0]?.poster_url || null;
       [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
         if (toggle) { setToggleState(toggle, false); toggle.dataset.disabled = 'true'; }
       });
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
       [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
@@ -508,7 +508,15 @@ const ogImage = movieData[0]?.poster_url || null;
       const cls = toggle === showYearDirector ? 'show-year-director'
         : toggle === showRuntime ? 'show-runtime'
         : toggle === showActors ? 'show-actors' : 'show-image';
-      document.body.classList.toggle(cls, isTogglePressed(toggle));
+      const isPressed = isTogglePressed(toggle);
+      document.body.classList.toggle(cls, isPressed);
+
+      // Always enable scrim and blur when images are shown
+      if (toggle === showImage) {
+        document.body.classList.toggle('scrim-enabled', isPressed);
+        document.body.classList.toggle('blur-enabled', isPressed);
+      }
+
       updateUrlParams();
       setTimeout(updateTextHeights, 10);
     });
