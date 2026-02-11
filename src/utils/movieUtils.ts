@@ -10,9 +10,6 @@ import {
   assignOverlapColumns,
 } from './calendarTime';
 
-// Import work hours constants
-import { WORK_START, WORK_END } from '@/constants';
-
 export type { Movie };
 export { parseTimeToMins, getDayTimeRange, assignOverlapColumns };
 
@@ -32,50 +29,5 @@ export function toTitleCase(str: string): string {
 export function formatRuntime(runtime: string | undefined): string {
   if (!runtime) return '';
   return runtime.replace(' minutes', 'min').replace(' ', '');
-}
-
-/**
- * Checks if a date is a weekday (Mon-Fri)
- */
-export function isWeekday(date: string): boolean {
-  const dayOfWeek = new Date(date + 'T12:00:00').getDay();
-  return dayOfWeek >= 1 && dayOfWeek <= 5;
-}
-
-/**
- * Checks if a movie showtime falls within work hours (9am-5pm)
- */
-export function isWorkHours(timeStr: string): boolean {
-  const mins = parseTimeToMins(timeStr);
-  return mins >= WORK_START && mins < WORK_END;
-}
-
-/**
- * Filters movies to get only those during weekday work hours (9am-5pm Mon-Fri)
- */
-export function getHiddenWorkHoursMovies(allMovies: Movie[]): Movie[] {
-  return allMovies.filter((movie) => {
-    const date = movie.Datetime.split('T')[0];
-    if (!isWeekday(date)) return false;
-    return isWorkHours(movie.Time);
-  });
-}
-
-/**
- * Filters movies to get only those on weekdays (Mon-Fri)
- */
-export function getWeekdayMovies(allMovies: Movie[]): Movie[] {
-  return allMovies.filter((movie) => {
-    const date = movie.Datetime.split('T')[0];
-    return isWeekday(date);
-  });
-}
-
-/**
- * Filters movies for after-hours availability (outside 9-5 on weekdays, all times on weekends)
- */
-export function filterAfterHoursMovies(movies: Movie[], date: string): Movie[] {
-  if (!isWeekday(date)) return movies;
-  return movies.filter((m) => !isWorkHours(m.Time));
 }
 
