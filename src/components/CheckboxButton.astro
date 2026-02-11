@@ -33,6 +33,8 @@ const { id, label, checked = false } = Astro.props;
     background: transparent;
     border-right: 1px solid var(--bg-movie-hover);
     transition: background-color 0.15s ease, color 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .checkbox-button:last-child {
