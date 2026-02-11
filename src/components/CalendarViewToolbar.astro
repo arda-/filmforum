@@ -6,7 +6,6 @@
  */
 import Switch from '@components/Switch.astro';
 import Icon from '@components/Icon.astro';
-import Tooltip from '@components/Tooltip.astro';
 ---
 
 <div class="calendar-view-toolbar">
@@ -43,32 +42,30 @@ import Tooltip from '@components/Tooltip.astro';
     <!-- Width toggle: Fit / Content -->
     <div class="toolbar-group toolbar-group-width">
       <span class="toolbar-label">Width</span>
-      <Tooltip text="View is always full width at this window size">
-        <div class="segmented-toggle" role="radiogroup" aria-label="Content width mode">
-          <button
-            class="seg-btn active"
-            data-width="fit"
-            role="radio"
-            aria-checked="true"
-            aria-label="Fit to window width"
-            id="width-fit"
-          >
-            <Icon name="minimize-2" size={14} />
-            <span class="seg-btn-label">Fit</span>
-          </button>
-          <button
-            class="seg-btn"
-            data-width="content"
-            role="radio"
-            aria-checked="false"
-            aria-label="Show full content width"
-            id="width-content"
-          >
-            <Icon name="maximize" size={14} />
-            <span class="seg-btn-label">Content</span>
-          </button>
-        </div>
-      </Tooltip>
+      <div class="segmented-toggle" role="radiogroup" aria-label="Content width mode">
+        <button
+          class="seg-btn active"
+          data-width="fit"
+          role="radio"
+          aria-checked="true"
+          aria-label="Fit to window width"
+          id="width-fit"
+        >
+          <Icon name="minimize-2" size={14} />
+          <span class="seg-btn-label">Fit</span>
+        </button>
+        <button
+          class="seg-btn"
+          data-width="content"
+          role="radio"
+          aria-checked="false"
+          aria-label="Show full content width"
+          id="width-content"
+        >
+          <Icon name="maximize" size={14} />
+          <span class="seg-btn-label">Content</span>
+        </button>
+      </div>
     </div>
 
     <!-- Hidden fit-width switch for backward compat with existing JS -->
