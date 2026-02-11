@@ -73,7 +73,8 @@
       "Bash(test:*)",
       "Bash(git mv:*)",
       "WebFetch(domain:lucide.dev)",
-      "WebFetch(domain:unpkg.com)"
+      "WebFetch(domain:unpkg.com)",
+      "Bash(at this window size\" when switch is disabled at 640px+\n- Tooltip automatically shows/hides based on viewport size\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

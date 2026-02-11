@@ -597,7 +597,10 @@ const ogImage = movieData[0]?.poster_url || null;
   }
 
   function handleViewportChange(e: MediaQueryListEvent | MediaQueryList) {
-    const tooltipWrapper = document.querySelector('.fit-width-container')?.closest('.tooltip-wrapper');
+    const widthToggle = document.querySelector('.toolbar-group-width');
+    const tooltipWrapper = widthToggle?.querySelector('.tooltip-wrapper');
+    const widthFitBtn = widthToggle?.querySelector('[data-width="fit"]');
+    const widthContentBtn = widthToggle?.querySelector('[data-width="content"]');
 
     if (e.matches) {
       // At 640px+, fit width is always enabled and disabled (control is non-functional)
@@ -605,7 +608,13 @@ const ogImage = movieData[0]?.poster_url || null;
       if (fitWidthSwitch) {
         fitWidthSwitch.checked = true;
         fitWidthSwitch.disabled = true;
+        fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
       }
+      // Update button states
+      widthFitBtn?.classList.add('active');
+      widthContentBtn?.classList.remove('active');
+      widthFitBtn?.setAttribute('aria-checked', 'true');
+      widthContentBtn?.setAttribute('aria-checked', 'false');
       // Enable tooltip to explain why it's disabled
       if (tooltipWrapper) {
         tooltipWrapper.setAttribute('data-disabled', 'false');
@@ -621,6 +630,11 @@ const ogImage = movieData[0]?.poster_url || null;
           fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
         }
       }
+      // Update button states
+      widthFitBtn?.classList.toggle('active', fitWidthSwitch?.checked ?? true);
+      widthContentBtn?.classList.toggle('active', !(fitWidthSwitch?.checked ?? true));
+      widthFitBtn?.setAttribute('aria-checked', String(fitWidthSwitch?.checked ?? true));
+      widthContentBtn?.setAttribute('aria-checked', String(!(fitWidthSwitch?.checked ?? true)));
       // Disable tooltip when control is enabled
       if (tooltipWrapper) {
         tooltipWrapper.setAttribute('data-disabled', 'true');

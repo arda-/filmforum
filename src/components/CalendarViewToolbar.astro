@@ -40,12 +40,39 @@ import Tooltip from '@components/Tooltip.astro';
       </div>
     </div>
 
-    <!-- Fit width switch -->
-    <Tooltip text="View is always full width at this window size">
-      <div class="fit-width-container">
-        <Switch id="fit-width-switch" label="Fit width" checked small />
-      </div>
-    </Tooltip>
+    <!-- Width toggle: Fit / Content -->
+    <div class="toolbar-group toolbar-group-width">
+      <span class="toolbar-label">Width</span>
+      <Tooltip text="View is always full width at this window size">
+        <div class="segmented-toggle" role="radiogroup" aria-label="Content width mode">
+          <button
+            class="seg-btn active"
+            data-width="fit"
+            role="radio"
+            aria-checked="true"
+            aria-label="Fit to window width"
+            id="width-fit"
+          >
+            Fit
+          </button>
+          <button
+            class="seg-btn"
+            data-width="content"
+            role="radio"
+            aria-checked="false"
+            aria-label="Show full content width"
+            id="width-content"
+          >
+            Content
+          </button>
+        </div>
+      </Tooltip>
+    </div>
+
+    <!-- Hidden fit-width switch for backward compat with existing JS -->
+    <div style="display:none">
+      <Switch id="fit-width-switch" label="" checked />
+    </div>
 
     <!-- Gear button → popover -->
     <div class="toolbar-group toolbar-group--end">
@@ -176,52 +203,32 @@ import Tooltip from '@components/Tooltip.astro';
     }
   }
 
-  // --- Fit to width compact toggle ---
-  const fitWidthBtn = document.getElementById('fit-width-btn');
-  const fitWidthSwitch = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
-  const tileDisplayNote = document.getElementById('tile-display-note');
+  // --- Width toggle: Fit / Content ---
+  const widthFitBtn = document.getElementById('width-fit');
+  const widthContentBtn = document.getElementById('width-content');
+  const fitWidthSwitch = document.querySelector('#fit-width-switch input') as HTMLInputElement;
 
-  function syncFitWidth(enabled: boolean) {
-    fitWidthBtn?.classList.toggle('active', enabled);
-    fitWidthBtn?.setAttribute('aria-pressed', String(enabled));
+  function syncWidth(isFit: boolean) {
+    widthFitBtn?.classList.toggle('active', isFit);
+    widthContentBtn?.classList.toggle('active', !isFit);
+    widthFitBtn?.setAttribute('aria-checked', String(isFit));
+    widthContentBtn?.setAttribute('aria-checked', String(!isFit));
     if (fitWidthSwitch) {
-      fitWidthSwitch.checked = enabled;
+      fitWidthSwitch.checked = isFit;
       fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
     }
-    updateTileDisabledState(enabled);
   }
 
-  function updateTileDisabledState(fitWidthEnabled: boolean) {
-    const tileOptions = document.getElementById('tile-display-options');
-    const toggles = tileOptions?.querySelectorAll('.toggle');
-    const fitWidthBtn = document.getElementById('fit-width-btn');
+  widthFitBtn?.addEventListener('click', () => syncWidth(true));
+  widthContentBtn?.addEventListener('click', () => syncWidth(false));
 
-    if (fitWidthEnabled) {
-      tileOptions?.classList.add('disabled');
-      toggles?.forEach(toggle => {
-        (toggle as HTMLButtonElement).disabled = true;
-      });
-      fitWidthBtn?.classList.add('active');
-    } else {
-      tileOptions?.classList.remove('disabled');
-      toggles?.forEach(toggle => {
-        (toggle as HTMLButtonElement).disabled = false;
-      });
-      fitWidthBtn?.classList.remove('active');
-    }
-  }
-
-  fitWidthBtn?.addEventListener('click', () => {
-    const isActive = fitWidthBtn.classList.contains('active');
-    syncFitWidth(!isActive);
-  });
-
-  function initFitWidth() {
+  function initWidth() {
     if (fitWidthSwitch) {
-      const enabled = fitWidthSwitch.checked;
-      fitWidthBtn?.classList.toggle('active', enabled);
-      fitWidthBtn?.setAttribute('aria-pressed', String(enabled));
-      updateTileDisabledState(enabled);
+      const isFit = fitWidthSwitch.checked;
+      widthFitBtn?.classList.toggle('active', isFit);
+      widthContentBtn?.classList.toggle('active', !isFit);
+      widthFitBtn?.setAttribute('aria-checked', String(isFit));
+      widthContentBtn?.setAttribute('aria-checked', String(!isFit));
     }
   }
 
@@ -306,7 +313,7 @@ import Tooltip from '@components/Tooltip.astro';
   // Use a microtask to run after the main script's restoreFromUrl()
   queueMicrotask(() => {
     initViewMode();
-    initFitWidth();
+    initWidth();
     initWeekStart();
   });
 </script>
