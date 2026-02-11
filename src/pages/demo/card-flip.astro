@@ -4,12 +4,13 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
-    <p class="version">v5</p>
+    <p class="version">v6</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
     <div class="grid">
       {[
+        { id: 5, title: 'Growing Radius', desc: '1rem → 2rem border-radius' },
         { id: 4, title: 'Same Element', desc: 'Card itself expands' },
         { id: 3, title: 'FLIP + Smooth Close', desc: 'Smooth open and close' },
         { id: 2, title: 'FLIP Animation', desc: 'Smooth transform-based expansion' },
@@ -135,6 +136,77 @@ import Layout from '../../layouts/Layout.astro';
     }, { once: false });
   }
 
+  // === Card 5: Same-element expand with growing border-radius (1rem → 2rem) ===
+  let placeholder5 = null;
+  let justOpened5 = false;
+
+  function card5Open(card) {
+    const first = card.getBoundingClientRect();
+
+    placeholder5 = document.createElement('div');
+    placeholder5.style.width = first.width + 'px';
+    placeholder5.style.height = first.height + 'px';
+    card.parentNode.insertBefore(placeholder5, card);
+
+    card.classList.add('card-expanded-5');
+    document.body.style.overflow = 'hidden';
+
+    const last = card.getBoundingClientRect();
+
+    const deltaX = first.left - last.left;
+    const deltaY = first.top - last.top;
+    const scaleX = first.width / last.width;
+    const scaleY = first.height / last.height;
+
+    // At scale(scaleX, scaleY), border-radius R renders as R*scaleX / R*scaleY visually.
+    // We want it to look like 1rem circular at start → set R so R*scale = 1rem.
+    card.style.transformOrigin = '0 0';
+    card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    card.style.borderRadius = `${1/scaleX}rem / ${1/scaleY}rem`;
+    card.style.transition = 'none';
+    card.offsetHeight;
+
+    // Animate to expanded: scale(1,1) with 2rem border-radius
+    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    card.style.transform = 'translate(0, 0) scale(1, 1)';
+    card.style.borderRadius = '2rem';
+  }
+
+  function card5Close() {
+    if (!sourceCard || !placeholder5) return;
+    const card = sourceCard;
+
+    const targetRect = placeholder5.getBoundingClientRect();
+    const currentRect = card.getBoundingClientRect();
+
+    const deltaX = targetRect.left - currentRect.left;
+    const deltaY = targetRect.top - currentRect.top;
+    const scaleX = targetRect.width / currentRect.width;
+    const scaleY = targetRect.height / currentRect.height;
+
+    card.style.transformOrigin = '0 0';
+    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    card.style.borderRadius = `${1/scaleX}rem / ${1/scaleY}rem`;
+
+    card.addEventListener('transitionend', function handler(e) {
+      if (e.propertyName !== 'transform') return;
+      card.removeEventListener('transitionend', handler);
+      card.classList.remove('card-expanded-5');
+      card.style.transform = '';
+      card.style.transition = '';
+      card.style.transformOrigin = '';
+      card.style.borderRadius = '';
+      document.body.style.overflow = '';
+      if (placeholder5 && placeholder5.parentNode) {
+        placeholder5.parentNode.insertBefore(card, placeholder5);
+        placeholder5.remove();
+      }
+      placeholder5 = null;
+      sourceCard = null;
+    }, { once: false });
+  }
+
   function closeInstant() {
     expandedCard.classList.remove('active');
     document.body.style.overflow = '';
@@ -171,7 +243,9 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   function handleClose() {
-    if (sourceCardId === 4) {
+    if (sourceCardId === 5) {
+      card5Close();
+    } else if (sourceCardId === 4) {
       sameElementClose();
     } else if (sourceCardId === 3) {
       closeSmoothFlip();
@@ -187,7 +261,10 @@ import Layout from '../../layouts/Layout.astro';
       sourceCard = card;
       sourceCardId = id;
 
-      if (id === 4) {
+      if (id === 5) {
+        justOpened5 = true;
+        card5Open(card);
+      } else if (id === 4) {
         justOpened = true;
         sameElementOpen(card);
       } else {
@@ -203,6 +280,16 @@ import Layout from '../../layouts/Layout.astro';
   });
 
   closeBtn.addEventListener('click', handleClose);
+
+  // Close card 5 by clicking on it when expanded
+  document.addEventListener('click', (e) => {
+    if (justOpened5) { justOpened5 = false; return; }
+    if (sourceCardId === 5 && sourceCard && sourceCard.classList.contains('card-expanded-5')) {
+      if (sourceCard.contains(e.target)) {
+        card5Close();
+      }
+    }
+  });
 
   // Close card 4 by clicking on it when expanded
   document.addEventListener('click', (e) => {
@@ -284,7 +371,8 @@ import Layout from '../../layouts/Layout.astro';
     color: var(--text-tertiary);
   }
 
-  .card.card-expanded {
+  .card.card-expanded,
+  .card.card-expanded-5 {
     position: fixed;
     inset: 0;
     margin: auto;
@@ -294,6 +382,10 @@ import Layout from '../../layouts/Layout.astro';
     aspect-ratio: auto;
     z-index: 1000;
     cursor: default;
+  }
+
+  .card.card-expanded-5 {
+    border-radius: 2rem;
   }
 
   .expanded-card {
