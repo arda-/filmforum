@@ -308,12 +308,12 @@ const ogImage = movieData[0]?.poster_url || null;
       // (which just cached dates) or from event handlers. The cache is only invalidated
       // if the week-start preference changes, which event handlers shouldn't do.
       // This defensive logic guards against edge cases while keeping the contract simple.
-      const dates = cachedMondayStart === mondayStart && cachedDates
+      const dates = cachedDates && cachedMondayStart === mondayStart
         ? cachedDates
         : generateDateRange(allMovieDates, mondayStart);
 
-      // Update cache if dates were recomputed
-      if (cachedMondayStart !== mondayStart) {
+      // Update cache if new dates were generated (not reusing cached dates)
+      if (dates !== cachedDates) {
         cachedDates = dates;
         cachedMondayStart = mondayStart;
       }
