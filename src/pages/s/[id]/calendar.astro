@@ -158,6 +158,8 @@ const ogImage = movieData[0]?.poster_url || null;
 <script>
   import {
     PX_PER_MIN,
+    MIN_TIMELINE_HEIGHT,
+    TIMELINE_PADDING,
     HOURS_FILTER_MODE,
     SINGLE_SHOWTIMES_MODE,
     SAVED_FILTER_COUNT,
@@ -344,11 +346,11 @@ const ogImage = movieData[0]?.poster_url || null;
       if (timelineMode) {
         // Use the pre-calculated week time range for this day
         const weekRange = weekRangesByDate.get(date);
-        let dayHeight = 100 + 32; // Minimum height + padding
+        let dayHeight = MIN_TIMELINE_HEIGHT + TIMELINE_PADDING;
         let dayStartTime = 0;
 
         if (weekRange && weekRange.range > 0) {
-          dayHeight = Math.max(weekRange.range * PX_PER_MIN, 100) + 32;
+          dayHeight = Math.max(weekRange.range * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
           dayStartTime = weekRange.start;
         }
 

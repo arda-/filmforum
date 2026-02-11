@@ -9,6 +9,10 @@ export type DayName = typeof DAYS[number];
 // Timeline scaling factor (pixels per minute)
 export const PX_PER_MIN = 0.7;
 
+// Timeline height constants
+export const MIN_TIMELINE_HEIGHT = 100; // Minimum day cell height in pixels
+export const TIMELINE_PADDING = 32;    // Day header padding in pixels
+
 // Work hours in minutes from midnight
 export const WORK_START = 9 * 60;   // 9:00 AM = 540 minutes
 export const WORK_END = 17 * 60;    // 5:00 PM = 1020 minutes
