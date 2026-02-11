@@ -121,8 +121,8 @@ export function generateDateRange(movieDates: string[], mondayStart: boolean): s
 }
 
 /**
- * Group dates into weeks of 7 days.
- * Assumes dates are already ordered and padded to complete weeks.
+ * Group dates into weeks of up to 7 days each.
+ * Handles partial weeks gracefully (last week may have fewer than 7 days).
  */
 export function groupDatesIntoWeeks(dates: string[]): string[][] {
   const weeks: string[][] = [];
@@ -137,7 +137,6 @@ export function groupDatesIntoWeeks(dates: string[]): string[][] {
  */
 export function getWeekTimeRange(
   weekDates: string[],
-  moviesByDate: Record<string, Movie[]>,
   getFilteredMovies: (date: string) => Movie[]
 ): { start: number; end: number; range: number } {
   let minStart = Infinity;

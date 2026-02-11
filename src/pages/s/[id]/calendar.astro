@@ -161,8 +161,6 @@ const { movieDataJson } = loadMovieData(series.dataFile);
 
   // --- State ---
   let moviesByDate: Record<string, Movie[]> = {};
-  let globalRange = { start: Infinity, end: 0, range: 0 };
-  let uniformHeight = 0;
   let allMovies: Movie[] = [];
   let allMovieDates: string[] = [];
   let movieByKey: Map<string, Movie> = new Map();
@@ -253,7 +251,7 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       const weeks = groupDatesIntoWeeks(dates);
 
       weeks.forEach(weekDates => {
-        const weekRange = getWeekTimeRange(weekDates, moviesByDate, (date) => {
+        const weekRange = getWeekTimeRange(weekDates, (date) => {
           let dayMovies = moviesByDate[date] || [];
           dayMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
           if (savedFilterSet.size < SAVED_FILTER_COUNT) {
@@ -448,14 +446,6 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   });
 
   allMovieDates = Object.keys(moviesByDate);
-
-  Object.values(moviesByDate).forEach(dayMovies => {
-    const range = getDayTimeRange(dayMovies);
-    if (range.start < globalRange.start) globalRange.start = range.start;
-    if (range.end > globalRange.end) globalRange.end = range.end;
-  });
-  globalRange.range = globalRange.end - globalRange.start;
-  uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
   // If user has no reactions, check all saved filter boxes (show everything)
   if (!hasAnyReactions(currentReactions)) {
