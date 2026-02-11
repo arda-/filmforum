@@ -1,9 +1,15 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getSeriesConfig } from '../../config/series';
+import { getSeriesConfig, getActiveSeries } from '../../config/series';
 
-const seriesId = 'tenement-stories';
-const series = getSeriesConfig(seriesId)!;
+// Use first active series, fallback to hardcoded if no active series
+const activeSeries = getActiveSeries();
+const seriesId = activeSeries.length > 0 ? activeSeries[0].id : 'tenement-stories';
+const series = getSeriesConfig(seriesId);
+
+if (!series) {
+  throw new Error(`SEO preview demo: Series "${seriesId}" not found. Add an active series to config/series.ts`);
+}
 
 // Load first movie poster
 const fs = await import('node:fs');
