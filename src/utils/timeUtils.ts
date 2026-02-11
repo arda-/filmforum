@@ -2,28 +2,10 @@
  * Time-related utilities for the Film Forum calendar
  */
 
-export interface Movie {
-  Movie: string;
-  Time: string;
-  Tickets: string;
-  Datetime: string;
-  year?: string;
-  director?: string;
-  runtime?: string;
-  actors?: string;
-  description?: string;
-  country?: string;
-  film_url?: string;
-  poster_url?: string;
-  _col?: number;
-  _hasOverlap?: boolean;
-}
+import type { Movie, DayTimeRange } from '../types/movie';
 
-export interface DayTimeRange {
-  start: number;
-  end: number;
-  range: number;
-}
+// Re-export for backwards compatibility
+export type { Movie, DayTimeRange };
 
 /**
  * Parse a time string to minutes since midnight

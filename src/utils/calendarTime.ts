@@ -3,7 +3,7 @@
  * Pure utility functions with no DOM or state dependencies.
  */
 
-import type { Movie } from './icsGenerator';
+import type { Movie } from '../types/movie';
 import { DAYS } from '../constants';
 
 /** Parse a time string (e.g. "2:10", "12:30 – FF Jr.") to minutes since midnight. */

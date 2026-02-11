@@ -2,22 +2,10 @@
  * Movie-related utility functions for calendar display and filtering
  */
 
-export interface Movie {
-  Movie: string;
-  Time: string;
-  Tickets: string;
-  Datetime: string;
-  year?: string;
-  director?: string;
-  runtime?: string;
-  actors?: string;
-  description?: string;
-  country?: string;
-  film_url?: string;
-  poster_url?: string;
-  _col?: number;
-  _hasOverlap?: boolean;
-}
+import type { Movie, Showtime, GroupedMovie, AggregationResult } from '../types/movie';
+
+// Re-export types for backwards compatibility
+export type { Movie, Showtime, GroupedMovie, AggregationResult };
 
 // Common roman numerals pattern (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
 const romanNumeralPattern = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)$/i;
@@ -45,21 +33,6 @@ export function toTitleCase(str: string): string {
 }
 
 // --- Movie aggregation for "Showing Today" ---
-
-export interface Showtime {
-  time: string;
-  tickets?: string;
-}
-
-export interface GroupedMovie {
-  film: Movie;
-  showtimes: Showtime[];
-}
-
-export interface AggregationResult {
-  targetDate: string;
-  movies: GroupedMovie[];
-}
 
 /**
  * Finds the next showing date (>= todayStr, or wraps to earliest available)
