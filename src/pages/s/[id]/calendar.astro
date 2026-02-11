@@ -438,7 +438,10 @@ const ogImage = movieData[0]?.poster_url || null;
   showYearDirectorCheckbox?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('show-year-director', checked);
-    if (checked) fitWidthSwitch.checked = false;
+    if (checked) {
+      fitWidthSwitch.checked = false;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
@@ -448,7 +451,10 @@ const ogImage = movieData[0]?.poster_url || null;
   showRuntimeCheckbox?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('show-runtime', checked);
-    if (checked) fitWidthSwitch.checked = false;
+    if (checked) {
+      fitWidthSwitch.checked = false;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
@@ -476,7 +482,10 @@ const ogImage = movieData[0]?.poster_url || null;
     }
 
     document.body.classList.toggle('show-actors', checked);
-    if (checked) fitWidthSwitch.checked = false;
+    if (checked) {
+      fitWidthSwitch.checked = false;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
@@ -498,7 +507,10 @@ const ogImage = movieData[0]?.poster_url || null;
     document.body.classList.toggle('show-image', checked);
     document.body.classList.toggle('scrim-enabled', checked);
     document.body.classList.toggle('blur-enabled', checked);
-    if (checked) fitWidthSwitch.checked = false;
+    if (checked) {
+      fitWidthSwitch.checked = false;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
