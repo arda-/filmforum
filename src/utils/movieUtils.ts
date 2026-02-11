@@ -10,6 +10,9 @@ import {
   assignOverlapColumns,
 } from './calendarTime';
 
+// Import work hours constants
+import { WORK_START, WORK_END } from '@/constants';
+
 export type { Movie };
 export { parseTimeToMins, getDayTimeRange, assignOverlapColumns };
 
@@ -30,12 +33,6 @@ export function formatRuntime(runtime: string | undefined): string {
   if (!runtime) return '';
   return runtime.replace(' minutes', 'min').replace(' ', '');
 }
-
-/**
- * Work hours constants (in minutes since midnight)
- */
-export const WORK_START = 9 * 60; // 9:00 AM = 540 mins
-export const WORK_END = 17 * 60; // 5:00 PM = 1020 mins
 
 /**
  * Checks if a date is a weekday (Mon-Fri)
