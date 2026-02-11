@@ -285,8 +285,9 @@ const ogImage = movieData[0]?.poster_url || null;
       });
     });
 
-    // Pre-calculate week time ranges for timeline mode
+    // Pre-calculate week time ranges for timeline mode and cache filtered results
     const weekRangesByDate = new Map<string, { start: number; end: number; range: number }>();
+    const filteredMoviesByDate = new Map<string, Movie[]>();
 
     if (timelineMode) {
       const mondayStart = getWeekStartPreference();
@@ -297,7 +298,7 @@ const ogImage = movieData[0]?.poster_url || null;
       weeks.forEach(weekDates => {
         const weekRange = getWeekTimeRange(weekDates, (date) => {
           const dayMovies = moviesByDate[date] || [];
-          return applyFilterPipeline(
+          const filtered = applyFilterPipeline(
             date,
             dayMovies,
             hoursFilterMode,
@@ -306,6 +307,9 @@ const ogImage = movieData[0]?.poster_url || null;
             singleShowtimesMode,
             filteredShowtimeCounts
           );
+          // Cache the filtered results to avoid recalculating during render
+          filteredMoviesByDate.set(date, filtered);
+          return filtered;
         });
 
         // Store the week range for all dates in this week
@@ -314,7 +318,8 @@ const ogImage = movieData[0]?.poster_url || null;
     }
 
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      const filteredMovies = applyFilterPipeline(
+      // Use cached results if available (from timeline pre-calculation), otherwise recalculate
+      const filteredMovies = filteredMoviesByDate.get(date) ?? applyFilterPipeline(
         date,
         dayMovies,
         hoursFilterMode,
