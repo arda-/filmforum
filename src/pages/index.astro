@@ -318,8 +318,9 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     setInterval(updateShowingToday, 5 * 60 * 1000);
 
     // --- Detail drawer ---
-    const overlay = document.getElementById('detail-overlay')!;
-    const drawer = document.getElementById('detail-drawer')!;
+    const overlay = document.getElementById('detail-overlay');
+    const drawer = document.getElementById('detail-drawer');
+    if (!overlay || !drawer) throw new Error('Detail drawer elements not found');
 
     function openDetail(idx: number) {
       const movie = currentMovies[idx];
