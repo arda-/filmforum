@@ -49,7 +49,7 @@ const canonical = `/s/${id}/compare`;
   noindex={true}
   twitterCard="summary"
 >
-  <main class="compare-page" data-session-id={id}>
+  <div data-session-id={id}>
     <header class="page-header">
       <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -124,7 +124,7 @@ const canonical = `/s/${id}/compare`;
         Share comparison
       </button>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <script define:vars={{ movieDataJson, sessionId: id }}>
@@ -247,12 +247,6 @@ const canonical = `/s/${id}/compare`;
 </script>
 
 <style>
-  .compare-page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 16px 40px;
-  }
-
   .page-header {
     padding: 16px 0 16px;
   }
