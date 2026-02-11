@@ -10,15 +10,15 @@
   border: 1px solid var(--bg-grid);
 }
 
-/* Natural width mode - calendar wider than viewport, requires scroll */
+/* Minimum width mode - calendar has fixed 640px width below 640px breakpoint */
 body.minimum-width .calendar {
-  width: 150%;
+  width: 640px;
   max-width: none;
 }
 
 @media (min-width: 480px) {
   body.minimum-width .calendar {
-    width: 125%;
+    width: 640px;
   }
 }
 
