@@ -97,7 +97,11 @@ const truncatedDescription = truncateDescription(description);
 <!-- JSON-LD Structured Data -->
 {/* Defense-in-depth: Escape < as \u003c to prevent premature script tag closure
     if data contains </script>. This protects against script injection even though
-    JSON.stringify already escapes most dangerous characters. */}
+    JSON.stringify already escapes most dangerous characters.
+
+    IMPORTANT: scripts/validate-seo.js relies on this escaping. The validation
+    script uses regex to extract JSON-LD content and would fail if this escaping
+    were removed. Keep these two in sync. */}
 {structuredData && (
   Array.isArray(structuredData)
     ? structuredData.map((data) => (

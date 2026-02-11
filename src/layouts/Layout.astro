@@ -30,6 +30,11 @@ const {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!--
+    maximum-scale=1.0 prevents iOS Safari auto-zoom on inputs < 16px.
+    iOS Safari still allows manual pinch-to-zoom (iOS-specific behavior).
+    Android Chrome blocks pinch-zoom, but Android doesn't auto-zoom on inputs anyway.
+  -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="theme-color" content="#000000">
 

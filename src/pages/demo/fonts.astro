@@ -92,19 +92,10 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 <script>
   import type { Movie } from '../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
-  import { PX_PER_MIN } from '../../constants';
+  import { PX_PER_MIN, MIN_TIMELINE_HEIGHT, TIMELINE_PADDING } from '../../constants';
+  import { parseTimeToMins } from '../../utils/calendarTime';
 
   let allMovies: Movie[] = [];
-
-  function parseTimeToMins(timeStr: string) {
-    const match = timeStr.match(/(\d{1,2}):(\d{2})/);
-    if (!match) return 0;
-    let h = parseInt(match[1]);
-    const m = parseInt(match[2]);
-    const isMorning = timeStr.includes('FF Jr');
-    if (!isMorning && h !== 12 && h < 12) h += 12;
-    return h * 60 + m;
-  }
 
   // Load movie data from build-time inlined data
   const movies: Movie[] = window.__movieData;
@@ -202,7 +193,9 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
         if (end > globalEnd) globalEnd = end;
       });
     }
-    const uniformHeight = Math.max((globalEnd - globalStart) * PX_PER_MIN, 100) + 32;
+    // Note: This demo intentionally uses a global uniform height for all days in the week,
+    // unlike the main calendar which uses per-week dynamic heights. This simplifies the demo.
+    const uniformHeight = Math.max((globalEnd - globalStart) * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
 
     dayNames.forEach((dayName, i) => {
       const dayMovies = moviesByDay[i];
