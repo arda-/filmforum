@@ -8,9 +8,9 @@
 <div class="calendar-bottom-bar">
   <div class="saved-filter-container">
     <span class="saved-filter-label">Saved movies:</span>
-    <div class="saved-filter-toggle" role="group" aria-label="Filter saved movies">
+    <div class="segmented-toggle" role="group" aria-label="Filter saved movies">
       <button
-        class="saved-btn active"
+        class="seg-btn active"
         data-filter="yes"
         aria-pressed="true"
         aria-label="Show movies marked Yes"
@@ -20,7 +20,7 @@
         Yes
       </button>
       <button
-        class="saved-btn active"
+        class="seg-btn active"
         data-filter="maybe"
         aria-pressed="true"
         aria-label="Show movies marked Maybe"
@@ -30,7 +30,7 @@
         Maybe
       </button>
       <button
-        class="saved-btn"
+        class="seg-btn"
         data-filter="no"
         aria-pressed="false"
         aria-label="Show movies marked No"
@@ -40,7 +40,7 @@
         No
       </button>
       <button
-        class="saved-btn"
+        class="seg-btn"
         data-filter="unmarked"
         aria-pressed="false"
         aria-label="Show unmarked movies"
@@ -55,7 +55,7 @@
 
 <script>
   // Multi-select toggle buttons for saved filter
-  const savedButtons = document.querySelectorAll('.saved-btn');
+  const savedButtons = document.querySelectorAll('.calendar-bottom-bar .seg-btn');
 
   savedButtons.forEach(button => {
     button.addEventListener('click', () => {
@@ -99,27 +99,27 @@
   }
 
   .saved-filter-label {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
-    color: var(--text-secondary);
-    font-family: 'Barlow Semi Condensed', sans-serif;
     text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
     letter-spacing: 0.02em;
   }
 
-  .saved-filter-toggle {
+  /* Segmented toggle (reuse same styling as CalendarViewToolbar) */
+  .segmented-toggle {
     display: inline-flex;
     border: 1px solid var(--bg-movie-hover);
     border-radius: 6px;
     overflow: hidden;
-    background: transparent;
   }
 
-  .saved-btn {
+  .seg-btn {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 6px 10px;
+    padding: 5px 10px;
     font-size: 13px;
     font-family: inherit;
     font-weight: 400;
@@ -128,25 +128,20 @@
     border: none;
     cursor: pointer;
     transition: background-color 0.15s ease, color 0.15s ease;
-    position: relative;
   }
 
-  .saved-btn:not(:last-child) {
+  .seg-btn:not(:last-child) {
     border-right: 1px solid var(--bg-movie-hover);
   }
 
-  .saved-btn:hover {
+  .seg-btn:hover {
     background: var(--bg-movie);
     color: var(--text-primary);
   }
 
-  .saved-btn.active {
+  .seg-btn.active {
     background: var(--bg-movie);
     color: var(--btn-color, var(--text-primary));
-  }
-
-  .saved-btn.active:hover {
-    background: var(--bg-movie-hover);
   }
 
   .saved-filter-status {
