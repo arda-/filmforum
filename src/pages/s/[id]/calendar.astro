@@ -300,7 +300,10 @@ const ogImage = movieData[0]?.poster_url || null;
     if (timelineMode) {
       const mondayStart = getWeekStartPreference();
 
-      // Use cached dates if the monday start preference hasn't changed, otherwise recompute
+      // Defensive recomputation: renderAllDays() is called either from renderCalendar()
+      // (which just cached dates) or from event handlers. The cache is only invalidated
+      // if the week-start preference changes, which event handlers shouldn't do.
+      // This defensive logic guards against edge cases while keeping the contract simple.
       const dates = cachedMondayStart === mondayStart && cachedDates
         ? cachedDates
         : generateDateRange(allMovieDates, mondayStart);
