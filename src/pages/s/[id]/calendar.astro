@@ -193,6 +193,41 @@ const ogImage = movieData[0]?.poster_url || null;
     return Object.keys(reactions).length > 0;
   }
 
+  /** Read the week-start toggle and return whether weeks should start on Monday. */
+  function getWeekStartPreference(): boolean {
+    const weekStartToggle = document.getElementById('week-start-toggle');
+    const weekStartInput = weekStartToggle?.tagName === 'INPUT'
+      ? weekStartToggle as HTMLInputElement
+      : weekStartToggle?.querySelector('input') as HTMLInputElement;
+    return weekStartInput?.checked ?? true;
+  }
+
+  /**
+   * Apply the complete filter pipeline to movies for a given date.
+   * This includes hours filter, saved status filter, and single showtimes filter.
+   */
+  function applyFilterPipeline(
+    date: string,
+    rawMovies: Movie[],
+    hoursFilterMode: HoursFilterMode,
+    savedFilterSet: Set<SavedFilter>,
+    currentReactions: ReactionMap,
+    singleShowtimesMode: SingleShowtimesMode,
+    filteredShowtimeCounts: Record<string, number>
+  ): Movie[] {
+    let filtered = filterDayMovies(rawMovies, date, hoursFilterMode);
+
+    if (savedFilterSet.size < SAVED_FILTER_COUNT) {
+      filtered = filterBySavedStatus(filtered, currentReactions, savedFilterSet);
+    }
+
+    if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
+      filtered = filtered.filter(m => filteredShowtimeCounts[m.Movie] === 1);
+    }
+
+    return filtered;
+  }
+
   // --- Calendar rendering ---
   function createDayCell(date: string): HTMLElement {
     const dayEl = document.createElement('div');
@@ -207,11 +242,7 @@ const ogImage = movieData[0]?.poster_url || null;
   }
 
   function renderCalendar() {
-    const weekStartToggle = document.getElementById('week-start-toggle');
-    const weekStartInput = weekStartToggle?.tagName === 'INPUT'
-      ? weekStartToggle as HTMLInputElement
-      : weekStartToggle?.querySelector('input') as HTMLInputElement;
-    const mondayStart = weekStartInput?.checked ?? true;
+    const mondayStart = getWeekStartPreference();
 
     const dates = generateDateRange(allMovieDates, mondayStart);
     const calendarEl = document.querySelector('.calendar');
@@ -256,26 +287,23 @@ const ogImage = movieData[0]?.poster_url || null;
     const weekRangesByDate = new Map<string, { start: number; end: number; range: number }>();
 
     if (timelineMode) {
-      const weekStartToggle = document.getElementById('week-start-toggle');
-      const weekStartInput = weekStartToggle?.tagName === 'INPUT'
-        ? weekStartToggle as HTMLInputElement
-        : weekStartToggle?.querySelector('input') as HTMLInputElement;
-      const mondayStart = weekStartInput?.checked ?? true;
+      const mondayStart = getWeekStartPreference();
 
       const dates = generateDateRange(allMovieDates, mondayStart);
       const weeks = groupDatesIntoWeeks(dates);
 
       weeks.forEach(weekDates => {
         const weekRange = getWeekTimeRange(weekDates, (date) => {
-          let dayMovies = moviesByDate[date] || [];
-          dayMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
-          if (savedFilterSet.size < SAVED_FILTER_COUNT) {
-            dayMovies = filterBySavedStatus(dayMovies, currentReactions, savedFilterSet);
-          }
-          if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
-            dayMovies = dayMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
-          }
-          return dayMovies;
+          const dayMovies = moviesByDate[date] || [];
+          return applyFilterPipeline(
+            date,
+            dayMovies,
+            hoursFilterMode,
+            savedFilterSet,
+            currentReactions,
+            singleShowtimesMode,
+            filteredShowtimeCounts
+          );
         });
 
         // Store the week range for all dates in this week
@@ -284,16 +312,15 @@ const ogImage = movieData[0]?.poster_url || null;
     }
 
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
-
-      // Apply saved movie filter (unless all categories are checked = show all)
-      if (savedFilterSet.size < SAVED_FILTER_COUNT) {
-        filteredMovies = filterBySavedStatus(filteredMovies, currentReactions, savedFilterSet);
-      }
-
-      if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
-        filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
-      }
+      const filteredMovies = applyFilterPipeline(
+        date,
+        dayMovies,
+        hoursFilterMode,
+        savedFilterSet,
+        currentReactions,
+        singleShowtimesMode,
+        filteredShowtimeCounts
+      );
 
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
       if (!dayCell) return;
