@@ -35,31 +35,97 @@ import Layout from '../../layouts/Layout.astro';
   const expandedLabel = document.getElementById('expandedLabel');
   const closeBtn = document.getElementById('closeBtn');
 
+  function flipAnimation(element, callback) {
+    // FIRST: Record initial position and size
+    const first = element.getBoundingClientRect();
+
+    // Trigger the layout change
+    callback();
+
+    // LAST: Record final position and size
+    const last = expandedCard.getBoundingClientRect();
+
+    // INVERT: Calculate the difference and apply inverted transform
+    const deltaX = first.left - last.left;
+    const deltaY = first.top - last.top;
+    const deltaWidth = first.width / last.width;
+    const deltaHeight = first.height / last.height;
+
+    // Apply the inverted transform
+    expandedCard.style.transformOrigin = '0 0';
+    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaWidth}, ${deltaHeight})`;
+    expandedCard.style.transition = 'none';
+
+    // Force a reflow to ensure the transform is applied
+    expandedCard.offsetHeight;
+
+    // PLAY: Remove the transform and let it animate
+    expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
+  }
+
+  function flipAnimationReverse(element, callback) {
+    // FIRST: Record the current (expanded) position and size
+    const first = expandedCard.getBoundingClientRect();
+
+    // Apply inverted transform before layout change
+    const last = element.getBoundingClientRect();
+    const deltaX = first.left - last.left;
+    const deltaY = first.top - last.top;
+    const deltaWidth = first.width / last.width;
+    const deltaHeight = first.height / last.height;
+
+    expandedCard.style.transition = 'none';
+    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaWidth}, ${deltaHeight})`;
+
+    // Force reflow
+    expandedCard.offsetHeight;
+
+    // Trigger the layout change
+    callback();
+
+    // PLAY: Animate to the inverted state
+    expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
+
+    // After animation, remove transform
+    setTimeout(() => {
+      expandedCard.style.transform = '';
+      expandedCard.style.transition = '';
+    }, 600);
+  }
+
   cards.forEach((card) => {
     card.addEventListener('click', () => {
       const label = card.querySelector('span').textContent;
       expandedLabel.textContent = label;
-      overlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
+
+      flipAnimation(card, () => {
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
     });
   });
 
   closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
+    flipAnimationReverse(cards[0], () => {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
   });
 
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
-      overlay.classList.remove('active');
-      document.body.style.overflow = '';
+      flipAnimationReverse(cards[0], () => {
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      });
     }
   });
 </script>
 
 <style>
   .demo-container {
-    max-width: 900px;
     margin: 0 auto;
     padding: 40px 20px;
   }
