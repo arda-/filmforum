@@ -136,8 +136,7 @@ import Tooltip from '@components/Tooltip.astro';
       >
         <input type="checkbox" id="show-year-director-checkbox" style="display: none;" />
         <Icon name="megaphone" size={14} />
-        <span class="seg-btn-text-short seg-btn-label">Year & Dir.</span>
-        <span class="seg-btn-text-full seg-btn-label">Year & Director</span>
+        <span class="seg-btn-label">Year & Director</span>
       </button>
       <button
         class="seg-btn"
@@ -513,25 +512,6 @@ import Tooltip from '@components/Tooltip.astro';
 
   @media (min-width: 640px) {
     .seg-btn-label {
-      display: inline;
-    }
-  }
-
-  /* Responsive text for Year/Director button */
-  .seg-btn-text-short {
-    display: inline;
-  }
-
-  .seg-btn-text-full {
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .seg-btn-text-short {
-      display: none;
-    }
-
-    .seg-btn-text-full {
       display: inline;
     }
   }
