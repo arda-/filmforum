@@ -3,11 +3,12 @@ import Layout from '../../layouts/Layout.astro';
 ---
 
 <Layout title="Demo Pages" noindex={true}>
-  <h1>Demo Pages</h1>
-  <p class="subtitle">Testing and debugging tools</p>
+  <div>
+    <h1>Demo Pages</h1>
+    <p class="subtitle">Testing and debugging tools</p>
 
-  <nav class="demo-nav">
-    <a href="/demo/seo-preview" class="demo-link">
+    <nav class="demo-nav">
+    <a href="/demo/seo-preview" class="demo-link demo-link--wide">
       <h2>SEO Preview</h2>
       <p>Visual preview of OpenGraph share cards for all route types</p>
     </a>
@@ -49,24 +50,32 @@ import Layout from '../../layouts/Layout.astro';
       <h2>Fonts</h2>
       <p>Font responsiveness testing at various viewport widths</p>
     </a>
-  </nav>
+    </nav>
+  </div>
 </Layout>
 
 <style>
   h1 {
-    margin-top: 20px;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
   }
 
   .demo-nav {
-    max-width: 600px;
-    margin: 32px auto;
-    padding: 0 16px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
   .demo-section-heading {
+    grid-column: 1 / -1;
     font-family: 'Barlow Semi Condensed', sans-serif;
     font-weight: 500;
     font-size: 0.85rem;
@@ -75,6 +84,10 @@ import Layout from '../../layouts/Layout.astro';
     color: var(--text-tertiary);
     margin-top: 24px;
     margin-bottom: 4px;
+  }
+
+  .demo-link--wide {
+    grid-column: 1 / -1;
   }
 
   .demo-link {
