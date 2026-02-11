@@ -2,16 +2,10 @@
  * Movie-related utility functions for calendar display and filtering
  */
 
-// Import and re-export centralized utilities from calendarTime.ts
-import {
-  type Movie,
-  parseTimeToMins,
-  getDayTimeRange,
-  assignOverlapColumns,
-} from './calendarTime';
+// Import Movie type from calendarTime.ts
+import { type Movie } from './calendarTime';
 
 export type { Movie };
-export { parseTimeToMins, getDayTimeRange, assignOverlapColumns };
 
 /**
  * Converts a string to title case (first letter of each word capitalized)
