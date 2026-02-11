@@ -589,6 +589,31 @@ const ogImage = movieData[0]?.poster_url || null;
   renderCalendar();
   setTimeout(updateTextHeights, 10);
 
+  // --- Automatic fit width at 640px+ ---
+  const mediaQuery = window.matchMedia('(min-width: 640px)');
+
+  function handleViewportChange(e: MediaQueryListEvent | MediaQueryList) {
+    if (e.matches) {
+      // At 640px+, automatically enable fit width
+      if (fitWidthSwitch && !fitWidthSwitch.checked) {
+        fitWidthSwitch.checked = true;
+        // Disable tile display options when fit width is enabled
+        showYearDirectorCheckbox.checked = false;
+        showRuntimeCheckbox.checked = false;
+        showActorsCheckbox.checked = false;
+        showImageCheckbox.checked = false;
+        document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled', 'minimum-width');
+      }
+    }
+    // Below 640px, allow user's preference (don't force anything)
+  }
+
+  // Check initial state
+  handleViewportChange(mediaQuery);
+
+  // Listen for viewport changes
+  mediaQuery.addEventListener('change', handleViewportChange);
+
   // --- DOMContentLoaded: event delegation ---
   document.addEventListener('DOMContentLoaded', () => {
     // Hidden showtimes modal handlers
