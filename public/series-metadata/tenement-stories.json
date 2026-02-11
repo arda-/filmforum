@@ -1,0 +1,94 @@
+{
+  "id": "tenement-stories",
+  "name": "Tenement Stories",
+  "subtitle": "From Immigrants to Bohemians",
+  "dateRange": "Feb 6–26, 2026",
+  "seriesUrl": "https://filmforum.org/series/tenement-stories",
+  "venueName": "Film Forum",
+  "description": {
+    "short": "A festival presenting over 50 films exploring tenement life through cinema, spanning from early cinema pioneers to contemporary directors.",
+    "curatorial": "The festival presents over 50 films exploring tenement life through cinema, spanning from early cinema pioneers to contemporary directors. It frames this history as evolving \"FROM IMMIGRANTS TO BOHEMIANS,\" examining how these spaces and communities have been depicted across film history."
+  },
+  "heroImages": [
+    {
+      "filename": "west-side-story-slideshow.png",
+      "path": "/series-images/tenement-stories/west-side-story-slideshow.png",
+      "alt": "West Side Story - The iconic musical about tenement life"
+    },
+    {
+      "filename": "the-window-slideshow.png",
+      "path": "/series-images/tenement-stories/the-window-slideshow.png",
+      "alt": "The Window - Urban neighborhood narrative"
+    },
+    {
+      "filename": "raising-victor-vargas-slideshow.png",
+      "path": "/series-images/tenement-stories/raising-victor-vargas-slideshow.png",
+      "alt": "Raising Victor Vargas - Contemporary tenement story"
+    },
+    {
+      "filename": "dead-end-slideshow.png",
+      "path": "/series-images/tenement-stories/dead-end-slideshow.png",
+      "alt": "Dead End - Classic urban drama"
+    }
+  ],
+  "partnership": {
+    "name": "Tenement Museum",
+    "description": "Founded in 1988, The Tenement Museum welcomes visitors into the homes of immigrant, migrant, and refugee families, sharing their stories in order to inspire connection between past and present and to build a more inclusive and expansive American society. The Museum is experienced through educator-led tours of recreate family apartments of German, Irish, Black, Jewish, Italian, Puerto Rican, and Chinese families who lived in New York's tenements from the 1860s through the 1980s.",
+    "presentedBy": "Presented in association with the Tenement Museum"
+  },
+  "funding": {
+    "credits": [
+      {
+        "name": "The Ada Katz Fund for Literature in Film",
+        "type": "funding"
+      },
+      {
+        "name": "The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, '40s, and '50s",
+        "type": "funding"
+      }
+    ],
+    "acknowledgment": "Presented with support from The Ada Katz Fund for Literature in Film and The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, '40s, and '50s"
+  },
+  "specialProgramming": {
+    "livePiano": {
+      "enabled": true,
+      "artist": "Steve Sterner",
+      "description": "Composer Steve Sterner provides live piano scores for select screenings throughout the festival (through Feb 26)"
+    },
+    "events": [
+      {
+        "type": "post-film-conversation",
+        "description": "Multiple curated events featuring scholar Alice Kessler-Harris, author Foster Hirsch, and filmmaker participants"
+      }
+    ]
+  },
+  "communityEngagement": {
+    "discounts": {
+      "ticketHolders": {
+        "offer": "Buy-one-get-one-free Museum admission",
+        "howToRedeem": "Promo code obtained at box office or via email for online buyers"
+      },
+      "members": {
+        "offer": "Special pricing of $13 per ticket for Museum tours",
+        "howToRedeem": "Use promo code"
+      },
+      "exclusions": "Discounts exclude specialty and private tours"
+    },
+    "specialtyTours": [
+      {
+        "name": "Love at the Tenement",
+        "dates": ["Feb 8", "Feb 13"],
+        "description": "Explores dating and partnership narratives"
+      },
+      {
+        "name": "Crime in the Tenements: Fact and Fiction",
+        "dates": ["Feb 20", "Feb 22"],
+        "description": "Examines mythologies around tenement crime"
+      }
+    ]
+  },
+  "stats": {
+    "filmCount": 49,
+    "screeningCount": 98
+  }
+}
