@@ -46,6 +46,14 @@ import Button from '../../components/Button.astro';
     </div>
 
     <div class="demo-section">
+      <h2>Sticky Footer</h2>
+      <p class="section-desc">Action buttons stay visible at the bottom while content scrolls.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-sticky-footer')">Sticky Footer</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
       <h2>Movie Detail Example</h2>
       <p class="section-desc">Real-world usage: movie details with poster, metadata, and actions.</p>
       <div class="button-row">
@@ -229,6 +237,43 @@ import Button from '../../components/Button.astro';
     </div>
   </Drawer>
 
+  <!-- Sticky Footer -->
+  <Drawer id="drawer-sticky-footer" title="Sticky Footer Example" maxHeight="70vh">
+    <div class="drawer-content-scroll">
+      <h3>Overview</h3>
+      <p>This drawer demonstrates a sticky footer that stays visible at the bottom while the content scrolls independently.</p>
+      <p>This pattern is ideal for forms, confirmations, or any content where you need persistent action buttons.</p>
+
+      <h3>Product Details</h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+      <h3>Features</h3>
+      <ul>
+        <li>Feature one with detailed description</li>
+        <li>Feature two with additional context</li>
+        <li>Feature three explaining benefits</li>
+        <li>Feature four with technical specs</li>
+      </ul>
+
+      <h3>Specifications</h3>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+      <h3>Additional Information</h3>
+      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+      <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+
+      <h3>Reviews</h3>
+      <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+      <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</p>
+    </div>
+    <div class="drawer-footer-sticky">
+      <Button variant="secondary" onclick="closeDrawer('drawer-sticky-footer')">Cancel</Button>
+      <Button variant="primary" onclick="closeDrawer('drawer-sticky-footer')">Add to Cart</Button>
+    </div>
+  </Drawer>
+
   <!-- Movie Detail Example -->
   <Drawer id="drawer-movie" maxHeight="85vh">
     <div class="movie-detail">
@@ -387,6 +432,18 @@ import Button from '../../components/Button.astro';
     margin-top: 20px;
     padding-top: 16px;
     border-top: 1px solid var(--bg-movie-hover);
+  }
+
+  .drawer-footer-sticky {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    margin: 0 -20px -20px;
+    background: var(--bg-day);
+    border-top: 1px solid var(--bg-movie-hover);
+    backdrop-filter: blur(10px);
   }
 
   .drawer-content-scroll h3 {
