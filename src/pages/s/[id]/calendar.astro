@@ -169,7 +169,7 @@ const ogImage = movieData[0]?.poster_url || null;
   } from '@/constants';
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
-  import { parseTimeToMins, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
+  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
   import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
   import { openMovieModal, renderMovieList } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
@@ -363,6 +363,12 @@ const ogImage = movieData[0]?.poster_url || null;
         if (weekRange && weekRange.range > 0) {
           dayHeight = Math.max(weekRange.range * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
           dayStartTime = weekRange.start;
+        } else if (filteredMovies.length > 0) {
+          // Defensive fallback: calculate day's own range if weekRange is missing
+          // (should not occur in practice - all dates from generateDateRange should have weekRange)
+          const dayRange = getDayTimeRange(filteredMovies);
+          dayHeight = Math.max(dayRange.range * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
+          dayStartTime = dayRange.start;
         }
 
         dayCell.style.height = `${dayHeight}px`;
