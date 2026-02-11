@@ -3,7 +3,7 @@
  * Shared logic for rendering movie tiles in both timeline and non-timeline modes
  */
 
-import type { Movie } from '../../utils/icsGenerator';
+import type { Movie } from '../../types/movie';
 
 export interface TileOptions {
   isTimeline: boolean;

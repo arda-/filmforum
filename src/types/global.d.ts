@@ -1,4 +1,4 @@
-import type { Movie } from '../utils/icsGenerator';
+import type { Movie } from './movie';
 
 declare global {
   interface Window {

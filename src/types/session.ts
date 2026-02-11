@@ -1,4 +1,4 @@
-import type { Movie } from '../utils/movieUtils';
+import type { Movie } from './movie';
 
 /** Reaction states for a movie */
 export type MovieReaction = 'yes' | 'maybe' | 'no' | 'none';

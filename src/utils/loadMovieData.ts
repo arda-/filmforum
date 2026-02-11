@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Movie } from './icsGenerator';
+import type { Movie } from '../types/movie';
 
 /**
  * Load movie data at build time from a JSON file in the public directory.

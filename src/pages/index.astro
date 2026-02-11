@@ -5,8 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
 import { toTitleCase, aggregateMoviesForDate } from '../utils/movieUtils';
 import type { Movie, GroupedMovie } from '../utils/movieUtils';
-import fs from 'node:fs';
-import path from 'node:path';
+import { loadMovieData } from '../utils/loadMovieData';
 
 // Build-time import of all poster images from src/assets/posters/
 const posterGlob = import.meta.glob<{ default: ImageMetadata }>(
@@ -39,9 +38,8 @@ let buildDate = '';
 const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 
 for (const series of activeSeries) {
-  const dataPath = path.join(process.cwd(), 'public', series.dataFile);
   try {
-    const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    const { movieData } = loadMovieData(series.dataFile);
     const { targetDate, movies } = aggregateMoviesForDate(movieData, todayStr);
 
     if (!buildDate && targetDate) buildDate = targetDate;
@@ -175,7 +173,8 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       seriesId,
       showtimes,
     })),
-  })} />
+    // Prevent closing </script> tag injection in JSON (XSS mitigation)
+  }).replace(/</g, '\\u003c')} />
 
   <script>
     import { toTitleCase, aggregateMoviesForDate, formatRuntime } from '../utils/movieUtils';
@@ -332,7 +331,15 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       overlay.classList.add('open');
       drawer.classList.add('open');
       document.body.style.overflow = 'hidden';
-      drawer.focus();
+      // Focus the first focusable element to ensure focus trap works correctly
+      const firstFocusable = drawer.querySelector<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (firstFocusable) {
+        firstFocusable.focus();
+      } else {
+        drawer.focus();
+      }
     }
 
     function closeDetail() {
@@ -650,7 +657,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 100;
+    z-index: var(--z-drawer-bg);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1);
@@ -666,7 +673,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 101;
+    z-index: var(--z-drawer);
     max-height: 90vh;
     max-height: 90dvh;
     border-radius: 16px 16px 0 0;

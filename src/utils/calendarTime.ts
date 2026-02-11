@@ -3,7 +3,7 @@
  * Pure utility functions with no DOM or state dependencies.
  */
 
-import type { Movie } from './icsGenerator';
+import type { Movie } from '../types/movie';
 import { DAYS } from '../constants';
 
 // Re-export Movie type for centralized access
