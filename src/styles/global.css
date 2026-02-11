@@ -32,6 +32,7 @@ html { touch-action: manipulation; }
   --text-secondary: #64748b;
   --text-tertiary: #64748b;
   --accent: #0891b2;
+  --accent-light: #22d3ee;
   --accent-bg: #0e7490;
 
   /* Webcoreui theme - light */
@@ -67,6 +68,7 @@ html { touch-action: manipulation; }
     --text-secondary: #94a3b8;
     --text-tertiary: #94a3b8;
     --accent: #06b6d4;
+    --accent-light: #67e8f9;
     --accent-bg: #0e7490;
 
     /* Webcoreui theme - dark (midnight) */

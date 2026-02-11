@@ -526,18 +526,30 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     -webkit-overflow-scrolling: touch;
     padding-top: 16px;
     padding-bottom: 16px;
-    padding-left: 20px;
-    padding-right: 20px;
-    margin-left: -20px;
-    margin-right: -20px;
-    scroll-padding-left: 20px;
-    scroll-padding-right: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-left: -16px;
+    margin-right: -16px;
+    scroll-padding-left: 16px;
+    scroll-padding-right: 16px;
     scrollbar-width: none;
   }
 
   @media (min-width: 480px) {
     .today-scroll {
       grid-auto-columns: 250px;
+    }
+  }
+
+  /* Desktop: contain scroll within the layout container */
+  @media (min-width: 768px) {
+    .today-scroll {
+      margin-left: 0;
+      margin-right: 0;
+      padding-left: 0;
+      padding-right: 0;
+      scroll-padding-left: 0;
+      scroll-padding-right: 0;
     }
   }
 
@@ -619,7 +631,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     z-index: 4;
     font-size: 11px;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--accent-light);
     background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
