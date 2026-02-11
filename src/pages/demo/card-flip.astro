@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
-    <p class="version">v1</p>
+    <p class="version">v2</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
@@ -39,23 +39,91 @@ import Layout from '../../layouts/Layout.astro';
   const expandedLabel = document.getElementById('expandedLabel');
   const closeBtn = document.getElementById('closeBtn');
 
-  function open(card) {
-    const number = card.querySelector('.card-number').textContent;
-    expandedLabel.textContent = number;
+  let sourceCard = null;
+  let sourceCardId = 0;
+
+  function flipOpen(element) {
+    const first = element.getBoundingClientRect();
+
     expandedCard.classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    const last = expandedCard.getBoundingClientRect();
+
+    const deltaX = first.left - last.left;
+    const deltaY = first.top - last.top;
+    const deltaWidth = first.width / last.width;
+    const deltaHeight = first.height / last.height;
+
+    expandedCard.style.transformOrigin = '0 0';
+    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaWidth}, ${deltaHeight})`;
+    expandedCard.style.transition = 'none';
+    expandedCard.offsetHeight;
+
+    expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
   }
 
-  function close() {
+  function closeInstant() {
     expandedCard.classList.remove('active');
     document.body.style.overflow = '';
+    expandedCard.style.transform = '';
+    expandedCard.style.transition = '';
+    sourceCard = null;
+  }
+
+  function closeSmoothFlip() {
+    if (!sourceCard) { closeInstant(); return; }
+
+    const expandedRect = expandedCard.getBoundingClientRect();
+    const targetRect = sourceCard.getBoundingClientRect();
+
+    const deltaX = targetRect.left - expandedRect.left;
+    const deltaY = targetRect.top - expandedRect.top;
+    const scaleX = targetRect.width / expandedRect.width;
+    const scaleY = targetRect.height / expandedRect.height;
+
+    expandedCard.style.transformOrigin = '0 0';
+    expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+
+    expandedCard.addEventListener('transitionend', function handler(e) {
+      if (e.propertyName !== 'transform') return;
+      expandedCard.removeEventListener('transitionend', handler);
+      expandedCard.classList.remove('active');
+      document.body.style.overflow = '';
+      expandedCard.style.transform = '';
+      expandedCard.style.transition = '';
+      expandedCard.style.transformOrigin = '';
+      sourceCard = null;
+    }, { once: false });
+  }
+
+  function handleClose() {
+    if (sourceCardId === 3) {
+      closeSmoothFlip();
+    } else {
+      closeInstant();
+    }
   }
 
   cards.forEach((card) => {
-    card.addEventListener('click', () => open(card));
+    card.addEventListener('click', () => {
+      const id = parseInt(card.dataset.id, 10);
+      expandedLabel.textContent = card.querySelector('.card-number').textContent;
+      sourceCard = card;
+      sourceCardId = id;
+
+      if (id >= 2) {
+        flipOpen(card);
+      } else {
+        expandedCard.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
   });
 
-  closeBtn.addEventListener('click', close);
+  closeBtn.addEventListener('click', handleClose);
 </script>
 
 <style>
