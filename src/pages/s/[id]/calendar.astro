@@ -410,11 +410,10 @@ const ogImage = movieData[0]?.poster_url || null;
   const showImageCheckbox = document.getElementById('show-image-checkbox') as HTMLInputElement;
 
   // Helper to determine if minimum-width mode should be enabled
-  // (when actors or image are checked, tiles are wide and need minimum-width)
+  // Content mode (fit width OFF) always enforces 640px minimum width
   function shouldEnableMinimumWidth(): boolean {
     const fitWidth = fitWidthSwitch?.checked ?? true;
-    if (fitWidth) return false;
-    return showActorsCheckbox?.checked || showImageCheckbox?.checked;
+    return !fitWidth;  // If NOT fit width (Content mode), always enforce minimum width
   }
 
   // Fit width switch
