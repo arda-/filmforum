@@ -4,6 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
+    <p class="version">v1</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
@@ -23,12 +24,10 @@ import Layout from '../../layouts/Layout.astro';
       ))}
     </div>
 
-    <div class="expanded-overlay" id="expandedOverlay">
-      <div class="expanded-card" id="expandedCard">
-        <button class="close-btn" id="closeBtn">×</button>
-        <div class="expanded-content">
-          <span class="expanded-label" id="expandedLabel"></span>
-        </div>
+    <div class="expanded-card" id="expandedCard">
+      <button class="close-btn" id="closeBtn">×</button>
+      <div class="expanded-content">
+        <span class="expanded-label" id="expandedLabel"></span>
       </div>
     </div>
   </div>
@@ -36,104 +35,39 @@ import Layout from '../../layouts/Layout.astro';
 
 <script>
   const cards = document.querySelectorAll('.card');
-  const overlay = document.getElementById('expandedOverlay');
   const expandedCard = document.getElementById('expandedCard');
   const expandedLabel = document.getElementById('expandedLabel');
   const closeBtn = document.getElementById('closeBtn');
 
-  let sourceCard = null;
-  let sourceCardId = 0;
-
-  function flipAnimation(element, callback) {
-    const first = element.getBoundingClientRect();
-    callback();
-    const last = expandedCard.getBoundingClientRect();
-
-    const deltaX = first.left - last.left;
-    const deltaY = first.top - last.top;
-    const deltaWidth = first.width / last.width;
-    const deltaHeight = first.height / last.height;
-
-    expandedCard.style.transformOrigin = '0 0';
-    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaWidth}, ${deltaHeight})`;
-    expandedCard.style.transition = 'none';
-    expandedCard.offsetHeight;
-
-    expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-    expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
+  function open(card) {
+    const number = card.querySelector('.card-number').textContent;
+    expandedLabel.textContent = number;
+    expandedCard.classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
 
-  function closeInstant() {
-    overlay.classList.remove('active');
+  function close() {
+    expandedCard.classList.remove('active');
     document.body.style.overflow = '';
-    expandedCard.style.transform = '';
-    expandedCard.style.transition = '';
-    sourceCard = null;
-  }
-
-  function closeSmoothFlip() {
-    if (!sourceCard) { closeInstant(); return; }
-
-    const expandedRect = expandedCard.getBoundingClientRect();
-    const targetRect = sourceCard.getBoundingClientRect();
-
-    const deltaX = targetRect.left - expandedRect.left;
-    const deltaY = targetRect.top - expandedRect.top;
-    const scaleX = targetRect.width / expandedRect.width;
-    const scaleY = targetRect.height / expandedRect.height;
-
-    expandedCard.style.transformOrigin = '0 0';
-    expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
-
-    expandedCard.addEventListener('transitionend', function handler(e) {
-      if (e.propertyName !== 'transform') return;
-      expandedCard.removeEventListener('transitionend', handler);
-      overlay.classList.remove('active');
-      document.body.style.overflow = '';
-      expandedCard.style.transform = '';
-      expandedCard.style.transition = '';
-      expandedCard.style.transformOrigin = '';
-      sourceCard = null;
-    }, { once: false });
-  }
-
-  function handleClose() {
-    if (sourceCardId === 3) {
-      closeSmoothFlip();
-    } else {
-      closeInstant();
-    }
   }
 
   cards.forEach((card) => {
-    card.addEventListener('click', () => {
-      const id = parseInt(card.dataset.id, 10);
-      const number = card.querySelector('.card-number').textContent;
-      expandedLabel.textContent = number;
-      sourceCard = card;
-      sourceCardId = id;
-
-      flipAnimation(card, () => {
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-      });
-    });
+    card.addEventListener('click', () => open(card));
   });
 
-  closeBtn.addEventListener('click', handleClose);
-
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      handleClose();
-    }
-  });
+  closeBtn.addEventListener('click', close);
 </script>
 
 <style>
   .demo-container {
     margin: 0 auto;
     padding: 40px 20px;
+  }
+
+  .version {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin: 0 0 4px;
   }
 
   h1 {
@@ -193,26 +127,10 @@ import Layout from '../../layouts/Layout.astro';
     color: var(--text-tertiary);
   }
 
-  .expanded-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    visibility: hidden;
-    z-index: 1000;
-  }
-
-  .expanded-overlay.active {
-    visibility: visible;
-  }
-
   .expanded-card {
-    position: relative;
+    position: fixed;
+    inset: 0;
+    margin: auto;
     width: 100%;
     height: 85dvh;
     max-width: calc(100% - 40px);
@@ -223,6 +141,12 @@ import Layout from '../../layouts/Layout.astro';
     justify-content: center;
     flex-direction: column;
     gap: 24px;
+    visibility: hidden;
+    z-index: 1000;
+  }
+
+  .expanded-card.active {
+    visibility: visible;
   }
 
   .close-btn {
