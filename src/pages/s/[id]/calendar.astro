@@ -490,6 +490,10 @@ const ogImage = movieData[0]?.poster_url || null;
   // Restore URL state silently before first render (no events, no re-renders)
   restoreFromUrl();
 
+  // Initialize natural-width class based on fit-width switch state
+  const initialFitWidth = fitWidthSwitch?.checked ?? true;
+  document.body.classList.toggle('natural-width', !initialFitWidth);
+
   // Single render with all state already applied
   renderCalendar();
   setTimeout(updateTextHeights, 10);
