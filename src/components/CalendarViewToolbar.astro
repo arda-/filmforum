@@ -181,6 +181,9 @@ import Tooltip from '@components/Tooltip.astro';
 </div>
 
 <script>
+  // Module-level variable to store saved detail view states
+  let savedDetailStates: { [key: string]: boolean } = {};
+
   // --- Segmented toggle: Timeline / Grid ---
   const viewTimelineBtn = document.getElementById('view-mode-timeline');
   const viewGridBtn = document.getElementById('view-mode-grid');
@@ -226,20 +229,24 @@ import Tooltip from '@components/Tooltip.astro';
       fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    // When switching to Fit mode, disable all detail views
-    if (isFit) {
-      // Uncheck all detail checkboxes
-      const detailCheckboxes = [
-        document.getElementById('show-year-director-checkbox'),
-        document.getElementById('show-runtime-checkbox'),
-        document.getElementById('show-actors-checkbox'),
-        document.getElementById('show-image-checkbox')
-      ] as HTMLInputElement[];
+    const detailCheckboxes = {
+      'show-year-director-checkbox': document.getElementById('show-year-director-checkbox') as HTMLInputElement,
+      'show-runtime-checkbox': document.getElementById('show-runtime-checkbox') as HTMLInputElement,
+      'show-actors-checkbox': document.getElementById('show-actors-checkbox') as HTMLInputElement,
+      'show-image-checkbox': document.getElementById('show-image-checkbox') as HTMLInputElement
+    };
 
-      detailCheckboxes.forEach(checkbox => {
-        if (checkbox && checkbox.checked) {
-          checkbox.checked = false;
-          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    // When switching to Fit mode, save and disable all detail views
+    if (isFit) {
+      // Save current states before disabling
+      savedDetailStates = {};
+      Object.entries(detailCheckboxes).forEach(([id, checkbox]) => {
+        if (checkbox) {
+          savedDetailStates[id] = checkbox.checked;
+          if (checkbox.checked) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          }
         }
       });
 
@@ -251,6 +258,25 @@ import Tooltip from '@components/Tooltip.astro';
 
       // Remove body classes
       document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
+    } else {
+      // When switching to Content mode, restore saved states
+      if (Object.keys(savedDetailStates).length > 0) {
+        Object.entries(detailCheckboxes).forEach(([id, checkbox]) => {
+          if (checkbox && savedDetailStates[id]) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+
+        // Update button active states
+        detailButtons.forEach(button => {
+          const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+          if (checkbox && checkbox.checked) {
+            button.classList.add('active');
+            button.setAttribute('aria-pressed', 'true');
+          }
+        });
+      }
     }
   }
 
