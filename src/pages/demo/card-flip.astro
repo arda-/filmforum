@@ -4,12 +4,13 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
-    <p class="version">v2</p>
+    <p class="version">v3</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
     <div class="grid">
       {[
+        { id: 4, title: 'Same Element', desc: 'Card itself expands' },
         { id: 3, title: 'FLIP + Smooth Close', desc: 'Smooth open and close' },
         { id: 2, title: 'FLIP Animation', desc: 'Smooth transform-based expansion' },
         { id: 1, title: 'Original', desc: 'Base card style' },
@@ -41,6 +42,7 @@ import Layout from '../../layouts/Layout.astro';
 
   let sourceCard = null;
   let sourceCardId = 0;
+  let placeholder = null;
 
   function flipOpen(element) {
     const first = element.getBoundingClientRect();
@@ -62,6 +64,70 @@ import Layout from '../../layouts/Layout.astro';
 
     expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
+  }
+
+  function sameElementOpen(card) {
+    // Measure the card in its grid position
+    const first = card.getBoundingClientRect();
+
+    // Insert placeholder to hold grid space
+    placeholder = document.createElement('div');
+    placeholder.style.width = first.width + 'px';
+    placeholder.style.height = first.height + 'px';
+    card.parentNode.insertBefore(placeholder, card);
+
+    // Make the card fixed and expanded
+    card.classList.add('card-expanded');
+    document.body.style.overflow = 'hidden';
+
+    const last = card.getBoundingClientRect();
+
+    const deltaX = first.left - last.left;
+    const deltaY = first.top - last.top;
+    const scaleX = first.width / last.width;
+    const scaleY = first.height / last.height;
+
+    card.style.transformOrigin = '0 0';
+    card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    card.style.transition = 'none';
+    card.offsetHeight;
+
+    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    card.style.transform = 'translate(0, 0) scale(1, 1)';
+  }
+
+  function sameElementClose() {
+    if (!sourceCard || !placeholder) return;
+    const card = sourceCard;
+
+    // Measure where placeholder is (the original grid position)
+    const targetRect = placeholder.getBoundingClientRect();
+    const currentRect = card.getBoundingClientRect();
+
+    const deltaX = targetRect.left - currentRect.left;
+    const deltaY = targetRect.top - currentRect.top;
+    const scaleX = targetRect.width / currentRect.width;
+    const scaleY = targetRect.height / currentRect.height;
+
+    card.style.transformOrigin = '0 0';
+    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+
+    card.addEventListener('transitionend', function handler(e) {
+      if (e.propertyName !== 'transform') return;
+      card.removeEventListener('transitionend', handler);
+      card.classList.remove('card-expanded');
+      card.style.transform = '';
+      card.style.transition = '';
+      card.style.transformOrigin = '';
+      document.body.style.overflow = '';
+      if (placeholder && placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(card, placeholder);
+        placeholder.remove();
+      }
+      placeholder = null;
+      sourceCard = null;
+    }, { once: false });
   }
 
   function closeInstant() {
@@ -100,7 +166,9 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   function handleClose() {
-    if (sourceCardId === 3) {
+    if (sourceCardId === 4) {
+      sameElementClose();
+    } else if (sourceCardId === 3) {
       closeSmoothFlip();
     } else {
       closeInstant();
@@ -109,21 +177,35 @@ import Layout from '../../layouts/Layout.astro';
 
   cards.forEach((card) => {
     card.addEventListener('click', () => {
+      if (card.classList.contains('card-expanded')) return;
       const id = parseInt(card.dataset.id, 10);
-      expandedLabel.textContent = card.querySelector('.card-number').textContent;
       sourceCard = card;
       sourceCardId = id;
 
-      if (id >= 2) {
-        flipOpen(card);
+      if (id === 4) {
+        sameElementOpen(card);
       } else {
-        expandedCard.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        expandedLabel.textContent = card.querySelector('.card-number').textContent;
+        if (id >= 2) {
+          flipOpen(card);
+        } else {
+          expandedCard.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
       }
     });
   });
 
   closeBtn.addEventListener('click', handleClose);
+
+  // Close card 4 by clicking on it when expanded
+  document.addEventListener('click', (e) => {
+    if (sourceCardId === 4 && sourceCard && sourceCard.classList.contains('card-expanded')) {
+      if (sourceCard.contains(e.target)) {
+        sameElementClose();
+      }
+    }
+  });
 </script>
 
 <style>
@@ -193,6 +275,18 @@ import Layout from '../../layouts/Layout.astro';
   .card-desc {
     font-size: 12px;
     color: var(--text-tertiary);
+  }
+
+  .card.card-expanded {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: 100%;
+    height: 85dvh;
+    max-width: calc(100% - 40px);
+    aspect-ratio: auto;
+    z-index: 1000;
+    cursor: default;
   }
 
   .expanded-card {
