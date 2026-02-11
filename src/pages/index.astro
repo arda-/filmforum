@@ -130,7 +130,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
             const image = getPosterImage(film.poster_url);
             return (
             <button type="button" class="poster-card" data-movie-idx={idx} aria-label={toTitleCase(film.Movie)}>
-              {image && <Image src={image} alt={film.Movie} class="poster-image" width={400} height={300} loading="lazy" />}
+              {image && <Image src={image} alt={film.Movie} class="poster-image" width={500} height={375} loading="lazy" />}
               <div class="poster-scrim"></div>
               <div class="poster-blur"></div>
               <span class="poster-time">{showtimes.map(s => s.time).join(', ')}</span>
