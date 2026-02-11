@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
-    <p class="version">v7</p>
+    <p class="version">v8</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
@@ -50,7 +50,14 @@ import Layout from '../../layouts/Layout.astro';
   let sourceCardId = 0;
 
   // === Same-element expander factory ===
-  function createExpander({ closedRadius = 1, openRadius = 1 } = {}) {
+  function createExpander({
+    closedRadius = 1,
+    openRadius = 1,
+    width = '100%',
+    height = '85dvh',
+    maxWidth = 'calc(100% - 40px)',
+    maxHeight = 'none',
+  } = {}) {
     let placeholder = null;
     let justOpened = false;
 
@@ -63,6 +70,10 @@ import Layout from '../../layouts/Layout.astro';
       card.parentNode.insertBefore(placeholder, card);
 
       card.classList.add(EXPANDED_CLASS);
+      card.style.width = width;
+      card.style.height = height;
+      card.style.maxWidth = maxWidth;
+      card.style.maxHeight = maxHeight;
       document.body.style.overflow = 'hidden';
 
       const last = card.getBoundingClientRect();
@@ -108,6 +119,10 @@ import Layout from '../../layouts/Layout.astro';
         card.style.transition = '';
         card.style.transformOrigin = '';
         card.style.borderRadius = '';
+        card.style.width = '';
+        card.style.height = '';
+        card.style.maxWidth = '';
+        card.style.maxHeight = '';
         document.body.style.overflow = '';
         if (placeholder && placeholder.parentNode) {
           placeholder.parentNode.insertBefore(card, placeholder);
@@ -310,9 +325,6 @@ import Layout from '../../layouts/Layout.astro';
     position: fixed;
     inset: 0;
     margin: auto;
-    width: 100%;
-    height: 85dvh;
-    max-width: calc(100% - 40px);
     aspect-ratio: auto;
     z-index: 1000;
     cursor: default;
