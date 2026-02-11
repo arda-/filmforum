@@ -6,6 +6,9 @@
 import type { Movie } from './icsGenerator';
 import { DAYS } from '../constants';
 
+// Re-export Movie type for centralized access
+export type { Movie };
+
 /** Parse a time string (e.g. "2:10", "12:30 – FF Jr.") to minutes since midnight. */
 export function parseTimeToMins(timeStr: string): number {
   const match = timeStr.match(/(\d{1,2}):(\d{2})/);
