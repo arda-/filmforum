@@ -9,6 +9,7 @@ import Layout from '../../layouts/Layout.astro';
 
     <div class="grid">
       {[
+        { id: 3, title: 'FLIP + Smooth Close', desc: 'Smooth open and close' },
         { id: 2, title: 'FLIP Animation', desc: 'Smooth transform-based expansion' },
         { id: 1, title: 'Original', desc: 'Base card style' },
       ].map((card) => (
@@ -40,70 +41,83 @@ import Layout from '../../layouts/Layout.astro';
   const expandedLabel = document.getElementById('expandedLabel');
   const closeBtn = document.getElementById('closeBtn');
 
+  let sourceCard = null;
+  let sourceCardId = 0;
+
   function flipAnimation(element, callback) {
-    // FIRST: Record initial position and size
     const first = element.getBoundingClientRect();
-
-    // Trigger the layout change
     callback();
-
-    // LAST: Record final position and size
     const last = expandedCard.getBoundingClientRect();
 
-    // INVERT: Calculate the difference and apply inverted transform
     const deltaX = first.left - last.left;
     const deltaY = first.top - last.top;
     const deltaWidth = first.width / last.width;
     const deltaHeight = first.height / last.height;
 
-    // Apply the inverted transform
     expandedCard.style.transformOrigin = '0 0';
     expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaWidth}, ${deltaHeight})`;
     expandedCard.style.transition = 'none';
-
-    // Force a reflow to ensure the transform is applied
     expandedCard.offsetHeight;
 
-    // PLAY: Remove the transform and let it animate
     expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
   }
 
-  function flipAnimationReverse(element, callback) {
-    // FIRST: Record the current (expanded) position and size
-    const first = expandedCard.getBoundingClientRect();
+  function closeInstant() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    expandedCard.style.transform = '';
+    expandedCard.style.transition = '';
+    sourceCard = null;
+  }
 
-    // Apply inverted transform before layout change
-    const last = element.getBoundingClientRect();
-    const deltaX = first.left - last.left;
-    const deltaY = first.top - last.top;
-    const deltaWidth = first.width / last.width;
-    const deltaHeight = first.height / last.height;
+  function closeSmoothFlip() {
+    if (!sourceCard) { closeInstant(); return; }
 
-    expandedCard.style.transition = 'none';
-    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${deltaWidth}, ${deltaHeight})`;
+    const expandedRect = expandedCard.getBoundingClientRect();
+    const targetRect = sourceCard.getBoundingClientRect();
 
-    // Force reflow
-    expandedCard.offsetHeight;
+    const deltaX = targetRect.left - expandedRect.left;
+    const deltaY = targetRect.top - expandedRect.top;
+    const scaleX = targetRect.width / expandedRect.width;
+    const scaleY = targetRect.height / expandedRect.height;
 
-    // Trigger the layout change
-    callback();
-
-    // PLAY: Animate to the inverted state
+    expandedCard.style.transformOrigin = '0 0';
     expandedCard.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-    expandedCard.style.transform = 'translate(0, 0) scale(1, 1)';
+    expandedCard.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
 
-    // After animation, remove transform
-    setTimeout(() => {
+    overlay.style.transition = 'opacity 0.4s ease-out';
+    overlay.style.opacity = '0';
+
+    expandedCard.addEventListener('transitionend', function handler(e) {
+      if (e.propertyName !== 'transform') return;
+      expandedCard.removeEventListener('transitionend', handler);
+      overlay.classList.remove('active');
+      overlay.style.transition = '';
+      overlay.style.opacity = '';
+      document.body.style.overflow = '';
       expandedCard.style.transform = '';
       expandedCard.style.transition = '';
-    }, 600);
+      expandedCard.style.transformOrigin = '';
+      sourceCard = null;
+    }, { once: false });
+  }
+
+  function handleClose() {
+    if (sourceCardId === 3) {
+      closeSmoothFlip();
+    } else {
+      closeInstant();
+    }
   }
 
   cards.forEach((card) => {
     card.addEventListener('click', () => {
+      const id = parseInt(card.dataset.id, 10);
       const number = card.querySelector('.card-number').textContent;
       expandedLabel.textContent = number;
+      sourceCard = card;
+      sourceCardId = id;
 
       flipAnimation(card, () => {
         overlay.classList.add('active');
@@ -112,19 +126,11 @@ import Layout from '../../layouts/Layout.astro';
     });
   });
 
-  closeBtn.addEventListener('click', () => {
-    flipAnimationReverse(cards[0], () => {
-      overlay.classList.remove('active');
-      document.body.style.overflow = '';
-    });
-  });
+  closeBtn.addEventListener('click', handleClose);
 
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
-      flipAnimationReverse(cards[0], () => {
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-      });
+      handleClose();
     }
   });
 </script>
