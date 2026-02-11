@@ -193,6 +193,8 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
         if (end > globalEnd) globalEnd = end;
       });
     }
+    // Note: This demo intentionally uses a global uniform height for all days in the week,
+    // unlike the main calendar which uses per-week dynamic heights. This simplifies the demo.
     const uniformHeight = Math.max((globalEnd - globalStart) * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
 
     dayNames.forEach((dayName, i) => {
