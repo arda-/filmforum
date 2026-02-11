@@ -425,6 +425,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     letter-spacing: 0.06em;
     color: var(--text-tertiary);
     margin-bottom: 16px;
+    text-align: left;
   }
 
   /* Demos section */
@@ -518,18 +519,24 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
 <style is:global>
   /* --- Horizontal scroll container --- */
   .today-scroll {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 220px;
     gap: 12px;
     overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: visible;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
+    padding: 16px 20px;
     margin-left: -20px;
     margin-right: -20px;
-    padding-left: 20px;
-    padding-right: 20px;
     scrollbar-width: none;
+  }
+
+  @media (min-width: 480px) {
+    .today-scroll {
+      grid-auto-columns: 250px;
+    }
   }
 
   .today-scroll::-webkit-scrollbar {
@@ -546,7 +553,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     text-decoration: none;
     display: block;
-    flex: 0 0 220px;
+    width: 100%;
     scroll-snap-align: start;
     transition: transform 0.15s, box-shadow 0.15s;
     border: none;
@@ -555,12 +562,6 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     font-family: inherit;
     color: inherit;
     text-align: left;
-  }
-
-  @media (min-width: 480px) {
-    .today-scroll .poster-card {
-      flex: 0 0 250px;
-    }
   }
 
   @media (hover: hover) {
