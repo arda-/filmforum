@@ -173,6 +173,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       seriesId,
       showtimes,
     })),
+    // Prevent closing </script> tag injection in JSON (XSS mitigation)
   }).replace(/</g, '\\u003c')} />
 
   <script>
