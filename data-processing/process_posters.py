@@ -6,10 +6,14 @@ import json
 import urllib.request
 from pathlib import Path
 
-# Directories
-HTML_DIR = "/Users/ardaungun/code/filmforum/movie-pages"
-POSTERS_DIR = "/Users/ardaungun/code/filmforum/astro-calendar/public/posters"
-JSON_FILE = "/Users/ardaungun/code/filmforum/tenement-stories-evenings.json"
+# Get script directory for relative paths
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+
+# Directories (use environment variables with relative path fallbacks)
+HTML_DIR = os.environ.get('HTML_DIR', str(PROJECT_ROOT / 'movie-pages'))
+POSTERS_DIR = os.environ.get('POSTERS_DIR', str(PROJECT_ROOT / 'public/posters'))
+JSON_FILE = os.environ.get('JSON_FILE', str(PROJECT_ROOT / 'tenement-stories-evenings.json'))
 
 # Create posters directory if it doesn't exist
 os.makedirs(POSTERS_DIR, exist_ok=True)
