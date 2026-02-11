@@ -1,0 +1,43 @@
+---
+/**
+ * Lucide icon component.
+ * Renders SVG icons from the lucide-static package.
+ *
+ * @param name - Icon name from lucide (e.g., "gallery-vertical", "settings")
+ * @param size - Icon size in pixels (default: 16)
+ * @param class - Additional CSS classes
+ */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+interface Props {
+  name: string;
+  size?: number | string;
+  class?: string;
+}
+
+const { name, size = 16, class: className } = Astro.props;
+
+// Resolve path to lucide-static icons from project root
+const iconPath = resolve(process.cwd(), 'node_modules', 'lucide-static', 'icons', `${name}.svg`);
+
+let svg: string;
+try {
+  svg = readFileSync(iconPath, 'utf-8');
+
+  // Replace width/height attributes with provided size
+  svg = svg
+    .replace(/width="24"/, `width="${size}"`)
+    .replace(/height="24"/, `height="${size}"`);
+
+  // Add custom class if provided
+  if (className) {
+    svg = svg.replace(/class="[^"]*"/, `class="${className}"`);
+  }
+} catch (error) {
+  console.error(`Icon "${name}" not found in lucide-static`);
+  svg = `<svg width="${size}" height="${size}" viewBox="0 0 24 24"><text x="12" y="12" text-anchor="middle">?</text></svg>`;
+}
+---
+
+<Fragment set:html={svg} />

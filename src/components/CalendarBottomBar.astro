@@ -1,0 +1,38 @@
+---
+/**
+ * Sticky bottom bar for the calendar page.
+ * Contains the Saved movies filter (floats above calendar).
+ */
+import CheckboxGroup from '@components/CheckboxGroup.astro';
+---
+
+<div class="calendar-bottom-bar">
+  <CheckboxGroup
+    label="Saved movies:"
+    name="saved-filter"
+    options={[
+      { label: 'Yes', value: 'yes', checked: true, color: 'var(--reaction-yes)' },
+      { label: 'Maybe', value: 'maybe', checked: true, color: 'var(--reaction-maybe)' },
+      { label: 'No', value: 'no', color: 'var(--reaction-no)' },
+      { label: 'Unmarked', value: 'unmarked' }
+    ]}
+    statusId="saved-filter-status"
+  />
+</div>
+
+<style>
+  .calendar-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-drawer-bg);
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--bg-body) 90%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--bg-movie-hover);
+    display: flex;
+    justify-content: center;
+  }
+</style>
