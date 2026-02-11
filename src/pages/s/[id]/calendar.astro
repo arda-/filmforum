@@ -589,11 +589,15 @@ const ogImage = movieData[0]?.poster_url || null;
   renderCalendar();
   setTimeout(updateTextHeights, 10);
 
-  // --- Automatic fit width at 640px+ ---
+  // --- Automatic fit width management ---
   const mediaQuery = window.matchMedia('(min-width: 640px)');
 
+  function hasWideDetails(): boolean {
+    return showImageCheckbox?.checked || showActorsCheckbox?.checked;
+  }
+
   function handleViewportChange(e: MediaQueryListEvent | MediaQueryList) {
-    const fitWidthContainer = document.querySelector('.fit-width-container');
+    const tooltipWrapper = document.querySelector('.fit-width-container')?.closest('.tooltip-wrapper');
 
     if (e.matches) {
       // At 640px+, fit width is always enabled and disabled (control is non-functional)
@@ -602,21 +606,24 @@ const ogImage = movieData[0]?.poster_url || null;
         fitWidthSwitch.checked = true;
         fitWidthSwitch.disabled = true;
       }
-      // Show tooltip explaining why it's disabled
-      if (fitWidthContainer) {
-        const tooltipText = fitWidthContainer.getAttribute('data-tooltip-disabled');
-        if (tooltipText) {
-          fitWidthContainer.setAttribute('title', tooltipText);
-        }
+      // Enable tooltip to explain why it's disabled
+      if (tooltipWrapper) {
+        tooltipWrapper.setAttribute('data-disabled', 'false');
       }
     } else {
-      // Below 640px, enable the control and allow user's preference
+      // Below 640px
       if (fitWidthSwitch) {
         fitWidthSwitch.disabled = false;
+
+        // If Cast or Image are selected, turn off fit width (enable horizontal scroll)
+        if (hasWideDetails()) {
+          fitWidthSwitch.checked = false;
+          fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       }
-      // Remove tooltip when enabled
-      if (fitWidthContainer) {
-        fitWidthContainer.removeAttribute('title');
+      // Disable tooltip when control is enabled
+      if (tooltipWrapper) {
+        tooltipWrapper.setAttribute('data-disabled', 'true');
       }
     }
   }
@@ -626,6 +633,17 @@ const ogImage = movieData[0]?.poster_url || null;
 
   // Listen for viewport changes
   mediaQuery.addEventListener('change', handleViewportChange);
+
+  // Listen for Cast/Image checkbox changes to update fit width below 640px
+  [showImageCheckbox, showActorsCheckbox].forEach(checkbox => {
+    checkbox?.addEventListener('change', () => {
+      if (!mediaQuery.matches && hasWideDetails() && fitWidthSwitch) {
+        // Below 640px with Cast/Image enabled: disable fit width
+        fitWidthSwitch.checked = false;
+        fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
 
   // --- DOMContentLoaded: event delegation ---
   document.addEventListener('DOMContentLoaded', () => {

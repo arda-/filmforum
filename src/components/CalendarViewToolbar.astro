@@ -6,6 +6,7 @@
  */
 import Switch from '@components/Switch.astro';
 import Icon from '@components/Icon.astro';
+import Tooltip from '@components/Tooltip.astro';
 ---
 
 <div class="calendar-view-toolbar">
@@ -40,9 +41,11 @@ import Icon from '@components/Icon.astro';
     </div>
 
     <!-- Fit width switch -->
-    <div class="fit-width-container" data-tooltip-disabled="View is always full width at this window size">
-      <Switch id="fit-width-switch" label="Fit width" checked small />
-    </div>
+    <Tooltip text="View is always full width at this window size">
+      <div class="fit-width-container">
+        <Switch id="fit-width-switch" label="Fit width" checked small />
+      </div>
+    </Tooltip>
 
     <!-- Gear button → popover -->
     <div class="toolbar-group toolbar-group--end">
