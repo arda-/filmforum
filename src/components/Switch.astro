@@ -66,6 +66,17 @@ const { id, label, checked = false, small = false } = Astro.props;
     color: var(--text-secondary);
   }
 
+  /* Disabled state */
+  .switch input:disabled ~ .toggle,
+  .switch input:disabled ~ .label {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .switch:has(input:disabled) {
+    cursor: not-allowed;
+  }
+
   .switch.small .toggle {
     width: 40px;
     height: 20px;

@@ -593,6 +593,8 @@ const ogImage = movieData[0]?.poster_url || null;
   const mediaQuery = window.matchMedia('(min-width: 640px)');
 
   function handleViewportChange(e: MediaQueryListEvent | MediaQueryList) {
+    const fitWidthContainer = document.querySelector('.fit-width-container');
+
     if (e.matches) {
       // At 640px+, fit width is always enabled and disabled (control is non-functional)
       // (CSS already resets minimum-width at this breakpoint, so Cast/Image don't cause scroll)
@@ -600,10 +602,21 @@ const ogImage = movieData[0]?.poster_url || null;
         fitWidthSwitch.checked = true;
         fitWidthSwitch.disabled = true;
       }
+      // Show tooltip explaining why it's disabled
+      if (fitWidthContainer) {
+        const tooltipText = fitWidthContainer.getAttribute('data-tooltip-disabled');
+        if (tooltipText) {
+          fitWidthContainer.setAttribute('title', tooltipText);
+        }
+      }
     } else {
       // Below 640px, enable the control and allow user's preference
       if (fitWidthSwitch) {
         fitWidthSwitch.disabled = false;
+      }
+      // Remove tooltip when enabled
+      if (fitWidthContainer) {
+        fitWidthContainer.removeAttribute('title');
       }
     }
   }
