@@ -3,22 +3,77 @@
  * Sticky bottom bar for the calendar page.
  * Contains the Saved movies filter (floats above calendar).
  */
-import CheckboxGroup from '@components/CheckboxGroup.astro';
 ---
 
 <div class="calendar-bottom-bar">
-  <CheckboxGroup
-    label="Saved movies:"
-    name="saved-filter"
-    options={[
-      { label: 'Yes', value: 'yes', checked: true, color: 'var(--reaction-yes)' },
-      { label: 'Maybe', value: 'maybe', checked: true, color: 'var(--reaction-maybe)' },
-      { label: 'No', value: 'no', color: 'var(--reaction-no)' },
-      { label: 'Unmarked', value: 'unmarked' }
-    ]}
-    statusId="saved-filter-status"
-  />
+  <div class="saved-filter-container">
+    <span class="saved-filter-label">Saved movies:</span>
+    <div class="saved-filter-toggle" role="group" aria-label="Filter saved movies">
+      <button
+        class="saved-btn active"
+        data-filter="yes"
+        aria-pressed="true"
+        aria-label="Show movies marked Yes"
+        style="--btn-color: var(--reaction-yes)"
+      >
+        <input type="checkbox" name="saved-filter" value="yes" checked style="display: none;" />
+        Yes
+      </button>
+      <button
+        class="saved-btn active"
+        data-filter="maybe"
+        aria-pressed="true"
+        aria-label="Show movies marked Maybe"
+        style="--btn-color: var(--reaction-maybe)"
+      >
+        <input type="checkbox" name="saved-filter" value="maybe" checked style="display: none;" />
+        Maybe
+      </button>
+      <button
+        class="saved-btn"
+        data-filter="no"
+        aria-pressed="false"
+        aria-label="Show movies marked No"
+        style="--btn-color: var(--reaction-no)"
+      >
+        <input type="checkbox" name="saved-filter" value="no" style="display: none;" />
+        No
+      </button>
+      <button
+        class="saved-btn"
+        data-filter="unmarked"
+        aria-pressed="false"
+        aria-label="Show unmarked movies"
+      >
+        <input type="checkbox" name="saved-filter" value="unmarked" style="display: none;" />
+        Unmarked
+      </button>
+    </div>
+    <span id="saved-filter-status" class="saved-filter-status"></span>
+  </div>
 </div>
+
+<script>
+  // Multi-select toggle buttons for saved filter
+  const savedButtons = document.querySelectorAll('.saved-btn');
+
+  savedButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (checkbox) {
+        // Toggle the checkbox state
+        checkbox.checked = !checkbox.checked;
+
+        // Update button visual state
+        button.classList.toggle('active', checkbox.checked);
+        button.setAttribute('aria-pressed', String(checkbox.checked));
+
+        // Dispatch change event so existing calendar logic picks it up
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+</script>
 
 <style>
   .calendar-bottom-bar {
@@ -34,5 +89,81 @@ import CheckboxGroup from '@components/CheckboxGroup.astro';
     border-top: 1px solid var(--bg-movie-hover);
     display: flex;
     justify-content: center;
+  }
+
+  .saved-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .saved-filter-label {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .saved-filter-toggle {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    overflow: hidden;
+    background: transparent;
+  }
+
+  .saved-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    position: relative;
+  }
+
+  .saved-btn:not(:last-child) {
+    border-right: 1px solid var(--bg-movie-hover);
+  }
+
+  .saved-btn:hover {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .saved-btn.active {
+    background: var(--bg-movie);
+    color: var(--btn-color, var(--text-primary));
+  }
+
+  .saved-btn.active:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  .saved-filter-status {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    display: none;
+  }
+
+  .saved-filter-status:not(:empty) {
+    display: inline;
+  }
+
+  @media (max-width: 479px) {
+    .saved-filter-container {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
   }
 </style>
