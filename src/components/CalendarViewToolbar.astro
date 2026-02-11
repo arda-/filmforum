@@ -53,7 +53,8 @@ import Tooltip from '@components/Tooltip.astro';
             aria-label="Fit to window width"
             id="width-fit"
           >
-            Fit
+            <Icon name="fold-horizontal" size={14} />
+            <span class="seg-btn-label">Fit</span>
           </button>
           <button
             class="seg-btn"
@@ -63,7 +64,8 @@ import Tooltip from '@components/Tooltip.astro';
             aria-label="Show full content width"
             id="width-content"
           >
-            Content
+            <Icon name="unfold-horizontal" size={14} />
+            <span class="seg-btn-label">Content</span>
           </button>
         </div>
       </Tooltip>
