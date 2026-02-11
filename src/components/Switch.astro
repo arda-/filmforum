@@ -32,10 +32,12 @@ const { id, label, checked = false, small = false } = Astro.props;
   .toggle {
     position: relative;
     width: 40px;
+    min-width: 40px;
     height: 20px;
     border-radius: 15px;
     background: var(--w-switch-off-color, var(--bg-movie));
     transition: background 0.2s;
+    flex-shrink: 0;
   }
 
   .toggle::before {
