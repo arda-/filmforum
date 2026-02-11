@@ -145,32 +145,36 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       </section>
     )}
 
-    <!-- Movie detail drawer -->
-    <div class="detail-overlay" id="detail-overlay"></div>
-    <div class="detail-drawer" id="detail-drawer">
-      <div class="detail-scroll">
-        <div class="detail-hero">
-          <img class="detail-hero-img" id="detail-hero-img" src="" alt="" loading="lazy" />
-          <div class="detail-hero-scrim"></div>
-          <button class="detail-close" id="detail-close" type="button" aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          </button>
-          <div class="detail-hero-text">
-            <h2 class="detail-title" id="detail-title"></h2>
-            <p class="detail-meta" id="detail-meta"></p>
+    {/* Movie detail drawer — only rendered when there are active series */}
+    {activeSeries.length > 0 && (
+      <>
+        <div class="detail-overlay" id="detail-overlay"></div>
+        <div class="detail-drawer" id="detail-drawer">
+          <div class="detail-scroll">
+            <div class="detail-hero">
+              <img class="detail-hero-img" id="detail-hero-img" src="" alt="" loading="lazy" />
+              <div class="detail-hero-scrim"></div>
+              <button class="detail-close" id="detail-close" type="button" aria-label="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </button>
+              <div class="detail-hero-text">
+                <h2 class="detail-title" id="detail-title"></h2>
+                <p class="detail-meta" id="detail-meta"></p>
+              </div>
+            </div>
+            <div class="detail-body">
+              <p class="detail-actors" id="detail-actors"></p>
+              <div class="detail-description" id="detail-description-block">
+                <p class="detail-description-text" id="detail-description"></p>
+                <p class="detail-citation">&mdash; Film Forum</p>
+              </div>
+              <div class="detail-showtimes" id="detail-showtimes"></div>
+              <div class="detail-actions" id="detail-actions"></div>
+            </div>
           </div>
         </div>
-        <div class="detail-body">
-          <p class="detail-actors" id="detail-actors"></p>
-          <div class="detail-description" id="detail-description-block">
-            <p class="detail-description-text" id="detail-description"></p>
-            <p class="detail-citation">&mdash; Film Forum</p>
-          </div>
-          <div class="detail-showtimes" id="detail-showtimes"></div>
-          <div class="detail-actions" id="detail-actions"></div>
-        </div>
-      </div>
-    </div>
+      </>
+    )}
 
     <section class="demos-section">
       <h2 class="section-heading">Demos</h2>
