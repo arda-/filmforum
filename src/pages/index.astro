@@ -288,7 +288,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       if (titleEl) titleEl.textContent = toTitleCase(movie.title);
 
       const metaEl = document.getElementById('detail-meta');
-      const rt = movie.runtime ? movie.runtime.replace(' minutes', 'min') : '';
+      const rt = formatRuntime(movie.runtime);
       if (metaEl) metaEl.textContent = [movie.director, movie.year, rt].filter(Boolean).join(' \u00b7 ');
 
       const actorsEl = document.getElementById('detail-actors');
