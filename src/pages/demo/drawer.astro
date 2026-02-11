@@ -88,24 +88,93 @@ import Button from '../../components/Button.astro';
   <Drawer id="drawer-height-50" title="50% Height" maxHeight="50vh">
     <p class="drawer-text">This drawer only takes up half the screen.</p>
     <p class="drawer-text">Perfect for quick confirmations or simple content.</p>
+    <p class="drawer-text">The compact size makes it feel lightweight and unobtrusive.</p>
+    <p class="drawer-text">Users can still see most of the page content behind the drawer.</p>
+    <p class="drawer-text">This height works well for:</p>
+    <ul class="drawer-list">
+      <li>Quick confirmations or alerts</li>
+      <li>Simple forms with 2-3 fields</li>
+      <li>Action sheets with multiple options</li>
+      <li>Brief notifications or messages</li>
+    </ul>
+    <p class="drawer-text">Notice how the content fills the available space and scrolls smoothly.</p>
+    <p class="drawer-text">Try dragging the drawer down from the handle or from the content area when scrolled to the top.</p>
   </Drawer>
 
   <!-- Height: 70% -->
   <Drawer id="drawer-height-70" title="70% Height" maxHeight="70vh">
     <p class="drawer-text">This drawer occupies 70% of the viewport.</p>
     <p class="drawer-text">Good balance between content space and maintaining context of the page behind.</p>
+    <p class="drawer-text">This is a popular choice for medium-sized content that needs more room than 50% but doesn't need to dominate the entire screen.</p>
+    <p class="drawer-text">At this height, you have enough space for:</p>
+    <ul class="drawer-list">
+      <li>Medium-length articles or descriptions</li>
+      <li>Forms with multiple sections</li>
+      <li>Lists with 10-15 items</li>
+      <li>Product details with images and specs</li>
+      <li>User profiles with bio and activity</li>
+    </ul>
+    <p class="drawer-text">The drawer maintains good visibility of the backdrop, which helps maintain context and makes the dismiss gesture more obvious.</p>
+    <p class="drawer-text">Scroll down to see more content and test the gesture handling.</p>
+    <p class="drawer-text">When you're scrolled to the top, you can drag from anywhere in the content area.</p>
+    <p class="drawer-text">When scrolled down (like now), dragging from the content area scrolls instead of dismissing.</p>
+    <p class="drawer-text">This smart behavior matches iOS native sheets and feels natural to users.</p>
   </Drawer>
 
   <!-- Height: 85% (default) -->
   <Drawer id="drawer-height-85" title="85% Height (Default)" maxHeight="85vh">
-    <p class="drawer-text">This is the default height (85vh).</p>
+    <p class="drawer-text">This is the default height (85vh) - a sweet spot for most use cases.</p>
     <p class="drawer-text">Provides plenty of room for content while still showing the page behind.</p>
+    <p class="drawer-text">This height is versatile enough to handle most content types without feeling overwhelming.</p>
+    <p class="drawer-text">The 15% of visible backdrop serves important purposes:</p>
+    <ul class="drawer-list">
+      <li>Maintains spatial awareness of the underlying page</li>
+      <li>Provides a clear dismiss target (click the backdrop)</li>
+      <li>Creates visual hierarchy between layers</li>
+      <li>Prevents the drawer from feeling like a full page transition</li>
+    </ul>
+    <p class="drawer-text">This height works great for:</p>
+    <ul class="drawer-list">
+      <li>Detailed product or movie information</li>
+      <li>Multi-step forms or wizards</li>
+      <li>Long-form content with headers and sections</li>
+      <li>Lists with 20+ items</li>
+      <li>Rich media content with images and text</li>
+      <li>Settings panels with multiple categories</li>
+    </ul>
+    <p class="drawer-text">Try scrolling through this content. Notice how the header stays fixed at the top while the body scrolls independently.</p>
+    <p class="drawer-text">The drag-to-dismiss gesture is disabled when you're scrolled down like this.</p>
+    <p class="drawer-text">Scroll back to the top to re-enable drag-from-content dismissal.</p>
+    <p class="drawer-text">You can always drag from the handle area at the very top, regardless of scroll position.</p>
+    <p class="drawer-text">The iOS-style cubic-bezier animation curve makes every interaction feel smooth and native.</p>
   </Drawer>
 
   <!-- Height: 95% -->
   <Drawer id="drawer-height-95" title="95% Height" maxHeight="95vh">
-    <p class="drawer-text">This drawer is nearly full-screen (95vh).</p>
-    <p class="drawer-text">Use for content-heavy experiences like detailed forms or long articles.</p>
+    <p class="drawer-text">This drawer is nearly full-screen at 95% viewport height.</p>
+    <p class="drawer-text">Use this for content-heavy experiences that need maximum space but should still feel like a drawer, not a full page.</p>
+    <p class="drawer-text">The remaining 5% of backdrop visibility is just enough to maintain the drawer metaphor and provide a dismiss target.</p>
+    <p class="drawer-text">This height is ideal for:</p>
+    <ul class="drawer-list">
+      <li>Long articles or documentation</li>
+      <li>Complex multi-section forms</li>
+      <li>Full feature showcases or onboarding</li>
+      <li>Detailed editing interfaces</li>
+      <li>Terms of service or privacy policies</li>
+      <li>Shopping carts with many items</li>
+      <li>Search results with filtering options</li>
+    </ul>
+    <p class="drawer-text">At this height, the drawer becomes the primary focus of the user's attention while still maintaining its identity as a temporary overlay.</p>
+    <p class="drawer-text">The rounded top corners and visible backdrop help distinguish it from a full page transition.</p>
+    <p class="drawer-text">Keep scrolling to see how much content this height can accommodate.</p>
+    <p class="drawer-text">All the same gesture interactions apply: drag handle, swipe-to-dismiss, backdrop click, and escape key.</p>
+    <p class="drawer-text">The momentum close is particularly satisfying at this height - try a quick downward swipe from the handle.</p>
+    <p class="drawer-text">Notice how the drawer springs back if you drag just a little bit, but dismisses if you drag past the threshold (about 80 pixels).</p>
+    <p class="drawer-text">This threshold-based behavior with momentum detection creates a tactile, physical feel that users intuitively understand.</p>
+    <p class="drawer-text">The animation timing uses the same iOS-native cubic-bezier curve (0.32, 0.72, 0, 1) at 500ms duration.</p>
+    <p class="drawer-text">This specific curve was chosen because it matches the iOS Sheet behavior that users are familiar with from countless apps.</p>
+    <p class="drawer-text">Getting these details right makes the difference between a component that feels custom-built and one that feels native.</p>
+    <p class="drawer-text">You can use these height options strategically based on your content needs and the importance of maintaining context with the underlying page.</p>
   </Drawer>
 
   <!-- With Title -->
@@ -298,6 +367,18 @@ import Button from '../../components/Button.astro';
 
   .drawer-text:last-of-type {
     margin-bottom: 0;
+  }
+
+  .drawer-list {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 8px 0 12px 0;
+    padding-left: 20px;
+  }
+
+  .drawer-list li {
+    margin-bottom: 4px;
   }
 
   .drawer-actions {
