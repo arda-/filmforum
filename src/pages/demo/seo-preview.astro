@@ -12,6 +12,17 @@ const dataPath = path.join(process.cwd(), 'public', series.dataFile);
 const movieData = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 const firstPoster = movieData[0]?.poster_url;
 
+// Deduplicate movies by title to get unique film count
+const filmMap = new Map();
+for (const m of movieData) {
+  if (!filmMap.has(m.Movie)) {
+    filmMap.set(m.Movie, { ...m, showtimeCount: 1 });
+  } else {
+    filmMap.get(m.Movie).showtimeCount++;
+  }
+}
+const films = Array.from(filmMap.values());
+
 // Define all route types and their expected meta tags
 const routes = [
   {
@@ -26,7 +37,7 @@ const routes = [
     name: 'Series Landing',
     url: `/s/${seriesId}/`,
     title: `${series.name}: ${series.subtitle} - Film Forum`,
-    description: `Explore films in ${series.name}: ${series.subtitle} at ${series.venueName}, ${series.dateRange}. Browse the complete calendar and movie list.`,
+    description: `Explore ${films.length} films in ${series.name}: ${series.subtitle} at ${series.venueName}, ${series.dateRange}. Browse the complete calendar and movie list.`,
     image: firstPoster,
     hasImage: true,
   },
