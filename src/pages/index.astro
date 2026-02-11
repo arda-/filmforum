@@ -3,7 +3,8 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
-import { toTitleCase, formatRuntime } from '../utils/movieUtils';
+import { toTitleCase, formatRuntime, aggregateMoviesForDate } from '../utils/movieUtils';
+import type { Movie, GroupedMovie } from '../utils/movieUtils';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -29,49 +30,22 @@ function getPosterImage(posterUrl: string | undefined): ImageMetadata | undefine
 
 const activeSeries = getActiveSeries();
 
-interface MovieEntry {
-  Movie: string;
-  Time: string;
-  Datetime: string;
-  Tickets?: string;
-  director?: string;
-  year?: string;
-  poster_url?: string;
-  runtime?: string;
-  actors?: string;
-  description?: string;
-  film_url?: string;
+interface ShowingMovie extends GroupedMovie {
+  seriesId: string;
 }
-
-interface Showtime { time: string; tickets?: string; }
-interface ShowingMovie { film: MovieEntry; seriesId: string; showtimes: Showtime[]; }
 
 let showingToday: ShowingMovie[] = [];
 let buildDate = '';
+const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 
 for (const series of activeSeries) {
   const dataPath = path.join(process.cwd(), 'public', series.dataFile);
   try {
-    const movieData: MovieEntry[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    const movieData: Movie[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    const { targetDate, movies } = aggregateMoviesForDate(movieData, todayStr);
 
-    const allDates = [...new Set(movieData.map(m => m.Datetime.split('T')[0]))].sort();
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
-    const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
-    if (!buildDate) buildDate = targetDate;
-
-    const todayMovies = movieData.filter(m => m.Datetime.split('T')[0] === targetDate);
-
-    const movieMap = new Map<string, ShowingMovie>();
-    for (const m of todayMovies) {
-      if (!m.poster_url) continue;
-      if (movieMap.has(m.Movie)) {
-        movieMap.get(m.Movie)!.showtimes.push({ time: m.Time, tickets: m.Tickets });
-      } else {
-        movieMap.set(m.Movie, { film: m, seriesId: series.id, showtimes: [{ time: m.Time, tickets: m.Tickets }] });
-      }
-    }
-
-    showingToday.push(...movieMap.values());
+    if (!buildDate && targetDate) buildDate = targetDate;
+    showingToday.push(...movies.map(g => ({ ...g, seriesId: series.id })));
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== 'ENOENT') {
       console.error(`Error loading series data for ${series.id}:`, e);
@@ -204,7 +178,8 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   })} />
 
   <script>
-    import { toTitleCase } from '../utils/movieUtils';
+    import { toTitleCase, aggregateMoviesForDate } from '../utils/movieUtils';
+    import type { Movie } from '../utils/movieUtils';
 
     function escapeHtml(text: string): string {
       const el = document.createElement('span');
@@ -224,12 +199,6 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       title: string; director?: string; year?: string; runtime?: string;
       actors?: string; description?: string; poster_url?: string;
       film_url?: string; seriesId: string; showtimes: Showtime[];
-    }
-
-    interface RawMovieEntry {
-      Movie: string; Time: string; Datetime: string; Tickets?: string;
-      director?: string; year?: string; poster_url?: string;
-      runtime?: string; actors?: string; description?: string; film_url?: string;
     }
 
     interface PosterMeta { src: string; width: number; height: number; }
@@ -258,27 +227,15 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
         try {
           const res = await fetch(series.dataFile);
           if (!res.ok) continue;
-          const data: RawMovieEntry[] = await res.json();
+          const data: Movie[] = await res.json();
 
-          const allDates = [...new Set(data.map(m => m.Datetime.split('T')[0]))].sort();
-          const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
-          const dayMovies = data.filter(m => m.Datetime.split('T')[0] === targetDate);
-
-          const movieMap = new Map<string, DetailMovie>();
-          for (const m of dayMovies) {
-            if (!m.poster_url) continue;
-            if (movieMap.has(m.Movie)) {
-              movieMap.get(m.Movie)!.showtimes.push({ time: m.Time, tickets: m.Tickets });
-            } else {
-              movieMap.set(m.Movie, {
-                title: m.Movie, director: m.director, year: m.year, runtime: m.runtime,
-                actors: m.actors, description: m.description, poster_url: m.poster_url,
-                film_url: m.film_url, seriesId: series.id,
-                showtimes: [{ time: m.Time, tickets: m.Tickets }],
-              });
-            }
-          }
-          films.push(...movieMap.values());
+          const { movies } = aggregateMoviesForDate(data, todayStr);
+          films.push(...movies.map(({ film, showtimes }) => ({
+            title: film.Movie, director: film.director, year: film.year,
+            runtime: film.runtime, actors: film.actors, description: film.description,
+            poster_url: film.poster_url, film_url: film.film_url,
+            seriesId: series.id, showtimes,
+          })));
         } catch (e) {
           console.error(`Error loading series ${series.id}:`, e);
         }
