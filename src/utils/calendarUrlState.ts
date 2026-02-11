@@ -104,8 +104,21 @@ export function restoreFromUrl(): void {
       const wantPressed = params.get(key) === '1';
       if (toggle) setToggleState(toggle, wantPressed);
       document.body.classList.toggle(`show-${className}`, wantPressed);
+
+      // Always enable scrim and blur when images are shown
+      if (key === 'image') {
+        document.body.classList.toggle('scrim-enabled', wantPressed);
+        document.body.classList.toggle('blur-enabled', wantPressed);
+      }
     } else if (toggle) {
-      document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
+      const isPressed = isTogglePressed(toggle);
+      document.body.classList.toggle(`show-${className}`, isPressed);
+
+      // Always enable scrim and blur when images are shown
+      if (key === 'image') {
+        document.body.classList.toggle('scrim-enabled', isPressed);
+        document.body.classList.toggle('blur-enabled', isPressed);
+      }
     }
   });
 
