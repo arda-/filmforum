@@ -21,11 +21,26 @@ export interface Movie {
 
 /**
  * Converts a string to title case (first letter of each word capitalized)
+ * Preserves acronyms (all-caps words) and roman numerals
  */
 export function toTitleCase(str: string): string {
+  // Common roman numerals pattern (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
+  const romanNumeralPattern = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)$/i;
+
   return str
     .split(' ')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .map((w) => {
+      // Preserve words that are all uppercase (likely acronyms)
+      if (w === w.toUpperCase() && w.length > 1 && /[A-Z]/.test(w)) {
+        return w;
+      }
+      // Preserve roman numerals
+      if (romanNumeralPattern.test(w)) {
+        return w.toUpperCase();
+      }
+      // Normal title case
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    })
     .join(' ');
 }
 
