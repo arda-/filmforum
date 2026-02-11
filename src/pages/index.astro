@@ -70,7 +70,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   description="Explore curated film series, browse showtimes, and plan your cinema visits. Interactive calendars and movie lists for film enthusiasts at Film Forum."
   canonical="/"
 >
-  <main class="landing">
+  <div class="landing">
     <h1 class="site-title">FilmForum</h1>
     <p class="site-blurb">
       An interactive explorer for <a href="https://filmforum.org" class="ff-link">Film Forum</a> repertory series.
@@ -155,7 +155,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
         <span class="demo-description">UI components, animations, and testing tools</span>
       </a>
     </section>
-  </main>
+  </div>
 
   <!-- Embedded data for client-side live updates + detail view -->
   <script id="series-config" type="application/json" set:html={JSON.stringify({
@@ -388,9 +388,6 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
 
 <style>
   .landing {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 40px 20px;
     text-align: center;
   }
 
@@ -527,9 +524,9 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     overflow-y: visible;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding: 16px 20px;
-    margin-left: -20px;
-    margin-right: -20px;
+    padding: 16px 16px;
+    margin-left: -16px;
+    margin-right: -16px;
     scrollbar-width: none;
   }
 
