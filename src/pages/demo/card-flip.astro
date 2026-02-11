@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
-    <p class="version">v3</p>
+    <p class="version">v4</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
@@ -43,6 +43,7 @@ import Layout from '../../layouts/Layout.astro';
   let sourceCard = null;
   let sourceCardId = 0;
   let placeholder = null;
+  let justOpened = false;
 
   function flipOpen(element) {
     const first = element.getBoundingClientRect();
@@ -183,6 +184,7 @@ import Layout from '../../layouts/Layout.astro';
       sourceCardId = id;
 
       if (id === 4) {
+        justOpened = true;
         sameElementOpen(card);
       } else {
         expandedLabel.textContent = card.querySelector('.card-number').textContent;
@@ -200,6 +202,7 @@ import Layout from '../../layouts/Layout.astro';
 
   // Close card 4 by clicking on it when expanded
   document.addEventListener('click', (e) => {
+    if (justOpened) { justOpened = false; return; }
     if (sourceCardId === 4 && sourceCard && sourceCard.classList.contains('card-expanded')) {
       if (sourceCard.contains(e.target)) {
         sameElementClose();
