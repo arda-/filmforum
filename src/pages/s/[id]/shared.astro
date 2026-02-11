@@ -48,7 +48,7 @@ const canonical = `/s/${id}/shared`;
   canonical={canonical}
   noindex={true}
 >
-  <main class="shared-list-page" data-session-id={id}>
+  <div data-session-id={id}>
     <header class="page-header">
       <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -91,7 +91,7 @@ const canonical = `/s/${id}/shared`;
         Compare with my list
       </button>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <script define:vars={{ movieDataJson, sessionId: id }}>
@@ -208,12 +208,6 @@ const canonical = `/s/${id}/shared`;
 </script>
 
 <style>
-  .shared-list-page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 16px;
-  }
-
   .page-header {
     padding: 16px 0 12px;
   }
