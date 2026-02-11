@@ -19,14 +19,14 @@ export interface Movie {
   _hasOverlap?: boolean;
 }
 
+// Common roman numerals pattern (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
+const romanNumeralPattern = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)$/i;
+
 /**
  * Converts a string to title case (first letter of each word capitalized)
  * Preserves acronyms (all-caps words) and roman numerals
  */
 export function toTitleCase(str: string): string {
-  // Common roman numerals pattern (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
-  const romanNumeralPattern = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)$/i;
-
   return str
     .split(' ')
     .map((w) => {
