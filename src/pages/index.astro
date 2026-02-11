@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
-import { toTitleCase, formatRuntime, aggregateMoviesForDate } from '../utils/movieUtils';
+import { toTitleCase, aggregateMoviesForDate } from '../utils/movieUtils';
 import type { Movie, GroupedMovie } from '../utils/movieUtils';
 import fs from 'node:fs';
 import path from 'node:path';
