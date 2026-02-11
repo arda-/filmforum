@@ -347,7 +347,6 @@ function runTests() {
     'demo/index.html',
     'demo/button/index.html',
     'demo/dialog/index.html',
-    'demo/apple-card/index.html',
   ];
 
   for (const demoPage of demoPages) {

@@ -40,7 +40,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 ---
 
 <Layout title={`Your Saved Movies — ${config.name}`}>
-  <main class="cart-page" data-session-id={id}>
+  <div class="cart-page" data-session-id={id}>
     <header class="page-header">
       <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -149,7 +149,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
         </div>
       </div>
     </Drawer>
-  </main>
+  </div>
 </Layout>
 
 <script define:vars={{ movieDataJson, sessionId: id, seriesName: config.name }}>
@@ -475,12 +475,6 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <style>
-  .cart-page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 16px 100px;
-  }
-
   .page-header {
     padding: 16px 0 12px;
   }
