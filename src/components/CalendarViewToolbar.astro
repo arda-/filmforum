@@ -366,6 +366,13 @@ import Tooltip from '@components/Tooltip.astro';
     position: relative;
   }
 
+  /* Hide width toggle at 640px+ where it's not needed */
+  @media (min-width: 640px) {
+    .toolbar-group-width {
+      display: none;
+    }
+  }
+
   /* Segmented toggle (Timeline/Grid, Mon/Sun) */
   .segmented-toggle {
     display: inline-flex;
