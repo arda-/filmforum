@@ -1,0 +1,480 @@
+---
+/**
+ * Inline view toolbar for the calendar page.
+ * Contains set-once display settings: Timeline/Grid, Fit to width, Mon/Sun, gear popover.
+ * Not sticky — sits above the calendar in normal flow.
+ */
+import Switch from '@components/Switch.astro';
+import CheckboxButton from '@components/CheckboxButton.astro';
+import Icon from '@components/Icon.astro';
+---
+
+<div class="calendar-view-toolbar">
+  <div class="toolbar-row">
+    <!-- Timeline / Grid toggle -->
+    <div class="toolbar-group toolbar-group-view">
+      <span class="toolbar-label">View</span>
+      <div class="segmented-toggle" role="radiogroup" aria-label="Calendar view mode">
+        <button
+          class="seg-btn active"
+          data-view="timeline"
+          role="radio"
+          aria-checked="true"
+          aria-label="Timeline view"
+          id="view-mode-timeline"
+        >
+          <Icon name="gallery-vertical" size={14} />
+          <span class="seg-btn-label">Timeline</span>
+        </button>
+        <button
+          class="seg-btn"
+          data-view="grid"
+          role="radio"
+          aria-checked="false"
+          aria-label="Grid view"
+          id="view-mode-grid"
+        >
+          <Icon name="rows-3" size={14} />
+          <span class="seg-btn-label">Grid</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Display options row -->
+  <div class="toolbar-row">
+    <Switch id="fit-width-switch" label="Fit width" checked small />
+    <div class="toolbar-group-nested">
+      <CheckboxButton id="show-year-director-checkbox" label="Year / Director" />
+      <CheckboxButton id="show-runtime-checkbox" label="Runtime" />
+      <CheckboxButton id="show-actors-checkbox" label="Actors" />
+      <CheckboxButton id="show-image-checkbox" label="Image" />
+    </div>
+
+    <!-- Gear button → popover -->
+    <div class="toolbar-group toolbar-group--end">
+      <button
+        class="gear-btn"
+        id="view-settings-btn"
+        aria-label="View settings"
+        aria-expanded="false"
+        aria-controls="view-settings-popover"
+      >
+        <Icon name="settings" size={16} />
+      </button>
+
+      <div class="view-settings-popover" id="view-settings-popover">
+        <div class="popover-section">
+          <div class="popover-row">
+            <span class="popover-label">Start week on</span>
+            <div class="segmented-toggle segmented-toggle-compact" role="radiogroup" aria-label="Week start day">
+              <button
+                class="seg-btn"
+                data-weekstart="sun"
+                role="radio"
+                aria-checked="false"
+                aria-label="Start week on Sunday"
+                id="weekstart-sun"
+              >Sun</button>
+              <button
+                class="seg-btn active"
+                data-weekstart="mon"
+                role="radio"
+                aria-checked="true"
+                aria-label="Start week on Monday"
+                id="weekstart-mon"
+              >Mon</button>
+            </div>
+          </div>
+        </div>
+        <div class="popover-section">
+          <Switch id="highlight-unique-toggle" label="Highlight unique showings (★)" checked small />
+        </div>
+        <div class="popover-section desktop-only">
+          <Switch id="highlight-alternate-toggle" label="Highlight alternate on hover" checked small />
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Hidden switch elements that the existing JS references by ID -->
+<div style="display:none">
+  <Switch id="timeline-mode-toggle" label="" checked />
+  <Switch id="week-start-toggle" label="" checked />
+</div>
+
+<script>
+  // --- Segmented toggle: Timeline / Grid ---
+  const viewTimelineBtn = document.getElementById('view-mode-timeline');
+  const viewGridBtn = document.getElementById('view-mode-grid');
+  const timelineSwitch = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
+
+  function syncViewMode(isTimeline: boolean) {
+    viewTimelineBtn?.classList.toggle('active', isTimeline);
+    viewGridBtn?.classList.toggle('active', !isTimeline);
+    viewTimelineBtn?.setAttribute('aria-checked', String(isTimeline));
+    viewGridBtn?.setAttribute('aria-checked', String(!isTimeline));
+    if (timelineSwitch) {
+      timelineSwitch.checked = isTimeline;
+      timelineSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+
+  viewTimelineBtn?.addEventListener('click', () => syncViewMode(true));
+  viewGridBtn?.addEventListener('click', () => syncViewMode(false));
+
+  // Sync initial state from hidden switch (which restoreFromUrl may have set)
+  function initViewMode() {
+    if (timelineSwitch) {
+      const isTimeline = timelineSwitch.checked;
+      viewTimelineBtn?.classList.toggle('active', isTimeline);
+      viewGridBtn?.classList.toggle('active', !isTimeline);
+      viewTimelineBtn?.setAttribute('aria-checked', String(isTimeline));
+      viewGridBtn?.setAttribute('aria-checked', String(!isTimeline));
+    }
+  }
+
+  // --- Fit to width compact toggle ---
+  const fitWidthBtn = document.getElementById('fit-width-btn');
+  const fitWidthSwitch = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
+  const tileDisplayNote = document.getElementById('tile-display-note');
+
+  function syncFitWidth(enabled: boolean) {
+    fitWidthBtn?.classList.toggle('active', enabled);
+    fitWidthBtn?.setAttribute('aria-pressed', String(enabled));
+    if (fitWidthSwitch) {
+      fitWidthSwitch.checked = enabled;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    updateTileDisabledState(enabled);
+  }
+
+  function updateTileDisabledState(fitWidthEnabled: boolean) {
+    const tileOptions = document.getElementById('tile-display-options');
+    const toggles = tileOptions?.querySelectorAll('.toggle');
+    const fitWidthBtn = document.getElementById('fit-width-btn');
+
+    if (fitWidthEnabled) {
+      tileOptions?.classList.add('disabled');
+      toggles?.forEach(toggle => {
+        (toggle as HTMLButtonElement).disabled = true;
+      });
+      fitWidthBtn?.classList.add('active');
+    } else {
+      tileOptions?.classList.remove('disabled');
+      toggles?.forEach(toggle => {
+        (toggle as HTMLButtonElement).disabled = false;
+      });
+      fitWidthBtn?.classList.remove('active');
+    }
+  }
+
+  fitWidthBtn?.addEventListener('click', () => {
+    const isActive = fitWidthBtn.classList.contains('active');
+    syncFitWidth(!isActive);
+  });
+
+  function initFitWidth() {
+    if (fitWidthSwitch) {
+      const enabled = fitWidthSwitch.checked;
+      fitWidthBtn?.classList.toggle('active', enabled);
+      fitWidthBtn?.setAttribute('aria-pressed', String(enabled));
+      updateTileDisabledState(enabled);
+    }
+  }
+
+  // --- Week start segmented toggle ---
+  const weekstartMonBtn = document.getElementById('weekstart-mon');
+  const weekstartSunBtn = document.getElementById('weekstart-sun');
+  const weekStartSwitch = document.querySelector('#week-start-toggle input') as HTMLInputElement;
+
+  function syncWeekStart(isMondayStart: boolean) {
+    weekstartMonBtn?.classList.toggle('active', isMondayStart);
+    weekstartSunBtn?.classList.toggle('active', !isMondayStart);
+    weekstartMonBtn?.setAttribute('aria-checked', String(isMondayStart));
+    weekstartSunBtn?.setAttribute('aria-checked', String(!isMondayStart));
+    if (weekStartSwitch) {
+      weekStartSwitch.checked = isMondayStart;
+      weekStartSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+
+  weekstartMonBtn?.addEventListener('click', () => syncWeekStart(true));
+  weekstartSunBtn?.addEventListener('click', () => syncWeekStart(false));
+
+  function initWeekStart() {
+    if (weekStartSwitch) {
+      const isMon = weekStartSwitch.checked;
+      weekstartMonBtn?.classList.toggle('active', isMon);
+      weekstartSunBtn?.classList.toggle('active', !isMon);
+      weekstartMonBtn?.setAttribute('aria-checked', String(isMon));
+      weekstartSunBtn?.setAttribute('aria-checked', String(!isMon));
+    }
+  }
+
+  // --- Gear popover ---
+  const gearBtn = document.getElementById('view-settings-btn');
+  const popover = document.getElementById('view-settings-popover');
+
+  gearBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = popover?.classList.contains('open');
+    popover?.classList.toggle('open', !isOpen);
+    gearBtn.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // Close popover on outside click
+  document.addEventListener('click', (e) => {
+    if (!popover?.contains(e.target as Node) && e.target !== gearBtn) {
+      popover?.classList.remove('open');
+      gearBtn?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  // Close popover on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && popover?.classList.contains('open')) {
+      popover.classList.remove('open');
+      gearBtn?.setAttribute('aria-expanded', 'false');
+      gearBtn?.focus();
+    }
+  });
+
+  // --- Init after URL restore ---
+  // Use a microtask to run after the main script's restoreFromUrl()
+  queueMicrotask(() => {
+    initViewMode();
+    initFitWidth();
+    initWeekStart();
+  });
+</script>
+
+<style>
+  .calendar-view-toolbar {
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  .toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .display-options-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group-nested {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    overflow: hidden;
+    background: transparent;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group--end {
+    margin-left: auto;
+    position: relative;
+  }
+
+  /* Segmented toggle (Timeline/Grid, Mon/Sun) */
+  .segmented-toggle {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .seg-btn:not(:last-child) {
+    border-right: 1px solid var(--bg-movie-hover);
+  }
+
+  .seg-btn:hover {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .seg-btn.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .seg-btn svg {
+    flex-shrink: 0;
+  }
+
+  .seg-btn-label {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .seg-btn-label {
+      display: inline;
+    }
+  }
+
+  .toolbar-label {
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+
+  /* Compact toggle button (Fit width) */
+  .compact-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .compact-toggle:hover {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .compact-toggle.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  .compact-toggle svg {
+    flex-shrink: 0;
+  }
+
+  /* Gear button */
+  .gear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .gear-btn:hover,
+  .gear-btn[aria-expanded="true"] {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  /* Popover */
+  .view-settings-popover {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 220px;
+    padding: 12px;
+    background: var(--bg-body);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    z-index: calc(var(--z-drawer-bg) + 1);
+  }
+
+  .view-settings-popover.open {
+    display: block;
+  }
+
+  .popover-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .popover-section + .popover-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bg-movie-hover);
+  }
+
+  .popover-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .popover-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .segmented-toggle-compact {
+    min-width: auto;
+  }
+
+
+  /* Mobile: stack toolbar more compactly */
+  @media (max-width: 479px) {
+    .toolbar-row {
+      gap: 8px;
+    }
+
+    .toolbar-group--end {
+      margin-left: 0;
+    }
+  }
+
+  /* Hidden helper switches are truly hidden */
+  [style*="display:none"] {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>
