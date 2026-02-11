@@ -84,15 +84,11 @@ export function restoreFromUrl(): void {
   }
 
   const switchInput = document.querySelector('#fit-width-switch input') as HTMLInputElement;
-  if (switchInput) {
-    if (params.has('fit-width')) {
-      const wantFitWidth = params.get('fit-width') === '1';
-      switchInput.checked = wantFitWidth;
-      document.body.classList.toggle('minimum-width', !wantFitWidth);
-    } else {
-      // No URL param: ensure body classes match the switch's default checked state
-      document.body.classList.toggle('minimum-width', !switchInput.checked);
-    }
+  if (switchInput && params.has('fit-width')) {
+    const wantFitWidth = params.get('fit-width') === '1';
+    switchInput.checked = wantFitWidth;
+    // Note: minimum-width body class is set after all checkboxes are restored
+    // by shouldEnableMinimumWidth() in calendar.astro
   }
 
   if (params.has('week-start')) {
