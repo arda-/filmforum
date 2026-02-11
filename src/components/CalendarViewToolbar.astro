@@ -407,8 +407,8 @@ import Tooltip from '@components/Tooltip.astro';
   });
 
   // --- Init after URL restore ---
-  // Use a microtask to run after the main script's restoreFromUrl()
-  queueMicrotask(() => {
+  // Listen for the calendar script's signal that URL state has been restored
+  document.addEventListener('url-state-restored', () => {
     initViewMode();
     initWidth();
     initWeekStart();

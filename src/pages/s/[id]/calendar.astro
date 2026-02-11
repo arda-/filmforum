@@ -636,6 +636,9 @@ const ogImage = movieData[0]?.poster_url || null;
   // Restore URL state silently before first render (no events, no re-renders)
   restoreFromUrl();
 
+  // Signal toolbar to sync its button states from the restored checkboxes
+  document.dispatchEvent(new Event('url-state-restored'));
+
   // Initialize minimum-width class based on fit-width switch and tile display options
   document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
 
