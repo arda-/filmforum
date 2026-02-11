@@ -594,13 +594,18 @@ const ogImage = movieData[0]?.poster_url || null;
 
   function handleViewportChange(e: MediaQueryListEvent | MediaQueryList) {
     if (e.matches) {
-      // At 640px+, automatically enable fit width without touching other checkboxes
+      // At 640px+, fit width is always enabled and disabled (control is non-functional)
       // (CSS already resets minimum-width at this breakpoint, so Cast/Image don't cause scroll)
-      if (fitWidthSwitch && !fitWidthSwitch.checked) {
+      if (fitWidthSwitch) {
         fitWidthSwitch.checked = true;
+        fitWidthSwitch.disabled = true;
+      }
+    } else {
+      // Below 640px, enable the control and allow user's preference
+      if (fitWidthSwitch) {
+        fitWidthSwitch.disabled = false;
       }
     }
-    // Below 640px, allow user's preference (don't force anything)
   }
 
   // Check initial state
