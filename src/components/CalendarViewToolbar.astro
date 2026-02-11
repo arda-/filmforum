@@ -40,8 +40,10 @@ import Icon from '@components/Icon.astro';
       </div>
     </div>
 
-    <!-- Fit width switch -->
-    <Switch id="fit-width-switch" label="Fit width" checked small />
+    <!-- Fit width switch (hidden at 640px+ where it doesn't matter) -->
+    <div class="fit-width-container">
+      <Switch id="fit-width-switch" label="Fit width" checked small />
+    </div>
 
     <!-- Gear button → popover -->
     <div class="toolbar-group toolbar-group--end">
@@ -292,6 +294,13 @@ import Icon from '@components/Icon.astro';
   .toolbar-group--end {
     margin-left: auto;
     position: relative;
+  }
+
+  /* Hide fit width toggle at 640px+ where it doesn't matter */
+  @media (min-width: 640px) {
+    .fit-width-container {
+      display: none;
+    }
   }
 
   /* Segmented toggle (Timeline/Grid, Mon/Sun) */
