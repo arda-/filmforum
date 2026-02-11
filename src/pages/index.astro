@@ -262,10 +262,10 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     document.addEventListener('visibilitychange', () => { if (!document.hidden) updateShowingToday(); });
     setInterval(updateShowingToday, 5 * 60 * 1000);
 
-    // --- Detail drawer ---
+    // --- Detail drawer (skipped gracefully if elements are missing) ---
     const overlay = document.getElementById('detail-overlay');
     const drawer = document.getElementById('detail-drawer');
-    if (!overlay || !drawer) throw new Error('Detail drawer elements not found');
+    if (overlay && drawer) {
     let triggerEl: HTMLElement | null = null;
 
     function openDetail(idx: number) {
@@ -359,6 +359,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && drawer.classList.contains('open')) closeDetail();
     });
+    } // end if (overlay && drawer)
   </script>
 </Layout>
 
