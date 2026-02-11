@@ -295,8 +295,9 @@ const ogImage = movieData[0]?.poster_url || null;
       const dates = generateDateRange(allMovieDates, mondayStart);
       const weeks = groupDatesIntoWeeks(dates);
 
+      // First pass: compute and cache filtered movies for all dates
       weeks.forEach(weekDates => {
-        const weekRange = getWeekTimeRange(weekDates, (date) => {
+        weekDates.forEach(date => {
           const dayMovies = moviesByDate[date] || [];
           const filtered = applyFilterPipeline(
             date,
@@ -307,9 +308,14 @@ const ogImage = movieData[0]?.poster_url || null;
             singleShowtimesMode,
             filteredShowtimeCounts
           );
-          // Cache the filtered results to avoid recalculating during render
           filteredMoviesByDate.set(date, filtered);
-          return filtered;
+        });
+      });
+
+      // Second pass: compute week time ranges from cached filtered results
+      weeks.forEach(weekDates => {
+        const weekRange = getWeekTimeRange(weekDates, (date) => {
+          return filteredMoviesByDate.get(date) || [];
         });
 
         // Store the week range for all dates in this week
