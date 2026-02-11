@@ -287,12 +287,22 @@ import Tooltip from '@components/Tooltip.astro';
   widthContentBtn?.addEventListener('click', () => syncWidth(false));
 
   function initWidth() {
+    // If any detail views are enabled, must be Content mode
+    const anyDetailsEnabled = Array.from(detailButtons).some(button => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      return checkbox?.checked;
+    });
+
+    const isFit = anyDetailsEnabled ? false : (fitWidthSwitch?.checked ?? true);
+
+    widthFitBtn?.classList.toggle('active', isFit);
+    widthContentBtn?.classList.toggle('active', !isFit);
+    widthFitBtn?.setAttribute('aria-checked', String(isFit));
+    widthContentBtn?.setAttribute('aria-checked', String(!isFit));
+
     if (fitWidthSwitch) {
-      const isFit = fitWidthSwitch.checked;
-      widthFitBtn?.classList.toggle('active', isFit);
-      widthContentBtn?.classList.toggle('active', !isFit);
-      widthFitBtn?.setAttribute('aria-checked', String(isFit));
-      widthContentBtn?.setAttribute('aria-checked', String(!isFit));
+      fitWidthSwitch.checked = isFit;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
     }
   }
 
