@@ -157,19 +157,12 @@ import Layout from '../../layouts/Layout.astro';
 
   .card {
     aspect-ratio: 1;
-    background: linear-gradient(135deg, var(--bg-movie) 0%, var(--bg-body) 100%);
+    background: var(--bg-movie);
     border-radius: 1rem;
     cursor: pointer;
-    border: 1px solid var(--bg-movie-hover);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, transform 0.15s;
-  }
-
-  .card:hover {
-    background: linear-gradient(135deg, var(--bg-movie-hover) 0%, var(--bg-body) 100%);
-    transform: scale(1.02);
   }
 
   .card-content {
@@ -225,9 +218,8 @@ import Layout from '../../layouts/Layout.astro';
     width: 100%;
     height: 85dvh;
     max-width: calc(100% - 40px);
-    background: linear-gradient(135deg, var(--bg-movie) 0%, var(--bg-body) 100%);
+    background: var(--bg-movie);
     border-radius: 1rem;
-    border: 1px solid var(--bg-movie-hover);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -250,12 +242,6 @@ import Layout from '../../layouts/Layout.astro';
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s;
-    border: 1px solid var(--bg-movie-hover);
-  }
-
-  .close-btn:hover {
-    background: var(--bg-movie);
   }
 
   .expanded-content {
@@ -272,15 +258,4 @@ import Layout from '../../layouts/Layout.astro';
     color: var(--accent);
   }
 
-  @media (max-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-
-    .expanded-card {
-      max-width: 100%;
-      width: 100%;
-      border-radius: 0;
-    }
-  }
 </style>
