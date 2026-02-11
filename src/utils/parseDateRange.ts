@@ -20,6 +20,11 @@ export function parseDateRange(
   // Normalize separators (en-dash, em-dash to regular hyphen)
   const normalized = dateRange.replace(/[–—]/g, '-');
 
+  // Note: Month parsing relies on JavaScript's Date constructor which accepts
+  // locale-specific month names (e.g., "January 1, 2026"). This is technically
+  // implementation-dependent, but works reliably for English month names (both
+  // full and abbreviated) in all major JavaScript engines. Safe for build-time use.
+
   // Try single-month format: "Feb 6-26, 2026"
   let match = normalized.match(/([A-Za-z]+)\s+(\d+)\s*-\s*(\d+),\s*(\d{4})/);
   if (match) {
