@@ -204,9 +204,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   })} />
 
   <script>
-    function toTitleCase(str: string): string {
-      return str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    }
+    import { toTitleCase } from '../utils/movieUtils';
 
     function escapeHtml(text: string): string {
       const el = document.createElement('span');
