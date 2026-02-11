@@ -129,7 +129,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
           {showingToday.map(({ film, seriesId, showtimes }, idx) => {
             const image = getPosterImage(film.poster_url);
             return (
-            <button type="button" class="poster-card" data-movie-idx={idx}>
+            <button type="button" class="poster-card" data-movie-idx={idx} aria-label={toTitleCase(film.Movie)}>
               {image && <Image src={image} alt={film.Movie} class="poster-image" width={400} height={300} loading="lazy" />}
               <div class="poster-scrim"></div>
               <div class="poster-blur"></div>
@@ -149,7 +149,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     {activeSeries.length > 0 && (
       <>
         <div class="detail-overlay" id="detail-overlay"></div>
-        <div class="detail-drawer" id="detail-drawer">
+        <div class="detail-drawer" id="detail-drawer" tabindex="-1" role="dialog" aria-modal="true">
           <div class="detail-scroll">
             <div class="detail-hero">
               <img class="detail-hero-img" id="detail-hero-img" src="" alt="" loading="lazy" />
@@ -302,7 +302,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
         const meta = [movie.director, movie.year].filter(Boolean).join(' \u00b7 ');
         const times = escapeHtml(movie.showtimes.map(s => s.time).join(', '));
 
-        return `<button type="button" class="poster-card" data-movie-idx="${idx}">
+        return `<button type="button" class="poster-card" data-movie-idx="${idx}" aria-label="${title}">
           ${img}
           <div class="poster-scrim"></div>
           <div class="poster-blur"></div>
@@ -325,6 +325,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
     const overlay = document.getElementById('detail-overlay');
     const drawer = document.getElementById('detail-drawer');
     if (!overlay || !drawer) throw new Error('Detail drawer elements not found');
+    let triggerEl: HTMLElement | null = null;
 
     function openDetail(idx: number) {
       const movie = currentMovies[idx];
@@ -390,18 +391,26 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       overlay.classList.add('open');
       drawer.classList.add('open');
       document.body.style.overflow = 'hidden';
+      drawer.focus();
     }
 
     function closeDetail() {
       overlay.classList.remove('open');
       drawer.classList.remove('open');
       document.body.style.overflow = '';
+      if (triggerEl) {
+        triggerEl.focus();
+        triggerEl = null;
+      }
     }
 
     // Card click → open detail
     document.getElementById('today-scroll')?.addEventListener('click', (e) => {
       const card = (e.target as HTMLElement).closest('[data-movie-idx]') as HTMLElement | null;
-      if (card) openDetail(Number(card.dataset.movieIdx));
+      if (card) {
+        triggerEl = card;
+        openDetail(Number(card.dataset.movieIdx));
+      }
     });
 
     document.getElementById('detail-close')?.addEventListener('click', closeDetail);
