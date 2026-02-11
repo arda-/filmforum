@@ -6,6 +6,7 @@
  */
 import Switch from '@components/Switch.astro';
 import Icon from '@components/Icon.astro';
+import Tooltip from '@components/Tooltip.astro';
 ---
 
 <div class="calendar-view-toolbar">
@@ -42,30 +43,32 @@ import Icon from '@components/Icon.astro';
     <!-- Width toggle: Fit / Content -->
     <div class="toolbar-group toolbar-group-width">
       <span class="toolbar-label">Width</span>
-      <div class="segmented-toggle" role="radiogroup" aria-label="Content width mode">
-        <button
-          class="seg-btn active"
-          data-width="fit"
-          role="radio"
-          aria-checked="true"
-          aria-label="Fit to window width"
-          id="width-fit"
-        >
-          <Icon name="minimize-2" size={14} />
-          <span class="seg-btn-label">Fit</span>
-        </button>
-        <button
-          class="seg-btn"
-          data-width="content"
-          role="radio"
-          aria-checked="false"
-          aria-label="Show full content width"
-          id="width-content"
-        >
-          <Icon name="maximize" size={14} />
-          <span class="seg-btn-label">Content</span>
-        </button>
-      </div>
+      <Tooltip text="At this viewport width, calendar content naturally fits">
+        <div class="segmented-toggle" role="radiogroup" aria-label="Content width mode">
+          <button
+            class="seg-btn active"
+            data-width="fit"
+            role="radio"
+            aria-checked="true"
+            aria-label="Fit to window width"
+            id="width-fit"
+          >
+            <Icon name="minimize-2" size={14} />
+            <span class="seg-btn-label">Fit</span>
+          </button>
+          <button
+            class="seg-btn"
+            data-width="content"
+            role="radio"
+            aria-checked="false"
+            aria-label="Show full content width"
+            id="width-content"
+          >
+            <Icon name="maximize" size={14} />
+            <span class="seg-btn-label">Content</span>
+          </button>
+        </div>
+      </Tooltip>
     </div>
 
     <!-- Hidden fit-width switch for backward compat with existing JS -->
@@ -230,6 +233,21 @@ import Icon from '@components/Icon.astro';
       widthContentBtn?.setAttribute('aria-checked', String(!isFit));
     }
   }
+
+  // --- Width toggle tooltip (only show at 640px+) ---
+  const widthTooltip = document.querySelector('.toolbar-group-width .tooltip-wrapper');
+  const mediaQuery640 = window.matchMedia('(min-width: 640px)');
+
+  function updateWidthTooltip(e: MediaQueryListEvent | MediaQueryList) {
+    if (widthTooltip) {
+      // At 640px+, enable tooltip (both options behave similarly)
+      // Below 640px, disable tooltip (toggle is meaningful)
+      widthTooltip.setAttribute('data-disabled', e.matches ? 'false' : 'true');
+    }
+  }
+
+  updateWidthTooltip(mediaQuery640);
+  mediaQuery640.addEventListener('change', updateWidthTooltip);
 
   // --- Week start segmented toggle ---
   const weekstartMonBtn = document.getElementById('weekstart-mon');
