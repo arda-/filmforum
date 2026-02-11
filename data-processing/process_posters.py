@@ -14,6 +14,55 @@ JSON_FILE = "/Users/ardaungun/code/filmforum/tenement-stories-evenings.json"
 # Create posters directory if it doesn't exist
 os.makedirs(POSTERS_DIR, exist_ok=True)
 
+
+def validate_poster_url(poster_url: str, movie_title: str) -> None:
+    """
+    Validate poster URL format at data generation time.
+    Ensures URLs are safe relative paths without malicious content.
+
+    Args:
+        poster_url: The poster URL to validate
+        movie_title: Movie title for error messages
+
+    Raises:
+        ValueError: If URL format is invalid or potentially dangerous
+    """
+    # Check for absolute URLs
+    if re.match(r'^https?://', poster_url, re.IGNORECASE):
+        raise ValueError(
+            f"Invalid poster_url for '{movie_title}': "
+            f"Absolute URLs not allowed ({poster_url}). "
+            f"Use relative paths like '/posters/movie-name.jpg'"
+        )
+
+    # Check for protocol-relative URLs
+    if poster_url.startswith('//'):
+        raise ValueError(
+            f"Invalid poster_url for '{movie_title}': "
+            f"Protocol-relative URLs not allowed ({poster_url})"
+        )
+
+    # Check for directory traversal
+    if '..' in poster_url:
+        raise ValueError(
+            f"Invalid poster_url for '{movie_title}': "
+            f"Directory traversal not allowed ({poster_url})"
+        )
+
+    # Check expected format
+    if not poster_url.startswith('/posters/'):
+        raise ValueError(
+            f"Invalid poster_url for '{movie_title}': "
+            f"Must start with '/posters/' ({poster_url})"
+        )
+
+    # Check for dangerous characters
+    if re.search(r'[<>\'"&]', poster_url):
+        raise ValueError(
+            f"Invalid poster_url for '{movie_title}': "
+            f"Contains dangerous characters ({poster_url})"
+        )
+
 # Dictionary to map film URLs to poster URLs
 film_to_poster = {}
 
@@ -66,7 +115,9 @@ for film_url, data in film_to_poster.items():
         print("✓")
         downloaded_count += 1
         # Update the local path in our mapping
-        film_to_poster[film_url]['local_path'] = f"/posters/{slug}{ext}"
+        local_poster_path = f"/posters/{slug}{ext}"
+        validate_poster_url(local_poster_path, slug)
+        film_to_poster[film_url]['local_path'] = local_poster_path
     except Exception as e:
         print(f"✗ Error: {e}")
 
@@ -87,6 +138,7 @@ for movie in movies:
     if film_url in film_to_poster:
         local_path = film_to_poster[film_url].get('local_path')
         if local_path:
+            validate_poster_url(local_path, movie['Movie'])
             movie['poster_url'] = local_path
             updated_count += 1
             print(f"  ✓ {movie['Movie']}: {local_path}")
