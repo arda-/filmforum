@@ -92,7 +92,7 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 <script>
   import type { Movie } from '../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
-  import { PX_PER_MIN } from '../../constants';
+  import { PX_PER_MIN, MIN_TIMELINE_HEIGHT, TIMELINE_PADDING } from '../../constants';
 
   let allMovies: Movie[] = [];
 
@@ -202,7 +202,7 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
         if (end > globalEnd) globalEnd = end;
       });
     }
-    const uniformHeight = Math.max((globalEnd - globalStart) * PX_PER_MIN, 100) + 32;
+    const uniformHeight = Math.max((globalEnd - globalStart) * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
 
     dayNames.forEach((dayName, i) => {
       const dayMovies = moviesByDay[i];
