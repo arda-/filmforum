@@ -208,6 +208,14 @@ const ogImage = movieData[0]?.poster_url || null;
     return weekStartInput?.checked ?? true;
   }
 
+  interface FilterOptions {
+    hoursFilterMode: HoursFilterMode;
+    savedFilterSet: Set<SavedFilter>;
+    reactions: ReactionMap;
+    singleShowtimesMode: SingleShowtimesMode;
+    filteredShowtimeCounts: Record<string, number>;
+  }
+
   /**
    * Apply the complete filter pipeline to movies for a given date.
    * This includes hours filter, saved status filter, and single showtimes filter.
@@ -215,20 +223,16 @@ const ogImage = movieData[0]?.poster_url || null;
   function applyFilterPipeline(
     date: string,
     rawMovies: Movie[],
-    hoursFilterMode: HoursFilterMode,
-    savedFilterSet: Set<SavedFilter>,
-    reactions: ReactionMap,
-    singleShowtimesMode: SingleShowtimesMode,
-    filteredShowtimeCounts: Record<string, number>
+    options: FilterOptions
   ): Movie[] {
-    let filtered = filterDayMovies(rawMovies, date, hoursFilterMode);
+    let filtered = filterDayMovies(rawMovies, date, options.hoursFilterMode);
 
-    if (savedFilterSet.size < SAVED_FILTER_COUNT) {
-      filtered = filterBySavedStatus(filtered, reactions, savedFilterSet);
+    if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
+      filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
     }
 
-    if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
-      filtered = filtered.filter(m => filteredShowtimeCounts[m.Movie] === 1);
+    if (options.singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
+      filtered = filtered.filter(m => options.filteredShowtimeCounts[m.Movie] === 1);
     }
 
     return filtered;
@@ -323,11 +327,13 @@ const ogImage = movieData[0]?.poster_url || null;
           const filtered = applyFilterPipeline(
             date,
             dayMovies,
-            hoursFilterMode,
-            savedFilterSet,
-            currentReactions,
-            singleShowtimesMode,
-            filteredShowtimeCounts
+            {
+              hoursFilterMode,
+              savedFilterSet,
+              reactions: currentReactions,
+              singleShowtimesMode,
+              filteredShowtimeCounts
+            }
           );
           filteredMoviesByDate.set(date, filtered);
         });
@@ -351,11 +357,13 @@ const ogImage = movieData[0]?.poster_url || null;
       const filteredMovies = filteredMoviesByDate.get(date) ?? applyFilterPipeline(
         date,
         dayMovies,
-        hoursFilterMode,
-        savedFilterSet,
-        currentReactions,
-        singleShowtimesMode,
-        filteredShowtimeCounts
+        {
+          hoursFilterMode,
+          savedFilterSet,
+          reactions: currentReactions,
+          singleShowtimesMode,
+          filteredShowtimeCounts
+        }
       );
 
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
