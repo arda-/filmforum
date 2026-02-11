@@ -1,16 +1,16 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
-import Header from '../../../components/Header.astro';
-import MovieModal from '../../../components/MovieModal.astro';
-import ToggleGroup from '../../../components/ToggleGroup.astro';
-import CheckboxGroup from '../../../components/CheckboxGroup.astro';
-import Switch from '../../../components/Switch.astro';
-import Toggle from '../../../components/Toggle.astro';
-import Dialog from '../../../components/Dialog.astro';
-import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
-import Button from '../../../components/Button.astro';
-import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
-import { loadMovieData } from '../../../utils/loadMovieData';
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/Header.astro';
+import MovieModal from '@components/MovieModal.astro';
+import ToggleGroup from '@components/ToggleGroup.astro';
+import CheckboxGroup from '@components/CheckboxGroup.astro';
+import Switch from '@components/Switch.astro';
+import Toggle from '@components/Toggle.astro';
+import Dialog from '@components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@components/Dialog/index';
+import Button from '@components/Button.astro';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
+import { loadMovieData } from '@utils/loadMovieData';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -20,10 +20,25 @@ const { id } = Astro.params;
 const series = getSeriesConfig(id)!;
 
 // Load movie data at build time
-const { movieDataJson } = loadMovieData(series.dataFile);
+const { movieData, movieDataJson } = loadMovieData(series.dataFile);
+
+// Count showtimes for SEO description
+const showtimeCount = movieData.length;
+
+// SEO metadata
+const title = `${series.name} Calendar - ${series.venueName} Showtimes`;
+const description = `Interactive calendar for ${series.name} at ${series.venueName}. Browse ${showtimeCount}+ showtimes, filter by day, and plan your visits. ${series.dateRange}.`;
+const canonical = `/s/${id}/calendar`;
+const ogImage = movieData[0]?.poster_url || null;
 ---
 
-<Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${series.name} calendar view`}
+>
   <Header
     seriesName={series.name}
     seriesSubtitle={series.subtitle}
@@ -149,15 +164,15 @@ const { movieDataJson } = loadMovieData(series.dataFile);
     type HoursFilterMode,
     type SingleShowtimesMode,
     type SavedFilter,
-  } from '../../../constants';
-  import type { Movie } from '../../../utils/icsGenerator';
-  import { createMovieElement, updateTextHeights } from '../../../components/MovieTile';
-  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '../../../utils/calendarTime';
-  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '../../../utils/calendarFilters';
-  import { openMovieModal, renderMovieList } from '../../../utils/calendarModal';
-  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
-  import { getReactions } from '../../../utils/storageManager';
-  import type { ReactionMap } from '../../../types/session';
+  } from '@/constants';
+  import type { Movie } from '@utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '@components/MovieTile';
+  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
+  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
+  import { openMovieModal, renderMovieList } from '@utils/calendarModal';
+  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
+  import { getReactions } from '@utils/storageManager';
+  import type { ReactionMap } from '@types/session';
 
   // --- State ---
   let moviesByDate: Record<string, Movie[]> = {};

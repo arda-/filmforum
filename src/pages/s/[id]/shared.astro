@@ -4,14 +4,14 @@
  * Displays a friend's saved movies from URL-encoded reactions.
  * userId and reactions come from query params: ?u=userId&r=encodedReactions
  */
-import Layout from '../../../layouts/Layout.astro';
-import type { Movie } from '../../../utils/movieUtils';
-import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
-import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import Layout from '@layouts/Layout.astro';
+import type { Movie } from '@utils/movieUtils';
+import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
-} from '../../../utils/sessionUtils';
+} from '@utils/sessionUtils';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -35,9 +35,19 @@ try {
 
 const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 const movieDataJson = JSON.stringify(uniqueMovies);
+
+// SEO metadata - noindex to prevent indexing user-generated URLs
+const title = `Shared List - ${config.name} Recommendations`;
+const description = `Check out this curated list of films from ${config.name} at ${config.venueName}. See what your friend recommends!`;
+const canonical = `/s/${id}/shared`;
 ---
 
-<Layout title={`Shared List — ${config.name}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  noindex={true}
+>
   <main class="shared-list-page" data-session-id={id}>
     <header class="page-header">
       <a href={`/s/${id}/list`} class="back-link">
@@ -46,7 +56,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
         </svg>
         Back to full list
       </a>
-      <h1 class="page-title">Friend's Picks</h1>
+      <h1 class="page-title">Shared List</h1>
       <p class="page-subtitle">from <span class="friend-id" id="friend-id"></span></p>
     </header>
 
@@ -90,90 +100,39 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 </script>
 
 <script>
-  import { getReactions, setReaction } from '../../../utils/storageManager';
-  import { decodeReactionsCompact, encodeReactionsCompact } from '../../../utils/compactEncoder';
-  import { toTitleCase, formatRuntime } from '../../../utils/movieUtils';
-  import { escapeHtml, escapeAttr } from '../../../utils/htmlEscape';
-  import type { UniqueMovie, MovieReaction, ReactionMap } from '../../../types/session';
-
-  // Debug logging flag - set to true to enable detailed console logs
-  const DEBUG = false;
+  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '@utils/storageManager';
+  import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+  import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
+  import type { UniqueMovie, MovieReaction } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
-
-  // Safety check: If movie data isn't loaded, show error
-  if (!allMovies || !Array.isArray(allMovies) || allMovies.length === 0) {
-    console.error('FATAL: Movie data not loaded!', {
-      movieData: (window as any).__movieData,
-      type: typeof (window as any).__movieData,
-      isArray: Array.isArray((window as any).__movieData),
-    });
-    document.getElementById('shared-empty')!.innerHTML = `
-      <p class="empty-title">Error loading movie data</p>
-      <p class="empty-hint">Please refresh the page. If the problem persists, the deployment may have an issue.</p>
-    `;
-    throw new Error('Movie data not loaded');
-  }
 
   // Parse userId and reactions from URL query params
   const urlParams = new URLSearchParams(window.location.search);
   const friendUserId = urlParams.get('u') || 'unknown';
   const encodedReactions = urlParams.get('r') || '';
-
-  // DEBUG: Log everything (only if DEBUG is true)
-  if (DEBUG) {
-    console.log('=== SHARE LIST DEBUG ===');
-    console.log('1. Encoded from URL:', encodedReactions);
-    console.log('2. window.__movieData exists?', typeof (window as any).__movieData);
-    console.log('3. All movies is array?', Array.isArray(allMovies));
-    console.log('4. All movies count:', allMovies?.length || 0);
-    if (allMovies && allMovies.length > 0) {
-      console.log('5. First 3 movie IDs:', allMovies.slice(0, 3).map(m => m.id));
-      console.log('6. Movie at index 2:', allMovies[2]?.id);
-      console.log('7. Movie at index 3:', allMovies[3]?.id);
-      console.log('8. Movie at index 5:', allMovies[5]?.id);
-    }
-  }
-
-  let friendReactions: ReactionMap = {};
-  try {
-    friendReactions = decodeReactionsCompact(encodedReactions, allMovies || []);
-    if (DEBUG) {
-      console.log('9. Decoded successfully');
-      console.log('10. Decoded reaction keys:', Object.keys(friendReactions));
-      console.log('11. Decoded reactions:', friendReactions);
-    }
-  } catch (error) {
-    console.error('ERROR decoding:', error);
-  }
+  const friendReactions = decodeReactions(encodedReactions);
 
   // Display friend ID
   const friendIdEl = document.getElementById('friend-id');
   if (friendIdEl) friendIdEl.textContent = friendUserId;
 
-  const yesMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'yes');
-  const maybeMovies = (allMovies || []).filter(m => friendReactions[m.id] === 'maybe');
+  const yesMovies = allMovies.filter(m => friendReactions[m.id] === 'yes');
+  const maybeMovies = allMovies.filter(m => friendReactions[m.id] === 'maybe');
   const hasAny = yesMovies.length > 0 || maybeMovies.length > 0;
-
-  if (DEBUG) {
-    console.log('12. Yes movies:', yesMovies.map(m => m.id));
-    console.log('13. Maybe movies:', maybeMovies.map(m => m.id));
-    console.log('14. hasAny:', hasAny);
-    console.log('========================');
-  }
 
   // Show/hide empty state
   const emptyEl = document.getElementById('shared-empty');
-  if (emptyEl) emptyEl.style.display = hasAny ? 'none' : 'block';
+  if (emptyEl) emptyEl.style.display = hasAny ? 'none' : '';
 
   const actionsEl = document.getElementById('shared-actions');
-  if (actionsEl) actionsEl.style.display = hasAny ? 'block' : 'none';
+  if (actionsEl) actionsEl.style.display = hasAny ? '' : 'none';
 
   function renderSection(containerId: string, sectionId: string, movies: UniqueMovie[]) {
     const section = document.getElementById(sectionId);
     const container = document.getElementById(containerId);
-    if (section) section.style.display = movies.length > 0 ? 'block' : 'none';
+    if (section) section.style.display = movies.length > 0 ? '' : 'none';
     if (!container) return;
 
     const myReactions = getReactions(sessionId);
@@ -193,7 +152,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
             ${['yes', 'maybe', 'no'].map(r => {
               const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
               const active = r === myReaction ? 'active' : '';
-              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${escapeAttr(r)}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
             }).join('')}
           </div>
         </div>
@@ -231,7 +190,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
   // Compare button
   document.getElementById('compare-btn')?.addEventListener('click', () => {
     const myReactions = getReactions(sessionId);
-    const myEncoded = encodeReactionsCompact(myReactions, allMovies);
+    const myEncoded = encodeReactions(myReactions);
     const friendEncoded = encodedReactions;
     window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });
