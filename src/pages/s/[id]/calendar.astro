@@ -152,7 +152,7 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   } from '../../../constants';
   import type { Movie } from '../../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../../components/MovieTile';
-  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange } from '../../../utils/calendarTime';
+  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '../../../utils/calendarTime';
   import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '../../../utils/calendarFilters';
   import { openMovieModal, renderMovieList } from '../../../utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
@@ -239,6 +239,37 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       });
     });
 
+    // Pre-calculate week time ranges for timeline mode
+    const weekRangesByDate = new Map<string, { start: number; end: number; range: number }>();
+
+    if (timelineMode) {
+      const weekStartToggle = document.getElementById('week-start-toggle');
+      const weekStartInput = weekStartToggle?.tagName === 'INPUT'
+        ? weekStartToggle as HTMLInputElement
+        : weekStartToggle?.querySelector('input') as HTMLInputElement;
+      const mondayStart = weekStartInput?.checked ?? true;
+
+      const dates = generateDateRange(allMovieDates, mondayStart);
+      const weeks = groupDatesIntoWeeks(dates);
+
+      weeks.forEach(weekDates => {
+        const weekRange = getWeekTimeRange(weekDates, moviesByDate, (date) => {
+          let dayMovies = moviesByDate[date] || [];
+          dayMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
+          if (savedFilterSet.size < SAVED_FILTER_COUNT) {
+            dayMovies = filterBySavedStatus(dayMovies, currentReactions, savedFilterSet);
+          }
+          if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
+            dayMovies = dayMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
+          }
+          return dayMovies;
+        });
+
+        // Store the week range for all dates in this week
+        weekDates.forEach(date => weekRangesByDate.set(date, weekRange));
+      });
+    }
+
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
       let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
 
@@ -271,14 +302,14 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       }
 
       if (timelineMode) {
-        // Calculate dynamic height based on filtered movies for this specific day
+        // Use the pre-calculated week time range for this day
+        const weekRange = weekRangesByDate.get(date);
         let dayHeight = 100 + 32; // Minimum height + padding
-        let dayStartTime = globalRange.start; // Default to global range
+        let dayStartTime = 0;
 
-        if (filteredMovies.length > 0) {
-          const dayRange = getDayTimeRange(filteredMovies);
-          dayHeight = Math.max(dayRange.range * PX_PER_MIN, 100) + 32;
-          dayStartTime = dayRange.start;
+        if (weekRange && weekRange.range > 0) {
+          dayHeight = Math.max(weekRange.range * PX_PER_MIN, 100) + 32;
+          dayStartTime = weekRange.start;
         }
 
         dayCell.style.height = `${dayHeight}px`;

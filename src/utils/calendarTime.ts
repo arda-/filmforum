@@ -119,3 +119,43 @@ export function generateDateRange(movieDates: string[], mondayStart: boolean): s
 
   return dates;
 }
+
+/**
+ * Group dates into weeks of 7 days.
+ * Assumes dates are already ordered and padded to complete weeks.
+ */
+export function groupDatesIntoWeeks(dates: string[]): string[][] {
+  const weeks: string[][] = [];
+  for (let i = 0; i < dates.length; i += 7) {
+    weeks.push(dates.slice(i, i + 7));
+  }
+  return weeks;
+}
+
+/**
+ * Calculate the time range for an entire week based on movies across all days.
+ */
+export function getWeekTimeRange(
+  weekDates: string[],
+  moviesByDate: Record<string, Movie[]>,
+  getFilteredMovies: (date: string) => Movie[]
+): { start: number; end: number; range: number } {
+  let minStart = Infinity;
+  let maxEnd = 0;
+
+  weekDates.forEach(date => {
+    const filteredMovies = getFilteredMovies(date);
+    if (filteredMovies.length > 0) {
+      const dayRange = getDayTimeRange(filteredMovies);
+      if (dayRange.start < minStart) minStart = dayRange.start;
+      if (dayRange.end > maxEnd) maxEnd = dayRange.end;
+    }
+  });
+
+  // If no movies in the entire week, return minimal range
+  if (minStart === Infinity) {
+    return { start: 0, end: 0, range: 0 };
+  }
+
+  return { start: minStart, end: maxEnd, range: maxEnd - minStart };
+}
