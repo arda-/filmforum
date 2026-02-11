@@ -126,6 +126,10 @@ export function generateDateRange(movieDates: string[], mondayStart: boolean): s
 /**
  * Group dates into weeks of up to 7 days each.
  * Handles partial weeks gracefully (last week may have fewer than 7 days).
+ *
+ * Note: This function expects input dates to be already week-aligned (as returned by
+ * generateDateRange). It slices by 7 without verification, which works because
+ * generateDateRange always returns week-aligned dates starting from the appropriate Monday.
  */
 export function groupDatesIntoWeeks(dates: string[]): string[][] {
   const weeks: string[][] = [];
