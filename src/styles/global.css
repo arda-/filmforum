@@ -159,6 +159,12 @@ body {
   margin-top: 20px;
   color: var(--text-secondary);
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.legend-star {
+  color: var(--accent);
+  font-size: 14px;
 }
 
 /* Natural width mode - prevent page from shrinking/scrolling */
