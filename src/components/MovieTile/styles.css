@@ -307,6 +307,12 @@ body.show-image .movie.has-poster .movie-meta {
     0 0 8px rgba(0, 0, 0, 0.6);
 }
 
+body.show-image .movie.has-poster .movie-year-director,
+body.show-image .movie.has-poster .movie-runtime,
+body.show-image .movie.has-poster .movie-actors {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 @media (min-width: 768px) {
   body.show-image .movie.has-poster .movie-time,
   body.show-image .movie.has-poster .movie-title {
