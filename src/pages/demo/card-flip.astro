@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 
 <Layout title="Card Flip" noindex={true}>
   <div class="demo-container">
-    <p class="version">v4</p>
+    <p class="version">v5</p>
     <h1>Card Flip (FLIP Animation)</h1>
     <p class="subtitle">Demonstrating the FLIP technique for smooth CSS animations</p>
 
@@ -90,11 +90,13 @@ import Layout from '../../layouts/Layout.astro';
 
     card.style.transformOrigin = '0 0';
     card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    card.style.borderRadius = `${1/scaleX}rem / ${1/scaleY}rem`;
     card.style.transition = 'none';
     card.offsetHeight;
 
-    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     card.style.transform = 'translate(0, 0) scale(1, 1)';
+    card.style.borderRadius = '1rem';
   }
 
   function sameElementClose() {
@@ -111,8 +113,9 @@ import Layout from '../../layouts/Layout.astro';
     const scaleY = targetRect.height / currentRect.height;
 
     card.style.transformOrigin = '0 0';
-    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    card.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-radius 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     card.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scaleX}, ${scaleY})`;
+    card.style.borderRadius = `${1/scaleX}rem / ${1/scaleY}rem`;
 
     card.addEventListener('transitionend', function handler(e) {
       if (e.propertyName !== 'transform') return;
@@ -121,6 +124,7 @@ import Layout from '../../layouts/Layout.astro';
       card.style.transform = '';
       card.style.transition = '';
       card.style.transformOrigin = '';
+      card.style.borderRadius = '';
       document.body.style.overflow = '';
       if (placeholder && placeholder.parentNode) {
         placeholder.parentNode.insertBefore(card, placeholder);
