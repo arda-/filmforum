@@ -55,7 +55,7 @@ for (const series of activeSeries) {
     const movieData: MovieEntry[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
     const allDates = [...new Set(movieData.map(m => m.Datetime.split('T')[0]))].sort();
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
     const targetDate = allDates.find(d => d >= todayStr) || allDates[0];
     if (!buildDate) buildDate = targetDate;
 
@@ -247,7 +247,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       if (!scrollEl) return;
 
       const buildDate = scrollEl.dataset.buildDate || '';
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
       if (buildDate === todayStr) return;
 
       const films: DetailMovie[] = [];
