@@ -134,7 +134,7 @@ import Tooltip from '@components/Tooltip.astro';
       >
         <input type="checkbox" id="show-year-director-checkbox" style="display: none;" />
         <span class="seg-btn-text-short">Year & Dir.</span>
-        <span class="seg-btn-text-full">Year / Director</span>
+        <span class="seg-btn-text-full">Year & Director</span>
       </button>
       <button
         class="seg-btn"
@@ -298,6 +298,17 @@ import Tooltip from '@components/Tooltip.astro';
     });
   });
 
+  function initDetailButtons() {
+    detailButtons.forEach(button => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (checkbox) {
+        // Sync button state from checkbox (which may have been set by URL restore)
+        button.classList.toggle('active', checkbox.checked);
+        button.setAttribute('aria-pressed', String(checkbox.checked));
+      }
+    });
+  }
+
   // --- Gear popover ---
   const gearBtn = document.getElementById('view-settings-btn');
   const popover = document.getElementById('view-settings-popover');
@@ -332,6 +343,7 @@ import Tooltip from '@components/Tooltip.astro';
     initViewMode();
     initWidth();
     initWeekStart();
+    initDetailButtons();
   });
 </script>
 
