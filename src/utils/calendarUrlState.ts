@@ -88,7 +88,7 @@ export function restoreFromUrl(): void {
     if (switchInput) {
       const wantFitWidth = params.get('fit-width') === '1';
       switchInput.checked = wantFitWidth;
-      document.body.classList.toggle('natural-width', !wantFitWidth);
+      document.body.classList.toggle('minimum-width', !wantFitWidth);
     }
   }
 

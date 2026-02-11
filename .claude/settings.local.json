@@ -70,7 +70,10 @@
       "Bash(gh pr review:*)",
       "Bash(rg:*)",
       "Bash(git rm:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(git mv:*)",
+      "WebFetch(domain:lucide.dev)",
+      "WebFetch(domain:unpkg.com)"
     ]
   }
 }

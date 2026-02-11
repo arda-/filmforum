@@ -391,10 +391,17 @@ const ogImage = movieData[0]?.poster_url || null;
   const showActorsCheckbox = document.getElementById('show-actors-checkbox') as HTMLInputElement;
   const showImageCheckbox = document.getElementById('show-image-checkbox') as HTMLInputElement;
 
+  // Helper to determine if minimum-width mode should be enabled
+  // (when actors or image are checked, tiles are wide and need minimum-width)
+  function shouldEnableMinimumWidth(): boolean {
+    const fitWidth = fitWidthSwitch?.checked ?? true;
+    if (fitWidth) return false;
+    return showActorsCheckbox?.checked || showImageCheckbox?.checked;
+  }
+
   // Fit width switch
   fitWidthSwitch?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
-    document.body.classList.toggle('natural-width', !checked);
 
     // When fit width is enabled, disable other checkboxes
     if (checked) {
@@ -405,6 +412,7 @@ const ogImage = movieData[0]?.poster_url || null;
       document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
     }
 
+    document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
   });
 
@@ -413,6 +421,7 @@ const ogImage = movieData[0]?.poster_url || null;
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('show-year-director', checked);
     if (checked) fitWidthSwitch.checked = false;
+    document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
@@ -422,6 +431,7 @@ const ogImage = movieData[0]?.poster_url || null;
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('show-runtime', checked);
     if (checked) fitWidthSwitch.checked = false;
+    document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
@@ -431,6 +441,7 @@ const ogImage = movieData[0]?.poster_url || null;
     const checked = (e.target as HTMLInputElement).checked;
     document.body.classList.toggle('show-actors', checked);
     if (checked) fitWidthSwitch.checked = false;
+    document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
@@ -442,6 +453,7 @@ const ogImage = movieData[0]?.poster_url || null;
     document.body.classList.toggle('scrim-enabled', checked);
     document.body.classList.toggle('blur-enabled', checked);
     if (checked) fitWidthSwitch.checked = false;
+    document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
@@ -490,9 +502,8 @@ const ogImage = movieData[0]?.poster_url || null;
   // Restore URL state silently before first render (no events, no re-renders)
   restoreFromUrl();
 
-  // Initialize natural-width class based on fit-width switch state
-  const initialFitWidth = fitWidthSwitch?.checked ?? true;
-  document.body.classList.toggle('natural-width', !initialFitWidth);
+  // Initialize minimum-width class based on fit-width switch and tile display options
+  document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
 
   // Single render with all state already applied
   renderCalendar();
@@ -588,12 +599,12 @@ const ogImage = movieData[0]?.poster_url || null;
 </script>
 
 <style>
-  /* Calendar scroll container - only scrolls horizontally in natural-width mode */
+  /* Calendar scroll container - only scrolls horizontally in minimum-width mode */
   .calendar-scroll-container {
     width: 100%;
   }
 
-  :global(body.natural-width) .calendar-scroll-container {
+  :global(body.minimum-width) .calendar-scroll-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }

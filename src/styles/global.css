@@ -168,7 +168,7 @@ body {
 }
 
 /* Natural width mode - prevent page from shrinking/scrolling */
-body.natural-width {
+body.minimum-width {
   overflow-x: hidden;
 }
 
