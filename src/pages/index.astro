@@ -178,23 +178,9 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   })} />
 
   <script>
-    import { toTitleCase, aggregateMoviesForDate } from '../utils/movieUtils';
-    import type { Movie } from '../utils/movieUtils';
-
-    function escapeHtml(text: string): string {
-      const el = document.createElement('span');
-      el.textContent = text;
-      return el.innerHTML;
-    }
-
-    function safeHref(url: string | null | undefined): string {
-      if (!url) return '';
-      const trimmed = String(url).trim();
-      if (/^https?:\/\//i.test(trimmed)) return trimmed;
-      return '';
-    }
-
-    interface Showtime { time: string; tickets?: string; }
+    import { toTitleCase, aggregateMoviesForDate, formatRuntime } from '../utils/movieUtils';
+    import type { Movie, Showtime } from '../utils/movieUtils';
+    import { escapeHtml, safeHref } from '../utils/htmlEscape';
     interface DetailMovie {
       title: string; director?: string; year?: string; runtime?: string;
       actors?: string; description?: string; poster_url?: string;
