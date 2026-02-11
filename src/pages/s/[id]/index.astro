@@ -1,6 +1,7 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
-import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
+import Layout from '@layouts/Layout.astro';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
+import { parseDateRange } from '@utils/parseDateRange';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -27,9 +28,53 @@ for (const m of movieData) {
 }
 const films = Array.from(filmMap.values());
 const totalShowtimes = movieData.length;
+
+// SEO metadata
+const title = `${series.name}: ${series.subtitle} - Film Forum`;
+const description = `Explore ${films.length} films in ${series.name}: ${series.subtitle} at ${series.venueName}, ${series.dateRange}. Browse the complete calendar and movie list.`;
+const canonical = `/s/${id}/`;
+const ogImage = movieData[0]?.poster_url || null;
+
+// Parse date range for structured data (using shared utility)
+const { startDate, endDate } = parseDateRange(series.dateRange, `Series ${id}`);
+
+// Use Astro.site from config, or fall back to the current request origin
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
+
+// Structured data for the series
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "EventSeries",
+  "name": `${series.name}: ${series.subtitle}`,
+  "description": description,
+  "location": {
+    "@type": "Place",
+    "name": series.venueName,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "New York",
+      "addressRegion": "NY"
+    }
+  },
+  "startDate": startDate,
+  "endDate": endDate,
+  "url": `${siteUrl}/s/${id}/`,
+  "organizer": {
+    "@type": "Organization",
+    "name": series.venueName,
+    "url": series.seriesUrl
+  }
+};
 ---
 
-<Layout title={`${series.name}: ${series.subtitle}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${series.name}: ${series.subtitle}`}
+  structuredData={structuredData}
+>
   <main class="series-landing">
     <header class="series-header">
       <a href="/" class="back-link">&larr; FilmForum</a>

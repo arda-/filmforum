@@ -1,0 +1,111 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  ogImageAlt?: string;
+  noindex?: boolean;
+  structuredData?: object | object[];
+  twitterCard?: 'summary' | 'summary_large_image';
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogType = 'website',
+  ogImage,
+  ogImageAlt = 'FilmForum',
+  noindex = false,
+  structuredData,
+  twitterCard = 'summary_large_image',
+} = Astro.props;
+
+// Use Astro.site from config, or fall back to the current request origin
+// This allows the site to work correctly regardless of where it's deployed
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || Astro.url.origin;
+const fullCanonical = canonical.startsWith('http') ? canonical : `${siteUrl}${canonical}`;
+const fullOgImage = ogImage ? (ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`) : undefined;
+
+// Derive site name from the domain (e.g., "localhost:4321", "filmforum.example.com")
+const siteName = new URL(siteUrl).host;
+
+/**
+ * Smart description truncation that:
+ * 1. Truncates at word boundaries (not mid-word)
+ * 2. Targets 150-160 chars (optimal for SEO)
+ * 3. Adds "..." only if truncated
+ * 4. Never exceeds 160 chars
+ */
+function truncateDescription(text: string, maxLength: number = 160): string {
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  // Leave room for "..." (3 chars)
+  const targetLength = maxLength - 3;
+
+  // Find the last space before the target length
+  const truncated = text.substring(0, targetLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+
+  // If we found a space, truncate there; otherwise use the full target length
+  const finalText = lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated;
+
+  return finalText + '...';
+}
+
+const truncatedDescription = truncateDescription(description);
+---
+
+<!-- Basic SEO -->
+<title>{title}</title>
+<meta name="description" content={truncatedDescription} />
+<link rel="canonical" href={fullCanonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+<!-- OpenGraph -->
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={truncatedDescription} />
+<meta property="og:url" content={fullCanonical} />
+{fullOgImage && (
+  <>
+    <meta property="og:image" content={fullOgImage} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    {/* TODO: Add og:image:width and og:image:height for better social previews.
+        Standard size is 1200x630 for custom OG images. For movie posters with
+        varying dimensions, consider using Astro's image service or a CMS that
+        exposes image metadata. */}
+  </>
+)}
+<meta property="og:site_name" content={siteName} />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content={twitterCard} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={truncatedDescription} />
+{fullOgImage && (
+  <>
+    <meta name="twitter:image" content={fullOgImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+  </>
+)}
+
+<!-- JSON-LD Structured Data -->
+{/* Defense-in-depth: Escape < as \u003c to prevent premature script tag closure
+    if data contains </script>. This protects against script injection even though
+    JSON.stringify already escapes most dangerous characters.
+
+    IMPORTANT: scripts/validate-seo.js relies on this escaping. The validation
+    script uses regex to extract JSON-LD content and would fail if this escaping
+    were removed. Keep these two in sync. */}
+{structuredData && (
+  Array.isArray(structuredData)
+    ? structuredData.map((data) => (
+        <script type="application/ld+json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />
+      ))
+    : <script type="application/ld+json" set:html={JSON.stringify(structuredData).replace(/</g, '\\u003c')} />
+)}

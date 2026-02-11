@@ -4,7 +4,7 @@
  * and by saved reaction status.
  */
 
-import type { Movie } from './icsGenerator';
+import type { Movie } from '../types/movie';
 import { WORK_START, WORK_END, HOURS_FILTER_MODE, SAVED_FILTER_COUNT, type HoursFilterMode, type SavedFilter } from '../constants';
 import { parseTimeToMins } from './calendarTime';
 import type { ReactionMap } from '../types/session';

@@ -3,22 +3,10 @@
  * Functions for generating and downloading ICS calendar files for movie showtimes
  */
 
-export interface Movie {
-  Movie: string;
-  Time: string;
-  Tickets: string;
-  Datetime: string;
-  year?: string;
-  director?: string;
-  runtime?: string;
-  actors?: string;
-  description?: string;
-  country?: string;
-  film_url?: string;
-  poster_url?: string;
-  _col?: number;
-  _hasOverlap?: boolean;
-}
+import type { Movie } from '../types/movie';
+
+// Re-export for backwards compatibility
+export type { Movie };
 
 /**
  * Converts a string to title case

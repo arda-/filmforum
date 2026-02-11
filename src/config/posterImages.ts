@@ -39,6 +39,51 @@ function getAvailablePosterFiles(): Set<string> {
 }
 
 /**
+ * Validate poster URL format
+ * Ensures URLs are safe relative paths without malicious content
+ *
+ * @throws Error if URL format is invalid or potentially dangerous
+ */
+function validatePosterUrl(posterUrl: string, movieTitle: string): void {
+  // Check if absolute URL (security risk)
+  if (/^https?:\/\//i.test(posterUrl)) {
+    throw new Error(
+      `Invalid poster_url for "${movieTitle}": Absolute URLs not allowed (${posterUrl}). ` +
+      `Use relative paths like "/posters/movie-name.jpg"`
+    );
+  }
+
+  // Check for protocol-relative URLs
+  if (posterUrl.startsWith('//')) {
+    throw new Error(
+      `Invalid poster_url for "${movieTitle}": Protocol-relative URLs not allowed (${posterUrl})`
+    );
+  }
+
+  // Check for directory traversal attempts
+  if (posterUrl.includes('..')) {
+    throw new Error(
+      `Invalid poster_url for "${movieTitle}": Directory traversal not allowed (${posterUrl})`
+    );
+  }
+
+  // Check if starts with /posters/ (expected format)
+  if (!posterUrl.startsWith('/posters/')) {
+    throw new Error(
+      `Invalid poster_url for "${movieTitle}": Must start with "/posters/" (${posterUrl})`
+    );
+  }
+
+  // Check for dangerous characters
+  const dangerousChars = /[<>'"]/;
+  if (dangerousChars.test(posterUrl)) {
+    throw new Error(
+      `Invalid poster_url for "${movieTitle}": Contains dangerous characters (${posterUrl})`
+    );
+  }
+}
+
+/**
  * Validate that all movies in the dataset have corresponding poster images
  * Called at build time to catch missing images early
  *
@@ -52,6 +97,9 @@ export function validatePosterImages(
 
   for (const movie of movies) {
     if (!movie.poster_url) continue;
+
+    // Validate URL format first
+    validatePosterUrl(movie.poster_url, movie.Movie);
 
     const posterFilename = movie.poster_url
       .split('/')

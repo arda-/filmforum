@@ -5,12 +5,15 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "build:verify": "astro build && node scripts/validate-seo.js",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "test:seo": "node scripts/validate-seo.js"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
     "astro": "^5.17.1",
     "webcoreui": "^1.3.0"
   },

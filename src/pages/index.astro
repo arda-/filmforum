@@ -3,18 +3,16 @@ import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import Layout from '../layouts/Layout.astro';
 import { getActiveSeries } from '../config/series';
-import { toTitleCase } from '../utils/movieUtils';
-import fs from 'node:fs';
-import path from 'node:path';
+import { toTitleCase, aggregateMoviesForDate } from '../utils/movieUtils';
+import type { Movie, GroupedMovie } from '../utils/movieUtils';
+import { loadMovieData } from '../utils/loadMovieData';
 
 // Build-time import of all poster images from src/assets/posters/
-// Enables Astro to optimize them to WebP/AVIF with responsive srcsets
 const posterGlob = import.meta.glob<{ default: ImageMetadata }>(
   '../assets/posters/*.{png,jpg,jpeg}',
   { eager: true }
 );
 
-// Create a lookup map from poster filenames to image modules
 const posterMap = Object.entries(posterGlob).reduce((map, [filePath, mod]) => {
   const filename = filePath.split('/').pop()?.replace(/\.(png|jpg|jpeg)$/, '');
   if (filename && mod.default) {
@@ -23,7 +21,6 @@ const posterMap = Object.entries(posterGlob).reduce((map, [filePath, mod]) => {
   return map;
 }, {} as Record<string, ImageMetadata>);
 
-// Get poster image module by URL
 function getPosterImage(posterUrl: string | undefined): ImageMetadata | undefined {
   if (!posterUrl) return undefined;
   const filename = posterUrl.split('/').pop()?.replace(/\.(png|jpg|jpeg)$/, '');
@@ -32,45 +29,21 @@ function getPosterImage(posterUrl: string | undefined): ImageMetadata | undefine
 
 const activeSeries = getActiveSeries();
 
-// Load movie data at build time to get "showing today" films
-interface MovieEntry {
-  Movie: string;
-  Time: string;
-  Datetime: string;
-  director?: string;
-  year?: string;
-  poster_url?: string;
-  runtime?: string;
-  actors?: string;
+interface ShowingMovie extends GroupedMovie {
+  seriesId: string;
 }
 
-// Gather upcoming films from all active series
-let showingToday: { film: MovieEntry; seriesId: string }[] = [];
+let showingToday: ShowingMovie[] = [];
+let buildDate = '';
+const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 
 for (const series of activeSeries) {
-  const dataPath = path.join(process.cwd(), 'public', series.dataFile);
   try {
-    const movieData: MovieEntry[] = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    const { movieData } = loadMovieData(series.dataFile);
+    const { targetDate, movies } = aggregateMoviesForDate(movieData, todayStr);
 
-    // Get today's date (build time), but since we're building statically,
-    // use the series start date to show "opening day" films as a reasonable default
-    // In production with SSR this would be dynamic
-    const allDates = [...new Set(movieData.map(m => m.Datetime.split('T')[0]))].sort();
-    const todayStr = new Date().toISOString().split('T')[0];
-
-    // Find the nearest date with showings (today or next upcoming)
-    let targetDate = allDates.find(d => d >= todayStr) || allDates[0];
-
-    const todayMovies = movieData.filter(m => m.Datetime.split('T')[0] === targetDate);
-
-    // Deduplicate by title (only show each film once)
-    const seen = new Set<string>();
-    for (const m of todayMovies) {
-      if (!seen.has(m.Movie) && m.poster_url) {
-        seen.add(m.Movie);
-        showingToday.push({ film: m, seriesId: series.id });
-      }
-    }
+    if (!buildDate && targetDate) buildDate = targetDate;
+    showingToday.push(...movies.map(g => ({ ...g, seriesId: series.id })));
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== 'ENOENT') {
       console.error(`Error loading series data for ${series.id}:`, e);
@@ -78,9 +51,25 @@ for (const series of activeSeries) {
   }
 }
 
+// Build poster URL -> optimized src mapping for client-side use
+const posterUrlMap: Record<string, { src: string; width: number; height: number }> = {};
+for (const [filename, metadata] of Object.entries(posterMap)) {
+  for (const ext of ['png', 'jpg', 'jpeg']) {
+    posterUrlMap[`/posters/${filename}.${ext}`] = {
+      src: metadata.src,
+      width: metadata.width,
+      height: metadata.height,
+    };
+  }
+}
+
 ---
 
-<Layout title="FilmForum - Series Explorer">
+<Layout
+  title="FilmForum - Discover and Plan Your Film Series"
+  description="Explore curated film series, browse showtimes, and plan your cinema visits. Interactive calendars and movie lists for film enthusiasts at Film Forum."
+  canonical="/"
+>
   <main class="landing">
     <h1 class="site-title">FilmForum</h1>
     <p class="site-blurb">
@@ -108,40 +97,293 @@ for (const series of activeSeries) {
     {showingToday.length > 0 && (
       <section class="today-section">
         <h2 class="section-heading">Showing Today</h2>
-        <div class="today-grid">
-          {showingToday.map(({ film, seriesId }) => {
+        <div class="today-scroll" id="today-scroll" data-build-date={buildDate}>
+          {showingToday.map(({ film, seriesId, showtimes }, idx) => {
             const image = getPosterImage(film.poster_url);
             return (
-            <a href={`/s/${seriesId}/calendar`} class="poster-card">
-              {image && <Image src={image} alt={film.Movie} class="poster-image" width={290} height={386} loading="lazy" />}
+            <button type="button" class="poster-card" data-movie-idx={idx} aria-label={toTitleCase(film.Movie)}>
+              {image && <Image src={image} alt={film.Movie} class="poster-image" width={500} height={375} loading="lazy" />}
               <div class="poster-scrim"></div>
-              <div class="progressive-blur">
-                <div class="blur-layer layer-1"></div>
-                <div class="blur-layer layer-2"></div>
-                <div class="blur-layer layer-3"></div>
-                <div class="blur-layer layer-4"></div>
-                <div class="blur-layer layer-5"></div>
-                <div class="blur-layer layer-6"></div>
-              </div>
+              <div class="poster-blur"></div>
+              <span class="poster-time">{showtimes.map(s => s.time).join(', ')}</span>
               <div class="poster-info">
                 <span class="poster-title">{toTitleCase(film.Movie)}</span>
                 <span class="poster-meta">{[film.director, film.year].filter(Boolean).join(' \u00b7 ')}</span>
               </div>
-            </a>
+            </button>
             );
           })}
         </div>
       </section>
     )}
 
+    {/* Movie detail drawer — only rendered when there are active series */}
+    {activeSeries.length > 0 && (
+      <>
+        <div class="detail-overlay" id="detail-overlay"></div>
+        <div class="detail-drawer" id="detail-drawer" tabindex="-1" role="dialog" aria-modal="true">
+          <div class="detail-scroll">
+            <div class="detail-hero">
+              <img class="detail-hero-img" id="detail-hero-img" src="" alt="" loading="lazy" />
+              <div class="detail-hero-scrim"></div>
+              <button class="detail-close" id="detail-close" type="button" aria-label="Close">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </button>
+              <div class="detail-hero-text">
+                <h2 class="detail-title" id="detail-title"></h2>
+                <p class="detail-meta" id="detail-meta"></p>
+              </div>
+            </div>
+            <div class="detail-body">
+              <p class="detail-actors" id="detail-actors"></p>
+              <div class="detail-description" id="detail-description-block">
+                <p class="detail-description-text" id="detail-description"></p>
+                <p class="detail-citation">&mdash; Film Forum</p>
+              </div>
+              <div class="detail-showtimes" id="detail-showtimes"></div>
+              <div class="detail-actions" id="detail-actions"></div>
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+
     <section class="demos-section">
       <h2 class="section-heading">Demos</h2>
-      <a href="/demo/apple-card" class="demo-link">
-        <span class="demo-title">Apple Card Expansion</span>
-        <span class="demo-description">Interactive FLIP animation demos with swipe-to-dismiss</span>
+      <a href="/demo" class="demo-link">
+        <span class="demo-title">Component Demos</span>
+        <span class="demo-description">UI components, animations, and testing tools</span>
       </a>
     </section>
   </main>
+
+  <!-- Embedded data for client-side live updates + detail view -->
+  <script id="series-config" type="application/json" set:html={JSON.stringify({
+    series: activeSeries.map(s => ({ id: s.id, dataFile: s.dataFile })),
+    posterMap: posterUrlMap,
+    movies: showingToday.map(({ film, seriesId, showtimes }) => ({
+      title: film.Movie,
+      director: film.director,
+      year: film.year,
+      runtime: film.runtime,
+      actors: film.actors,
+      description: film.description,
+      poster_url: film.poster_url,
+      film_url: film.film_url,
+      seriesId,
+      showtimes,
+    })),
+    // Prevent closing </script> tag injection in JSON (XSS mitigation)
+  }).replace(/</g, '\\u003c')} />
+
+  <script>
+    import { toTitleCase, aggregateMoviesForDate, formatRuntime } from '../utils/movieUtils';
+    import type { Movie, Showtime } from '../utils/movieUtils';
+    import { escapeHtml, safeHref } from '../utils/htmlEscape';
+    interface DetailMovie {
+      title: string; director?: string; year?: string; runtime?: string;
+      actors?: string; description?: string; poster_url?: string;
+      film_url?: string; seriesId: string; showtimes: Showtime[];
+    }
+
+    interface PosterMeta { src: string; width: number; height: number; }
+    interface Config {
+      series: { id: string; dataFile: string }[];
+      posterMap: Record<string, PosterMeta>;
+      movies: DetailMovie[];
+    }
+
+    const configEl = document.getElementById('series-config');
+    const config: Config = configEl?.textContent ? JSON.parse(configEl.textContent) : { series: [], posterMap: {}, movies: [] };
+    let currentMovies: DetailMovie[] = config.movies;
+
+    // --- Live update ---
+    async function updateShowingToday() {
+      const scrollEl = document.getElementById('today-scroll');
+      if (!scrollEl) return;
+
+      const buildDate = scrollEl.dataset.buildDate || '';
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+      if (buildDate === todayStr) return;
+
+      const films: DetailMovie[] = [];
+
+      for (const series of config.series) {
+        try {
+          const res = await fetch(series.dataFile);
+          if (!res.ok) continue;
+          const data: Movie[] = await res.json();
+
+          const { movies } = aggregateMoviesForDate(data, todayStr);
+          films.push(...movies.map(({ film, showtimes }) => ({
+            title: film.Movie, director: film.director, year: film.year,
+            runtime: film.runtime, actors: film.actors, description: film.description,
+            poster_url: film.poster_url, film_url: film.film_url,
+            seriesId: series.id, showtimes,
+          })));
+        } catch (e) {
+          console.error(`Error loading series ${series.id}:`, e);
+        }
+      }
+
+      currentMovies = films;
+
+      if (films.length === 0) {
+        scrollEl.innerHTML = '<p style="white-space:nowrap;color:var(--text-secondary);">No films showing today</p>';
+        return;
+      }
+
+      scrollEl.innerHTML = films.map((movie, idx) => {
+        const pm = movie.poster_url ? config.posterMap[movie.poster_url] : null;
+        const img = pm
+          ? `<img src="${escapeHtml(pm.src)}" alt="${escapeHtml(movie.title)}" class="poster-image" loading="lazy" width="${pm.width}" height="${pm.height}" />`
+          : '';
+        const title = escapeHtml(toTitleCase(movie.title));
+        const meta = [movie.director, movie.year].filter(Boolean).join(' \u00b7 ');
+        const times = escapeHtml(movie.showtimes.map(s => s.time).join(', '));
+
+        return `<button type="button" class="poster-card" data-movie-idx="${idx}" aria-label="${title}">
+          ${img}
+          <div class="poster-scrim"></div>
+          <div class="poster-blur"></div>
+          <span class="poster-time">${times}</span>
+          <div class="poster-info">
+            <span class="poster-title">${title}</span>
+            ${meta ? `<span class="poster-meta">${escapeHtml(meta)}</span>` : ''}
+          </div>
+        </button>`;
+      }).join('');
+
+      scrollEl.dataset.buildDate = todayStr;
+    }
+
+    updateShowingToday();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) updateShowingToday(); });
+    setInterval(updateShowingToday, 5 * 60 * 1000);
+
+    // --- Detail drawer (skipped gracefully if elements are missing) ---
+    const overlay = document.getElementById('detail-overlay');
+    const drawer = document.getElementById('detail-drawer');
+    if (overlay && drawer) {
+    let triggerEl: HTMLElement | null = null;
+
+    function openDetail(idx: number) {
+      const movie = currentMovies[idx];
+      if (!movie) return;
+
+      // Hero image
+      const heroImg = document.getElementById('detail-hero-img') as HTMLImageElement;
+      const pm = movie.poster_url ? config.posterMap[movie.poster_url] : null;
+      if (heroImg && pm) {
+        heroImg.src = pm.src;
+        heroImg.alt = movie.title;
+        heroImg.style.display = '';
+      } else if (heroImg) {
+        heroImg.style.display = 'none';
+      }
+
+      // Text
+      const titleEl = document.getElementById('detail-title');
+      if (titleEl) titleEl.textContent = toTitleCase(movie.title);
+
+      const metaEl = document.getElementById('detail-meta');
+      const rt = formatRuntime(movie.runtime);
+      if (metaEl) metaEl.textContent = [movie.director, movie.year, rt].filter(Boolean).join(' \u00b7 ');
+
+      const actorsEl = document.getElementById('detail-actors');
+      if (actorsEl) {
+        actorsEl.textContent = movie.actors || '';
+        actorsEl.style.display = movie.actors ? '' : 'none';
+      }
+
+      const descBlock = document.getElementById('detail-description-block');
+      const descEl = document.getElementById('detail-description');
+      if (descEl && descBlock) {
+        descEl.textContent = movie.description ? `\u201C${movie.description}\u201D` : '';
+        descBlock.style.display = movie.description ? '' : 'none';
+      }
+
+      // Showtimes with individual ticket links
+      const showtimesEl = document.getElementById('detail-showtimes');
+      if (showtimesEl) {
+        showtimesEl.innerHTML = movie.showtimes.map(s => {
+          const href = safeHref(s.tickets);
+          if (href) {
+            return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener" class="showtime-chip showtime-chip--link">${escapeHtml(s.time)}<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M5 3h8v8M13 3L6 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>`;
+          }
+          return `<span class="showtime-chip">${escapeHtml(s.time)}</span>`;
+        }).join('');
+      }
+
+      // Actions
+      const actionsEl = document.getElementById('detail-actions');
+      if (actionsEl) {
+        let html = '';
+        const filmHref = safeHref(movie.film_url);
+        if (filmHref) {
+          html += `<a href="${escapeHtml(filmHref)}" target="_blank" rel="noopener" class="detail-action">Film Forum Page</a>`;
+        }
+        html += `<a href="/s/${escapeHtml(movie.seriesId)}/calendar" class="detail-action">View Full Calendar</a>`;
+        actionsEl.innerHTML = html;
+      }
+
+      // Show
+      overlay.classList.add('open');
+      drawer.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      // Focus the first focusable element to ensure focus trap works correctly
+      const firstFocusable = drawer.querySelector<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (firstFocusable) {
+        firstFocusable.focus();
+      } else {
+        drawer.focus();
+      }
+    }
+
+    function closeDetail() {
+      overlay.classList.remove('open');
+      drawer.classList.remove('open');
+      document.body.style.overflow = '';
+      if (triggerEl) {
+        triggerEl.focus();
+        triggerEl = null;
+      }
+    }
+
+    // Card click → open detail
+    document.getElementById('today-scroll')?.addEventListener('click', (e) => {
+      const card = (e.target as HTMLElement).closest('[data-movie-idx]') as HTMLElement | null;
+      if (card) {
+        triggerEl = card;
+        openDetail(Number(card.dataset.movieIdx));
+      }
+    });
+
+    document.getElementById('detail-close')?.addEventListener('click', closeDetail);
+    overlay.addEventListener('click', closeDetail);
+    document.addEventListener('keydown', (e) => {
+      if (!drawer.classList.contains('open')) return;
+      if (e.key === 'Escape') { closeDetail(); return; }
+      if (e.key === 'Tab') {
+        const focusable = drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+    } // end if (overlay && drawer)
+  </script>
 </Layout>
 
 <style>
@@ -270,138 +512,375 @@ for (const series of activeSeries) {
   .today-section {
     margin-top: 0;
   }
+</style>
 
-  .today-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+<!-- Global styles: must apply to client-rendered poster cards + detail drawer -->
+<style is:global>
+  /* --- Horizontal scroll container --- */
+  .today-scroll {
+    display: flex;
     gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    scrollbar-width: none;
+  }
+
+  .today-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* --- Landscape poster card (4:3) --- */
+  .today-scroll .poster-card {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-movie);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+    display: block;
+    flex: 0 0 220px;
+    scroll-snap-align: start;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
     text-align: left;
   }
 
   @media (min-width: 480px) {
-    .today-grid {
-      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-      gap: 14px;
+    .today-scroll .poster-card {
+      flex: 0 0 250px;
     }
   }
 
-  .poster-card {
-    position: relative;
-    aspect-ratio: 3 / 4;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--bg-movie);
-    text-decoration: none;
-    display: block;
-    transition: transform 0.15s, box-shadow 0.15s;
+  @media (hover: hover) {
+    .today-scroll .poster-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
   }
 
-  .poster-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  }
-
-  .poster-image {
+  .today-scroll .poster-image {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
   }
 
-  /* Dark scrim for text readability */
-  .poster-scrim {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60%;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.75) 0%,
-      rgba(0, 0, 0, 0.35) 40%,
-      transparent 100%
-    );
-    pointer-events: none;
-  }
-
-  /* Progressive blur — scoped to bottom 45% (text region only) */
-  .progressive-blur {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 45%;
-    pointer-events: none;
-  }
-
-  .blur-layer {
+  /* --- Scrim: darkens image pixels before blur --- */
+  .today-scroll .poster-scrim {
     position: absolute;
     inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.35) 30%,
+      transparent 50%
+    );
+    mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    pointer-events: none;
+    z-index: 1;
   }
 
-  /* Scaled blur values for small cards, masks within the 45% container */
-  .layer-1 {
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-    mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 50%, black 75%, black 100%);
-  }
-  .layer-2 {
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to top, transparent 35%, black 55%, black 80%, transparent 100%);
-  }
-  .layer-3 {
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
-    -webkit-mask-image: linear-gradient(to top, transparent 20%, black 40%, black 65%, transparent 85%);
-  }
-  .layer-4 {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to top, transparent 8%, black 25%, black 50%, transparent 70%);
-  }
-  .layer-5 {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
-    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 12%, black 35%, transparent 55%);
-  }
-  .layer-6 {
+  /* --- Blur: blurs the already-darkened pixels --- */
+  .today-scroll .poster-blur {
+    position: absolute;
+    inset: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 15%, transparent 40%);
+    mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 30%, transparent 42%);
+    pointer-events: none;
+    z-index: 2;
   }
 
-  .poster-info {
+  /* --- Showtime badge: top-left --- */
+  .today-scroll .poster-time {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 4;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 3px 7px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+
+  /* --- Text overlay: bottom-left --- */
+  .today-scroll .poster-info {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 10px 12px;
+    z-index: 3;
+    padding: 10px 10px;
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
 
-  .poster-title {
-    font-family: 'Barlow Semi Condensed', sans-serif;
+  .today-scroll .poster-title {
+    font-size: 15px;
     font-weight: 600;
-    font-size: 0.85rem;
-    color: white;
+    color: #fff;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     line-height: 1.2;
   }
 
-  .poster-meta {
-    font-size: 0.7rem;
+  .today-scroll .poster-meta {
+    font-size: 11px;
     color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  /* --- Movie detail drawer --- */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-drawer-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .detail-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .detail-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-drawer);
+    max-height: 90vh;
+    max-height: 90dvh;
+    border-radius: 16px 16px 0 0;
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .detail-drawer.open {
+    transform: translateY(0);
+  }
+
+  .detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  /* Hero */
+  .detail-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--bg-movie);
+    overflow: hidden;
+  }
+
+  .detail-hero-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .detail-hero-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.75) 0%,
+      rgba(0, 0, 0, 0.3) 35%,
+      transparent 60%
+    );
+    pointer-events: none;
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.15s;
+  }
+
+  .detail-close:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .detail-hero-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    padding: 16px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .detail-meta {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Body */
+  .detail-body {
+    padding: 14px 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detail-actors {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .detail-description {
+    padding: 12px;
+    background: var(--bg-day);
+    border-radius: 8px;
+  }
+
+  .detail-description-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+    font-style: italic;
+  }
+
+  .detail-citation {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  /* Showtimes */
+  .detail-showtimes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .showtime-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--bg-day-movies);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-grid);
+  }
+
+  .showtime-chip--link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .showtime-chip--link:hover {
+    border-color: var(--accent);
+    background: var(--bg-movie-hover);
+  }
+
+  .showtime-chip--link svg {
+    opacity: 0.5;
+  }
+
+  /* Actions */
+  .detail-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.15s;
+    background: var(--bg-day-movies);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-grid);
+  }
+
+  .detail-action:first-child {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .detail-action:hover {
+    opacity: 0.85;
   }
 </style>

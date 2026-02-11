@@ -1,16 +1,16 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
-import Header from '../../../components/Header.astro';
-import MovieModal from '../../../components/MovieModal.astro';
-import ToggleGroup from '../../../components/ToggleGroup.astro';
-import CheckboxGroup from '../../../components/CheckboxGroup.astro';
-import Switch from '../../../components/Switch.astro';
-import Toggle from '../../../components/Toggle.astro';
-import Dialog from '../../../components/Dialog.astro';
-import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '../../../components/Dialog/index';
-import Button from '../../../components/Button.astro';
-import { getAllSeriesIds, getSeriesConfig } from '../../../config/series';
-import { loadMovieData } from '../../../utils/loadMovieData';
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/Header.astro';
+import MovieModal from '@components/MovieModal.astro';
+import ToggleGroup from '@components/ToggleGroup.astro';
+import CheckboxGroup from '@components/CheckboxGroup.astro';
+import Switch from '@components/Switch.astro';
+import Toggle from '@components/Toggle.astro';
+import Dialog from '@components/Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@components/Dialog/index';
+import Button from '@components/Button.astro';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
+import { loadMovieData } from '@utils/loadMovieData';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -20,10 +20,25 @@ const { id } = Astro.params;
 const series = getSeriesConfig(id)!;
 
 // Load movie data at build time
-const { movieDataJson } = loadMovieData(series.dataFile);
+const { movieData, movieDataJson } = loadMovieData(series.dataFile);
+
+// Count showtimes for SEO description
+const showtimeCount = movieData.length;
+
+// SEO metadata
+const title = `${series.name} Calendar - ${series.venueName} Showtimes`;
+const description = `Interactive calendar for ${series.name} at ${series.venueName}. Browse ${showtimeCount}+ showtimes, filter by day, and plan your visits. ${series.dateRange}.`;
+const canonical = `/s/${id}/calendar`;
+const ogImage = movieData[0]?.poster_url || null;
 ---
 
-<Layout title={`${series.name}: ${series.subtitle} - ${series.venueName}`}>
+<Layout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogImage={ogImage}
+  ogImageAlt={`${series.name} calendar view`}
+>
   <Header
     seriesName={series.name}
     seriesSubtitle={series.subtitle}
@@ -143,31 +158,35 @@ const { movieDataJson } = loadMovieData(series.dataFile);
 <script>
   import {
     PX_PER_MIN,
+    MIN_TIMELINE_HEIGHT,
+    TIMELINE_PADDING,
     HOURS_FILTER_MODE,
     SINGLE_SHOWTIMES_MODE,
     SAVED_FILTER_COUNT,
     type HoursFilterMode,
     type SingleShowtimesMode,
     type SavedFilter,
-  } from '../../../constants';
-  import type { Movie } from '../../../utils/icsGenerator';
-  import { createMovieElement, updateTextHeights } from '../../../components/MovieTile';
-  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange } from '../../../utils/calendarTime';
-  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '../../../utils/calendarFilters';
-  import { openMovieModal, renderMovieList } from '../../../utils/calendarModal';
-  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '../../../utils/calendarUrlState';
-  import { getReactions } from '../../../utils/storageManager';
-  import type { ReactionMap } from '../../../types/session';
+  } from '@/constants';
+  import type { Movie } from '@utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '@components/MovieTile';
+  import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
+  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
+  import { openMovieModal, renderMovieList } from '@utils/calendarModal';
+  import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
+  import { getReactions } from '@utils/storageManager';
+  import type { ReactionMap } from '@types/session';
 
   // --- State ---
   let moviesByDate: Record<string, Movie[]> = {};
-  let globalRange = { start: Infinity, end: 0, range: 0 };
-  let uniformHeight = 0;
   let allMovies: Movie[] = [];
   let allMovieDates: string[] = [];
   let movieByKey: Map<string, Movie> = new Map();
   const sessionId = window.__sessionId;
   let currentReactions: ReactionMap = getReactions(sessionId);
+
+  // Cache computed date ranges to avoid redundant computation in renderAllDays
+  let cachedDates: string[] | null = null;
+  let cachedMondayStart: boolean | null = null;
 
   /** Read which saved filter checkboxes are currently checked. */
   function getActiveSavedFilters(): SavedFilter[] {
@@ -178,6 +197,45 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   /** Whether the user has any reactions at all. */
   function hasAnyReactions(reactions: ReactionMap): boolean {
     return Object.keys(reactions).length > 0;
+  }
+
+  /** Read the week-start toggle and return whether weeks should start on Monday. */
+  function getWeekStartPreference(): boolean {
+    const weekStartToggle = document.getElementById('week-start-toggle');
+    const weekStartInput = weekStartToggle?.tagName === 'INPUT'
+      ? weekStartToggle as HTMLInputElement
+      : weekStartToggle?.querySelector('input') as HTMLInputElement;
+    return weekStartInput?.checked ?? true;
+  }
+
+  interface FilterOptions {
+    hoursFilterMode: HoursFilterMode;
+    savedFilterSet: Set<SavedFilter>;
+    reactions: ReactionMap;
+    singleShowtimesMode: SingleShowtimesMode;
+    filteredShowtimeCounts: Record<string, number>;
+  }
+
+  /**
+   * Apply the complete filter pipeline to movies for a given date.
+   * This includes hours filter, saved status filter, and single showtimes filter.
+   */
+  function applyFilterPipeline(
+    date: string,
+    rawMovies: Movie[],
+    options: FilterOptions
+  ): Movie[] {
+    let filtered = filterDayMovies(rawMovies, date, options.hoursFilterMode);
+
+    if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
+      filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
+    }
+
+    if (options.singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
+      filtered = filtered.filter(m => options.filteredShowtimeCounts[m.Movie] === 1);
+    }
+
+    return filtered;
   }
 
   // --- Calendar rendering ---
@@ -194,13 +252,13 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   }
 
   function renderCalendar() {
-    const weekStartToggle = document.getElementById('week-start-toggle');
-    const weekStartInput = weekStartToggle?.tagName === 'INPUT'
-      ? weekStartToggle as HTMLInputElement
-      : weekStartToggle?.querySelector('input') as HTMLInputElement;
-    const mondayStart = weekStartInput?.checked ?? true;
+    const mondayStart = getWeekStartPreference();
 
     const dates = generateDateRange(allMovieDates, mondayStart);
+    // Cache the computed dates to avoid redundant computation in renderAllDays
+    cachedDates = dates;
+    cachedMondayStart = mondayStart;
+
     const calendarEl = document.querySelector('.calendar');
     if (!calendarEl) return;
 
@@ -239,17 +297,74 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       });
     });
 
+    // Pre-calculate week time ranges for timeline mode and cache filtered results
+    const weekRangesByDate = new Map<string, { start: number; end: number; range: number }>();
+    const filteredMoviesByDate = new Map<string, Movie[]>();
+
+    if (timelineMode) {
+      const mondayStart = getWeekStartPreference();
+
+      // Defensive recomputation: renderAllDays() is called either from renderCalendar()
+      // (which just cached dates) or from event handlers. The cache is only invalidated
+      // if the week-start preference changes, which event handlers shouldn't do.
+      // This defensive logic guards against edge cases while keeping the contract simple.
+      const dates = cachedDates && cachedMondayStart === mondayStart
+        ? cachedDates
+        : generateDateRange(allMovieDates, mondayStart);
+
+      // Update cache if new dates were generated (not reusing cached dates)
+      if (dates !== cachedDates) {
+        cachedDates = dates;
+        cachedMondayStart = mondayStart;
+      }
+
+      const weeks = groupDatesIntoWeeks(dates);
+
+      // First pass: compute and cache filtered movies for all dates
+      weeks.forEach(weekDates => {
+        weekDates.forEach(date => {
+          const dayMovies = moviesByDate[date] || [];
+          const filtered = applyFilterPipeline(
+            date,
+            dayMovies,
+            {
+              hoursFilterMode,
+              savedFilterSet,
+              reactions: currentReactions,
+              singleShowtimesMode,
+              filteredShowtimeCounts
+            }
+          );
+          filteredMoviesByDate.set(date, filtered);
+        });
+      });
+
+      // Second pass: compute week time ranges from cached filtered results
+      weeks.forEach(weekDates => {
+        const weekRange = getWeekTimeRange(weekDates, (date) => {
+          return filteredMoviesByDate.get(date) || [];
+        });
+
+        // Store the week range for all dates in this week
+        weekDates.forEach(date => weekRangesByDate.set(date, weekRange));
+      });
+    }
+
+    // Render all days using cached filtered results (if available in timeline mode) or fresh calculations
+    // Note: In non-timeline mode, filteredMoviesByDate is empty, so all dates hit the fallback path and recalculate
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      let filteredMovies = filterDayMovies(dayMovies, date, hoursFilterMode);
-
-      // Apply saved movie filter (unless all categories are checked = show all)
-      if (savedFilterSet.size < SAVED_FILTER_COUNT) {
-        filteredMovies = filterBySavedStatus(filteredMovies, currentReactions, savedFilterSet);
-      }
-
-      if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
-        filteredMovies = filteredMovies.filter(m => filteredShowtimeCounts[m.Movie] === 1);
-      }
+      // Use cached results if available (from timeline pre-calculation), otherwise recalculate
+      const filteredMovies = filteredMoviesByDate.get(date) ?? applyFilterPipeline(
+        date,
+        dayMovies,
+        {
+          hoursFilterMode,
+          savedFilterSet,
+          reactions: currentReactions,
+          singleShowtimesMode,
+          filteredShowtimeCounts
+        }
+      );
 
       const dayCell = document.querySelector(`[data-date="${date}"]`) as HTMLElement;
       if (!dayCell) return;
@@ -271,12 +386,29 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       }
 
       if (timelineMode) {
-        dayCell.style.height = `${uniformHeight}px`;
+        // Use the pre-calculated week time range for this day
+        const weekRange = weekRangesByDate.get(date);
+        let dayHeight = MIN_TIMELINE_HEIGHT + TIMELINE_PADDING;
+        let dayStartTime = 0;
+
+        if (weekRange && weekRange.range > 0) {
+          dayHeight = Math.max(weekRange.range * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
+          dayStartTime = weekRange.start;
+        } else {
+          // Defensive fallback: calculate day's own range if weekRange is missing
+          // (should not occur in practice - all dates from generateDateRange should have weekRange)
+          // Note: We know filteredMovies.length > 0 here due to early return above when filteredMovies is empty
+          const dayRange = getDayTimeRange(filteredMovies);
+          dayHeight = Math.max(dayRange.range * PX_PER_MIN, MIN_TIMELINE_HEIGHT) + TIMELINE_PADDING;
+          dayStartTime = dayRange.start;
+        }
+
+        dayCell.style.height = `${dayHeight}px`;
         dayCell.classList.add('timeline-view');
         assignOverlapColumns(filteredMovies).forEach(movie => {
           const start = parseTimeToMins(movie.Time);
           const runtime = parseInt(movie.runtime || '90');
-          const topPx = (start - globalRange.start) * PX_PER_MIN;
+          const topPx = (start - dayStartTime) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
           dayCell.appendChild(createMovieElement(movie, {
             isTimeline: true, topPx, heightPx,
@@ -329,7 +461,7 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
         if (toggle) { setToggleState(toggle, false); toggle.dataset.disabled = 'true'; }
       });
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image');
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
     } else {
       tileDisplayOptions?.classList.remove('disabled');
       [showYearDirector, showRuntime, showActors, showImage].forEach(toggle => {
@@ -376,7 +508,15 @@ const { movieDataJson } = loadMovieData(series.dataFile);
       const cls = toggle === showYearDirector ? 'show-year-director'
         : toggle === showRuntime ? 'show-runtime'
         : toggle === showActors ? 'show-actors' : 'show-image';
-      document.body.classList.toggle(cls, isTogglePressed(toggle));
+      const isPressed = isTogglePressed(toggle);
+      document.body.classList.toggle(cls, isPressed);
+
+      // Always enable scrim and blur when images are shown
+      if (toggle === showImage) {
+        document.body.classList.toggle('scrim-enabled', isPressed);
+        document.body.classList.toggle('blur-enabled', isPressed);
+      }
+
       updateUrlParams();
       setTimeout(updateTextHeights, 10);
     });
@@ -407,14 +547,6 @@ const { movieDataJson } = loadMovieData(series.dataFile);
   });
 
   allMovieDates = Object.keys(moviesByDate);
-
-  Object.values(moviesByDate).forEach(dayMovies => {
-    const range = getDayTimeRange(dayMovies);
-    if (range.start < globalRange.start) globalRange.start = range.start;
-    if (range.end > globalRange.end) globalRange.end = range.end;
-  });
-  globalRange.range = globalRange.end - globalRange.start;
-  uniformHeight = Math.max(globalRange.range * PX_PER_MIN, 100) + 32;
 
   // If user has no reactions, check all saved filter boxes (show everything)
   if (!hasAnyReactions(currentReactions)) {

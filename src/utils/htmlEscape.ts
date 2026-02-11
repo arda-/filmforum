@@ -31,3 +31,17 @@ export function escapeAttr(str: string | null | undefined): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+/**
+ * Returns the URL only if it uses a safe protocol (http/https).
+ * Prevents javascript: and other dangerous URI schemes in href attributes.
+ *
+ * @param url - The URL to validate
+ * @returns The URL if safe, empty string otherwise
+ */
+export function safeHref(url: string | null | undefined): string {
+  if (!url) return '';
+  const trimmed = String(url).trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return '';
+}

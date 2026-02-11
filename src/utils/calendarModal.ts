@@ -3,7 +3,7 @@
  * Handles populating and opening the movie detail modal/dialog.
  */
 
-import type { Movie } from './icsGenerator';
+import type { Movie } from '../types/movie';
 import { downloadICS } from './icsGenerator';
 import { toTitleCase, processFFJr } from '../components/MovieTile';
 
