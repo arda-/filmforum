@@ -5,7 +5,6 @@
  * Not sticky — sits above the calendar in normal flow.
  */
 import Switch from '@components/Switch.astro';
-import CheckboxButton from '@components/CheckboxButton.astro';
 import Icon from '@components/Icon.astro';
 ---
 
@@ -94,11 +93,43 @@ import Icon from '@components/Icon.astro';
   <!-- Tile display options row -->
   <div class="toolbar-row">
     <span class="toolbar-label">Details</span>
-    <div class="toolbar-group-nested">
-      <CheckboxButton id="show-year-director-checkbox" label="Year / Director" />
-      <CheckboxButton id="show-runtime-checkbox" label="Runtime" />
-      <CheckboxButton id="show-actors-checkbox" label="Cast" />
-      <CheckboxButton id="show-image-checkbox" label="Image" />
+    <div class="segmented-toggle">
+      <button
+        class="seg-btn"
+        data-detail="year-director"
+        aria-pressed="false"
+        aria-label="Show year and director"
+      >
+        <input type="checkbox" id="show-year-director-checkbox" style="display: none;" />
+        Year / Director
+      </button>
+      <button
+        class="seg-btn"
+        data-detail="runtime"
+        aria-pressed="false"
+        aria-label="Show runtime"
+      >
+        <input type="checkbox" id="show-runtime-checkbox" style="display: none;" />
+        Runtime
+      </button>
+      <button
+        class="seg-btn"
+        data-detail="cast"
+        aria-pressed="false"
+        aria-label="Show cast"
+      >
+        <input type="checkbox" id="show-actors-checkbox" style="display: none;" />
+        Cast
+      </button>
+      <button
+        class="seg-btn"
+        data-detail="image"
+        aria-pressed="false"
+        aria-label="Show poster image"
+      >
+        <input type="checkbox" id="show-image-checkbox" style="display: none;" />
+        Image
+      </button>
     </div>
   </div>
 
@@ -219,6 +250,26 @@ import Icon from '@components/Icon.astro';
     }
   }
 
+  // --- Detail toggle buttons ---
+  const detailButtons = document.querySelectorAll('.toolbar-row .seg-btn[data-detail]');
+
+  detailButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (checkbox) {
+        // Toggle the checkbox state
+        checkbox.checked = !checkbox.checked;
+
+        // Update button visual state
+        button.classList.toggle('active', checkbox.checked);
+        button.setAttribute('aria-pressed', String(checkbox.checked));
+
+        // Dispatch change event so existing calendar logic picks it up
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+
   // --- Gear popover ---
   const gearBtn = document.getElementById('view-settings-btn');
   const popover = document.getElementById('view-settings-popover');
@@ -279,15 +330,6 @@ import Icon from '@components/Icon.astro';
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .toolbar-group-nested {
-    display: inline-flex;
-    border: 1px solid var(--bg-movie-hover);
-    border-radius: 6px;
-    overflow: hidden;
-    background: transparent;
     flex-wrap: wrap;
   }
 
