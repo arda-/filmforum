@@ -100,7 +100,8 @@ const canonical = `/s/${id}/shared`;
 </script>
 
 <script>
-  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '@utils/storageManager';
+  import { getReactions, setReaction, getUserId } from '@utils/storageManager';
+  import { encodeReactionsCompact, decodeReactionsCompact } from '@utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '@utils/movieUtils';
   import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
   import type { UniqueMovie, MovieReaction } from '@types/session';
@@ -122,7 +123,7 @@ const canonical = `/s/${id}/shared`;
   const urlParams = new URLSearchParams(window.location.search);
   const friendUserId = validateUserId(urlParams.get('u'));
   const encodedReactions = urlParams.get('r') || '';
-  const friendReactions = decodeReactions(encodedReactions);
+  const friendReactions = decodeReactionsCompact(encodedReactions, allMovies);
 
   // Display friend ID
   const friendIdEl = document.getElementById('friend-id');
@@ -200,7 +201,7 @@ const canonical = `/s/${id}/shared`;
   // Compare button
   document.getElementById('compare-btn')?.addEventListener('click', () => {
     const myReactions = getReactions(sessionId);
-    const myEncoded = encodeReactions(myReactions);
+    const myEncoded = encodeReactionsCompact(myReactions, allMovies);
     const friendEncoded = encodedReactions;
     window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });
