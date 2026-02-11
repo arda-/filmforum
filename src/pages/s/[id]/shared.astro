@@ -108,9 +108,19 @@ const canonical = `/s/${id}/shared`;
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
+  // Validate user ID format to prevent abuse
+  function validateUserId(id: string | null): string {
+    // Allow alphanumeric, hyphens, and underscores up to 20 characters
+    // Supports both generated IDs (8 chars) and future readable IDs
+    if (id && /^[a-zA-Z0-9_-]{1,20}$/.test(id)) {
+      return id;
+    }
+    return 'unknown';
+  }
+
   // Parse userId and reactions from URL query params
   const urlParams = new URLSearchParams(window.location.search);
-  const friendUserId = urlParams.get('u') || 'unknown';
+  const friendUserId = validateUserId(urlParams.get('u'));
   const encodedReactions = urlParams.get('r') || '';
   const friendReactions = decodeReactions(encodedReactions);
 
