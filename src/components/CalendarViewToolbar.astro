@@ -40,17 +40,8 @@ import Icon from '@components/Icon.astro';
       </div>
     </div>
 
-  </div>
-
-  <!-- Display options row -->
-  <div class="toolbar-row">
+    <!-- Fit width switch -->
     <Switch id="fit-width-switch" label="Fit width" checked small />
-    <div class="toolbar-group-nested">
-      <CheckboxButton id="show-year-director-checkbox" label="Year / Director" />
-      <CheckboxButton id="show-runtime-checkbox" label="Runtime" />
-      <CheckboxButton id="show-actors-checkbox" label="Actors" />
-      <CheckboxButton id="show-image-checkbox" label="Image" />
-    </div>
 
     <!-- Gear button → popover -->
     <div class="toolbar-group toolbar-group--end">
@@ -95,6 +86,16 @@ import Icon from '@components/Icon.astro';
           <Switch id="highlight-alternate-toggle" label="Highlight alternate on hover" checked small />
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Tile display options row -->
+  <div class="toolbar-row">
+    <div class="toolbar-group-nested">
+      <CheckboxButton id="show-year-director-checkbox" label="Year / Director" />
+      <CheckboxButton id="show-runtime-checkbox" label="Runtime" />
+      <CheckboxButton id="show-actors-checkbox" label="Actors" />
+      <CheckboxButton id="show-image-checkbox" label="Image" />
     </div>
   </div>
 
