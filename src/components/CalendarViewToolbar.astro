@@ -184,6 +184,9 @@ import Tooltip from '@components/Tooltip.astro';
   // Module-level variable to store saved detail view states
   let savedDetailStates: { [key: string]: boolean } = {};
 
+  // Detail toggle buttons - needed by syncWidth()
+  const detailButtons = document.querySelectorAll('.toolbar-row .seg-btn[data-detail]');
+
   // --- Segmented toggle: Timeline / Grid ---
   const viewTimelineBtn = document.getElementById('view-mode-timeline');
   const viewGridBtn = document.getElementById('view-mode-grid');
@@ -338,8 +341,6 @@ import Tooltip from '@components/Tooltip.astro';
   }
 
   // --- Detail toggle buttons ---
-  const detailButtons = document.querySelectorAll('.toolbar-row .seg-btn[data-detail]');
-
   detailButtons.forEach(button => {
     button.addEventListener('click', () => {
       const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
