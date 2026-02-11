@@ -225,6 +225,33 @@ import Tooltip from '@components/Tooltip.astro';
       fitWidthSwitch.checked = isFit;
       fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
     }
+
+    // When switching to Fit mode, disable all detail views
+    if (isFit) {
+      // Uncheck all detail checkboxes
+      const detailCheckboxes = [
+        document.getElementById('show-year-director-checkbox'),
+        document.getElementById('show-runtime-checkbox'),
+        document.getElementById('show-actors-checkbox'),
+        document.getElementById('show-image-checkbox')
+      ] as HTMLInputElement[];
+
+      detailCheckboxes.forEach(checkbox => {
+        if (checkbox && checkbox.checked) {
+          checkbox.checked = false;
+          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      // Update button active states
+      detailButtons.forEach(button => {
+        button.classList.remove('active');
+        button.setAttribute('aria-pressed', 'false');
+      });
+
+      // Remove body classes
+      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
+    }
   }
 
   widthFitBtn?.addEventListener('click', () => syncWidth(true));
