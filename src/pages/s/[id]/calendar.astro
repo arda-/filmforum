@@ -213,14 +213,14 @@ const ogImage = movieData[0]?.poster_url || null;
     rawMovies: Movie[],
     hoursFilterMode: HoursFilterMode,
     savedFilterSet: Set<SavedFilter>,
-    currentReactions: ReactionMap,
+    reactions: ReactionMap,
     singleShowtimesMode: SingleShowtimesMode,
     filteredShowtimeCounts: Record<string, number>
   ): Movie[] {
     let filtered = filterDayMovies(rawMovies, date, hoursFilterMode);
 
     if (savedFilterSet.size < SAVED_FILTER_COUNT) {
-      filtered = filterBySavedStatus(filtered, currentReactions, savedFilterSet);
+      filtered = filterBySavedStatus(filtered, reactions, savedFilterSet);
     }
 
     if (singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY) {
