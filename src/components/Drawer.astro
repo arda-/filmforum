@@ -164,9 +164,14 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Desktop browsers lack the mobile dvh gap that provides natural bottom
-     breathing room, so add explicit padding for non-touch devices. */
-  @media (hover: hover) and (pointer: fine) {
+  /* Devices without mobile bottom browser chrome need explicit bottom padding.
+     Two cases:
+     1. Desktop/laptop with mouse or trackpad (hover + fine pointer)
+     2. Touch tablets in full-screen mode (coarse pointer + large viewport) —
+        when an iPad enters compact/split-view with bottom chrome, the viewport
+        narrows below 768px, correctly skipping this padding. */
+  @media (hover: hover) and (pointer: fine),
+         (pointer: coarse) and (min-width: 768px) and (min-height: 600px) {
     .drawer-body {
       padding-bottom: 12px;
     }
