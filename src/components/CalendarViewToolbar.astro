@@ -454,51 +454,6 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
     letter-spacing: -0.01em;
   }
 
-
-  /* Compact toggle button (Fit width) */
-  .compact-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 8px 10px;
-    min-width: 40px;
-    min-height: 40px;
-    justify-content: center;
-    font-size: 13px;
-    font-family: inherit;
-    font-weight: 400;
-    color: var(--text-secondary);
-    background: transparent;
-    border: 1px solid var(--bg-movie-hover);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-      border-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-  }
-
-  @media (hover: hover) {
-    .compact-toggle:hover {
-      background: var(--bg-movie);
-      color: var(--text-primary);
-    }
-  }
-
-  .compact-toggle:focus-visible {
-    box-shadow: 0 0 0 2px var(--accent);
-    outline: none;
-  }
-
-  .compact-toggle.active {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-    border-color: var(--accent);
-  }
-
-  .compact-toggle svg {
-    flex-shrink: 0;
-  }
-
   /* Gear button */
   .gear-btn {
     display: flex;
