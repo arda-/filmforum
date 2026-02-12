@@ -1,7 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Scrape Film Forum series metadata
+ * Scrapes Film Forum series landing pages to extract rich metadata.
+ *
+ * WHY: Series pages contain critical information (partnerships, funding, special events)
+ * that isn't available in the calendar API. This data enriches the series detail pages
+ * and provides context about institutional collaborations and special programming.
+ *
+ * The scraper extracts:
+ * - Basic series info (name, subtitle, date range)
+ * - Partnership details (museums, cultural institutions)
+ * - Funding credits (grants, sponsors)
+ * - Special programming (live music, Q&As)
+ * - Community engagement (discounts, tours)
+ *
+ * Output is saved to /public/series-metadata/{slug}.json for static site consumption.
  *
  * Usage: node scripts/scrape-series-metadata.js <series-slug>
  * Example: node scripts/scrape-series-metadata.js tenement-stories
@@ -12,6 +25,8 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as cheerio from 'cheerio';
 
+// Validate CLI argument
+// WHY: Require explicit series slug to avoid accidental scraping of wrong pages
 const seriesSlug = process.argv[2];
 if (!seriesSlug) {
   console.error('Usage: node scripts/scrape-series-metadata.js <series-slug>');
@@ -23,10 +38,12 @@ const url = `https://filmforum.org/series/${seriesSlug}`;
 console.log(`Fetching: ${url}`);
 
 // Fetch the page using curl
+// WHY: Use curl instead of fetch() for simplicity - no need for node-fetch dependency
 const html = execSync(`curl -sL "${url}"`, { encoding: 'utf-8' });
 const $ = cheerio.load(html);
 
 // Extract series name and subtitle
+// WHY: Film Forum uses colon-separated titles ("Series Name: Subtitle") in h1 tags
 const pageTitle = $('h1').first().text().trim();
 const [name, subtitle] = pageTitle.includes(':')
   ? pageTitle.split(':').map(s => s.trim())
@@ -35,7 +52,9 @@ const [name, subtitle] = pageTitle.includes(':')
 console.log(`Series: ${name}`);
 if (subtitle) console.log(`Subtitle: ${subtitle}`);
 
-// Extract date range (look for common patterns)
+// Extract date range
+// WHY: Series run dates aren't in calendar API - only individual screening times are.
+// We need the overall date range to show when the series starts and ends.
 let dateRange = '';
 $('p, div, span').each((_, el) => {
   const text = $(el).text();
@@ -47,6 +66,8 @@ $('p, div, span').each((_, el) => {
 });
 
 // Extract description
+// WHY: Series descriptions provide curatorial context not found in individual film data.
+// We filter out boilerplate text to get the actual series description.
 let description = '';
 $('p').each((_, el) => {
   const text = $(el).text().trim();
@@ -57,6 +78,9 @@ $('p').each((_, el) => {
 });
 
 // Extract partnership info
+// WHY: Film Forum often co-presents series with museums and cultural institutions.
+// Capturing this creates attribution and shows institutional connections that matter
+// to audiences who follow both organizations.
 let partnership = null;
 $('*').each((_, el) => {
   const text = $(el).text();
@@ -69,6 +93,7 @@ $('*').each((_, el) => {
     };
 
     // Try to find museum/partner description
+    // WHY: Partner context helps users understand the collaboration's significance
     const descMatch = text.match(/Founded in \d{4},([^.]+\.)/);
     if (descMatch) {
       partnership.description = ('Founded in ' + text.match(/Founded in \d{4}[^.]+\./)?.[0] || '').trim();
@@ -77,6 +102,8 @@ $('*').each((_, el) => {
 });
 
 // Extract funding credits
+// WHY: Grant and sponsor acknowledgment is legally/ethically required for many series.
+// We parse these to display proper attribution and satisfy funding requirements.
 const funding = {
   credits: [],
   acknowledgment: ''
@@ -88,6 +115,7 @@ $('*').each((_, el) => {
     funding.acknowledgment = text.match(/[Pp]resented with support from[^.]+/)?.[0] || '';
 
     // Extract individual fund names
+    // WHY: Split "and"/"&" to create separate credits for each funding source
     const fundsText = fundMatch[1];
     const fundNames = fundsText.split(/ and | & /);
     funding.credits = fundNames.map(name => ({
@@ -98,11 +126,14 @@ $('*').each((_, el) => {
 });
 
 // Extract special programming
+// WHY: Events like live accompaniment or Q&As are major selling points and scheduling
+// considerations. Users need to know about these special features when choosing screenings.
 const specialProgramming = {};
 $('*').each((_, el) => {
   const text = $(el).text();
 
   // Look for live music mentions
+  // WHY: Live piano for silent films is a premium experience worth highlighting
   const pianoMatch = text.match(/(?:Live piano accompaniment|[Cc]omposer) ([A-Z][a-z]+ [A-Z][a-z]+)(?: provides)?[^.]+/);
   if (pianoMatch) {
     specialProgramming.livePiano = {
@@ -114,6 +145,8 @@ $('*').each((_, el) => {
 });
 
 // Extract community engagement
+// WHY: Cross-promotional discounts and special tours drive attendance and create
+// value for members/partners. This information helps users take advantage of offers.
 const communityEngagement = {
   discounts: {},
   specialtyTours: []
@@ -123,6 +156,7 @@ $('*').each((_, el) => {
   const text = $(el).text();
 
   // Extract discount info
+  // WHY: Partner discounts (like museum reciprocity) are buried in prose but valuable to users
   if (text.includes('buy-one-get-one-free')) {
     const match = text.match(/[^.]*buy-one-get-one-free[^.]*/i);
     if (match) {
@@ -144,6 +178,8 @@ $('*').each((_, el) => {
   }
 
   // Extract specialty tours
+  // WHY: Partner tours (e.g., museum visits tied to film series) are bundled experiences
+  // that add educational value beyond just watching films
   const tourMatch = text.match(/'([^']+)'\s*\(([^)]+)\)[,:]?\s*([^.;]+)/g);
   if (tourMatch) {
     tourMatch.forEach(tour => {
@@ -160,6 +196,9 @@ $('*').each((_, el) => {
 });
 
 // Build metadata object
+// WHY: Consolidate all scraped data into a structured format that matches our series
+// metadata schema. Conditionally include fields only if they have content to keep
+// the output clean and avoid empty objects.
 const metadata = {
   id: seriesSlug,
   name,
@@ -187,6 +226,8 @@ const metadata = {
 };
 
 // Write to file
+// WHY: Save to /public so it's served as a static asset. The site can fetch this
+// at runtime without needing a database or API endpoint for series metadata.
 const outputPath = join(process.cwd(), 'public', 'series-metadata', `${seriesSlug}.json`);
 writeFileSync(outputPath, JSON.stringify(metadata, null, 2) + '\n');
 

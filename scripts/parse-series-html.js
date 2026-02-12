@@ -3,6 +3,16 @@
 /**
  * Parse Film Forum series HTML and extract raw structured data
  *
+ * This is step 2 in the data pipeline: after raw HTML is fetched (step 1),
+ * this script extracts meaningful content from the HTML soup and organizes
+ * it into a structured JSON format. It uses Readability for main article
+ * extraction (removing navigation, ads, etc.) and Cheerio for targeted
+ * scraping of specific elements like images and JSON-LD metadata.
+ *
+ * WHY: Film Forum's HTML is complex with navigation, ads, and UI chrome.
+ * We need clean, structured data for the frontend to render series pages.
+ * This script bridges the gap between messy HTML and clean JSON.
+ *
  * Usage: node scripts/parse-series-html.js <series-slug>
  * Example: node scripts/parse-series-html.js tenement-stories
  *
@@ -100,6 +110,15 @@ $('img').each((i, el) => {
 
 /**
  * Parse article HTML content into structured sections
+ *
+ * WHY: Readability gives us a clean HTML blob, but we need granular access
+ * to specific content types (paragraphs, headings, links) for flexible
+ * frontend rendering. This function breaks down the article into discrete
+ * pieces that can be displayed differently based on context.
+ *
+ * @param {string} htmlContent - Clean HTML from Readability
+ * @param {object} $fallback - Cheerio instance for fallback (unused currently)
+ * @returns {object} Structured content with paragraphs, headings by level, and links
  */
 function parseArticleContent(htmlContent, $fallback) {
   if (!htmlContent) return { paragraphs: [], headings: {}, links: [] };
@@ -145,6 +164,14 @@ function parseArticleContent(htmlContent, $fallback) {
 
 /**
  * Detect navigation/UI text that shouldn't be in content
+ *
+ * WHY: Even after Readability cleans the HTML, some UI chrome leaks through
+ * (button labels, phone numbers, prices). These aren't article content and
+ * would clutter the parsed output. This filter prevents them from being
+ * included in paragraphs or links.
+ *
+ * @param {string} text - Text snippet to check
+ * @returns {boolean} True if text appears to be navigation/UI rather than content
  */
 function isNavigationText(text) {
   const navPatterns = [
