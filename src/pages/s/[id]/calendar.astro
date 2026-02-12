@@ -4,7 +4,6 @@ import Header from '@components/Header.astro';
 import MovieModal from '@components/MovieModal.astro';
 import CalendarFilterBar from '@components/CalendarFilterBar.astro';
 import CalendarViewToolbar from '@components/CalendarViewToolbar.astro';
-import CalendarBottomBar from '@components/CalendarBottomBar.astro';
 import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@components/Dialog/index';
 import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import { loadMovieData } from '@utils/loadMovieData';
@@ -57,7 +56,6 @@ const ogImage = movieData[0]?.poster_url || null;
     <span class="legend-star">&#9733;</span> Unique showtime (no other showtimes for this movie with current filters).
   </p>
 
-  <CalendarBottomBar />
 
   <MovieModal />
 
@@ -95,15 +93,15 @@ const ogImage = movieData[0]?.poster_url || null;
     PX_PER_MIN,
     MIN_TIMELINE_HEIGHT,
     TIMELINE_PADDING,
-    HOURS_FILTER_MODE,
+    TIME_CATEGORY_COUNT,
     SAVED_FILTER_COUNT,
-    type HoursFilterMode,
+    type TimeCategory,
     type SavedFilter,
   } from '@/constants';
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
-  import { filterDayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
+  import { filterByTimeCategories, classifyTimeCategory, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
   import { openMovieModal } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
   import { getReactions } from '@utils/storageManager';
@@ -142,7 +140,7 @@ const ogImage = movieData[0]?.poster_url || null;
   }
 
   interface FilterOptions {
-    hoursFilterMode: HoursFilterMode;
+    timeCategories: Set<TimeCategory>;
     savedFilterSet: Set<SavedFilter>;
     reactions: ReactionMap;
     filteredShowtimeCounts: Record<string, number>;
@@ -150,14 +148,14 @@ const ogImage = movieData[0]?.poster_url || null;
 
   /**
    * Apply the complete filter pipeline to movies for a given date.
-   * This includes hours filter, saved status filter, and single showtimes filter.
+   * This includes time category filter and saved status filter.
    */
   function applyFilterPipeline(
     date: string,
     rawMovies: Movie[],
     options: FilterOptions
   ): Movie[] {
-    let filtered = filterDayMovies(rawMovies, date, options.hoursFilterMode);
+    let filtered = filterByTimeCategories(rawMovies, date, options.timeCategories);
 
     if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
       filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
@@ -204,8 +202,9 @@ const ogImage = movieData[0]?.poster_url || null;
     const timelineInput = timelineToggle?.tagName === 'INPUT' ? timelineToggle : timelineToggle?.querySelector('input');
     const timelineMode = (timelineInput as HTMLInputElement)?.checked ?? false;
 
-    const hoursFilterSelect = document.getElementById('hours-filter-select') as HTMLSelectElement;
-    const hoursFilterMode = (hoursFilterSelect?.value || HOURS_FILTER_MODE.NONE) as HoursFilterMode;
+    // Read active time categories
+    const timeChecked = document.querySelectorAll<HTMLInputElement>('input[name="time-filter"]:checked');
+    const timeCategories = new Set(Array.from(timeChecked).map(cb => cb.value as TimeCategory));
 
     // Highlight unique showings (★) from gear menu toggle
     const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
@@ -218,10 +217,9 @@ const ogImage = movieData[0]?.poster_url || null;
 
     // Showtime counts are computed before the saved filter so that "single showtime"
     // means one showtime across the entire festival, not one among visible results.
-    // Build count of filtered showtimes per movie title
     const filteredShowtimeCounts: Record<string, number> = {};
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
-      filterDayMovies(dayMovies, date, hoursFilterMode).forEach(m => {
+      filterByTimeCategories(dayMovies, date, timeCategories).forEach(m => {
         filteredShowtimeCounts[m.Movie] = (filteredShowtimeCounts[m.Movie] || 0) + 1;
       });
     });
@@ -257,7 +255,7 @@ const ogImage = movieData[0]?.poster_url || null;
             date,
             dayMovies,
             {
-              hoursFilterMode,
+              timeCategories,
               savedFilterSet,
               reactions: currentReactions,
               filteredShowtimeCounts
@@ -286,7 +284,7 @@ const ogImage = movieData[0]?.poster_url || null;
         date,
         dayMovies,
         {
-          hoursFilterMode,
+          timeCategories,
           savedFilterSet,
           reactions: currentReactions,
           filteredShowtimeCounts
@@ -427,11 +425,9 @@ const ogImage = movieData[0]?.poster_url || null;
     setTimeout(updateTextHeights, 10);
   });
 
-  // Hours filter dropdown
-  document.getElementById('hours-filter-select')?.addEventListener('change', () => {
-    renderAllDays();
-    updateUrlParams();
-    setTimeout(updateTextHeights, 10);
+  // Time category filter checkboxes
+  document.querySelectorAll('input[name="time-filter"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
   });
 
   document.querySelectorAll('input[name="saved-filter"]').forEach(checkbox => {
@@ -478,68 +474,37 @@ const ogImage = movieData[0]?.poster_url || null;
       else counts.unmarked++;
     });
 
-    // Update button labels while preserving the hidden checkbox input
+    // Update the .btn-label span inside each saved filter button
     const updateButton = (btn: Element | null, label: string) => {
-      if (!btn) return;
-      const checkbox = btn.querySelector('input[type="checkbox"]');
-      if (checkbox) {
-        // Remove all child nodes except the checkbox
-        Array.from(btn.childNodes).forEach(node => {
-          if (node !== checkbox) node.remove();
-        });
-        // Add the new text after the checkbox
-        btn.appendChild(document.createTextNode(label));
-      }
+      const span = btn?.querySelector('.btn-label');
+      if (span) span.textContent = label;
     };
 
-    const yesBtn = document.querySelector('[data-filter="yes"]');
-    const maybeBtn = document.querySelector('[data-filter="maybe"]');
-    const noBtn = document.querySelector('[data-filter="no"]');
-    const unmarkedBtn = document.querySelector('[data-filter="unmarked"]');
-
-    updateButton(yesBtn, `Yes (${counts.yes})`);
-    updateButton(maybeBtn, `Maybe (${counts.maybe})`);
-    updateButton(noBtn, `No (${counts.no})`);
-    updateButton(unmarkedBtn, `Unmarked (${counts.unmarked})`);
+    updateButton(document.querySelector('[data-filter="yes"]'), `Yes (${counts.yes})`);
+    updateButton(document.querySelector('[data-filter="maybe"]'), `Maybe (${counts.maybe})`);
+    updateButton(document.querySelector('[data-filter="no"]'), `No (${counts.no})`);
+    updateButton(document.querySelector('[data-filter="unmarked"]'), `Unmarked (${counts.unmarked})`);
   }
 
   updateSavedFilterCounts();
 
-  /** Compute and display showtime counts for each hours filter mode */
-  function updateHoursFilterCounts() {
-    const total = allMovies.length;
-    let afterhours = 0;
-    let weekends = 0;
+  /** Compute and display showtime counts for each time category */
+  function updateTimeCategoryCounts() {
+    const counts = { weekdays: 0, weeknights: 0, weekends: 0 };
 
     allMovies.forEach(movie => {
       const date = movie.Datetime.split('T')[0];
-      const dayOfWeek = new Date(date + 'T12:00:00').getDay();
-      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-      const isWeekend = !isWeekday;
-
-      if (isWeekend) {
-        afterhours++;
-        weekends++;
-      } else {
-        // Weekday: check if after work hours
-        const mins = parseTimeToMins(movie.Time);
-        if (mins < 540 || mins >= 1020) { // before 9am or after 5pm
-          afterhours++;
-        }
-      }
+      const category = classifyTimeCategory(movie, date);
+      counts[category]++;
     });
 
-    const setCount = (mode: string, count: number) => {
-      const el = document.querySelector(`.hours-count[data-count-for="${mode}"]`);
+    Object.entries(counts).forEach(([category, count]) => {
+      const el = document.querySelector(`.filter-count[data-count-for="${category}"]`);
       if (el) el.textContent = `(${count})`;
-    };
-
-    setCount('none', total);
-    setCount('afterhours', afterhours);
-    setCount('weekends', weekends);
+    });
   }
 
-  updateHoursFilterCounts();
+  updateTimeCategoryCounts();
 
   // Restore URL state silently before first render (no events, no re-renders)
   restoreFromUrl();
