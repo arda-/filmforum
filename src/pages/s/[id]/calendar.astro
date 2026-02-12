@@ -83,24 +83,6 @@ const ogImage = movieData[0]?.poster_url || null;
     </DialogBody>
   </DialogRoot>
 
-  <!-- Fit Width Warning Modal -->
-  <DialogRoot id="fit-width-warning-modal" size="sm">
-    <DialogHeader>
-      <DialogTitle>Disable Fit Width?</DialogTitle>
-      <DialogDescription>Showing Cast or Image requires more space and will disable "Fit width" mode.</DialogDescription>
-    </DialogHeader>
-    <DialogBody>
-      <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer;">
-        <input type="checkbox" id="fit-width-warning-dont-show" style="cursor: pointer;" />
-        <span>Do not show this warning again</span>
-      </label>
-    </DialogBody>
-    <div class="dialog-footer">
-      <button id="fit-width-warning-cancel" class="dialog-btn dialog-btn-secondary">Cancel</button>
-      <button id="fit-width-warning-confirm" class="dialog-btn dialog-btn-primary">Disable Fit Width</button>
-    </div>
-  </DialogRoot>
-
 </Layout>
 
 <script define:vars={{ movieDataJson, sessionId: id }}>
@@ -417,31 +399,16 @@ const ogImage = movieData[0]?.poster_url || null;
     return !fitWidth;  // If NOT fit width (Content mode), always enforce minimum width
   }
 
-  // Fit width switch
-  fitWidthSwitch?.addEventListener('change', (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-
-    // When fit width is enabled, disable other checkboxes
-    if (checked) {
-      showYearDirectorCheckbox.checked = false;
-      showRuntimeCheckbox.checked = false;
-      showActorsCheckbox.checked = false;
-      showImageCheckbox.checked = false;
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
-    }
-
+  // Fit width switch — only manages minimum-width class + URL
+  // The toolbar owns Fit↔Content↔Detail coordination
+  fitWidthSwitch?.addEventListener('change', () => {
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
   });
 
   // Year/Director checkbox
   showYearDirectorCheckbox?.addEventListener('change', (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    document.body.classList.toggle('show-year-director', checked);
-    if (checked) {
-      fitWidthSwitch.checked = false;
-      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    document.body.classList.toggle('show-year-director', (e.target as HTMLInputElement).checked);
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
@@ -449,43 +416,15 @@ const ogImage = movieData[0]?.poster_url || null;
 
   // Runtime checkbox
   showRuntimeCheckbox?.addEventListener('change', (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-    document.body.classList.toggle('show-runtime', checked);
-    if (checked) {
-      fitWidthSwitch.checked = false;
-      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    document.body.classList.toggle('show-runtime', (e.target as HTMLInputElement).checked);
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
   });
 
-  // Check localStorage for "don't show fit width warning" preference
-  const FIT_WIDTH_WARNING_KEY = 'fit-width-warning-dismissed';
-  function shouldShowFitWidthWarning(): boolean {
-    return localStorage.getItem(FIT_WIDTH_WARNING_KEY) !== 'true';
-  }
-
-  let pendingCheckbox: HTMLInputElement | null = null;
-
   // Actors checkbox
   showActorsCheckbox?.addEventListener('change', (e) => {
-    const checked = (e.target as HTMLInputElement).checked;
-
-    // If trying to enable while fit width is on, show warning
-    if (checked && fitWidthSwitch?.checked && shouldShowFitWidthWarning()) {
-      e.preventDefault();
-      showActorsCheckbox.checked = false; // Revert the check
-      pendingCheckbox = showActorsCheckbox;
-      (window as any).openDialog('fit-width-warning-modal');
-      return;
-    }
-
-    document.body.classList.toggle('show-actors', checked);
-    if (checked) {
-      fitWidthSwitch.checked = false;
-      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    document.body.classList.toggle('show-actors', (e.target as HTMLInputElement).checked);
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
@@ -494,61 +433,12 @@ const ogImage = movieData[0]?.poster_url || null;
   // Image checkbox
   showImageCheckbox?.addEventListener('change', (e) => {
     const checked = (e.target as HTMLInputElement).checked;
-
-    // If trying to enable while fit width is on, show warning
-    if (checked && fitWidthSwitch?.checked && shouldShowFitWidthWarning()) {
-      e.preventDefault();
-      showImageCheckbox.checked = false; // Revert the check
-      pendingCheckbox = showImageCheckbox;
-      (window as any).openDialog('fit-width-warning-modal');
-      return;
-    }
-
     document.body.classList.toggle('show-image', checked);
     document.body.classList.toggle('scrim-enabled', checked);
     document.body.classList.toggle('blur-enabled', checked);
-    if (checked) {
-      fitWidthSwitch.checked = false;
-      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-    }
     document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
-  });
-
-  // Fit width warning modal handlers
-  document.getElementById('fit-width-warning-confirm')?.addEventListener('click', () => {
-    if (pendingCheckbox) {
-      // Save "don't show again" preference if checked
-      const dontShowCheckbox = document.getElementById('fit-width-warning-dont-show') as HTMLInputElement;
-      if (dontShowCheckbox?.checked) {
-        localStorage.setItem(FIT_WIDTH_WARNING_KEY, 'true');
-      }
-
-      // Disable fit width and enable the pending checkbox
-      fitWidthSwitch.checked = false;
-      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-      pendingCheckbox.checked = true;
-
-      // Trigger the change logic
-      if (pendingCheckbox === showActorsCheckbox) {
-        document.body.classList.add('show-actors');
-      } else if (pendingCheckbox === showImageCheckbox) {
-        document.body.classList.add('show-image', 'scrim-enabled', 'blur-enabled');
-      }
-
-      document.body.classList.toggle('minimum-width', shouldEnableMinimumWidth());
-      updateUrlParams();
-      setTimeout(updateTextHeights, 10);
-
-      pendingCheckbox = null;
-      (window as any).closeDialog('fit-width-warning-modal');
-    }
-  });
-
-  document.getElementById('fit-width-warning-cancel')?.addEventListener('click', () => {
-    pendingCheckbox = null;
-    (window as any).closeDialog('fit-width-warning-modal');
   });
 
   // Hours filter dropdown
@@ -850,43 +740,6 @@ const ogImage = movieData[0]?.poster_url || null;
 
   :global(.hidden-showtime:not(:last-child)::after) {
     content: ', ';
-  }
-
-  /* Dialog footer and button styles */
-  .dialog-footer {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    padding-top: 16px;
-  }
-
-  .dialog-btn {
-    padding: 8px 16px;
-    font-size: 14px;
-    font-family: inherit;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-  }
-
-  .dialog-btn-primary {
-    background: var(--accent);
-    color: #fff;
-  }
-
-  .dialog-btn-primary:hover {
-    background: var(--accent-bg);
-  }
-
-  .dialog-btn-secondary {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-    border: 1px solid var(--bg-movie-hover);
-  }
-
-  .dialog-btn-secondary:hover {
-    background: var(--bg-movie-hover);
   }
 
 </style>

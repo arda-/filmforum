@@ -180,130 +180,162 @@ import Tooltip from '@components/Tooltip.astro';
 </div>
 
 <script>
-  // Module-level variable to store saved detail view states
+  // Saved detail states for Fit↔Content mode switching
   let savedDetailStates: { [key: string]: boolean } = {};
 
-  // Detail toggle buttons - needed by syncWidth()
-  const detailButtons = document.querySelectorAll('.toolbar-row .seg-btn[data-detail]');
-
-  // --- Segmented toggle: Timeline / Grid ---
+  // --- Element references ---
   const viewTimelineBtn = document.getElementById('view-mode-timeline');
   const viewGridBtn = document.getElementById('view-mode-grid');
   const timelineSwitch = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
 
-  function syncViewMode(isTimeline: boolean) {
-    viewTimelineBtn?.classList.toggle('active', isTimeline);
-    viewGridBtn?.classList.toggle('active', !isTimeline);
-    viewTimelineBtn?.setAttribute('aria-checked', String(isTimeline));
-    viewGridBtn?.setAttribute('aria-checked', String(!isTimeline));
-    if (timelineSwitch) {
-      timelineSwitch.checked = isTimeline;
-      timelineSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
-
-  viewTimelineBtn?.addEventListener('click', () => syncViewMode(true));
-  viewGridBtn?.addEventListener('click', () => syncViewMode(false));
-
-  // Sync initial state from hidden switch (which restoreFromUrl may have set)
-  function initViewMode() {
-    if (timelineSwitch) {
-      const isTimeline = timelineSwitch.checked;
-      viewTimelineBtn?.classList.toggle('active', isTimeline);
-      viewGridBtn?.classList.toggle('active', !isTimeline);
-      viewTimelineBtn?.setAttribute('aria-checked', String(isTimeline));
-      viewGridBtn?.setAttribute('aria-checked', String(!isTimeline));
-    }
-  }
-
-  // --- Width toggle: Fit / Content ---
   const widthFitBtn = document.getElementById('width-fit');
   const widthContentBtn = document.getElementById('width-content');
   const fitWidthSwitch = document.querySelector('#fit-width-switch input') as HTMLInputElement;
 
-  function syncWidth(isFit: boolean) {
-    widthFitBtn?.classList.toggle('active', isFit);
-    widthContentBtn?.classList.toggle('active', !isFit);
-    widthFitBtn?.setAttribute('aria-checked', String(isFit));
-    widthContentBtn?.setAttribute('aria-checked', String(!isFit));
-    if (fitWidthSwitch) {
+  const weekstartMonBtn = document.getElementById('weekstart-mon');
+  const weekstartSunBtn = document.getElementById('weekstart-sun');
+  const weekStartSwitch = document.querySelector('#week-start-toggle input') as HTMLInputElement;
+
+  const detailButtons = document.querySelectorAll('.toolbar-row .seg-btn[data-detail]');
+  const detailCheckboxes = document.querySelectorAll<HTMLInputElement>(
+    '.toolbar-row .seg-btn[data-detail] input[type="checkbox"]'
+  );
+
+  // --- Central state sync ---
+  // Reads all checkbox/switch states and updates ALL button visuals.
+  // Called on init and after any state change.
+  function applyState() {
+    // View mode
+    const isTimeline = timelineSwitch?.checked ?? true;
+    viewTimelineBtn?.classList.toggle('active', isTimeline);
+    viewGridBtn?.classList.toggle('active', !isTimeline);
+    viewTimelineBtn?.setAttribute('aria-checked', String(isTimeline));
+    viewGridBtn?.setAttribute('aria-checked', String(!isTimeline));
+
+    // Width mode — derive from detail states
+    const anyDetailsOn = [...detailCheckboxes].some(cb => cb.checked);
+    const isFit = anyDetailsOn ? false : (fitWidthSwitch?.checked ?? true);
+
+    // Sync fitWidthSwitch if it disagrees with derived state
+    if (fitWidthSwitch && fitWidthSwitch.checked !== isFit) {
       fitWidthSwitch.checked = isFit;
       fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    const detailCheckboxes = {
-      'show-year-director-checkbox': document.getElementById('show-year-director-checkbox') as HTMLInputElement,
-      'show-runtime-checkbox': document.getElementById('show-runtime-checkbox') as HTMLInputElement,
-      'show-actors-checkbox': document.getElementById('show-actors-checkbox') as HTMLInputElement,
-      'show-image-checkbox': document.getElementById('show-image-checkbox') as HTMLInputElement
-    };
+    widthFitBtn?.classList.toggle('active', isFit);
+    widthContentBtn?.classList.toggle('active', !isFit);
+    widthFitBtn?.setAttribute('aria-checked', String(isFit));
+    widthContentBtn?.setAttribute('aria-checked', String(!isFit));
 
-    // When switching to Fit mode, save and disable all detail views
-    if (isFit) {
-      // Save current states before disabling
-      savedDetailStates = {};
-      Object.entries(detailCheckboxes).forEach(([id, checkbox]) => {
-        if (checkbox) {
-          savedDetailStates[id] = checkbox.checked;
-          if (checkbox.checked) {
-            checkbox.checked = false;
-            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        }
-      });
+    // Week start
+    const isMon = weekStartSwitch?.checked ?? true;
+    weekstartMonBtn?.classList.toggle('active', isMon);
+    weekstartSunBtn?.classList.toggle('active', !isMon);
+    weekstartMonBtn?.setAttribute('aria-checked', String(isMon));
+    weekstartSunBtn?.setAttribute('aria-checked', String(!isMon));
 
-      // Update button active states
-      detailButtons.forEach(button => {
-        button.classList.remove('active');
-        button.setAttribute('aria-pressed', 'false');
-      });
-
-      // Remove body classes
-      document.body.classList.remove('show-year-director', 'show-runtime', 'show-actors', 'show-image', 'scrim-enabled', 'blur-enabled');
-    } else {
-      // When switching to Content mode, restore saved states
-      if (Object.keys(savedDetailStates).length > 0) {
-        Object.entries(detailCheckboxes).forEach(([id, checkbox]) => {
-          if (checkbox && savedDetailStates[id]) {
-            checkbox.checked = true;
-            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        });
-
-        // Update button active states
-        detailButtons.forEach(button => {
-          const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
-          if (checkbox && checkbox.checked) {
-            button.classList.add('active');
-            button.setAttribute('aria-pressed', 'true');
-          }
-        });
+    // Detail buttons
+    detailButtons.forEach(button => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (checkbox) {
+        button.classList.toggle('active', checkbox.checked);
+        button.setAttribute('aria-pressed', String(checkbox.checked));
       }
-    }
+    });
   }
 
-  widthFitBtn?.addEventListener('click', () => syncWidth(true));
-  widthContentBtn?.addEventListener('click', () => syncWidth(false));
+  // --- View mode: Timeline / Grid ---
+  viewTimelineBtn?.addEventListener('click', () => {
+    if (timelineSwitch) {
+      timelineSwitch.checked = true;
+      timelineSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
 
-  function initWidth() {
-    // If any detail views are enabled, must be Content mode
-    const anyDetailsEnabled = Array.from(detailButtons).some(button => {
-      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      return checkbox?.checked;
+  viewGridBtn?.addEventListener('click', () => {
+    if (timelineSwitch) {
+      timelineSwitch.checked = false;
+      timelineSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  // --- Width: Fit / Content ---
+  widthFitBtn?.addEventListener('click', () => {
+    // Save current detail states before disabling
+    savedDetailStates = {};
+    detailCheckboxes.forEach(cb => {
+      savedDetailStates[cb.id] = cb.checked;
+      if (cb.checked) {
+        cb.checked = false;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     });
 
-    const isFit = anyDetailsEnabled ? false : (fitWidthSwitch?.checked ?? true);
-
-    widthFitBtn?.classList.toggle('active', isFit);
-    widthContentBtn?.classList.toggle('active', !isFit);
-    widthFitBtn?.setAttribute('aria-checked', String(isFit));
-    widthContentBtn?.setAttribute('aria-checked', String(!isFit));
-
+    // Switch to Fit
     if (fitWidthSwitch) {
-      fitWidthSwitch.checked = isFit;
+      fitWidthSwitch.checked = true;
       fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
     }
-  }
+    applyState();
+  });
+
+  widthContentBtn?.addEventListener('click', () => {
+    // Switch to Content
+    if (fitWidthSwitch) {
+      fitWidthSwitch.checked = false;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Restore saved detail states
+    if (Object.keys(savedDetailStates).length > 0) {
+      detailCheckboxes.forEach(cb => {
+        if (savedDetailStates[cb.id]) {
+          cb.checked = true;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+    applyState();
+  });
+
+  // --- Week start: Mon / Sun ---
+  weekstartMonBtn?.addEventListener('click', () => {
+    if (weekStartSwitch) {
+      weekStartSwitch.checked = true;
+      weekStartSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  weekstartSunBtn?.addEventListener('click', () => {
+    if (weekStartSwitch) {
+      weekStartSwitch.checked = false;
+      weekStartSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  // --- Detail toggle buttons ---
+  detailButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (!checkbox) return;
+
+      checkbox.checked = !checkbox.checked;
+
+      // If enabling a detail while in Fit mode, switch to Content
+      if (checkbox.checked && fitWidthSwitch?.checked) {
+        fitWidthSwitch.checked = false;
+        fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      // Dispatch change for calendar to handle body class
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+      applyState();
+    });
+  });
 
   // --- Width toggle tooltip (only show at 640px+) ---
   const widthTooltip = document.querySelector('.toolbar-group-width .tooltip-wrapper');
@@ -311,72 +343,12 @@ import Tooltip from '@components/Tooltip.astro';
 
   function updateWidthTooltip(e: MediaQueryListEvent | MediaQueryList) {
     if (widthTooltip) {
-      // At 640px+, enable tooltip (both options behave similarly)
-      // Below 640px, disable tooltip (toggle is meaningful)
       widthTooltip.setAttribute('data-disabled', e.matches ? 'false' : 'true');
     }
   }
 
   updateWidthTooltip(mediaQuery640);
   mediaQuery640.addEventListener('change', updateWidthTooltip);
-
-  // --- Week start segmented toggle ---
-  const weekstartMonBtn = document.getElementById('weekstart-mon');
-  const weekstartSunBtn = document.getElementById('weekstart-sun');
-  const weekStartSwitch = document.querySelector('#week-start-toggle input') as HTMLInputElement;
-
-  function syncWeekStart(isMondayStart: boolean) {
-    weekstartMonBtn?.classList.toggle('active', isMondayStart);
-    weekstartSunBtn?.classList.toggle('active', !isMondayStart);
-    weekstartMonBtn?.setAttribute('aria-checked', String(isMondayStart));
-    weekstartSunBtn?.setAttribute('aria-checked', String(!isMondayStart));
-    if (weekStartSwitch) {
-      weekStartSwitch.checked = isMondayStart;
-      weekStartSwitch.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-  }
-
-  weekstartMonBtn?.addEventListener('click', () => syncWeekStart(true));
-  weekstartSunBtn?.addEventListener('click', () => syncWeekStart(false));
-
-  function initWeekStart() {
-    if (weekStartSwitch) {
-      const isMon = weekStartSwitch.checked;
-      weekstartMonBtn?.classList.toggle('active', isMon);
-      weekstartSunBtn?.classList.toggle('active', !isMon);
-      weekstartMonBtn?.setAttribute('aria-checked', String(isMon));
-      weekstartSunBtn?.setAttribute('aria-checked', String(!isMon));
-    }
-  }
-
-  // --- Detail toggle buttons ---
-  detailButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      if (checkbox) {
-        // Toggle the checkbox state
-        checkbox.checked = !checkbox.checked;
-
-        // Update button visual state
-        button.classList.toggle('active', checkbox.checked);
-        button.setAttribute('aria-pressed', String(checkbox.checked));
-
-        // Dispatch change event so existing calendar logic picks it up
-        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    });
-  });
-
-  function initDetailButtons() {
-    detailButtons.forEach(button => {
-      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      if (checkbox) {
-        // Sync button state from checkbox (which may have been set by URL restore)
-        button.classList.toggle('active', checkbox.checked);
-        button.setAttribute('aria-pressed', String(checkbox.checked));
-      }
-    });
-  }
 
   // --- Gear popover ---
   const gearBtn = document.getElementById('view-settings-btn');
@@ -389,7 +361,6 @@ import Tooltip from '@components/Tooltip.astro';
     gearBtn.setAttribute('aria-expanded', String(!isOpen));
   });
 
-  // Close popover on outside click
   document.addEventListener('click', (e) => {
     if (!popover?.contains(e.target as Node) && e.target !== gearBtn) {
       popover?.classList.remove('open');
@@ -397,7 +368,6 @@ import Tooltip from '@components/Tooltip.astro';
     }
   });
 
-  // Close popover on Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && popover?.classList.contains('open')) {
       popover.classList.remove('open');
@@ -406,14 +376,8 @@ import Tooltip from '@components/Tooltip.astro';
     }
   });
 
-  // --- Init after URL restore ---
-  // Listen for the calendar script's signal that URL state has been restored
-  document.addEventListener('url-state-restored', () => {
-    initViewMode();
-    initWidth();
-    initWeekStart();
-    initDetailButtons();
-  });
+  // --- Init: sync button visuals from restored URL state ---
+  document.addEventListener('url-state-restored', () => applyState());
 </script>
 
 <style>
