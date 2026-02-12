@@ -7,6 +7,7 @@
 import Switch from '@components/Switch.astro';
 import Icon from '@components/Icon.astro';
 import Tooltip from '@components/Tooltip.astro';
+import SegmentedToggle from '@components/SegmentedToggle.astro';
 ---
 
 <div class="calendar-view-toolbar">
@@ -15,7 +16,7 @@ import Tooltip from '@components/Tooltip.astro';
       <!-- Timeline / Grid toggle -->
       <div class="toolbar-group toolbar-group-view">
         <span class="toolbar-label">View</span>
-        <div class="segmented-toggle" role="radiogroup" aria-label="Calendar view mode">
+        <SegmentedToggle role="radiogroup" aria-label="Calendar view mode">
           <button
             class="seg-btn active"
             data-view="timeline"
@@ -24,7 +25,7 @@ import Tooltip from '@components/Tooltip.astro';
             aria-label="Timeline view"
             id="view-mode-timeline"
           >
-            <Icon name="gallery-vertical" size={14} />
+            <Icon name="gallery-vertical" size={16} />
             <span class="seg-btn-label">Timeline</span>
           </button>
           <button
@@ -35,17 +36,17 @@ import Tooltip from '@components/Tooltip.astro';
             aria-label="Rows view"
             id="view-mode-grid"
           >
-            <Icon name="rows-2" size={14} />
+            <Icon name="rows-2" size={16} />
             <span class="seg-btn-label">Rows</span>
           </button>
-        </div>
+        </SegmentedToggle>
       </div>
 
       <!-- Width toggle: Fit / Content -->
       <div class="toolbar-group toolbar-group-width">
         <span class="toolbar-label">Width</span>
         <Tooltip text="At this viewport width, calendar content naturally fits">
-          <div class="segmented-toggle" role="radiogroup" aria-label="Content width mode">
+          <SegmentedToggle role="radiogroup" aria-label="Content width mode">
             <button
               class="seg-btn active"
               data-width="fit"
@@ -54,7 +55,7 @@ import Tooltip from '@components/Tooltip.astro';
               aria-label="Fit to window width"
               id="width-fit"
             >
-              <Icon name="minimize-2" size={14} />
+              <Icon name="minimize-2" size={16} />
               <span class="seg-btn-label">Fit</span>
             </button>
             <button
@@ -65,10 +66,10 @@ import Tooltip from '@components/Tooltip.astro';
               aria-label="Show full content width"
               id="width-content"
             >
-              <Icon name="maximize" size={14} />
+              <Icon name="maximize" size={16} />
               <span class="seg-btn-label">Content</span>
             </button>
-          </div>
+          </SegmentedToggle>
         </Tooltip>
       </div>
 
@@ -94,7 +95,7 @@ import Tooltip from '@components/Tooltip.astro';
         <div class="popover-section">
           <div class="popover-row">
             <span class="popover-label">Start week on</span>
-            <div class="segmented-toggle segmented-toggle-compact" role="radiogroup" aria-label="Week start day">
+            <SegmentedToggle size="sm" role="radiogroup" aria-label="Week start day">
               <button
                 class="seg-btn"
                 data-weekstart="sun"
@@ -111,7 +112,7 @@ import Tooltip from '@components/Tooltip.astro';
                 aria-label="Start week on Monday"
                 id="weekstart-mon"
               >Mon</button>
-            </div>
+            </SegmentedToggle>
           </div>
         </div>
         <div class="popover-section">
@@ -127,7 +128,7 @@ import Tooltip from '@components/Tooltip.astro';
   <!-- Tile display options row -->
   <div class="toolbar-row">
     <span class="toolbar-label">Details</span>
-    <div class="segmented-toggle">
+    <SegmentedToggle>
       <button
         class="seg-btn"
         data-detail="year-director"
@@ -135,7 +136,7 @@ import Tooltip from '@components/Tooltip.astro';
         aria-label="Show year and director"
       >
         <input type="checkbox" id="show-year-director-checkbox" style="display: none;" />
-        <Icon name="megaphone" size={14} />
+        <Icon name="megaphone" size={16} />
         <span class="seg-btn-label">Year & Director</span>
       </button>
       <button
@@ -145,7 +146,7 @@ import Tooltip from '@components/Tooltip.astro';
         aria-label="Show runtime"
       >
         <input type="checkbox" id="show-runtime-checkbox" style="display: none;" />
-        <Icon name="timer" size={14} />
+        <Icon name="timer" size={16} />
         <span class="seg-btn-label">Runtime</span>
       </button>
       <button
@@ -155,7 +156,7 @@ import Tooltip from '@components/Tooltip.astro';
         aria-label="Show cast"
       >
         <input type="checkbox" id="show-actors-checkbox" style="display: none;" />
-        <Icon name="users-round" size={14} />
+        <Icon name="users-round" size={16} />
         <span class="seg-btn-label">Cast</span>
       </button>
       <button
@@ -165,10 +166,10 @@ import Tooltip from '@components/Tooltip.astro';
         aria-label="Show poster image"
       >
         <input type="checkbox" id="show-image-checkbox" style="display: none;" />
-        <Icon name="image" size={14} />
+        <Icon name="image" size={16} />
         <span class="seg-btn-label">Image</span>
       </button>
-    </div>
+    </SegmentedToggle>
   </div>
 
 </div>
@@ -389,7 +390,13 @@ import Tooltip from '@components/Tooltip.astro';
   .toolbar-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+  }
+
+  @media (min-width: 480px) {
+    .toolbar-row {
+      gap: 12px;
+    }
   }
 
   .toolbar-left {
@@ -428,48 +435,6 @@ import Tooltip from '@components/Tooltip.astro';
     }
   }
 
-  /* Segmented toggle (Timeline/Grid, Mon/Sun) */
-  .segmented-toggle {
-    display: inline-flex;
-    border: 1px solid var(--bg-movie-hover);
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--bg-body);
-  }
-
-  .seg-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    font-weight: 400;
-    color: var(--text-secondary);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-
-  .seg-btn:not(:last-child) {
-    border-right: 1px solid var(--bg-movie-hover);
-  }
-
-  .seg-btn:hover {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  .seg-btn.active {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  .seg-btn svg {
-    flex-shrink: 0;
-  }
-
   .seg-btn-label {
     display: none;
   }
@@ -495,7 +460,10 @@ import Tooltip from '@components/Tooltip.astro';
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 10px;
+    padding: 8px 10px;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
     font-size: 13px;
     font-family: inherit;
     font-weight: 400;
@@ -507,9 +475,16 @@ import Tooltip from '@components/Tooltip.astro';
     transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
 
-  .compact-toggle:hover {
-    background: var(--bg-movie);
-    color: var(--text-primary);
+  @media (hover: hover) {
+    .compact-toggle:hover {
+      background: var(--bg-movie);
+      color: var(--text-primary);
+    }
+  }
+
+  .compact-toggle:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+    outline: none;
   }
 
   .compact-toggle.active {
@@ -527,8 +502,8 @@ import Tooltip from '@components/Tooltip.astro';
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     background: transparent;
     border: 1px solid var(--bg-movie-hover);
@@ -538,10 +513,21 @@ import Tooltip from '@components/Tooltip.astro';
     transition: background-color 0.15s ease, color 0.15s ease;
   }
 
-  .gear-btn:hover,
+  @media (hover: hover) {
+    .gear-btn:hover {
+      background: var(--bg-movie);
+      color: var(--text-primary);
+    }
+  }
+
   .gear-btn[aria-expanded="true"] {
     background: var(--bg-movie);
     color: var(--text-primary);
+  }
+
+  .gear-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+    outline: none;
   }
 
   /* Popover */
@@ -590,17 +576,8 @@ import Tooltip from '@components/Tooltip.astro';
     letter-spacing: -0.01em;
   }
 
-  .segmented-toggle-compact {
-    min-width: auto;
-  }
 
 
-  /* Mobile: stack toolbar more compactly */
-  @media (max-width: 479px) {
-    .toolbar-row {
-      gap: 8px;
-    }
-  }
 
   /* Hidden helper switches are truly hidden */
   [style*="display:none"] {
@@ -609,4 +586,5 @@ import Tooltip from '@components/Tooltip.astro';
     height: 0;
     overflow: hidden;
   }
+
 </style>
