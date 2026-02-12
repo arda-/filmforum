@@ -30,10 +30,15 @@ try {
   if (!iconPath) throw new Error('not found');
   svg = readFileSync(iconPath, 'utf-8');
 
-  // Replace width/height attributes with provided size
+  // Set width/height attributes to provided size
   svg = svg
-    .replace(/width="24"/, `width="${size}"`)
-    .replace(/height="24"/, `height="${size}"`);
+    .replace(/width="[^"]*"/, `width="${size}"`)
+    .replace(/height="[^"]*"/, `height="${size}"`);
+
+  // If SVG had no width/height, inject them
+  if (!svg.includes(`width="${size}"`)) {
+    svg = svg.replace('<svg', `<svg width="${size}" height="${size}"`);
+  }
 
   // Add custom class if provided
   if (className) {

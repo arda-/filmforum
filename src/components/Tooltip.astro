@@ -26,6 +26,9 @@ const { text, disabled = false } = Astro.props;
     const wrappers = document.querySelectorAll('.tooltip-wrapper');
 
     wrappers.forEach(wrapper => {
+      if (wrapper.hasAttribute('data-tooltip-init')) return;
+      wrapper.setAttribute('data-tooltip-init', '');
+
       let tooltipEl: HTMLElement | null = null;
       let showTimeout: number | null = null;
       let hideTimeout: number | null = null;
