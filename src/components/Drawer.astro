@@ -158,10 +158,18 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0 20px 12px;
+    padding: 0 20px;
     flex: 1 1 auto;
     min-height: 0;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Desktop browsers lack the mobile dvh gap that provides natural bottom
+     breathing room, so add explicit padding for non-touch devices. */
+  @media (hover: hover) and (pointer: fine) {
+    .drawer-body {
+      padding-bottom: 12px;
+    }
   }
 </style>
 
