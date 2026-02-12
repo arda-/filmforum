@@ -2,6 +2,9 @@ import re
 import csv
 import html as html_lib
 
+# NOTE: Film Forum removes individual film pages after their showtimes pass.
+# The series page used as input here also gets culled over time, so cache it early.
+
 # Read the HTML file
 with open('/Users/ardaungun/code/filmforum/tenement-stories.html', 'r') as f:
     html = f.read()

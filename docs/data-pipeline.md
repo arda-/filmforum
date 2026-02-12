@@ -313,6 +313,10 @@ jq -rs 'sort_by(.Datetime) | to_entries | reduce .[] as $e (
 - [ ] Runtime format is `"XX minutes"`
 - [ ] Date format is consistent (`"Day, Month Date"`)
 
+## Important: Film Forum Page Lifecycle
+
+**Film Forum removes individual film pages after their showtimes pass.** `/film/{slug}` URLs will return 404 once the screening run ends. Always scrape and cache film metadata (description, runtime, director, actors) as soon as pages are available. Do not assume you can re-fetch this data later.
+
 ## Known Issues
 
 | Issue | Cause | Solution |
