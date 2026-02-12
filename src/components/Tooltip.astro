@@ -94,8 +94,11 @@ const { text, disabled = false } = Astro.props;
         }
       };
 
-      wrapper.addEventListener('mouseenter', show);
-      wrapper.addEventListener('mouseleave', hide);
+      // Only show tooltips on hover for devices that support it
+      if (window.matchMedia('(hover: hover)').matches) {
+        wrapper.addEventListener('mouseenter', show);
+        wrapper.addEventListener('mouseleave', hide);
+      }
       wrapper.addEventListener('focus', show, true);
       wrapper.addEventListener('blur', hide, true);
     });
@@ -135,5 +138,11 @@ const { text, disabled = false } = Astro.props;
 
   :global(.tooltip-content.visible) {
     opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.tooltip-content) {
+      transition: none;
+    }
   }
 </style>

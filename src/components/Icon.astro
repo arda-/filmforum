@@ -42,7 +42,11 @@ try {
 
   // Add custom class if provided
   if (className) {
-    svg = svg.replace(/class="[^"]*"/, `class="${className}"`);
+    if (/class="[^"]*"/.test(svg)) {
+      svg = svg.replace(/class="[^"]*"/, `class="${className}"`);
+    } else {
+      svg = svg.replace('<svg', `<svg class="${className}"`);
+    }
   }
 } catch (error) {
   console.error(`Icon "${name}" not found in lucide-static, @tabler/icons, or src/icons/`);
