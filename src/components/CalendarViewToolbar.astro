@@ -1,0 +1,548 @@
+---
+/**
+ * Inline view toolbar for the calendar page.
+ * Contains set-once display settings: Timeline/Grid, Fit to width, Mon/Sun, gear popover.
+ * Not sticky — sits above the calendar in normal flow.
+ */
+import Switch from '@components/Switch.astro';
+import Icon from '@components/Icon.astro';
+import Tooltip from '@components/Tooltip.astro';
+import SegmentedToggle from '@components/SegmentedToggle.astro';
+---
+
+<div class="calendar-view-toolbar">
+  <div class="toolbar-row">
+    <div class="toolbar-left">
+      <!-- Timeline / Grid toggle -->
+      <div class="toolbar-group toolbar-group-view">
+        <span class="toolbar-label">View</span>
+        <SegmentedToggle role="radiogroup" aria-label="Calendar view mode">
+          <button
+            class="seg-btn active"
+            data-view="timeline"
+            role="radio"
+            aria-checked="true"
+            aria-label="Timeline view"
+            id="view-mode-timeline"
+          >
+            <Icon name="gallery-vertical" size={16} />
+            <span class="seg-btn-label">Timeline</span>
+          </button>
+          <button
+            class="seg-btn"
+            data-view="grid"
+            role="radio"
+            aria-checked="false"
+            aria-label="Rows view"
+            id="view-mode-grid"
+          >
+            <Icon name="rows-2" size={16} />
+            <span class="seg-btn-label">Rows</span>
+          </button>
+        </SegmentedToggle>
+      </div>
+
+      <!-- Width toggle: Fit / Content -->
+      <div class="toolbar-group toolbar-group-width">
+        <span class="toolbar-label">Width</span>
+        <Tooltip text="At this viewport width, calendar content naturally fits">
+          <SegmentedToggle role="radiogroup" aria-label="Content width mode">
+            <button
+              class="seg-btn active"
+              data-width="fit"
+              role="radio"
+              aria-checked="true"
+              aria-label="Fit to window width"
+              id="width-fit"
+            >
+              <Icon name="minimize-2" size={16} />
+              <span class="seg-btn-label">Fit</span>
+            </button>
+            <button
+              class="seg-btn"
+              data-width="content"
+              role="radio"
+              aria-checked="false"
+              aria-label="Show full content width"
+              id="width-content"
+            >
+              <Icon name="maximize" size={16} />
+              <span class="seg-btn-label">Content</span>
+            </button>
+          </SegmentedToggle>
+        </Tooltip>
+      </div>
+
+      <!-- Hidden fit-width switch for backward compat with existing JS -->
+      <div style="display:none">
+        <Switch id="fit-width-switch" label="" checked />
+      </div>
+    </div>
+
+    <!-- Gear button → popover -->
+    <div class="toolbar-group toolbar-group--end">
+      <button
+        class="gear-btn"
+        id="view-settings-btn"
+        aria-label="View settings"
+        aria-expanded="false"
+        aria-controls="view-settings-popover"
+      >
+        <Icon name="settings" size={16} />
+      </button>
+
+      <div class="view-settings-popover" id="view-settings-popover">
+        <div class="popover-section">
+          <div class="popover-row">
+            <span class="popover-label">Start week on</span>
+            <SegmentedToggle size="sm" role="radiogroup" aria-label="Week start day">
+              <button
+                class="seg-btn"
+                data-weekstart="sun"
+                role="radio"
+                aria-checked="false"
+                aria-label="Start week on Sunday"
+                id="weekstart-sun"
+              >Sun</button>
+              <button
+                class="seg-btn active"
+                data-weekstart="mon"
+                role="radio"
+                aria-checked="true"
+                aria-label="Start week on Monday"
+                id="weekstart-mon"
+              >Mon</button>
+            </SegmentedToggle>
+          </div>
+        </div>
+        <div class="popover-section">
+          <Switch id="highlight-unique-toggle" label="Highlight unique showings (★)" checked small />
+        </div>
+        <div class="popover-section desktop-only">
+          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" checked small />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tile display options row -->
+  <div class="toolbar-row">
+    <span class="toolbar-label">Details</span>
+    <SegmentedToggle>
+      <button
+        class="seg-btn"
+        data-detail="year-director"
+        aria-pressed="false"
+        aria-label="Show year and director"
+      >
+        <input type="checkbox" id="show-year-director-checkbox" style="display: none;" />
+        <Icon name="megaphone" size={16} />
+        <span class="seg-btn-label">Year & Director</span>
+      </button>
+      <button
+        class="seg-btn"
+        data-detail="runtime"
+        aria-pressed="false"
+        aria-label="Show runtime"
+      >
+        <input type="checkbox" id="show-runtime-checkbox" style="display: none;" />
+        <Icon name="timer" size={16} />
+        <span class="seg-btn-label">Runtime</span>
+      </button>
+      <button
+        class="seg-btn"
+        data-detail="cast"
+        aria-pressed="false"
+        aria-label="Show cast"
+      >
+        <input type="checkbox" id="show-actors-checkbox" style="display: none;" />
+        <Icon name="users-round" size={16} />
+        <span class="seg-btn-label">Cast</span>
+      </button>
+      <button
+        class="seg-btn"
+        data-detail="image"
+        aria-pressed="false"
+        aria-label="Show poster image"
+      >
+        <input type="checkbox" id="show-image-checkbox" style="display: none;" />
+        <Icon name="image" size={16} />
+        <span class="seg-btn-label">Image</span>
+      </button>
+    </SegmentedToggle>
+  </div>
+
+</div>
+
+<!-- Hidden switch elements that the existing JS references by ID -->
+<div style="display:none">
+  <Switch id="timeline-mode-toggle" label="" checked />
+  <Switch id="week-start-toggle" label="" checked />
+</div>
+
+<script>
+  // Saved detail states for Fit↔Content mode switching
+  let savedDetailStates: { [key: string]: boolean } = {};
+
+  // --- Element references ---
+  const viewTimelineBtn = document.getElementById('view-mode-timeline');
+  const viewGridBtn = document.getElementById('view-mode-grid');
+  const timelineSwitch = document.querySelector('#timeline-mode-toggle input') as HTMLInputElement;
+
+  const widthFitBtn = document.getElementById('width-fit');
+  const widthContentBtn = document.getElementById('width-content');
+  const fitWidthSwitch = document.querySelector('#fit-width-switch input') as HTMLInputElement;
+
+  const weekstartMonBtn = document.getElementById('weekstart-mon');
+  const weekstartSunBtn = document.getElementById('weekstart-sun');
+  const weekStartSwitch = document.querySelector('#week-start-toggle input') as HTMLInputElement;
+
+  const detailButtons = document.querySelectorAll('.toolbar-row .seg-btn[data-detail]');
+  const detailCheckboxes = document.querySelectorAll<HTMLInputElement>(
+    '.toolbar-row .seg-btn[data-detail] input[type="checkbox"]'
+  );
+
+  // --- Central state sync ---
+  // Reads all checkbox/switch states and updates ALL button visuals.
+  // Called on init and after any state change.
+  function applyState() {
+    // View mode
+    const isTimeline = timelineSwitch?.checked ?? true;
+    viewTimelineBtn?.classList.toggle('active', isTimeline);
+    viewGridBtn?.classList.toggle('active', !isTimeline);
+    viewTimelineBtn?.setAttribute('aria-checked', String(isTimeline));
+    viewGridBtn?.setAttribute('aria-checked', String(!isTimeline));
+
+    // Width mode — derive from detail states
+    const anyDetailsOn = [...detailCheckboxes].some(cb => cb.checked);
+    const isFit = anyDetailsOn ? false : (fitWidthSwitch?.checked ?? true);
+
+    // Sync fitWidthSwitch if it disagrees with derived state
+    if (fitWidthSwitch && fitWidthSwitch.checked !== isFit) {
+      fitWidthSwitch.checked = isFit;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    widthFitBtn?.classList.toggle('active', isFit);
+    widthContentBtn?.classList.toggle('active', !isFit);
+    widthFitBtn?.setAttribute('aria-checked', String(isFit));
+    widthContentBtn?.setAttribute('aria-checked', String(!isFit));
+
+    // Week start
+    const isMon = weekStartSwitch?.checked ?? true;
+    weekstartMonBtn?.classList.toggle('active', isMon);
+    weekstartSunBtn?.classList.toggle('active', !isMon);
+    weekstartMonBtn?.setAttribute('aria-checked', String(isMon));
+    weekstartSunBtn?.setAttribute('aria-checked', String(!isMon));
+
+    // Detail buttons
+    detailButtons.forEach(button => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (checkbox) {
+        button.classList.toggle('active', checkbox.checked);
+        button.setAttribute('aria-pressed', String(checkbox.checked));
+      }
+    });
+  }
+
+  // --- View mode: Timeline / Grid ---
+  viewTimelineBtn?.addEventListener('click', () => {
+    if (timelineSwitch) {
+      timelineSwitch.checked = true;
+      timelineSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  viewGridBtn?.addEventListener('click', () => {
+    if (timelineSwitch) {
+      timelineSwitch.checked = false;
+      timelineSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  // --- Width: Fit / Content ---
+  widthFitBtn?.addEventListener('click', () => {
+    // Save current detail states before disabling
+    savedDetailStates = {};
+    detailCheckboxes.forEach(cb => {
+      savedDetailStates[cb.id] = cb.checked;
+      if (cb.checked) {
+        cb.checked = false;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    // Switch to Fit
+    if (fitWidthSwitch) {
+      fitWidthSwitch.checked = true;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  widthContentBtn?.addEventListener('click', () => {
+    // Switch to Content
+    if (fitWidthSwitch) {
+      fitWidthSwitch.checked = false;
+      fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    // Restore saved detail states
+    if (Object.keys(savedDetailStates).length > 0) {
+      detailCheckboxes.forEach(cb => {
+        if (savedDetailStates[cb.id]) {
+          cb.checked = true;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+    applyState();
+  });
+
+  // --- Week start: Mon / Sun ---
+  weekstartMonBtn?.addEventListener('click', () => {
+    if (weekStartSwitch) {
+      weekStartSwitch.checked = true;
+      weekStartSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  weekstartSunBtn?.addEventListener('click', () => {
+    if (weekStartSwitch) {
+      weekStartSwitch.checked = false;
+      weekStartSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    applyState();
+  });
+
+  // --- Detail toggle buttons ---
+  detailButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (!checkbox) return;
+
+      checkbox.checked = !checkbox.checked;
+
+      // If enabling a detail while in Fit mode, switch to Content
+      if (checkbox.checked && fitWidthSwitch?.checked) {
+        fitWidthSwitch.checked = false;
+        fitWidthSwitch.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+
+      // Dispatch change for calendar to handle body class
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+      applyState();
+    });
+  });
+
+  // --- Width toggle tooltip (only show at 640px+) ---
+  const widthTooltip = document.querySelector('.toolbar-group-width .tooltip-wrapper');
+  const mediaQuery640 = window.matchMedia('(min-width: 640px)');
+
+  function updateWidthTooltip(e: MediaQueryListEvent | MediaQueryList) {
+    if (widthTooltip) {
+      widthTooltip.setAttribute('data-disabled', e.matches ? 'false' : 'true');
+    }
+  }
+
+  updateWidthTooltip(mediaQuery640);
+  mediaQuery640.addEventListener('change', updateWidthTooltip);
+
+  // --- Gear popover ---
+  const gearBtn = document.getElementById('view-settings-btn');
+  const popover = document.getElementById('view-settings-popover');
+
+  gearBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = popover?.classList.contains('open');
+    popover?.classList.toggle('open', !isOpen);
+    gearBtn.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!popover?.contains(e.target as Node) && e.target !== gearBtn) {
+      popover?.classList.remove('open');
+      gearBtn?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && popover?.classList.contains('open')) {
+      popover.classList.remove('open');
+      gearBtn?.setAttribute('aria-expanded', 'false');
+      gearBtn?.focus();
+    }
+  });
+
+  // --- Init: sync button visuals from restored URL state ---
+  document.addEventListener('url-state-restored', () => applyState());
+</script>
+
+<style>
+  .calendar-view-toolbar {
+    margin-bottom: 12px;
+    padding: 0 4px;
+  }
+
+  .toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (min-width: 480px) {
+    .toolbar-row {
+      gap: 12px;
+    }
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .display-options-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-group--end {
+    /* Gear button stays on the right, doesn't wrap */
+    margin-left: auto;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  /* Hide width toggle at 640px+ where it's not needed */
+  @media (min-width: 640px) {
+    .toolbar-group-width {
+      display: none;
+    }
+  }
+
+  .seg-btn-label {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .seg-btn-label {
+      display: inline;
+    }
+  }
+
+  .toolbar-label {
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Gear button */
+  .gear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  @media (hover: hover) {
+    .gear-btn:hover {
+      background: var(--bg-movie);
+      color: var(--text-primary);
+    }
+  }
+
+  .gear-btn[aria-expanded="true"] {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .gear-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+    outline: none;
+  }
+
+  /* Popover */
+  .view-settings-popover {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 220px;
+    padding: 12px;
+    background: var(--bg-body);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    z-index: calc(var(--z-drawer-bg) + 1);
+  }
+
+  .view-settings-popover.open {
+    display: block;
+  }
+
+  .popover-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .popover-section + .popover-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--bg-movie-hover);
+  }
+
+  .popover-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .popover-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+
+
+
+  /* Hidden helper switches are truly hidden */
+  [style*="display:none"] {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+</style>

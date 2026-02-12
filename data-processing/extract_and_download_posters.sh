@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# NOTE: Film Forum removes individual film pages after their showtimes pass.
+# If HTML files were not cached before page removal, poster extraction will fail
+# for those films.
+
 # Directory containing HTML files
 HTML_DIR="/Users/ardaungun/code/filmforum/movie-pages"
 # Output directory for posters

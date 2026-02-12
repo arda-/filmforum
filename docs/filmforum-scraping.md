@@ -307,6 +307,15 @@ Key elements to extract from `/film/{slug}` pages:
 - Synopsis/description
 - Trailer link (if available)
 
+## Important: Page Lifecycle
+
+**Film Forum aggressively removes film pages after their showtimes pass.** Individual `/film/{slug}` pages return 404 once the screening dates are over. This means:
+
+- Scrape film metadata **as early as possible** after pages go live
+- Cache/store descriptions, runtimes, and other metadata locally - don't rely on being able to re-fetch later
+- Series pages (`/series/{slug}`) also get culled over time, though they tend to persist longer than individual film pages
+- For the Tenement Stories series, ~10 out of 49 film pages were already 404 by mid-February 2026
+
 ## Implementation Notes
 
 ### Headers
