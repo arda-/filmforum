@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.1",
+    "cheerio": "^1.2.0",
     "playwright": "^1.58.1",
     "sass-embedded": "^1.97.3",
     "sharp": "^0.34.5",

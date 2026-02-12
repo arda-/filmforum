@@ -1,94 +1,79 @@
 {
   "id": "tenement-stories",
-  "name": "Tenement Stories",
-  "subtitle": "From Immigrants to Bohemians",
-  "dateRange": "Feb 6–26, 2026",
+  "name": "TENEMENT STORIES",
+  "subtitle": "FROM IMMIGRANTS TO BOHEMIANS",
+  "dateRange": "Friday, February 6 – Thursday, February 26",
   "seriesUrl": "https://filmforum.org/series/tenement-stories",
   "venueName": "Film Forum",
   "description": {
-    "short": "A festival presenting over 50 films exploring tenement life through cinema, spanning from early cinema pioneers to contemporary directors.",
-    "curatorial": "The festival presents over 50 films exploring tenement life through cinema, spanning from early cinema pioneers to contemporary directors. It frames this history as evolving \"FROM IMMIGRANTS TO BOHEMIANS,\" examining how these spaces and communities have been depicted across film history."
+    "short": "A festival of over 50 movies, including films by Francis Ford Coppola, Martin Scorsese, Joan Micklin Silver, King Vidor, Charles Chaplin, Buster Keaton, Lois Weber, Hal Ashby, Elia Kazan, Sergio Leone, Shirley Clarke, John Huston, D.W. Griffith, William Wyler, Leon Ichaso, Robert Wise, Raoul Walsh, Jules Dassin, Preston Sturges, Sean Baker, and many others. Read more.\n\nPresented in association with the Tenement Museum. Founded in 1988, The Tenement Museum welcomes visitors into the homes of immigrant, migrant, and refugee families, sharing their stories in order to inspire connection between past and present and to build a more inclusive and expansive American society. The Museum is experienced through educator-led tours of recreate family apartments of German, Irish, Black, Jewish, Italian, Puerto Rican, and Chinese families who lived in New York's tenements from the 1860s through the 1980s.\n\nDISCOUNT OFFER: During February, Festival ticket-buyers can get buy-one-get-one-free tickets* to the Tenement Museum with promo code (obtained at FF box office with purchase or delivered via separate email for online ticket buyers). Film Forum Members can purchase two tickets* for Tenement Museum tours at a special price of $13 each with promo code (for details, see February edition of the Film Forum Confidential members' email). Both codes exclude specialty, food, and private tour purchases. Tenement Museum is offering two additional specialty tours* connected to the series: “Love at the Tenement” (February 8 & 13), shares stories of dating, partnership, and romance; and “Crime in the Tenements: Fact and Fiction” (February 20 & 22) explores the myths around crime in tenement neighborhoods. *Please note: Discounts do not apply to specialty tours.\n\nSelect titles presented with support from The Ada Katz Fund for Literature in Film and The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, ‘40s, and ‘50s."
   },
   "heroImages": [
     {
-      "filename": "west-side-story-slideshow.png",
-      "path": "/series-images/tenement-stories/west-side-story-slideshow.png",
-      "alt": "West Side Story - The iconic musical about tenement life"
+      "filename": "WEST_SIDE_STORY_slideshow.png",
+      "path": "/series-images/tenement-stories/WEST_SIDE_STORY_slideshow.png",
+      "alt": "TENEMENT STORIES - Film still",
+      "sourceUrl": "https://filmforum.org/do-not-enter-or-modify-or-erase/client-uploads/_1000w/WEST_SIDE_STORY_slideshow.png"
     },
     {
-      "filename": "the-window-slideshow.png",
-      "path": "/series-images/tenement-stories/the-window-slideshow.png",
-      "alt": "The Window - Urban neighborhood narrative"
+      "filename": "THE_WINDOW_slideshow.png",
+      "path": "/series-images/tenement-stories/THE_WINDOW_slideshow.png",
+      "alt": "TENEMENT STORIES - Film still",
+      "sourceUrl": "https://filmforum.org/do-not-enter-or-modify-or-erase/client-uploads/_1000w/THE_WINDOW_slideshow.png"
     },
     {
-      "filename": "raising-victor-vargas-slideshow.png",
-      "path": "/series-images/tenement-stories/raising-victor-vargas-slideshow.png",
-      "alt": "Raising Victor Vargas - Contemporary tenement story"
+      "filename": "RAISING_VICTOR_VARGAS_slideshow.png",
+      "path": "/series-images/tenement-stories/RAISING_VICTOR_VARGAS_slideshow.png",
+      "alt": "TENEMENT STORIES - Film still",
+      "sourceUrl": "https://filmforum.org/do-not-enter-or-modify-or-erase/client-uploads/_1000w/RAISING_VICTOR_VARGAS_slideshow.png"
     },
     {
-      "filename": "dead-end-slideshow.png",
-      "path": "/series-images/tenement-stories/dead-end-slideshow.png",
-      "alt": "Dead End - Classic urban drama"
+      "filename": "DEAD_END_slideshow.png",
+      "path": "/series-images/tenement-stories/DEAD_END_slideshow.png",
+      "alt": "TENEMENT STORIES - Film still",
+      "sourceUrl": "https://filmforum.org/do-not-enter-or-modify-or-erase/client-uploads/_1000w/DEAD_END_slideshow.png"
+    },
+    {
+      "filename": "THE_HEART_OF_LOISAIDA_slideshow.png",
+      "path": "/series-images/tenement-stories/THE_HEART_OF_LOISAIDA_slideshow.png",
+      "alt": "<em>The Heart of Loisaida</em> <br>Q&A with Annie Polland, President of the Tenement Museum, and Directors & Producers Beni Matías & Marci Reaven",
+      "sourceUrl": "https://filmforum.org/do-not-enter-or-modify-or-erase/client-uploads/_500w/THE_HEART_OF_LOISAIDA_slideshow.png"
     }
   ],
   "partnership": {
     "name": "Tenement Museum",
-    "description": "Founded in 1988, The Tenement Museum welcomes visitors into the homes of immigrant, migrant, and refugee families, sharing their stories in order to inspire connection between past and present and to build a more inclusive and expansive American society. The Museum is experienced through educator-led tours of recreate family apartments of German, Irish, Black, Jewish, Italian, Puerto Rican, and Chinese families who lived in New York's tenements from the 1860s through the 1980s.",
+    "description": "Founded in 1988, The Tenement Museum welcomes visitors into the homes of immigrant, migrant, and refugee families, sharing their stories in order to inspire connection between past and present and to build a more inclusive and expansive American society. The Museum is experienced through educator-led tours of recreate family apartments of German, Irish, Black, Jewish, Italian, Puerto Rican, and Chinese families who lived in New York's tenements from the 1860s through the 1980s. DISCOUNT OFFER: During February, Festival ticket-buyers can get buy-one-get-one-free tickets* to the Tenement Museum with promo code (obtained at FF box office with purchase or delivered via separate email for online ticket buyers). Film Forum Members can purchase two tickets* for Tenement Museum tours at a special price of $13 each with promo code (for details, see February edition of the Film Forum Confidential members' email). Both codes exclude specialty, food, and private tour purchases. Tenement Museum is offering two additional specialty tours* connected to the series: “Love at the Tenement” (February 8 & 13), shares stories of dating, partnership, and romance; and “Crime in the Tenements: Fact and Fiction” (February 20 & 22) explores the myths around crime in tenement neighborhoods. *Please note: Discounts do not apply to specialty tours. Select titles presented with support from The Ada Katz Fund for Literature in Film and The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, ‘40s, and ‘50s.",
     "presentedBy": "Presented in association with the Tenement Museum"
   },
   "funding": {
     "credits": [
       {
-        "name": "The Ada Katz Fund for Literature in Film",
+        "name": "The Ada Katz Fund for L",
         "type": "funding"
       },
       {
-        "name": "The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, '40s, and '50s",
+        "name": "The Robert Jolin Osborne Fund for A",
         "type": "funding"
       }
     ],
-    "acknowledgment": "Presented with support from The Ada Katz Fund for Literature in Film and The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, '40s, and '50s"
+    "acknowledgment": "presented with support from The Ada Katz Fund for Literature in Film and The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, ‘40s, and ‘50s"
   },
-  "specialProgramming": {
-    "livePiano": {
-      "enabled": true,
-      "artist": "Steve Sterner",
-      "description": "Composer Steve Sterner provides live piano scores for select screenings throughout the festival (through Feb 26)"
-    },
-    "events": [
-      {
-        "type": "post-film-conversation",
-        "description": "Multiple curated events featuring scholar Alice Kessler-Harris, author Foster Hirsch, and filmmaker participants"
-      }
-    ]
-  },
+  "specialProgramming": null,
   "communityEngagement": {
     "discounts": {
       "ticketHolders": {
-        "offer": "Buy-one-get-one-free Museum admission",
-        "howToRedeem": "Promo code obtained at box office or via email for online buyers"
+        "offer": "Buy-one-get-one-free tickets to the Tenement Museum",
+        "howToRedeem": "A festival of over 50 movies, including films by Francis Ford Coppola, Martin Scorsese, Joan Micklin Silver, King Vidor, Charles Chaplin, Buster Keaton, Lois Weber, Hal Ashby, Elia Kazan, Sergio Leone, Shirley Clarke, John Huston, D.W. Griffith, William Wyler, Leon Ichaso, Robert Wise, Raoul Walsh, Jules Dassin, Preston Sturges, Sean Baker, and many others. Read more.\n\nPresented in association with the Tenement Museum. Founded in 1988, The Tenement Museum welcomes visitors into the homes of immigrant, migrant, and refugee families, sharing their stories in order to inspire connection between past and present and to build a more inclusive and expansive American society. The Museum is experienced through educator-led tours of recreate family apartments of German, Irish, Black, Jewish, Italian, Puerto Rican, and Chinese families who lived in New York's tenements from the 1860s through the 1980s.\n\nDISCOUNT OFFER: During February, Festival ticket-buyers can get buy-one-get-one-free tickets* to the Tenement Museum with promo code (obtained at FF box office with purchase or delivered via separate email for online ticket buyers). Film Forum Members can purchase two tickets* for Tenement Museum tours at a special price of $13 each with promo code (for details, see February edition of the Film Forum Confidential members' email). Both codes exclude specialty, food, and private tour purchases. Tenement Museum is offering two additional specialty tours* connected to the series: “Love at the Tenement” (February 8 & 13), shares stories of dating, partnership, and romance; and “Crime in the Tenements: Fact and Fiction” (February 20 & 22) explores the myths around crime in tenement neighborhoods. *Please note: Discounts do not apply to specialty tours.\n\nSelect titles presented with support from The Ada Katz Fund for Literature in Film and The Robert Jolin Osborne Fund for American Classic Cinema of the 1930s, ‘40s, and ‘50s."
       },
       "members": {
-        "offer": "Special pricing of $13 per ticket for Museum tours",
-        "howToRedeem": "Use promo code"
-      },
-      "exclusions": "Discounts exclude specialty and private tours"
-    },
-    "specialtyTours": [
-      {
-        "name": "Love at the Tenement",
-        "dates": ["Feb 8", "Feb 13"],
-        "description": "Explores dating and partnership narratives"
-      },
-      {
-        "name": "Crime in the Tenements: Fact and Fiction",
-        "dates": ["Feb 20", "Feb 22"],
-        "description": "Examines mythologies around tenement crime"
+        "offer": "Members can purchase two tickets* for Tenement Museum tours at a special price of $13 each with promo code (for details, see February edition of the Film Forum Confidential members' email)",
+        "howToRedeem": "Special pricing for Film Forum Members"
       }
-    ]
+    },
+    "specialtyTours": []
   },
   "stats": {
-    "filmCount": 49,
-    "screeningCount": 98
+    "filmCount": 0,
+    "screeningCount": 0
   }
 }
