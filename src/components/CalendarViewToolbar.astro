@@ -472,7 +472,9 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
     border: 1px solid var(--bg-movie-hover);
     border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      border-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   @media (hover: hover) {
@@ -510,7 +512,8 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
     border-radius: 6px;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   @media (hover: hover) {

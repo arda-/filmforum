@@ -68,7 +68,11 @@ const { size = 'default', role = 'group', class: className, ...rest } = Astro.pr
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
+    transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      min-width 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      min-height 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      padding 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
   .seg-btn:not(:last-child) {
