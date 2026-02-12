@@ -1,0 +1,639 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Drawer from '../../components/Drawer.astro';
+import Button from '../../components/Button.astro';
+---
+
+<Layout title="Drawer Demo" noindex={true}>
+  <div>
+    <h1>Drawer Component</h1>
+    <p class="subtitle">iOS-style bottom sheet with swipe-to-dismiss, smooth animations, and gesture handling.</p>
+
+    <div class="demo-section">
+      <h2>Basic Usage</h2>
+      <p class="section-desc">Simple drawer with title and close button.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-basic')">Open Basic Drawer</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Max Height</h2>
+      <p class="section-desc">Control how much of the screen the drawer occupies.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-height-50')">50% Height</button>
+        <button class="demo-btn" onclick="openDrawer('drawer-height-70')">70% Height</button>
+        <button class="demo-btn" onclick="openDrawer('drawer-height-85')">85% Height (default)</button>
+        <button class="demo-btn" onclick="openDrawer('drawer-height-95')">95% Height</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Title Variants</h2>
+      <p class="section-desc">Drawer can have a title or just the drag handle.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-with-title')">With Title</button>
+        <button class="demo-btn" onclick="openDrawer('drawer-no-title')">No Title</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Scrollable Content</h2>
+      <p class="section-desc">Long content scrolls while the header stays fixed. Drag only works when scrolled to top.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-scroll')">Scrollable Content</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Sticky Footer</h2>
+      <p class="section-desc">Action buttons stay visible at the bottom while content scrolls.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-sticky-footer')">Sticky Footer</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Movie Detail Example</h2>
+      <p class="section-desc">Real-world usage: movie details with poster, metadata, and actions.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-movie')">Movie Detail</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Gesture Interactions</h2>
+      <p class="section-desc">Try these interactions on any drawer:</p>
+      <ul class="feature-list">
+        <li>Drag the handle down to dismiss</li>
+        <li>Drag the content down (only when scrolled to top)</li>
+        <li>Click backdrop to close</li>
+        <li>Press Escape key to close</li>
+        <li>Click the X button to close</li>
+        <li>Swipe down quickly for momentum close</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Animation Details</h2>
+      <p class="section-desc">Uses iOS-native cubic-bezier curve for authentic feel.</p>
+      <div class="code-block">
+        <code>cubic-bezier(0.32, 0.72, 0, 1)</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- Basic Drawer -->
+  <Drawer id="drawer-basic" title="Basic Drawer">
+    <p class="drawer-text">This is a basic drawer with a title and close button.</p>
+    <p class="drawer-text">Try dragging it down using the handle at the top, or click the backdrop to close.</p>
+    <div class="drawer-actions">
+      <Button variant="primary" onclick="closeDrawer('drawer-basic')">Got it</Button>
+    </div>
+  </Drawer>
+
+  <!-- Height: 50% -->
+  <Drawer id="drawer-height-50" title="50% Height" maxHeight="50vh">
+    <p class="drawer-text">This drawer only takes up half the screen.</p>
+    <p class="drawer-text">Perfect for quick confirmations or simple content.</p>
+    <p class="drawer-text">The compact size makes it feel lightweight and unobtrusive.</p>
+    <p class="drawer-text">Users can still see most of the page content behind the drawer.</p>
+    <p class="drawer-text">This height works well for:</p>
+    <ul class="drawer-list">
+      <li>Quick confirmations or alerts</li>
+      <li>Simple forms with 2-3 fields</li>
+      <li>Action sheets with multiple options</li>
+      <li>Brief notifications or messages</li>
+    </ul>
+    <p class="drawer-text">Notice how the content fills the available space and scrolls smoothly.</p>
+    <p class="drawer-text">Try dragging the drawer down from the handle or from the content area when scrolled to the top.</p>
+  </Drawer>
+
+  <!-- Height: 70% -->
+  <Drawer id="drawer-height-70" title="70% Height" maxHeight="70vh">
+    <p class="drawer-text">This drawer occupies 70% of the viewport.</p>
+    <p class="drawer-text">Good balance between content space and maintaining context of the page behind.</p>
+    <p class="drawer-text">This is a popular choice for medium-sized content that needs more room than 50% but doesn't need to dominate the entire screen.</p>
+    <p class="drawer-text">At this height, you have enough space for:</p>
+    <ul class="drawer-list">
+      <li>Medium-length articles or descriptions</li>
+      <li>Forms with multiple sections</li>
+      <li>Lists with 10-15 items</li>
+      <li>Product details with images and specs</li>
+      <li>User profiles with bio and activity</li>
+    </ul>
+    <p class="drawer-text">The drawer maintains good visibility of the backdrop, which helps maintain context and makes the dismiss gesture more obvious.</p>
+    <p class="drawer-text">Scroll down to see more content and test the gesture handling.</p>
+    <p class="drawer-text">When you're scrolled to the top, you can drag from anywhere in the content area.</p>
+    <p class="drawer-text">When scrolled down (like now), dragging from the content area scrolls instead of dismissing.</p>
+    <p class="drawer-text">This smart behavior matches iOS native sheets and feels natural to users.</p>
+  </Drawer>
+
+  <!-- Height: 85% (default) -->
+  <Drawer id="drawer-height-85" title="85% Height (Default)" maxHeight="85vh">
+    <p class="drawer-text">This is the default height (85vh) - a sweet spot for most use cases.</p>
+    <p class="drawer-text">Provides plenty of room for content while still showing the page behind.</p>
+    <p class="drawer-text">This height is versatile enough to handle most content types without feeling overwhelming.</p>
+    <p class="drawer-text">The 15% of visible backdrop serves important purposes:</p>
+    <ul class="drawer-list">
+      <li>Maintains spatial awareness of the underlying page</li>
+      <li>Provides a clear dismiss target (click the backdrop)</li>
+      <li>Creates visual hierarchy between layers</li>
+      <li>Prevents the drawer from feeling like a full page transition</li>
+    </ul>
+    <p class="drawer-text">This height works great for:</p>
+    <ul class="drawer-list">
+      <li>Detailed product or movie information</li>
+      <li>Multi-step forms or wizards</li>
+      <li>Long-form content with headers and sections</li>
+      <li>Lists with 20+ items</li>
+      <li>Rich media content with images and text</li>
+      <li>Settings panels with multiple categories</li>
+    </ul>
+    <p class="drawer-text">Try scrolling through this content. Notice how the header stays fixed at the top while the body scrolls independently.</p>
+    <p class="drawer-text">The drag-to-dismiss gesture is disabled when you're scrolled down like this.</p>
+    <p class="drawer-text">Scroll back to the top to re-enable drag-from-content dismissal.</p>
+    <p class="drawer-text">You can always drag from the handle area at the very top, regardless of scroll position.</p>
+    <p class="drawer-text">The iOS-style cubic-bezier animation curve makes every interaction feel smooth and native.</p>
+  </Drawer>
+
+  <!-- Height: 95% -->
+  <Drawer id="drawer-height-95" title="95% Height" maxHeight="95vh">
+    <p class="drawer-text">This drawer is nearly full-screen at 95% viewport height.</p>
+    <p class="drawer-text">Use this for content-heavy experiences that need maximum space but should still feel like a drawer, not a full page.</p>
+    <p class="drawer-text">The remaining 5% of backdrop visibility is just enough to maintain the drawer metaphor and provide a dismiss target.</p>
+    <p class="drawer-text">This height is ideal for:</p>
+    <ul class="drawer-list">
+      <li>Long articles or documentation</li>
+      <li>Complex multi-section forms</li>
+      <li>Full feature showcases or onboarding</li>
+      <li>Detailed editing interfaces</li>
+      <li>Terms of service or privacy policies</li>
+      <li>Shopping carts with many items</li>
+      <li>Search results with filtering options</li>
+    </ul>
+    <p class="drawer-text">At this height, the drawer becomes the primary focus of the user's attention while still maintaining its identity as a temporary overlay.</p>
+    <p class="drawer-text">The rounded top corners and visible backdrop help distinguish it from a full page transition.</p>
+    <p class="drawer-text">Keep scrolling to see how much content this height can accommodate.</p>
+    <p class="drawer-text">All the same gesture interactions apply: drag handle, swipe-to-dismiss, backdrop click, and escape key.</p>
+    <p class="drawer-text">The momentum close is particularly satisfying at this height - try a quick downward swipe from the handle.</p>
+    <p class="drawer-text">Notice how the drawer springs back if you drag just a little bit, but dismisses if you drag past the threshold (about 80 pixels).</p>
+    <p class="drawer-text">This threshold-based behavior with momentum detection creates a tactile, physical feel that users intuitively understand.</p>
+    <p class="drawer-text">The animation timing uses the same iOS-native cubic-bezier curve (0.32, 0.72, 0, 1) at 500ms duration.</p>
+    <p class="drawer-text">This specific curve was chosen because it matches the iOS Sheet behavior that users are familiar with from countless apps.</p>
+    <p class="drawer-text">Getting these details right makes the difference between a component that feels custom-built and one that feels native.</p>
+    <p class="drawer-text">You can use these height options strategically based on your content needs and the importance of maintaining context with the underlying page.</p>
+  </Drawer>
+
+  <!-- With Title -->
+  <Drawer id="drawer-with-title" title="Drawer with Title">
+    <p class="drawer-text">The title appears in the header alongside the close button.</p>
+    <p class="drawer-text">Useful for providing context about the drawer's content.</p>
+  </Drawer>
+
+  <!-- No Title -->
+  <Drawer id="drawer-no-title">
+    <p class="drawer-text">This drawer has no title — just the drag handle and close button.</p>
+    <p class="drawer-text">Cleaner look for content that's self-explanatory.</p>
+  </Drawer>
+
+  <!-- Scrollable Content -->
+  <Drawer id="drawer-scroll" title="Terms of Service" maxHeight="70vh">
+    <div class="drawer-content-scroll">
+      <h3>1. Acceptance of Terms</h3>
+      <p>By accessing and using this service, you accept and agree to be bound by the terms and provision of this agreement.</p>
+
+      <h3>2. Use License</h3>
+      <p>Permission is granted to temporarily download one copy of the materials (information or software) on this website for personal, non-commercial transitory viewing only.</p>
+      <p>This is the grant of a license, not a transfer of title, and under this license you may not:</p>
+      <ul>
+        <li>modify or copy the materials</li>
+        <li>use the materials for any commercial purpose, or for any public display</li>
+        <li>attempt to decompile or reverse engineer any software contained on this website</li>
+        <li>remove any copyright or other proprietary notations from the materials</li>
+      </ul>
+
+      <h3>3. Disclaimer</h3>
+      <p>The materials on this website are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+
+      <h3>4. Limitations</h3>
+      <p>In no event shall we or our suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on this website, even if we or an authorized representative has been notified orally or in writing of the possibility of such damage.</p>
+
+      <h3>5. Accuracy of Materials</h3>
+      <p>The materials appearing on this website could include technical, typographical, or photographic errors. We do not warrant that any of the materials on its website are accurate, complete or current. We may make changes to the materials contained on its website at any time without notice.</p>
+
+      <h3>6. Links</h3>
+      <p>We have not reviewed all of the sites linked to this website and are not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by us of the site. Use of any such linked website is at the user's own risk.</p>
+
+      <h3>7. Modifications</h3>
+      <p>We may revise these terms of service for this website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
+
+      <h3>8. Governing Law</h3>
+      <p>These terms and conditions are governed by and construed in accordance with the laws and you irrevocably submit to the exclusive jurisdiction of the courts in that location.</p>
+    </div>
+    <div class="drawer-actions">
+      <Button variant="secondary" onclick="closeDrawer('drawer-scroll')">Decline</Button>
+      <Button variant="primary" onclick="closeDrawer('drawer-scroll')">Accept</Button>
+    </div>
+  </Drawer>
+
+  <!-- Sticky Footer -->
+  <Drawer id="drawer-sticky-footer" title="Sticky Footer Example" maxHeight="70vh">
+    <div class="drawer-sticky-layout">
+      <div class="drawer-sticky-content">
+        <h3>Overview</h3>
+        <p>This drawer demonstrates a sticky footer that stays visible at the bottom while the content scrolls independently.</p>
+        <p>This pattern is ideal for forms, confirmations, or any content where you need persistent action buttons.</p>
+
+        <h3>Product Details</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+        <h3>Features</h3>
+        <ul>
+          <li>Feature one with detailed description</li>
+          <li>Feature two with additional context</li>
+          <li>Feature three explaining benefits</li>
+          <li>Feature four with technical specs</li>
+        </ul>
+
+        <h3>Specifications</h3>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+        <h3>Additional Information</h3>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+        <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+
+        <h3>Reviews</h3>
+        <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
+        <p>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.</p>
+      </div>
+      <div class="drawer-footer-fixed">
+        <Button variant="secondary" onclick="closeDrawer('drawer-sticky-footer')">Cancel</Button>
+        <Button variant="primary" onclick="closeDrawer('drawer-sticky-footer')">Add to Cart</Button>
+      </div>
+    </div>
+  </Drawer>
+
+  <!-- Movie Detail Example -->
+  <Drawer id="drawer-movie" maxHeight="85vh">
+    <div class="movie-detail">
+      <div class="movie-poster">
+        <img
+          src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80"
+          alt="Movie poster"
+          loading="lazy"
+        />
+      </div>
+
+      <h2 class="movie-title">Street Scene</h2>
+      <p class="movie-meta">1931 · King Vidor · 80 min</p>
+      <p class="movie-actors">Sylvia Sidney, William Collier Jr., Estelle Taylor</p>
+
+      <p class="movie-description">
+        "A slice-of-life drama set on a single New York City block during a sweltering summer day. The film captures the rhythms and tensions of tenement life with remarkable authenticity."
+      </p>
+      <p class="movie-citation">— Film Forum</p>
+
+      <div class="movie-scores">
+        <div class="score-item">
+          <span class="score-label">IMDB</span>
+          <span class="score-value">7.2</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">RT</span>
+          <span class="score-value">88%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Meta</span>
+          <span class="score-value">70</span>
+        </div>
+      </div>
+
+      <div class="movie-actions">
+        <Button variant="secondary" onclick="closeDrawer('drawer-movie')">Close</Button>
+        <Button variant="primary" onclick="closeDrawer('drawer-movie')">Buy Tickets</Button>
+      </div>
+    </div>
+  </Drawer>
+
+</Layout>
+
+<style>
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .demo-section {
+    margin-bottom: 32px;
+  }
+
+  .demo-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-bottom: 12px;
+  }
+
+  .button-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .demo-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--bg-movie);
+    color: var(--text-primary);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+  }
+
+  .demo-btn:hover {
+    background: var(--bg-movie-hover);
+  }
+
+  .demo-btn:active {
+    transform: scale(0.97);
+  }
+
+  .feature-list {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .feature-list li {
+    margin-bottom: 4px;
+  }
+
+  .code-block {
+    padding: 12px 16px;
+    background: var(--bg-movie);
+    border-radius: 6px;
+    border: 1px solid var(--bg-movie-hover);
+  }
+
+  .code-block code {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* Drawer content styles */
+  .drawer-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .drawer-text:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .drawer-list {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 8px 0 12px 0;
+    padding-left: 20px;
+  }
+
+  .drawer-list li {
+    margin-bottom: 4px;
+  }
+
+  .drawer-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--bg-movie-hover);
+  }
+
+  .drawer-sticky-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0 -20px -20px;
+  }
+
+  .drawer-sticky-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 20px;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .drawer-sticky-content h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .drawer-sticky-content h3:first-child {
+    margin-top: 0;
+  }
+
+  .drawer-sticky-content p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .drawer-sticky-content ul {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 8px 0 12px 0;
+    padding-left: 20px;
+  }
+
+  .drawer-sticky-content li {
+    margin-bottom: 4px;
+  }
+
+  .drawer-footer-fixed {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    background: var(--bg-day);
+    border-top: 1px solid var(--bg-movie-hover);
+    backdrop-filter: blur(10px);
+  }
+
+  .drawer-content-scroll h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  .drawer-content-scroll h3:first-child {
+    margin-top: 0;
+  }
+
+  .drawer-content-scroll p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .drawer-content-scroll ul {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 8px 0 12px 0;
+    padding-left: 20px;
+  }
+
+  .drawer-content-scroll li {
+    margin-bottom: 4px;
+  }
+
+  /* Movie detail styles */
+  .movie-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .movie-poster {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .movie-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .movie-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .movie-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .movie-actors {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .movie-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 12px 0 4px 0;
+    padding-left: 1.5em;
+    position: relative;
+    font-style: italic;
+  }
+
+  .movie-description::before {
+    content: '\201C';
+    position: absolute;
+    left: 0;
+    top: -0.1em;
+    font-size: 2em;
+    font-family: Georgia, serif;
+    color: var(--accent);
+    line-height: 1;
+    font-style: normal;
+  }
+
+  .movie-citation {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-align: right;
+    margin: 0 0 12px 0;
+    font-style: italic;
+  }
+
+  .movie-scores {
+    display: flex;
+    gap: 16px;
+    padding: 12px 0;
+    margin: 8px 0;
+    border-top: 1px solid var(--bg-movie-hover);
+    border-bottom: 1px solid var(--bg-movie-hover);
+  }
+
+  .score-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .score-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+  }
+
+  .score-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .movie-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 480px) {
+    .movie-title {
+      font-size: 1.25rem;
+    }
+  }
+</style>
