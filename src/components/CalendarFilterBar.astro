@@ -5,12 +5,13 @@
  * Stays visible while scrolling (frosted glass, position: sticky).
  */
 import Icon from './Icon.astro';
+import SegmentedToggle from './SegmentedToggle.astro';
 ---
 
 <div class="calendar-filter-bar">
   <div class="filter-bar-row">
     <span class="filter-label">Times</span>
-    <div class="segmented-toggle" role="group" aria-label="Filter by time of day">
+    <SegmentedToggle aria-label="Filter by time of day">
       <button
         class="seg-btn active"
         data-time="weekdays"
@@ -18,7 +19,7 @@ import Icon from './Icon.astro';
         aria-label="Show weekday daytime showtimes"
       >
         <input type="checkbox" name="time-filter" value="weekdays" checked style="display: none;" />
-        <Icon name="sun" size={14} /> <span class="btn-label">Day <span class="filter-count" data-count-for="weekdays"></span></span>
+        <Icon name="sun" size={16} /> <span class="btn-label">Day <span class="filter-count" data-count-for="weekdays"></span></span>
       </button>
       <button
         class="seg-btn active"
@@ -27,7 +28,7 @@ import Icon from './Icon.astro';
         aria-label="Show weeknight showtimes"
       >
         <input type="checkbox" name="time-filter" value="weeknights" checked style="display: none;" />
-        <Icon name="moon-star" size={14} /> <span class="btn-label">Nite <span class="filter-count" data-count-for="weeknights"></span></span>
+        <Icon name="moon-star" size={16} /> <span class="btn-label">Nite <span class="filter-count" data-count-for="weeknights"></span></span>
       </button>
       <button
         class="seg-btn active"
@@ -36,13 +37,13 @@ import Icon from './Icon.astro';
         aria-label="Show weekend showtimes"
       >
         <input type="checkbox" name="time-filter" value="weekends" checked style="display: none;" />
-        <Icon name="briefcase-off" size={14} /> <span class="btn-label">Weekend <span class="filter-count" data-count-for="weekends"></span></span>
+        <Icon name="briefcase-off" size={16} /> <span class="btn-label">Weekend <span class="filter-count" data-count-for="weekends"></span></span>
       </button>
-    </div>
+    </SegmentedToggle>
   </div>
   <div class="filter-bar-row">
     <span class="filter-label">Saved</span>
-    <div class="segmented-toggle" role="group" aria-label="Filter saved movies">
+    <SegmentedToggle aria-label="Filter saved movies">
       <button
         class="seg-btn active"
         data-filter="yes"
@@ -51,7 +52,7 @@ import Icon from './Icon.astro';
         style="--btn-color: var(--reaction-yes)"
       >
         <input type="checkbox" name="saved-filter" value="yes" checked style="display: none;" />
-        <Icon name="thumbs-up" size={14} /> <span class="btn-label">Yes</span>
+        <Icon name="thumbs-up" size={16} /> <span class="btn-label">Yes</span>
       </button>
       <button
         class="seg-btn active"
@@ -61,7 +62,7 @@ import Icon from './Icon.astro';
         style="--btn-color: var(--reaction-maybe)"
       >
         <input type="checkbox" name="saved-filter" value="maybe" checked style="display: none;" />
-        <Icon name="question-mark" size={14} /> <span class="btn-label">Maybe</span>
+        <Icon name="question-mark" size={16} /> <span class="btn-label">Maybe</span>
       </button>
       <button
         class="seg-btn"
@@ -71,7 +72,7 @@ import Icon from './Icon.astro';
         style="--btn-color: var(--reaction-no)"
       >
         <input type="checkbox" name="saved-filter" value="no" style="display: none;" />
-        <Icon name="thumbs-down" size={14} /> <span class="btn-label">No</span>
+        <Icon name="thumbs-down" size={16} /> <span class="btn-label">No</span>
       </button>
       <button
         class="seg-btn"
@@ -80,9 +81,9 @@ import Icon from './Icon.astro';
         aria-label="Show unmarked movies"
       >
         <input type="checkbox" name="saved-filter" value="unmarked" style="display: none;" />
-        <Icon name="circle-ellipsis" size={14} /> <span class="btn-label">Unmarked</span>
+        <Icon name="circle-ellipsis" size={16} /> <span class="btn-label">Unmarked</span>
       </button>
-    </div>
+    </SegmentedToggle>
   </div>
 </div>
 
@@ -118,19 +119,20 @@ import Icon from './Icon.astro';
 </script>
 
 <style>
+  /* Mobile-first: single row, icon-only */
   .calendar-filter-bar {
     position: sticky;
     top: 0;
     z-index: var(--z-drawer-bg);
-    padding: 10px 12px;
-    margin: 0 -12px;
+    padding: 12px;
     background: color-mix(in srgb, var(--bg-body) 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--bg-movie-hover);
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
   }
 
   .filter-bar-row {
@@ -150,41 +152,8 @@ import Icon from './Icon.astro';
     letter-spacing: -0.01em;
   }
 
-  .segmented-toggle {
-    display: inline-flex;
-    border: 1px solid var(--bg-movie-hover);
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--bg-body);
-  }
-
-  .seg-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 5px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    font-weight: 400;
-    color: var(--text-secondary);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
-
-  .seg-btn:not(:last-child) {
-    border-right: 1px solid var(--bg-movie-hover);
-  }
-
-  .seg-btn:hover {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  .seg-btn.active {
-    background: var(--bg-movie);
-    color: var(--text-primary);
+  .seg-btn .btn-label {
+    display: none;
   }
 
   /* Saved filter uses colored text when active */
@@ -194,6 +163,7 @@ import Icon from './Icon.astro';
 
   .filter-count {
     font-size: 12px;
+    font-variant-numeric: tabular-nums;
     color: var(--text-tertiary);
   }
 
@@ -201,20 +171,16 @@ import Icon from './Icon.astro';
     color: var(--text-secondary);
   }
 
-  @media (max-width: 639px) {
+  /* Desktop: two rows, show labels */
+  @media (min-width: 640px) {
     .calendar-filter-bar {
-      flex-direction: row;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
     }
 
     .seg-btn .btn-label {
-      display: none;
-    }
-
-    .seg-btn[data-time],
-    .seg-btn[data-filter] {
-      padding: 5px 8px;
+      display: inline;
     }
   }
 </style>
