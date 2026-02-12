@@ -3,7 +3,7 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
-import { SAVED_FILTER_COUNT, HOURS_FILTER_MODE } from '../constants';
+import { SAVED_FILTER_COUNT, TIME_CATEGORY_COUNT, ALL_TIME_CATEGORIES } from '../constants';
 
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {
@@ -46,8 +46,13 @@ export function updateUrlParams(): void {
   if (showRuntimeCheckbox?.checked) params.set('runtime', '1');
   if (showActorsCheckbox?.checked) params.set('actors', '1');
 
-  const hoursFilter = document.getElementById('hours-filter-select') as HTMLSelectElement;
-  if (hoursFilter?.value && hoursFilter.value !== 'none') params.set('hours', hoursFilter.value);
+  // Time category filter: encode checked values as comma-separated string
+  const timesChecked = document.querySelectorAll<HTMLInputElement>('input[name="time-filter"]:checked');
+  const timesValues = Array.from(timesChecked).map(cb => cb.value);
+  // Only persist if not all are checked (all checked = default/no filter)
+  if (timesValues.length > 0 && timesValues.length < TIME_CATEGORY_COUNT) {
+    params.set('times', timesValues.join(','));
+  }
 
   const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
   if (highlightUniqueToggle) params.set('highlight-unique', highlightUniqueToggle.checked ? '1' : '0');
@@ -126,14 +131,14 @@ export function restoreFromUrl(): void {
     }
   });
 
-  // --- Select dropdowns and radio groups ---
-  // Values are validated against known constants before interpolation.
+  // --- Time category filter checkboxes ---
 
-  const hoursValues = new Set(Object.values(HOURS_FILTER_MODE));
-  const hoursValue = params.get('hours');
-  if (hoursValue && hoursValues.has(hoursValue as any)) {
-    const select = document.getElementById('hours-filter-select') as HTMLSelectElement;
-    if (select) select.value = hoursValue;
+  if (params.has('times')) {
+    const validCategories = new Set(ALL_TIME_CATEGORIES as readonly string[]);
+    const timesValues = new Set(params.get('times')!.split(',').filter(v => validCategories.has(v)));
+    document.querySelectorAll<HTMLInputElement>('input[name="time-filter"]').forEach(cb => {
+      cb.checked = timesValues.has(cb.value);
+    });
   }
 
   // --- Saved filter checkboxes ---
