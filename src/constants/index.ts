@@ -29,14 +29,6 @@ export const HOURS_FILTER_MODE = {
 } as const;
 export type HoursFilterMode = typeof HOURS_FILTER_MODE[keyof typeof HOURS_FILTER_MODE];
 
-// Single showtimes filter modes
-export const SINGLE_SHOWTIMES_MODE = {
-  NONE: 'none',
-  HIGHLIGHT: 'highlight',
-  ONLY: 'only',
-} as const;
-export type SingleShowtimesMode = typeof SINGLE_SHOWTIMES_MODE[keyof typeof SINGLE_SHOWTIMES_MODE];
-
 // Saved movie filter categories
 export const SAVED_FILTER = {
   YES: 'yes',

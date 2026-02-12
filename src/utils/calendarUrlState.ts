@@ -3,7 +3,7 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
-import { SAVED_FILTER_COUNT, HOURS_FILTER_MODE, SINGLE_SHOWTIMES_MODE } from '../constants';
+import { SAVED_FILTER_COUNT, HOURS_FILTER_MODE } from '../constants';
 
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {
@@ -48,9 +48,6 @@ export function updateUrlParams(): void {
 
   const hoursFilter = document.getElementById('hours-filter-select') as HTMLSelectElement;
   if (hoursFilter?.value && hoursFilter.value !== 'none') params.set('hours', hoursFilter.value);
-
-  const singleFilter = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
-  if (singleFilter?.value && singleFilter.value !== 'none') params.set('single', singleFilter.value);
 
   const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
   if (highlightUniqueToggle) params.set('highlight-unique', highlightUniqueToggle.checked ? '1' : '0');
@@ -137,13 +134,6 @@ export function restoreFromUrl(): void {
   if (hoursValue && hoursValues.has(hoursValue as any)) {
     const select = document.getElementById('hours-filter-select') as HTMLSelectElement;
     if (select) select.value = hoursValue;
-  }
-
-  const singleValues = new Set(Object.values(SINGLE_SHOWTIMES_MODE));
-  const singleValue = params.get('single');
-  if (singleValue && singleValues.has(singleValue as any)) {
-    const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${singleValue}"]`) as HTMLInputElement;
-    if (radio) radio.checked = true;
   }
 
   // --- Saved filter checkboxes ---
