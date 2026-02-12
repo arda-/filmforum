@@ -53,7 +53,7 @@ const { size = 'default', role = 'group', class: className, ...rest } = Astro.pr
   }
 
   /* ── Button base ── */
-  .seg-btn {
+  .seg-toggle .seg-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -69,35 +69,32 @@ const { size = 'default', role = 'group', class: className, ...rest } = Astro.pr
     border: none;
     cursor: pointer;
     transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-      min-width 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-      min-height 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
-      padding 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
-  .seg-btn:not(:last-child) {
+  .seg-toggle .seg-btn:not(:last-child) {
     border-right: 1px solid var(--bg-movie-hover);
   }
 
   @media (hover: hover) {
-    .seg-btn:hover {
+    .seg-toggle .seg-btn:hover {
       background: var(--bg-movie);
       color: var(--text-primary);
     }
   }
 
-  .seg-btn:focus-visible {
+  .seg-toggle .seg-btn:focus-visible {
     box-shadow: 0 0 0 2px var(--accent);
     outline: none;
     z-index: 1;
   }
 
-  .seg-btn.active {
+  .seg-toggle .seg-btn.active {
     background: var(--bg-movie);
     color: var(--text-primary);
   }
 
-  .seg-btn svg {
+  .seg-toggle .seg-btn svg {
     flex-shrink: 0;
   }
 
