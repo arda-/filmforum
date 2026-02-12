@@ -69,62 +69,88 @@ for (const p of rawData.allParagraphs) {
   }
 }
 
-// Find description - look for "festival" or substantive description
+// Find description - look for "festival" paragraph and split on double newlines
 for (const p of rawData.allParagraphs) {
   if (p.toLowerCase().includes('festival') && p.length > 50 && !metadata.description.short) {
-    metadata.description.short = p;
+    // Split the mega-paragraph on double newlines to get distinct sections
+    const sections = p.split('\n\n').map(s => s.trim()).filter(s => s.length > 0);
+
+    // First section is usually the festival description
+    if (sections.length > 0) {
+      metadata.description.short = sections[0];
+    }
     break;
   }
 }
 
-// Extract partnership info
+// Extract partnership info - look in the split sections
 for (const p of rawData.allParagraphs) {
-  const match = p.match(/Presented in association with (?:the )?([^.]+?)\.?\s*(Founded[^]*)?$/);
-  if (match) {
-    metadata.partnership = {
-      name: match[1].trim(),
-      description: match[2] ? match[2].trim().replace(/\s+/g, ' ') : '',
-      presentedBy: p.match(/Presented in association with[^.]+/)?.[0] || ''
-    };
-    break;
-  }
-}
+  if (p.includes('Presented in association with')) {
+    // Split on double newlines to isolate the partnership section
+    const sections = p.split('\n\n').map(s => s.trim());
+    const partnershipSection = sections.find(s => s.startsWith('Presented in association with'));
 
-// Extract funding
-for (const p of rawData.allParagraphs) {
-  const fundMatch = p.match(/(?:Select titles )?[Pp]resented with support from (.+?)(?:\.|$)/);
-  if (fundMatch) {
-    const fullText = fundMatch[1];
-
-    // Parse fund names - look for "The ... Fund" patterns
-    // Match up to " and The" or end of string, handling decade ranges
-    const fundPattern = /The\s+[\w\s]+?\s+Fund(?:\s+for\s+[^.]+?)?(?:\s+of\s+the\s+[\d',\s]+)?/gi;
-    let fundMatches = fullText.match(fundPattern) || [];
-
-    // Clean up fund names - remove trailing " and " or " of the" artifacts
-    fundMatches = fundMatches.map(f => {
-      // If it ends with decade range, make sure it's complete
-      let cleaned = f.trim();
-      const decadesMatch = cleaned.match(/(\d{4}s)$/);
-      if (decadesMatch) {
-        // Check if the original text has more decades after this
-        const idx = fullText.indexOf(cleaned);
-        const remaining = fullText.substring(idx + cleaned.length);
-        const moreDecades = remaining.match(/^,\s*'(\d{2}s)(?:,?\s+and\s+'(\d{2}s))?/);
-        if (moreDecades) {
-          cleaned += moreDecades[0];
-        }
+    if (partnershipSection) {
+      const match = partnershipSection.match(/Presented in association with (?:the )?([^.]+?)\.\s*(Founded in \d{4}[^]*?)(?=\n|$)/);
+      if (match) {
+        metadata.partnership = {
+          name: match[1].trim(),
+          description: match[2] ? match[2].trim().replace(/\s+/g, ' ') : '',
+          presentedBy: `Presented in association with ${match[1].trim()}`
+        };
       }
-      return cleaned;
-    });
+    }
+    break;
+  }
+}
 
-    metadata.funding = {
-      credits: fundMatches.map(name => ({
-        name: name.trim(),
-        type: 'funding'
-      })),
-      acknowledgment: p.match(/[Pp]resented with support from[^.]+/)?.[0] || ''
-    };
+// Extract funding - look in split sections
+for (const p of rawData.allParagraphs) {
+  if (p.includes('presented with support from')) {
+    // Split sections and find funding section
+    const sections = p.split('\n\n').map(s => s.trim());
+    const fundingSection = sections.find(s => s.toLowerCase().includes('presented with support from'));
+
+    if (fundingSection) {
+      const fundMatch = fundingSection.match(/[Pp]resented with support from (.+?)\.$/);
+      if (fundMatch) {
+        const fullText = fundMatch[1];
+
+        // Simple approach: split on " and " but keep track of whether we're in a decade range
+        // Look for "The [Name] Fund for [Description]" or "The [Name] Fund for [Desc] of the [decades]"
+        const funds = [];
+        const parts = fullText.split(' and ');
+
+        let currentFund = '';
+        for (let i = 0; i < parts.length; i++) {
+          const part = parts[i];
+          currentFund += (currentFund ? ' and ' : '') + part;
+
+          // Check if this completes a fund (has "Fund" in it and next part starts with "The")
+          if (part.includes('Fund')) {
+            const nextPart = parts[i + 1];
+            // If next part starts with "The [Name]", this fund is complete
+            if (!nextPart || nextPart.match(/^The\s+[A-Z]/)) {
+              funds.push(currentFund.trim());
+              currentFund = '';
+            }
+          }
+        }
+
+        // If there's remaining text, it's the last fund
+        if (currentFund) {
+          funds.push(currentFund.trim());
+        }
+
+        metadata.funding = {
+          credits: funds.map(name => ({
+            name: name.replace(/^the /i, 'The '),
+            type: 'funding'
+          })),
+          acknowledgment: fundingSection
+        };
+      }
+    }
     break;
   }
 }
@@ -144,41 +170,43 @@ for (const p of rawData.allParagraphs) {
   }
 }
 
-// Extract community engagement
+// Extract community engagement - look for DISCOUNT OFFER in full paragraph
 metadata.communityEngagement = {
   discounts: {},
   specialtyTours: []
 };
 
 for (const p of rawData.allParagraphs) {
-  // Buy-one-get-one-free
-  if (p.toLowerCase().includes('buy-one-get-one-free')) {
-    metadata.communityEngagement.discounts.ticketHolders = {
-      offer: 'Buy-one-get-one-free tickets to the Tenement Museum',
-      howToRedeem: p.trim()
-    };
-  }
-
-  // Member pricing
-  if (p.toLowerCase().includes('members can purchase')) {
-    const match = p.match(/(Members can purchase[^.]*)/i);
-    if (match) {
-      metadata.communityEngagement.discounts.members = {
-        offer: match[1].trim(),
-        howToRedeem: 'Special pricing for Film Forum Members'
+  if (p.includes('DISCOUNT OFFER')) {
+    // Extract ticket holder offer
+    const ticketMatch = p.match(/Festival ticket-buyers can get ([^*]+?)(?:\*|\()/);
+    if (ticketMatch) {
+      metadata.communityEngagement.discounts.ticketHolders = {
+        offer: ticketMatch[1].trim(),
+        howToRedeem: p.match(/Festival ticket-buyers can get[^.]+\./)?.[0] || ''
       };
     }
-  }
 
-  // Specialty tours - look for pattern: 'Tour Name' (dates)
-  const tourMatches = [...p.matchAll(/'([^']+)'\s*\(([^)]+)\)[,:]?\s*([^.;]*)/g)];
-  for (const match of tourMatches) {
-    const [, name, dates, desc] = match;
-    metadata.communityEngagement.specialtyTours.push({
-      name: name.trim(),
-      dates: dates.split('&').map(d => d.trim()),
-      description: desc.trim()
-    });
+    // Extract member pricing
+    const memberMatch = p.match(/(Film Forum Members can purchase[^.]+\.)/);
+    if (memberMatch) {
+      metadata.communityEngagement.discounts.members = {
+        offer: memberMatch[1].trim(),
+        howToRedeem: 'Present Film Forum membership for special pricing'
+      };
+    }
+
+    // Extract specialty tours - handle curly quotes (\u201c, \u201d)
+    const tourMatches = [...p.matchAll(/[\u201c\u201d"]([^\u201c\u201d"]+)[\u201c\u201d"]\s*\(([^)]+)\)[,:]?\s*([^.;]*)/g)];
+    for (const match of tourMatches) {
+      const [, name, dates, desc] = match;
+      metadata.communityEngagement.specialtyTours.push({
+        name: name.trim(),
+        dates: dates.split('&').map(d => d.trim()),
+        description: desc.trim()
+      });
+    }
+    break;
   }
 }
 
