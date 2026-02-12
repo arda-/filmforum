@@ -6,7 +6,7 @@
   "seriesUrl": "https://filmforum.org/series/tenement-stories",
   "venueName": "Film Forum",
   "description": {
-    "short": "A festival of over 50 movies, including films by Francis Ford Coppola, Martin Scorsese, Joan Micklin Silver, King Vidor, Charles Chaplin, Buster Keaton, Lois Weber, Hal Ashby, Elia Kazan, Sergio Leone, Shirley Clarke, John Huston, D.W. Griffith, William Wyler, Leon Ichaso, Robert Wise, Raoul Walsh, Jules Dassin, Preston Sturges, Sean Baker, and many others. Read more."
+    "short": "A festival of over 50 movies, including films by Francis Ford Coppola, Martin Scorsese, Joan Micklin Silver, King Vidor, Charles Chaplin, Buster Keaton, Lois Weber, Hal Ashby, Elia Kazan, Sergio Leone, Shirley Clarke, John Huston, D.W. Griffith, William Wyler, Leon Ichaso, Robert Wise, Raoul Walsh, Jules Dassin, Preston Sturges, Sean Baker, and many others."
   },
   "heroImages": [
     {
@@ -36,7 +36,7 @@
     {
       "filename": "THE_HEART_OF_LOISAIDA_slideshow.png",
       "path": "/series-images/tenement-stories/THE_HEART_OF_LOISAIDA_slideshow.png",
-      "alt": "<em>The Heart of Loisaida</em> <br>Q&A with Annie Polland, President of the Tenement Museum, and Directors & Producers Beni Matías & Marci Reaven",
+      "alt": "The Heart of Loisaida Q&A with Annie Polland, President of the Tenement Museum, and Directors & Producers Beni Matías & Marci Reaven",
       "sourceUrl": "https://filmforum.org/do-not-enter-or-modify-or-erase/client-uploads/_500w/THE_HEART_OF_LOISAIDA_slideshow.png"
     }
   ],
@@ -62,12 +62,10 @@
   "communityEngagement": {
     "discounts": {
       "ticketHolders": {
-        "offer": "buy-one-get-one-free tickets",
-        "howToRedeem": "Festival ticket-buyers can get buy-one-get-one-free tickets* to the Tenement Museum with promo code (obtained at FF box office with purchase or delivered via separate email for online ticket buyers)."
+        "offer": "Festival ticket-buyers can get buy-one-get-one-free tickets* to the Tenement Museum with promo code (obtained at FF box office with purchase or delivered via separate email for online ticket buyers)."
       },
       "members": {
-        "offer": "Film Forum Members can purchase two tickets* for Tenement Museum tours at a special price of $13 each with promo code (for details, see February edition of the Film Forum Confidential members' email).",
-        "howToRedeem": "Present Film Forum membership for special pricing"
+        "offer": "Film Forum Members can purchase two tickets* for Tenement Museum tours at a special price of $13 each with promo code (for details, see February edition of the Film Forum Confidential members' email)."
       }
     },
     "specialtyTours": [
@@ -90,7 +88,7 @@
     ]
   },
   "stats": {
-    "filmCount": 0,
-    "screeningCount": 0
+    "filmCount": 49,
+    "screeningCount": 98
   }
 }
