@@ -12,6 +12,8 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { JSDOM } from 'jsdom';
+import { Readability } from '@mozilla/readability';
 import * as cheerio from 'cheerio';
 
 const seriesSlug = process.argv[2];
@@ -34,54 +36,43 @@ try {
   process.exit(1);
 }
 
+// Parse with JSDOM to get proper DOM tree
+const url = `https://filmforum.org/series/${seriesSlug}`;
+const dom = new JSDOM(html, { url });
+const document = dom.window.document;
+
+// Use Readability to extract main article content
+const reader = new Readability(document.cloneNode(true));
+const article = reader.parse();
+
+// Also use cheerio for specific extractions (images, JSON-LD, etc.)
 const $ = cheerio.load(html);
 
-// Extract all text content by section for manual review
+// Build structured data from the clean article content
 const rawData = {
   meta: {
     slug: seriesSlug,
-    url: `https://filmforum.org/series/${seriesSlug}`,
+    url,
     scrapedAt: new Date().toISOString()
   },
   title: {
-    h1: $('h1').first().text().trim(),
+    h1: article?.title || $('h1').first().text().trim(),
     pageTitle: $('title').text().trim(),
-    // Extract series name from page title (format: "Film Forum · SERIES NAME")
     seriesName: $('title').text().match(/·\s*(.+?)(?:Film Forum|$)/)?.[1].trim() || ''
   },
-  allParagraphs: [],
-  allHeadings: {},
-  linkTexts: [],
+  // Main article content extracted by Readability
+  article: {
+    title: article?.title || '',
+    byline: article?.byline || '',
+    excerpt: article?.excerpt || '',
+    textContent: article?.textContent || '',
+    htmlContent: article?.content || '',
+    length: article?.length || 0
+  },
+  // Parse the article content into structured sections
+  content: parseArticleContent(article?.content || '', $),
   jsonLd: []
 };
-
-// Extract all paragraphs
-$('p').each((i, el) => {
-  const text = $(el).text().trim();
-  if (text.length > 10) {
-    rawData.allParagraphs.push(text);
-  }
-});
-
-// Extract all headings
-['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].forEach(tag => {
-  rawData.allHeadings[tag] = [];
-  $(tag).each((i, el) => {
-    const text = $(el).text().trim();
-    if (text) {
-      rawData.allHeadings[tag].push(text);
-    }
-  });
-});
-
-// Extract link texts (for finding special tours, etc.)
-$('a').each((i, el) => {
-  const text = $(el).text().trim();
-  const href = $(el).attr('href');
-  if (text && text.length > 5) {
-    rawData.linkTexts.push({ text, href });
-  }
-});
 
 // Extract JSON-LD structured data
 $('script[type="application/ld+json"]').each((i, el) => {
@@ -107,6 +98,69 @@ $('img').each((i, el) => {
   }
 });
 
+/**
+ * Parse article HTML content into structured sections
+ */
+function parseArticleContent(htmlContent, $fallback) {
+  if (!htmlContent) return { paragraphs: [], headings: {}, links: [] };
+
+  const $article = cheerio.load(htmlContent);
+
+  const content = {
+    paragraphs: [],
+    headings: { h1: [], h2: [], h3: [], h4: [], h5: [], h6: [] },
+    links: []
+  };
+
+  // Extract paragraphs (clean, content-only text)
+  $article('p').each((i, el) => {
+    const text = $article(el).text().trim();
+    // Skip navigation-like text, very short paragraphs
+    if (text.length > 20 && !isNavigationText(text)) {
+      content.paragraphs.push(text);
+    }
+  });
+
+  // Extract headings
+  ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].forEach(tag => {
+    $article(tag).each((i, el) => {
+      const text = $article(el).text().trim();
+      if (text) {
+        content.headings[tag].push(text);
+      }
+    });
+  });
+
+  // Extract meaningful links (skip navigation)
+  $article('a').each((i, el) => {
+    const text = $article(el).text().trim();
+    const href = $article(el).attr('href');
+    if (text && href && text.length > 3 && !isNavigationText(text)) {
+      content.links.push({ text, href });
+    }
+  });
+
+  return content;
+}
+
+/**
+ * Detect navigation/UI text that shouldn't be in content
+ */
+function isNavigationText(text) {
+  const navPatterns = [
+    /^skip to/i,
+    /^buy tickets?$/i,
+    /^map and directions?$/i,
+    /^\d{3}[-.]?\d{3}[-.]?\d{4}$/, // Phone numbers
+    /^tickets?:?$/i,
+    /^member$/i,
+    /^regular$/i,
+    /^\$\d+\.\d{2}$/  // Prices
+  ];
+
+  return navPatterns.some(pattern => pattern.test(text));
+}
+
 // Write raw parsed data
 const outputDir = join(process.cwd(), 'data', 'parsed');
 mkdirSync(outputDir, { recursive: true });
@@ -117,6 +171,7 @@ writeFileSync(outputPath, JSON.stringify(rawData, null, 2) + '\n');
 console.log(`✓ Raw parsed data written to: ${outputPath}`);
 console.log('\nSummary:');
 console.log(`  - Title: ${rawData.title.h1}`);
-console.log(`  - Paragraphs: ${rawData.allParagraphs.length}`);
+console.log(`  - Article length: ${rawData.article.length} chars`);
+console.log(`  - Content paragraphs: ${rawData.content.paragraphs.length}`);
 console.log(`  - Hero images: ${rawData.images.length}`);
 console.log(`  - JSON-LD blocks: ${rawData.jsonLd.length}`);
