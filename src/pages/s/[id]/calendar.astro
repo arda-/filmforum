@@ -96,17 +96,15 @@ const ogImage = movieData[0]?.poster_url || null;
     MIN_TIMELINE_HEIGHT,
     TIMELINE_PADDING,
     HOURS_FILTER_MODE,
-    SINGLE_SHOWTIMES_MODE,
     SAVED_FILTER_COUNT,
     type HoursFilterMode,
-    type SingleShowtimesMode,
     type SavedFilter,
   } from '@/constants';
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
-  import { updateHoursFilterStatus, filterDayMovies, getHiddenWorkHoursMovies, getWeekdayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
-  import { openMovieModal, renderMovieList } from '@utils/calendarModal';
+  import { filterDayMovies, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
+  import { openMovieModal } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
   import { getReactions } from '@utils/storageManager';
   import type { ReactionMap } from '@types/session';
@@ -147,7 +145,6 @@ const ogImage = movieData[0]?.poster_url || null;
     hoursFilterMode: HoursFilterMode;
     savedFilterSet: Set<SavedFilter>;
     reactions: ReactionMap;
-    singleShowtimesMode: SingleShowtimesMode;
     filteredShowtimeCounts: Record<string, number>;
   }
 
@@ -164,11 +161,6 @@ const ogImage = movieData[0]?.poster_url || null;
 
     if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
       filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
-    }
-
-    // Filter to only show unique if that mode is selected
-    if (options.singleShowtimesMode === SINGLE_SHOWTIMES_MODE.ONLY || options.singleShowtimesMode === 'only') {
-      filtered = filtered.filter(m => options.filteredShowtimeCounts[m.Movie] === 1);
     }
 
     return filtered;
@@ -215,17 +207,13 @@ const ogImage = movieData[0]?.poster_url || null;
     const hoursFilterSelect = document.getElementById('hours-filter-select') as HTMLSelectElement;
     const hoursFilterMode = (hoursFilterSelect?.value || HOURS_FILTER_MODE.NONE) as HoursFilterMode;
 
-    const singleShowtimesRadio = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
-    const singleShowtimesFilter = (singleShowtimesRadio?.value || SINGLE_SHOWTIMES_MODE.NONE) as SingleShowtimesMode;
-
-    // Check if highlight unique is enabled (from gear menu)
+    // Highlight unique showings (★) from gear menu toggle
     const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
-    const singleShowtimesMode = highlightUniqueToggle?.checked ? 'highlight' : singleShowtimesFilter;
+    const singleShowtimesMode = (highlightUniqueToggle?.checked ?? false) ? 'highlight' : 'none';
 
     const activeSavedFilters = getActiveSavedFilters();
     const savedFilterSet = new Set(activeSavedFilters);
 
-    updateHoursFilterStatus(hoursFilterMode, allMovies);
     updateSavedFilterStatus(savedFilterSet, allMovies, currentReactions);
 
     // Showtime counts are computed before the saved filter so that "single showtime"
@@ -272,7 +260,6 @@ const ogImage = movieData[0]?.poster_url || null;
               hoursFilterMode,
               savedFilterSet,
               reactions: currentReactions,
-              singleShowtimesMode,
               filteredShowtimeCounts
             }
           );
@@ -302,7 +289,6 @@ const ogImage = movieData[0]?.poster_url || null;
           hoursFilterMode,
           savedFilterSet,
           reactions: currentReactions,
-          singleShowtimesMode,
           filteredShowtimeCounts
         }
       );
@@ -448,10 +434,6 @@ const ogImage = movieData[0]?.poster_url || null;
     setTimeout(updateTextHeights, 10);
   });
 
-  document.querySelectorAll('input[name="single-showtimes-mode"]').forEach(radio => {
-    radio.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
-  });
-
   document.querySelectorAll('input[name="saved-filter"]').forEach(checkbox => {
     checkbox.addEventListener('change', () => { renderAllDays(); updateUrlParams(); setTimeout(updateTextHeights, 10); });
   });
@@ -523,6 +505,42 @@ const ogImage = movieData[0]?.poster_url || null;
 
   updateSavedFilterCounts();
 
+  /** Compute and display showtime counts for each hours filter mode */
+  function updateHoursFilterCounts() {
+    const total = allMovies.length;
+    let afterhours = 0;
+    let weekends = 0;
+
+    allMovies.forEach(movie => {
+      const date = movie.Datetime.split('T')[0];
+      const dayOfWeek = new Date(date + 'T12:00:00').getDay();
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+      const isWeekend = !isWeekday;
+
+      if (isWeekend) {
+        afterhours++;
+        weekends++;
+      } else {
+        // Weekday: check if after work hours
+        const mins = parseTimeToMins(movie.Time);
+        if (mins < 540 || mins >= 1020) { // before 9am or after 5pm
+          afterhours++;
+        }
+      }
+    });
+
+    const setCount = (mode: string, count: number) => {
+      const el = document.querySelector(`.hours-count[data-count-for="${mode}"]`);
+      if (el) el.textContent = `(${count})`;
+    };
+
+    setCount('none', total);
+    setCount('afterhours', afterhours);
+    setCount('weekends', weekends);
+  }
+
+  updateHoursFilterCounts();
+
   // Restore URL state silently before first render (no events, no re-renders)
   restoreFromUrl();
 
@@ -542,20 +560,6 @@ const ogImage = movieData[0]?.poster_url || null;
 
   // --- DOMContentLoaded: event delegation ---
   document.addEventListener('DOMContentLoaded', () => {
-    // Hidden showtimes modal handlers
-    document.getElementById('hours-filter-status')?.addEventListener('click', () => {
-      const hoursFilterRadio = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
-      const mode = hoursFilterRadio?.value || 'none';
-      if (mode === 'weekends') {
-        const listEl = document.getElementById('weekday-movies-list');
-        if (listEl) listEl.innerHTML = renderMovieList(getWeekdayMovies(allMovies));
-        (window as any).openDialog('weekday-movies-modal');
-      } else if (mode === 'afterhours') {
-        const listEl = document.getElementById('hidden-movies-list');
-        if (listEl) listEl.innerHTML = renderMovieList(getHiddenWorkHoursMovies(allMovies));
-        (window as any).openDialog('hidden-movies-modal');
-      }
-    });
 
     // Pointer device detection
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {

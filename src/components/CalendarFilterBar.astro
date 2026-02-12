@@ -1,32 +1,32 @@
 ---
 /**
  * Sticky filter bar for the calendar page.
- * Contains frequently-used filters: Availability, Single showings, Saved movies.
+ * Contains frequently-used filters: Availability, Saved movies.
  * Stays visible while scrolling (frosted glass, position: sticky).
  */
-import ToggleGroup from '@components/ToggleGroup.astro';
 import CheckboxGroup from '@components/CheckboxGroup.astro';
 ---
 
 <div class="calendar-filter-bar">
   <div class="filter-bar-row">
-    <div class="filter-select-group">
-      <label for="hours-filter-select" class="filter-label">Times:</label>
-      <select id="hours-filter-select" name="hours-filter-mode" class="filter-select">
-        <option value="none">All</option>
-        <option value="afterhours">After 5pm + wknds</option>
-        <option value="weekends">Weekends</option>
-      </select>
-      <span id="hours-filter-status" class="filter-status"></span>
+    <span class="filter-label">Times</span>
+    <!-- Hidden select preserved for existing JS compatibility -->
+    <select id="hours-filter-select" name="hours-filter-mode" style="display:none">
+      <option value="none">All</option>
+      <option value="afterhours">After 5pm + wknds</option>
+      <option value="weekends">Weekends</option>
+    </select>
+    <div class="segmented-toggle" role="radiogroup" aria-label="Showtime availability filter">
+      <button class="seg-btn active" data-hours="none" role="radio" aria-checked="true">
+        All <span class="hours-count" data-count-for="none"></span>
+      </button>
+      <button class="seg-btn" data-hours="afterhours" role="radio" aria-checked="false">
+        After 5 & Wknds <span class="hours-count" data-count-for="afterhours"></span>
+      </button>
+      <button class="seg-btn" data-hours="weekends" role="radio" aria-checked="false">
+        Weekends <span class="hours-count" data-count-for="weekends"></span>
+      </button>
     </div>
-    <ToggleGroup
-      label="Single showings:"
-      name="single-showtimes-mode"
-      options={[
-        { label: 'All', value: 'none' },
-        { label: 'Only show unique', value: 'only' }
-      ]}
-    />
   </div>
 </div>
 
@@ -46,64 +46,63 @@ import CheckboxGroup from '@components/CheckboxGroup.astro';
   .filter-bar-row {
     display: flex;
     align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .filter-select-group {
-    display: flex;
-    align-items: center;
     gap: 8px;
     flex-wrap: wrap;
   }
 
   .filter-label {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     font-family: 'Barlow Semi Condensed', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em;
   }
 
-
-  .filter-select {
-    appearance: none;
-    -webkit-appearance: none;
-    padding: 6px 28px 6px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    color: var(--text-primary);
-    background: var(--bg-movie);
+  .segmented-toggle {
+    display: inline-flex;
     border: 1px solid var(--bg-movie-hover);
     border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-body);
+  }
+
+  .seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
+    transition: background-color 0.15s ease, color 0.15s ease;
   }
 
-  .filter-select:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
+  .seg-btn:not(:last-child) {
+    border-right: 1px solid var(--bg-movie-hover);
   }
 
-  .filter-status {
+  .seg-btn:hover {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .seg-btn.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .hours-count {
     font-size: 12px;
     color: var(--text-tertiary);
-    cursor: pointer;
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 2px;
-    display: none;
   }
 
-  .filter-status:not(:empty) {
-    display: inline;
-  }
-
-  .filter-status:hover {
-    color: var(--accent);
+  .seg-btn.active .hours-count {
+    color: var(--text-secondary);
   }
 
   @media (max-width: 479px) {
@@ -114,3 +113,38 @@ import CheckboxGroup from '@components/CheckboxGroup.astro';
     }
   }
 </style>
+
+<script>
+  const hoursSelect = document.getElementById('hours-filter-select') as HTMLSelectElement;
+  const hoursButtons = document.querySelectorAll('.calendar-filter-bar .seg-btn[data-hours]');
+
+  hoursButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = (btn as HTMLElement).dataset.hours!;
+
+      // Update button visuals
+      hoursButtons.forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-checked', String(b === btn));
+      });
+
+      // Sync hidden select and dispatch change
+      if (hoursSelect) {
+        hoursSelect.value = mode;
+        hoursSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+
+  // Init from restored URL state
+  document.addEventListener('url-state-restored', () => {
+    if (hoursSelect) {
+      const current = hoursSelect.value;
+      hoursButtons.forEach(btn => {
+        const match = (btn as HTMLElement).dataset.hours === current;
+        btn.classList.toggle('active', match);
+        btn.setAttribute('aria-checked', String(match));
+      });
+    }
+  });
+</script>

@@ -355,7 +355,7 @@ body.show-image .movie.has-poster:focus {
 .single-showtime-badge {
   position: absolute;
   top: 2px;
-  right: 4px;
+  right: 2px;
   font-size: 10px;
   color: var(--accent);
   z-index: 5;
