@@ -1,0 +1,48 @@
+---
+/**
+ * SVG icon component.
+ * Resolves icons from: lucide-static → @tabler/icons (outline) → src/icons/.
+ *
+ * @param name - Icon name (e.g., "gallery-vertical", "briefcase-off")
+ * @param size - Icon size in pixels (default: 16)
+ * @param class - Additional CSS classes
+ */
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+interface Props {
+  name: string;
+  size?: number | string;
+  class?: string;
+}
+
+const { name, size = 16, class: className } = Astro.props;
+
+const searchPaths = [
+  resolve(process.cwd(), 'node_modules', 'lucide-static', 'icons', `${name}.svg`),
+  resolve(process.cwd(), 'node_modules', '@tabler', 'icons', 'icons', 'outline', `${name}.svg`),
+  resolve(process.cwd(), 'src', 'icons', `${name}.svg`),
+];
+const iconPath = searchPaths.find(p => existsSync(p));
+
+let svg: string;
+try {
+  if (!iconPath) throw new Error('not found');
+  svg = readFileSync(iconPath, 'utf-8');
+
+  // Replace width/height attributes with provided size
+  svg = svg
+    .replace(/width="24"/, `width="${size}"`)
+    .replace(/height="24"/, `height="${size}"`);
+
+  // Add custom class if provided
+  if (className) {
+    svg = svg.replace(/class="[^"]*"/, `class="${className}"`);
+  }
+} catch (error) {
+  console.error(`Icon "${name}" not found in lucide-static, @tabler/icons, or src/icons/`);
+  svg = `<svg width="${size}" height="${size}" viewBox="0 0 24 24"><text x="12" y="12" text-anchor="middle">?</text></svg>`;
+}
+---
+
+<Fragment set:html={svg} />

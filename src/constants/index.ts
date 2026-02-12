@@ -21,21 +21,15 @@ export const WORK_END = 17 * 60;    // 5:00 PM = 1020 minutes
  * Filter mode constants
  */
 
-// Hours filter modes for availability filtering
-export const HOURS_FILTER_MODE = {
-  NONE: 'none',
-  AFTERHOURS: 'afterhours',
+// Time category filter (multi-select)
+export const TIME_CATEGORY = {
+  WEEKDAYS: 'weekdays',
+  WEEKNIGHTS: 'weeknights',
   WEEKENDS: 'weekends',
 } as const;
-export type HoursFilterMode = typeof HOURS_FILTER_MODE[keyof typeof HOURS_FILTER_MODE];
-
-// Single showtimes filter modes
-export const SINGLE_SHOWTIMES_MODE = {
-  NONE: 'none',
-  HIGHLIGHT: 'highlight',
-  ONLY: 'only',
-} as const;
-export type SingleShowtimesMode = typeof SINGLE_SHOWTIMES_MODE[keyof typeof SINGLE_SHOWTIMES_MODE];
+export type TimeCategory = typeof TIME_CATEGORY[keyof typeof TIME_CATEGORY];
+export const ALL_TIME_CATEGORIES = Object.values(TIME_CATEGORY);
+export const TIME_CATEGORY_COUNT = ALL_TIME_CATEGORIES.length;
 
 // Saved movie filter categories
 export const SAVED_FILTER = {
@@ -49,4 +43,3 @@ export type SavedFilter = typeof SAVED_FILTER[keyof typeof SAVED_FILTER];
 // All saved filter values, derived from the object so it stays in sync
 export const ALL_SAVED_FILTERS = Object.values(SAVED_FILTER);
 export const SAVED_FILTER_COUNT = ALL_SAVED_FILTERS.length;
-

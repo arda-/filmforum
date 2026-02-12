@@ -1,0 +1,186 @@
+---
+/**
+ * Sticky filter bar for the calendar page.
+ * Contains Times filter (multi-select) and Saved movies filter.
+ * Stays visible while scrolling (frosted glass, position: sticky).
+ */
+import Icon from './Icon.astro';
+import SegmentedToggle from './SegmentedToggle.astro';
+---
+
+<div class="calendar-filter-bar">
+  <div class="filter-bar-row">
+    <span class="filter-label">Times</span>
+    <SegmentedToggle aria-label="Filter by time of day">
+      <button
+        class="seg-btn active"
+        data-time="weekdays"
+        aria-pressed="true"
+        aria-label="Show weekday daytime showtimes"
+      >
+        <input type="checkbox" name="time-filter" value="weekdays" checked style="display: none;" />
+        <Icon name="sun" size={16} /> <span class="btn-label">Day <span class="filter-count" data-count-for="weekdays"></span></span>
+      </button>
+      <button
+        class="seg-btn active"
+        data-time="weeknights"
+        aria-pressed="true"
+        aria-label="Show weeknight showtimes"
+      >
+        <input type="checkbox" name="time-filter" value="weeknights" checked style="display: none;" />
+        <Icon name="moon-star" size={16} /> <span class="btn-label">Nite <span class="filter-count" data-count-for="weeknights"></span></span>
+      </button>
+      <button
+        class="seg-btn active"
+        data-time="weekends"
+        aria-pressed="true"
+        aria-label="Show weekend showtimes"
+      >
+        <input type="checkbox" name="time-filter" value="weekends" checked style="display: none;" />
+        <Icon name="briefcase-off" size={16} /> <span class="btn-label">Weekend <span class="filter-count" data-count-for="weekends"></span></span>
+      </button>
+    </SegmentedToggle>
+  </div>
+  <div class="filter-bar-row">
+    <span class="filter-label">Saved</span>
+    <SegmentedToggle aria-label="Filter saved movies">
+      <button
+        class="seg-btn active"
+        data-filter="yes"
+        aria-pressed="true"
+        aria-label="Show movies marked Yes"
+        style="--btn-color: var(--reaction-yes)"
+      >
+        <input type="checkbox" name="saved-filter" value="yes" checked style="display: none;" />
+        <Icon name="thumbs-up" size={16} /> <span class="btn-label">Yes</span>
+      </button>
+      <button
+        class="seg-btn active"
+        data-filter="maybe"
+        aria-pressed="true"
+        aria-label="Show movies marked Maybe"
+        style="--btn-color: var(--reaction-maybe)"
+      >
+        <input type="checkbox" name="saved-filter" value="maybe" checked style="display: none;" />
+        <Icon name="question-mark" size={16} /> <span class="btn-label">Maybe</span>
+      </button>
+      <button
+        class="seg-btn"
+        data-filter="no"
+        aria-pressed="false"
+        aria-label="Show movies marked No"
+        style="--btn-color: var(--reaction-no)"
+      >
+        <input type="checkbox" name="saved-filter" value="no" style="display: none;" />
+        <Icon name="thumbs-down" size={16} /> <span class="btn-label">No</span>
+      </button>
+      <button
+        class="seg-btn"
+        data-filter="unmarked"
+        aria-pressed="false"
+        aria-label="Show unmarked movies"
+      >
+        <input type="checkbox" name="saved-filter" value="unmarked" style="display: none;" />
+        <Icon name="circle-ellipsis" size={16} /> <span class="btn-label">Unmarked</span>
+      </button>
+    </SegmentedToggle>
+  </div>
+</div>
+
+<script>
+  // --- Generic multi-select toggle handler ---
+  function setupToggleButtons(selector: string) {
+    document.querySelectorAll(selector).forEach(button => {
+      button.addEventListener('click', () => {
+        const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+          button.classList.toggle('active', checkbox.checked);
+          button.setAttribute('aria-pressed', String(checkbox.checked));
+          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+  }
+
+  setupToggleButtons('.calendar-filter-bar .seg-btn[data-time]');
+  setupToggleButtons('.calendar-filter-bar .seg-btn[data-filter]');
+
+  // --- Init from restored URL state ---
+  document.addEventListener('url-state-restored', () => {
+    document.querySelectorAll('.calendar-filter-bar .seg-btn').forEach(button => {
+      const checkbox = button.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (checkbox) {
+        button.classList.toggle('active', checkbox.checked);
+        button.setAttribute('aria-pressed', String(checkbox.checked));
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Mobile-first: single row, icon-only */
+  .calendar-filter-bar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-drawer-bg);
+    padding: 12px;
+    background: color-mix(in srgb, var(--bg-body) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--bg-movie-hover);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-left: 4px;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-tertiary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+
+  .seg-btn .btn-label {
+    display: none;
+  }
+
+  /* Saved filter uses colored text when active */
+  .seg-btn[data-filter].active {
+    color: var(--btn-color, var(--text-primary));
+  }
+
+  .filter-count {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-tertiary);
+  }
+
+  .seg-btn.active .filter-count {
+    color: var(--text-secondary);
+  }
+
+  /* Desktop: two rows, show labels */
+  @media (min-width: 640px) {
+    .calendar-filter-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .seg-btn .btn-label {
+      display: inline;
+    }
+  }
+</style>
