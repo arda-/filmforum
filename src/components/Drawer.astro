@@ -187,7 +187,7 @@ const hasFooter = Astro.slots.has('footer');
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0 20px 2px;
+    padding: 0 20px calc(2px + env(safe-area-inset-bottom, 0px));
     flex: 1 1 auto;
     min-height: 0;
     -webkit-overflow-scrolling: touch;
@@ -211,7 +211,7 @@ const hasFooter = Astro.slots.has('footer');
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    padding: 12px 20px;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
     background: var(--bg-day);
     border-top: 1px solid var(--bg-movie-hover);
   }
