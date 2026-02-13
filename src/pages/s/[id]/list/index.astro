@@ -72,41 +72,46 @@ const structuredData = {
   ogImage={ogImage}
   ogImageAlt={`${config.name} movie list`}
   structuredData={structuredData}
+  fullWidth
 >
   <div data-session-id={id} data-drawer-wrapper>
-    <header class="page-header">
-      <a href={`/s/${id}`} class="back-link">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Back
-      </a>
-      <h1 class="page-title">{config.name}</h1>
-      {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
-      <p class="page-movie-count" id="page-movie-count">{uniqueMovies.length} films</p>
-    </header>
+    <div class="page-content">
+      <header class="page-header">
+        <a href={`/s/${id}`} class="back-link">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </a>
+        <h1 class="page-title">{config.name}</h1>
+        {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
+        <p class="page-movie-count" id="page-movie-count">{uniqueMovies.length} films</p>
+      </header>
+    </div>
 
     <ListToolbar directors={directors} actors={actors} decades={decades} />
 
-    <!-- List view -->
-    <div class="movie-list-view" id="list-view" style="display: none;">
-      {uniqueMovies.map(um => (
-        <MovieListItem uniqueMovie={um} />
-      ))}
+    <div class="page-content">
+      <!-- List view -->
+      <div class="movie-list-view" id="list-view" style="display: none;">
+        {uniqueMovies.map(um => (
+          <MovieListItem uniqueMovie={um} />
+        ))}
+      </div>
+
+      <!-- Card view (default) -->
+      <div class="movie-card-grid" id="card-view">
+        {uniqueMovies.map(um => (
+          <MovieCard uniqueMovie={um} />
+        ))}
+      </div>
+
+      <!-- Single card view (Apple-style drawer) -->
+      <SingleCardView movies={uniqueMovies} hidden={true} />
+
+      <!-- Spacer for bottom toolbar -->
+      <div class="bottom-spacer"></div>
     </div>
-
-    <!-- Card view (default) -->
-    <div class="movie-card-grid" id="card-view">
-      {uniqueMovies.map(um => (
-        <MovieCard uniqueMovie={um} />
-      ))}
-    </div>
-
-    <!-- Single card view (Apple-style drawer) -->
-    <SingleCardView movies={uniqueMovies} hidden={true} />
-
-    <!-- Spacer for bottom toolbar -->
-    <div class="bottom-spacer"></div>
 
     <BottomToolbar sessionId={id!} />
     <MovieDetailDrawer />
@@ -479,8 +484,14 @@ const structuredData = {
 </script>
 
 <style>
+  .page-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
   .page-header {
-    padding: 16px 4px 12px;
+    padding: 20px 0 12px;
   }
 
   .back-link {
