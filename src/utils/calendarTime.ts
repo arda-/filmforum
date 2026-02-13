@@ -4,7 +4,7 @@
  */
 
 import type { Movie } from '../types/movie';
-import { DAYS } from '../constants';
+import { DAYS } from './calendarConstants';
 
 // Re-export Movie type for centralized access
 export type { Movie };
