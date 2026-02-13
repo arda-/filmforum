@@ -222,9 +222,18 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     });
 
     // --- Swipe-to-dismiss ---
+    function isInsideScrolledContainer(target: EventTarget | null): boolean {
+      let el = target as HTMLElement | null;
+      while (el && el !== body) {
+        if (el.scrollTop > 0) return true;
+        el = el.parentElement;
+      }
+      return body.scrollTop > 0;
+    }
+
     function onTouchStart(e: TouchEvent, source: 'handle' | 'body') {
-      // For body drags, only start if scrolled to top
-      if (source === 'body' && body && body.scrollTop > 0) return;
+      // For body drags, only start if no scrollable ancestor is scrolled
+      if (source === 'body' && isInsideScrolledContainer(e.target)) return;
       isDragging = true;
       dragSource = source;
       startY = e.touches[0].clientY;
