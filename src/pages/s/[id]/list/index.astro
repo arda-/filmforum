@@ -36,6 +36,30 @@ try {
 
 const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 
+// Extract unique directors, actors, and decades for filter dropdowns
+const directorsSet = new Set<string>();
+const actorsSet = new Set<string>();
+const decadesSet = new Set<string>();
+
+for (const um of uniqueMovies) {
+  const m = um.movie;
+  if (m.director) directorsSet.add(m.director);
+  if (m.actors) {
+    for (const actor of m.actors.split(', ')) {
+      const trimmed = actor.trim();
+      if (trimmed) actorsSet.add(trimmed);
+    }
+  }
+  if (m.year) {
+    const decade = Math.floor(parseInt(m.year) / 10) * 10;
+    if (!isNaN(decade)) decadesSet.add(`${decade}s`);
+  }
+}
+
+const directors = [...directorsSet].sort((a, b) => a.localeCompare(b));
+const actors = [...actorsSet].sort((a, b) => a.localeCompare(b));
+const decades = [...decadesSet].sort();
+
 // Serialize movie data for client-side use
 const movieDataJson = JSON.stringify(uniqueMovies);
 
@@ -79,10 +103,10 @@ const structuredData = {
       </a>
       <h1 class="page-title">{config.name}</h1>
       {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
-      <p class="page-movie-count">{uniqueMovies.length} films</p>
+      <p class="page-movie-count" id="page-movie-count">{uniqueMovies.length} films</p>
     </header>
 
-    <ListToolbar />
+    <ListToolbar directors={directors} actors={actors} decades={decades} />
 
     <!-- List view -->
     <div class="movie-list-view" id="list-view" style="display: none;">
@@ -275,6 +299,133 @@ const structuredData = {
       if (el) cardView.appendChild(el);
     });
   }
+
+  // --- Search & Filter ---
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const searchClear = document.getElementById('search-clear') as HTMLElement;
+  const filterDirector = document.getElementById('filter-director') as HTMLSelectElement;
+  const filterActor = document.getElementById('filter-actor') as HTMLSelectElement;
+  const filterDecade = document.getElementById('filter-decade') as HTMLSelectElement;
+  const filterResults = document.getElementById('filter-results') as HTMLElement;
+  const filterResultsText = document.getElementById('filter-results-text') as HTMLElement;
+  const filterClearAll = document.getElementById('filter-clear-all') as HTMLElement;
+  const movieCount = document.getElementById('page-movie-count') as HTMLElement;
+  const totalCount = allMovies.length;
+
+  function getDecade(year: string): string {
+    const y = parseInt(year);
+    if (isNaN(y)) return '';
+    return `${Math.floor(y / 10) * 10}s`;
+  }
+
+  function applyFilters() {
+    const query = searchInput?.value.toLowerCase().trim() || '';
+    const director = filterDirector?.value || '';
+    const actor = filterActor?.value || '';
+    const decade = filterDecade?.value || '';
+
+    const hasFilters = query || director || actor || decade;
+
+    // Show/hide clear button on search input
+    if (searchClear) {
+      searchClear.style.display = query ? '' : 'none';
+    }
+
+    // Highlight active filter selects
+    filterDirector?.classList.toggle('active-filter', !!director);
+    filterActor?.classList.toggle('active-filter', !!actor);
+    filterDecade?.classList.toggle('active-filter', !!decade);
+
+    let visibleCount = 0;
+
+    // Filter cards and list items by matching data attributes
+    const selectors = '.card[data-movie-id], .list-item[data-movie-id]';
+    document.querySelectorAll(selectors).forEach(el => {
+      const htmlEl = el as HTMLElement;
+      const elTitle = htmlEl.dataset.title || '';
+      const elDirector = htmlEl.dataset.director || '';
+      const elActors = htmlEl.dataset.actors || '';
+      const elYear = htmlEl.dataset.year || '';
+      const elDecade = getDecade(elYear);
+      const movieId = htmlEl.dataset.movieId || '';
+
+      let visible = true;
+
+      // Text search: matches title, director, or actors
+      if (query) {
+        const matchesSearch = elTitle.includes(query) ||
+          elDirector.includes(query) ||
+          elActors.includes(query);
+        if (!matchesSearch) visible = false;
+      }
+
+      // Director filter
+      if (director && elDirector !== director) {
+        visible = false;
+      }
+
+      // Actor filter: check if the selected actor appears in the actors list
+      if (actor && !elActors.includes(actor)) {
+        visible = false;
+      }
+
+      // Decade filter
+      if (decade && elDecade !== decade) {
+        visible = false;
+      }
+
+      htmlEl.style.display = visible ? '' : 'none';
+
+      // Count unique visible movies (count cards only to avoid double-counting)
+      if (visible && htmlEl.classList.contains('card')) {
+        visibleCount++;
+      }
+    });
+
+    // Update movie count display
+    if (movieCount) {
+      if (hasFilters) {
+        movieCount.textContent = `${visibleCount} of ${totalCount} films`;
+      } else {
+        movieCount.textContent = `${totalCount} films`;
+      }
+    }
+
+    // Show/hide filter results bar
+    if (filterResults) {
+      if (hasFilters) {
+        filterResults.style.display = '';
+        filterResultsText.textContent = `${visibleCount} of ${totalCount}`;
+      } else {
+        filterResults.style.display = 'none';
+      }
+    }
+  }
+
+  function clearAllFilters() {
+    if (searchInput) searchInput.value = '';
+    if (filterDirector) filterDirector.value = '';
+    if (filterActor) filterActor.value = '';
+    if (filterDecade) filterDecade.value = '';
+    applyFilters();
+  }
+
+  // Debounce search input
+  let searchTimeout: ReturnType<typeof setTimeout>;
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(applyFilters, 150);
+  });
+
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    applyFilters();
+  });
+
+  filterDirector?.addEventListener('change', applyFilters);
+  filterActor?.addEventListener('change', applyFilters);
+  filterDecade?.addEventListener('change', applyFilters);
+  filterClearAll?.addEventListener('click', clearAllFilters);
 
   // --- More Info Drawer ---
   function openMovieDetail(movieId: string, sourceEl?: HTMLElement) {
