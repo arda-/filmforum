@@ -6,6 +6,7 @@ import { getActiveSeries } from '../config/series';
 import { toTitleCase, aggregateMoviesForDate } from '../utils/movieUtils';
 import type { Movie, GroupedMovie } from '../utils/movieUtils';
 import { loadMovieData } from '../utils/loadMovieData';
+import { safeJsonForScript } from '../utils/htmlEscape';
 
 // Build-time import of all poster images from src/assets/posters/
 const posterGlob = import.meta.glob<{ default: ImageMetadata }>(
@@ -158,7 +159,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
   </div>
 
   <!-- Embedded data for client-side live updates + detail view -->
-  <script id="series-config" type="application/json" set:html={JSON.stringify({
+  <script id="series-config" type="application/json" set:html={safeJsonForScript({
     series: activeSeries.map(s => ({ id: s.id, dataFile: s.dataFile })),
     posterMap: posterUrlMap,
     movies: showingToday.map(({ film, seriesId, showtimes }) => ({
@@ -173,8 +174,7 @@ for (const [filename, metadata] of Object.entries(posterMap)) {
       seriesId,
       showtimes,
     })),
-    // Prevent closing </script> tag injection in JSON (XSS mitigation)
-  }).replace(/</g, '\\u003c')} />
+  })} />
 
   <script>
     import { toTitleCase, aggregateMoviesForDate, formatRuntime } from '../utils/movieUtils';

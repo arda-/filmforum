@@ -2,7 +2,7 @@
  * Movie-related utility functions for calendar display and filtering
  */
 
-import type { Movie, Showtime, GroupedMovie, AggregationResult } from '../types/movie';
+import type { Movie, Showtime, GroupedMovie, AggregationResult } from '@types/movie';
 
 // Re-export types for backwards compatibility
 export type { Movie, Showtime, GroupedMovie, AggregationResult };
@@ -80,7 +80,7 @@ export function formatRuntime(runtime: string | undefined): string {
 // --- Time parsing and work hours ---
 
 // Import from calendarConstants (canonical source) and re-export for test access
-import { WORK_START, WORK_END } from './calendarConstants';
+import { WORK_START, WORK_END } from '@utils/calendarConstants';
 export { WORK_START, WORK_END };
 
 /**
@@ -91,14 +91,15 @@ export { WORK_START, WORK_END };
  * - "12:00" -> 12:00 (noon)
  * - "10:00 FF Jr" -> 10:00 (10 AM, morning shows)
  * - "11:30 FF Jr" -> 11:30 (11:30 AM)
+ * - "11:00 – FF Jr." -> 11:00 (11 AM, variant format with dash/period)
  */
 export function parseTimeToMins(timeStr: string): number {
   if (!timeStr) return 0;
 
-  const ffJr = timeStr.includes('FF Jr');
-  const cleanTime = timeStr.replace('FF Jr', '').trim();
+  const ffJr = /FF\s*Jr/i.test(timeStr);
 
-  const match = cleanTime.match(/^(\d{1,2}):(\d{2})$/);
+  // Extract the H:MM or HH:MM portion from anywhere in the string
+  const match = timeStr.match(/(\d{1,2}):(\d{2})/);
   if (!match) return 0;
 
   let hours = parseInt(match[1], 10);

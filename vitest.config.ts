@@ -1,14 +1,15 @@
 import { defineConfig } from 'vitest/config';
-import { resolve } from 'path';
+import path from 'path';
 
 export default defineConfig({
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
-      '@components': resolve(__dirname, 'src/components'),
-      '@utils': resolve(__dirname, 'src/utils'),
-      '@config': resolve(__dirname, 'src/config'),
-      '@layouts': resolve(__dirname, 'src/layouts'),
+      '@utils': path.resolve(__dirname, 'src/utils'),
+      '@types': path.resolve(__dirname, 'src/types'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@layouts': path.resolve(__dirname, 'src/layouts'),
+      '@config': path.resolve(__dirname, 'src/config'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   test: {
