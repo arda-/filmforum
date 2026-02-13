@@ -267,14 +267,20 @@ for (const p of paragraphs) {
   }
 }
 
-// Process hero images - strip HTML from alt text
+// Process hero images - strip HTML from alt text, derive film name from filename as fallback
 metadata.heroImages = rawData.images.map(img => {
   const filename = img.src.split('/').pop();
   const cleanAlt = img.alt ? stripHtmlTags(img.alt) : '';
+  // If no alt text, extract a readable film name from the filename.
+  // e.g. "WEST_SIDE_STORY_slideshow.png" → "West Side Story"
+  const filmNameFromFilename = filename
+    .replace(/_slideshow\.\w+$/, '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
   return {
     filename,
     path: `/series-images/${seriesSlug}/${filename}`,
-    alt: cleanAlt || `${metadata.name} - Film still`,
+    alt: cleanAlt || filmNameFromFilename || `${metadata.name} - Film still`,
     sourceUrl: img.fullUrl
   };
 });
