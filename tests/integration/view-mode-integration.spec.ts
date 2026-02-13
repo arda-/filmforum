@@ -1,166 +1,156 @@
 /**
  * Integration test: View mode toggle → Calendar render changes
- * Tests that switching between Timeline and Grid modes re-renders correctly
+ * Tests that switching between Timeline and Grid modes re-renders correctly,
+ * and that detail toggles affect tile content.
  */
 
 import { test, expect } from '@playwright/test';
 
+const CALENDAR_URL = '/s/tenement-stories/calendar';
+
 test.describe('View Mode Integration: Timeline ↔ Grid rendering', () => {
-  test.skip('should render timeline elements in timeline mode', async ({ page }) => {
-    await page.goto('/series/test-series');
+  test('should render timeline elements in default timeline mode', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
+    await page.waitForSelector('.movie');
 
-    // Ensure timeline mode is active
-    const timelineBtn = page.locator('button[data-view="timeline"]');
-    await timelineBtn.click();
-
-    // Look for timeline-specific CSS classes
     const timelineMovies = page.locator('.movie--timeline');
     expect(await timelineMovies.count()).toBeGreaterThan(0);
   });
 
-  test.skip('should switch to grid mode when Grid button clicked', async ({ page }) => {
-    await page.goto('/series/test-series');
+  test('should remove timeline styling when switching to grid mode', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
+    await page.waitForSelector('.movie');
 
     const gridBtn = page.locator('button[data-view="grid"]');
     await gridBtn.click();
+    await page.waitForTimeout(300);
 
-    // Timeline movies should no longer exist (or be hidden)
-    const timelineMovies = page.locator('.movie--timeline:visible');
-    const count = await timelineMovies.count();
+    // In grid mode, movies should not have timeline class
+    const timelineMovies = page.locator('.movie--timeline');
+    expect(await timelineMovies.count()).toBe(0);
 
-    // In grid mode, timeline-specific styling should not appear
-    // (this depends on CSS implementation)
+    // But movies should still exist
+    const allMovies = page.locator('.movie');
+    expect(await allMovies.count()).toBeGreaterThan(0);
   });
 
-  test.skip('should preserve filters when switching view modes', async ({ page }) => {
-    await page.goto('/series/test-series');
+  test('should preserve movie count when switching view modes', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
+    await page.waitForSelector('.movie');
 
-    // Disable weekends filter
-    const weekendBtn = page.locator('button[data-time="weekends"]');
-    await weekendBtn.click();
-
-    // Count visible movies with filter
-    let visibleFiltered = await page.locator('.movie').count();
+    const countTimeline = await page.locator('.movie').count();
 
     // Switch to grid
-    const gridBtn = page.locator('button[data-view="grid"]');
-    await gridBtn.click();
-
-    // Count again
-    let visibleAfterSwitch = await page.locator('.movie').count();
-
-    // Should be same (filters preserved)
-    expect(visibleAfterSwitch).toBe(visibleFiltered);
+    await page.locator('button[data-view="grid"]').click();
+    await page.waitForTimeout(300);
+    const countGrid = await page.locator('.movie').count();
 
     // Switch back to timeline
-    const timelineBtn = page.locator('button[data-view="timeline"]');
-    await timelineBtn.click();
+    await page.locator('button[data-view="timeline"]').click();
+    await page.waitForTimeout(300);
+    const countBack = await page.locator('.movie').count();
 
-    let visibleAfterReturn = await page.locator('.movie').count();
+    expect(countGrid).toBe(countTimeline);
+    expect(countBack).toBe(countTimeline);
+  });
 
-    // Still same count
-    expect(visibleAfterReturn).toBe(visibleFiltered);
+  test('should preserve filters when switching view modes', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
+    await page.waitForSelector('.movie');
+
+    // Disable weekends filter
+    await page.locator('button[data-time="weekends"]').click();
+    await page.waitForTimeout(300);
+    const filteredCount = await page.locator('.movie').count();
+
+    // Switch to grid
+    await page.locator('button[data-view="grid"]').click();
+    await page.waitForTimeout(300);
+    const gridFiltered = await page.locator('.movie').count();
+
+    expect(gridFiltered).toBe(filteredCount);
   });
 });
 
-test.describe('View Mode Integration: Detail options → Tile rendering', () => {
-  test.skip('should hide year/director metadata by default', async ({ page }) => {
-    await page.goto('/series/test-series');
-
-    const yearDirMetadata = page.locator('.movie-year-director');
-    const visibleCount = await yearDirMetadata.count();
-
-    // Metadata should exist but not be displayed by default
-    // (depends on CSS display rules with body.show-year-director)
-  });
-
-  test.skip('should show year/director when detail toggle enabled', async ({ page }) => {
-    await page.goto('/series/test-series');
+test.describe('View Mode Integration: Detail options → Body classes', () => {
+  test('should add show-year-director class when detail toggle enabled', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
 
     const detailBtn = page.locator('button[data-detail="year-director"]');
     await detailBtn.click();
 
-    // After enabling, body should have class
-    const bodyClass = await page.evaluate(() => {
-      return document.body.classList.contains('show-year-director');
-    });
-    expect(bodyClass).toBe(true);
-
-    // Year/director elements should now be visible
-    const yearDirMetadata = page.locator('.movie-year-director');
-    expect(await yearDirMetadata.count()).toBeGreaterThan(0);
+    const hasClass = await page.evaluate(() =>
+      document.body.classList.contains('show-year-director')
+    );
+    expect(hasClass).toBe(true);
   });
 
-  test.skip('should show runtime when detail toggle enabled', async ({ page }) => {
-    await page.goto('/series/test-series');
+  test('should add show-runtime class when detail toggle enabled', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
 
-    const runtimeBtn = page.locator('button[data-detail="runtime"]');
-    await runtimeBtn.click();
+    await page.locator('button[data-detail="runtime"]').click();
 
-    const bodyHasClass = await page.evaluate(() => {
-      return document.body.classList.contains('show-runtime');
-    });
-    expect(bodyHasClass).toBe(true);
+    const hasClass = await page.evaluate(() =>
+      document.body.classList.contains('show-runtime')
+    );
+    expect(hasClass).toBe(true);
   });
 
-  test.skip('should show images when detail toggle enabled', async ({ page }) => {
-    await page.goto('/series/test-series');
+  test('should add show-image class when detail toggle enabled', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
 
-    const imageBtn = page.locator('button[data-detail="image"]');
-    await imageBtn.click();
+    await page.locator('button[data-detail="image"]').click();
 
-    // Image detail should add scrim and blur classes too
-    const hasImage = await page.evaluate(() => {
-      return document.body.classList.contains('show-image');
-    });
-    const hasScrim = await page.evaluate(() => {
-      return document.body.classList.contains('scrim-enabled');
-    });
-
+    const hasImage = await page.evaluate(() =>
+      document.body.classList.contains('show-image')
+    );
     expect(hasImage).toBe(true);
-    expect(hasScrim).toBe(true);
+  });
+
+  test('should remove body class when detail toggle disabled', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
+
+    const detailBtn = page.locator('button[data-detail="year-director"]');
+
+    // Enable
+    await detailBtn.click();
+    let hasClass = await page.evaluate(() =>
+      document.body.classList.contains('show-year-director')
+    );
+    expect(hasClass).toBe(true);
+
+    // Disable
+    await detailBtn.click();
+    hasClass = await page.evaluate(() =>
+      document.body.classList.contains('show-year-director')
+    );
+    expect(hasClass).toBe(false);
   });
 });
 
-test.describe('View Mode Integration: Week start selector → Calendar reorganization', () => {
-  test.skip('should reorganize grid when week start changes to Sunday', async ({ page }) => {
-    await page.goto('/series/test-series');
+test.describe('View Mode Integration: Week start → Calendar reorganization', () => {
+  test('should add monday-start class by default', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
 
-    // Get initial column headers
-    const headers = await page.evaluate(() => {
-      const cells = Array.from(document.querySelectorAll('.day-header'));
-      return cells.map(h => h.textContent?.trim());
-    });
-
-    // Open gear, click Sunday
-    const gearBtn = page.locator('#view-settings-btn');
-    await gearBtn.click();
-
-    const sunBtn = page.locator('button[data-weekstart="sun"]');
-    await sunBtn.click();
-
-    // Get new column headers
-    const newHeaders = await page.evaluate(() => {
-      const cells = Array.from(document.querySelectorAll('.day-header'));
-      return cells.map(h => h.textContent?.trim());
-    });
-
-    // First day should now be different (Sunday vs Monday)
-    expect(newHeaders[0]).not.toBe(headers[0]);
+    const hasClass = await page.evaluate(() =>
+      document.body.classList.contains('monday-start')
+    );
+    expect(hasClass).toBe(true);
   });
 
-  test.skip('should add monday-start class when Monday selected', async ({ page }) => {
-    await page.goto('/series/test-series');
+  test('should remove monday-start class when switching to Sunday', async ({ page }) => {
+    await page.goto(CALENDAR_URL);
 
-    const gearBtn = page.locator('#view-settings-btn');
-    await gearBtn.click();
+    // Open gear popover
+    await page.locator('#view-settings-btn').click();
 
-    const monBtn = page.locator('button[data-weekstart="mon"]');
-    await monBtn.click();
+    // Switch to Sunday
+    await page.locator('button[data-weekstart="sun"]').click();
+    await page.waitForTimeout(300);
 
-    const hasClass = await page.evaluate(() => {
-      return document.body.classList.contains('monday-start');
-    });
-    expect(hasClass).toBe(true);
+    const hasClass = await page.evaluate(() =>
+      document.body.classList.contains('monday-start')
+    );
+    expect(hasClass).toBe(false);
   });
 });
