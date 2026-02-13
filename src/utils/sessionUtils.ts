@@ -1,5 +1,5 @@
-import type { Movie } from './movieUtils';
-import type { UniqueMovie } from '../types/session';
+import type { Movie } from '@types/movie';
+import type { UniqueMovie } from '@types/session';
 
 /** Filter criteria for movie list filtering. */
 export interface MovieFilters {
