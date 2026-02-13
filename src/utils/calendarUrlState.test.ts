@@ -1,27 +1,15 @@
+// @vitest-environment jsdom
 /**
  * Test suite for calendar URL state utilities.
  * Tests the pure helper functions (no DOM-dependent serialize/deserialize).
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { JSDOM } from 'jsdom';
+import { describe, it, expect } from 'vitest';
 import {
   isTogglePressed,
   setToggleState,
   getToggleInput,
 } from './calendarUrlState';
-
-// --- Setup jsdom for DOM tests ---
-
-let dom: JSDOM;
-let document: Document;
-
-beforeEach(() => {
-  dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-  document = dom.window.document;
-  // @ts-expect-error — shim global document for the module
-  globalThis.document = document;
-});
 
 // --- isTogglePressed ---
 
