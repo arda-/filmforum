@@ -11,6 +11,10 @@ from typing import List, Tuple, Set
 # NOTE: Film Forum removes individual film pages after their showtimes pass.
 # The series page used as input here also gets culled over time, so cache it early.
 
+# Get script directory for relative paths
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+
 
 def parse_html(html: str) -> List[Tuple[str, str, str]]:
     """
@@ -109,10 +113,6 @@ def write_csv(rows: List[List[str]], output_path: str) -> None:
 
 def main():
     """Main entry point for command-line execution."""
-    # Get script directory for relative paths
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent
-
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description='Parse Film Forum series showtimes from HTML to CSV',
@@ -149,12 +149,12 @@ Examples:
     if args.input:
         input_html = args.input
     else:
-        input_html = os.environ.get('INPUT_HTML', str(project_root / f'{args.series}.html'))
+        input_html = os.environ.get('INPUT_HTML', str(PROJECT_ROOT / f'{args.series}.html'))
 
     if args.output:
         output_csv = args.output
     else:
-        output_csv = os.environ.get('OUTPUT_CSV', str(project_root / f'{args.series}.csv'))
+        output_csv = os.environ.get('OUTPUT_CSV', str(PROJECT_ROOT / f'{args.series}.csv'))
 
     # Read the HTML file
     try:
