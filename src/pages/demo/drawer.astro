@@ -62,6 +62,14 @@ import Button from '../../components/Button.astro';
     </div>
 
     <div class="demo-section">
+      <h2>Full-Bleed Image</h2>
+      <p class="section-desc">Hero image extends to the edges, under the rounded corners. Handle and close button float over the image.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-full-bleed')">Full-Bleed Image</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
       <h2>Gesture Interactions</h2>
       <p class="section-desc">Try these interactions on any drawer:</p>
       <ul class="feature-list">
@@ -94,7 +102,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Height: 50% -->
-  <Drawer id="drawer-height-50" title="50% Height" maxHeight="50vh">
+  <Drawer id="drawer-height-50" title="50% Height" height="50dvh">
     <p class="drawer-text">This drawer only takes up half the screen.</p>
     <p class="drawer-text">Perfect for quick confirmations or simple content.</p>
     <p class="drawer-text">The compact size makes it feel lightweight and unobtrusive.</p>
@@ -111,7 +119,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Height: 70% -->
-  <Drawer id="drawer-height-70" title="70% Height" maxHeight="70vh">
+  <Drawer id="drawer-height-70" title="70% Height" height="70dvh">
     <p class="drawer-text">This drawer occupies 70% of the viewport.</p>
     <p class="drawer-text">Good balance between content space and maintaining context of the page behind.</p>
     <p class="drawer-text">This is a popular choice for medium-sized content that needs more room than 50% but doesn't need to dominate the entire screen.</p>
@@ -131,7 +139,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Height: 85% (default) -->
-  <Drawer id="drawer-height-85" title="85% Height (Default)" maxHeight="85vh">
+  <Drawer id="drawer-height-85" title="85% Height (Default)" height="85dvh">
     <p class="drawer-text">This is the default height (85vh) - a sweet spot for most use cases.</p>
     <p class="drawer-text">Provides plenty of room for content while still showing the page behind.</p>
     <p class="drawer-text">This height is versatile enough to handle most content types without feeling overwhelming.</p>
@@ -159,7 +167,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Height: 95% -->
-  <Drawer id="drawer-height-95" title="95% Height" maxHeight="95vh">
+  <Drawer id="drawer-height-95" title="95% Height" height="95dvh">
     <p class="drawer-text">This drawer is nearly full-screen at 95% viewport height.</p>
     <p class="drawer-text">Use this for content-heavy experiences that need maximum space but should still feel like a drawer, not a full page.</p>
     <p class="drawer-text">The remaining 5% of backdrop visibility is just enough to maintain the drawer metaphor and provide a dismiss target.</p>
@@ -199,7 +207,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Scrollable Content -->
-  <Drawer id="drawer-scroll" title="Terms of Service" maxHeight="70vh">
+  <Drawer id="drawer-scroll" title="Terms of Service" height="70dvh">
     <div class="drawer-content-scroll">
       <h3>1. Acceptance of Terms</h3>
       <p>By accessing and using this service, you accept and agree to be bound by the terms and provision of this agreement.</p>
@@ -242,7 +250,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Sticky Footer -->
-  <Drawer id="drawer-sticky-footer" title="Sticky Footer Example" maxHeight="70vh">
+  <Drawer id="drawer-sticky-footer" title="Sticky Footer Example" height="70dvh">
     <div class="drawer-content-scroll">
       <h3>Overview</h3>
       <p>This drawer demonstrates a sticky footer that stays visible at the bottom while the content scrolls independently.</p>
@@ -279,8 +287,48 @@ import Button from '../../components/Button.astro';
     </Fragment>
   </Drawer>
 
+  <!-- Full-Bleed Image Example -->
+  <Drawer id="drawer-full-bleed" height="85dvh" fullBleed>
+    <img
+      class="full-bleed-hero"
+      src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80"
+      alt="Movie theater with red seats"
+      loading="lazy"
+    />
+    <div class="full-bleed-content">
+      <h2 class="movie-title">The Grand Cinema</h2>
+      <p class="movie-meta">2024 · Sofia Moretti · 128 min</p>
+      <p class="movie-actors">Isabella Rossetti, Marco Bianchi, Elena Varga</p>
+
+      <p class="movie-description">
+        "A love letter to the golden age of cinema, following a projectionist who discovers that the films she screens hold secrets about the theater's storied past."
+      </p>
+      <p class="movie-citation">— Film Forum</p>
+
+      <div class="movie-scores">
+        <div class="score-item">
+          <span class="score-label">IMDB</span>
+          <span class="score-value">8.1</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">RT</span>
+          <span class="score-value">94%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Meta</span>
+          <span class="score-value">82</span>
+        </div>
+      </div>
+    </div>
+
+    <Fragment slot="footer">
+      <Button variant="secondary" onclick="closeDrawer('drawer-full-bleed')">Close</Button>
+      <Button variant="primary" onclick="closeDrawer('drawer-full-bleed')">Buy Tickets</Button>
+    </Fragment>
+  </Drawer>
+
   <!-- Movie Detail Example -->
-  <Drawer id="drawer-movie" maxHeight="85vh">
+  <Drawer id="drawer-movie" height="85dvh">
     <div class="movie-detail">
       <div class="movie-poster">
         <img
@@ -571,6 +619,21 @@ import Button from '../../components/Button.astro';
     font-size: 18px;
     font-weight: 600;
     color: var(--accent);
+  }
+
+  /* Full-bleed image demo */
+  .full-bleed-hero {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+
+  .full-bleed-content {
+    padding: 16px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   @media (max-width: 480px) {
