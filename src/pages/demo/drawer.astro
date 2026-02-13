@@ -438,12 +438,15 @@ import Button from '../../components/Button.astro';
 
   :global(#drawer-sticky-footer .drawer-body) {
     padding-bottom: 0 !important;
+    display: flex;
+    flex-direction: column;
   }
 
   .drawer-sticky-layout {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     margin: 0 -20px;
   }
 
