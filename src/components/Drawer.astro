@@ -199,6 +199,15 @@ const hasFooter = Astro.slots.has('footer');
       padding-bottom: 12px;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer[data-open="true"] .drawer-container,
+    .drawer.closing .drawer-container,
+    .drawer-backdrop,
+    .drawer.closing .drawer-backdrop {
+      animation-duration: 0.01ms !important;
+    }
+  }
 </style>
 
 <script>
@@ -214,12 +223,14 @@ const hasFooter = Astro.slots.has('footer');
     let dragSource: 'handle' | 'body' | null = null;
 
     function closeDrawer() {
+      const trigger = (drawer as any)._triggerElement as HTMLElement | null;
       drawer.classList.add('closing');
       setTimeout(() => {
         (drawer as HTMLElement).dataset.open = 'false';
         drawer.classList.remove('closing');
         container.style.transform = '';
         document.body.style.overflow = '';
+        if (trigger && typeof trigger.focus === 'function') trigger.focus();
       }, 250);
     }
 
@@ -241,6 +252,28 @@ const hasFooter = Astro.slots.has('footer');
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && (drawer as HTMLElement).dataset.open === 'true') {
         closeDrawer();
+      }
+    });
+
+    // Focus trap — cycle Tab within the drawer while open
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab' || (drawer as HTMLElement).dataset.open !== 'true') return;
+      const focusable = drawer.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     });
 
@@ -352,14 +385,18 @@ const hasFooter = Astro.slots.has('footer');
   (window as any).openDrawer = (id: string) => {
     const drawer = document.getElementById(id);
     if (drawer) {
+      (drawer as any)._triggerElement = document.activeElement;
       drawer.dataset.open = 'true';
       document.body.style.overflow = 'hidden';
+      const closeBtn = drawer.querySelector('.drawer-close-btn') as HTMLElement;
+      if (closeBtn) requestAnimationFrame(() => closeBtn.focus());
     }
   };
 
   (window as any).closeDrawer = (id: string) => {
     const drawer = document.getElementById(id);
     if (drawer) {
+      const trigger = (drawer as any)._triggerElement as HTMLElement | null;
       const container = drawer.querySelector('.drawer-container') as HTMLElement;
       drawer.classList.add('closing');
       setTimeout(() => {
@@ -367,6 +404,7 @@ const hasFooter = Astro.slots.has('footer');
         drawer.classList.remove('closing');
         if (container) container.style.transform = '';
         document.body.style.overflow = '';
+        if (trigger && typeof trigger.focus === 'function') trigger.focus();
       }, 250);
     }
   };
