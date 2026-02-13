@@ -9,8 +9,9 @@ import { DAYS } from './calendarConstants';
 // Re-export Movie type for centralized access
 export type { Movie };
 
-// Re-export from movieUtils (canonical, tested implementation)
-export { parseTimeToMins } from './movieUtils';
+// Import from movieUtils (canonical, tested implementation) and re-export
+import { parseTimeToMins } from './movieUtils';
+export { parseTimeToMins };
 
 /** Get the earliest start and latest end time for a day's movies. */
 export function getDayTimeRange(movies: Movie[]) {
