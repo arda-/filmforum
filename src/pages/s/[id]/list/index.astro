@@ -14,6 +14,7 @@ import {
   sortMovies,
   extractFilterOptions,
 } from '@utils/sessionUtils';
+import { safeJsonForScript } from '@utils/htmlEscape';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -41,8 +42,6 @@ const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 // Extract unique directors, actors, and decades for filter dropdowns
 const { directors, actors, decades } = extractFilterOptions(uniqueMovies);
 
-// Serialize movie data for client-side use
-const movieDataJson = JSON.stringify(uniqueMovies);
 
 // SEO metadata
 const title = `${config.name} Movie List - Browse ${uniqueMovies.length} Films`;
@@ -119,8 +118,8 @@ const structuredData = {
   </div>
 </Layout>
 
-<script type="application/json" id="movie-data" set:html={movieDataJson} />
-<script type="application/json" id="session-id" set:html={JSON.stringify(id)} />
+<script type="application/json" id="movie-data" set:html={safeJsonForScript(uniqueMovies)} />
+<script type="application/json" id="session-id" set:html={safeJsonForScript(id)} />
 
 <script>
   import { getReactions, setReaction, getReactionCounts } from '@utils/storageManager';
