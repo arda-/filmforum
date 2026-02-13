@@ -129,6 +129,9 @@ describe('formatDayLabel', () => {
 });
 
 // --- formatShowtime ---
+// Note: These datetimes have no timezone suffix, so V8 (Node.js) parses them
+// as local time. The formatted output is also local time, making these tests
+// timezone-agnostic.
 
 describe('formatShowtime', () => {
   it('should format an evening showtime', () => {
