@@ -3,6 +3,8 @@
  * Vaul-style drawer component.
  * Slides up from bottom with backdrop, swipe-to-dismiss, and smooth transitions.
  */
+import Icon from './Icon.astro';
+
 interface Props {
   id: string;
   title?: string;
@@ -19,15 +21,16 @@ const hasFooter = Astro.slots.has('footer');
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
-    <div class="drawer-header">
-      {title && <h2 id={`${id}-title`} class="drawer-title">{title}</h2>}
-      {!title && <div></div>}
-      <button class="drawer-close-btn" aria-label="Close">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M11.78 4.03a.5.5 0 00-.71-.71L7.5 6.89 3.93 3.32a.5.5 0 10-.71.71L6.79 7.5l-3.57 3.47a.5.5 0 00.71.71L7.5 8.11l3.57 3.57a.5.5 0 00.71-.71L8.21 7.5l3.57-3.47z" fill="currentColor"/>
-        </svg>
+    <slot name="close">
+      <button class="drawer-close-btn" data-drawer-close aria-label="Close">
+        <Icon name="x" size={18} />
       </button>
-    </div>
+    </slot>
+    {title && (
+      <div class="drawer-header">
+        <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
+      </div>
+    )}
     <div class="drawer-body">
       <slot />
     </div>
@@ -124,11 +127,46 @@ const hasFooter = Astro.slots.has('footer');
     border-radius: 2px;
   }
 
-  .drawer-header {
+  .drawer-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 20px 12px;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: color-mix(in srgb, var(--bg-movie-hover) 40%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 50%;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, backdrop-filter 0.15s;
+  }
+
+  @media (hover: hover) {
+    .drawer-close-btn:hover {
+      background: var(--bg-movie-hover);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      color: var(--text-primary);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .drawer-close-btn {
+      background: color-mix(in srgb, var(--bg-movie-hover) 65%, transparent);
+      color: var(--text-secondary);
+    }
+  }
+
+  .drawer-header {
+    padding: 0 20px 12px;
+    padding-right: 48px;
     flex-shrink: 0;
   }
 
@@ -137,28 +175,6 @@ const hasFooter = Astro.slots.has('footer');
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
-  }
-
-  .drawer-close-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    background: var(--bg-movie);
-    border: none;
-    border-radius: 50%;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-  }
-
-  @media (hover: hover) {
-    .drawer-close-btn:hover {
-      background: var(--bg-movie-hover);
-      color: var(--text-primary);
-    }
   }
 
   .drawer-body {
@@ -234,15 +250,9 @@ const hasFooter = Astro.slots.has('footer');
       }, 250);
     }
 
-    // Close on backdrop click
-    const backdrop = drawer.querySelector('.drawer-backdrop');
-    if (backdrop) {
-      backdrop.addEventListener('click', () => closeDrawer());
-    }
-
-    // Close on close button click (use closest to handle SVG children)
-    drawer.querySelectorAll('.drawer-close-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // Close on any element with data-drawer-close (default X button, custom close buttons, backdrop)
+    drawer.querySelectorAll('[data-drawer-close]').forEach(el => {
+      el.addEventListener('click', (e) => {
         e.stopPropagation();
         closeDrawer();
       });
@@ -388,8 +398,8 @@ const hasFooter = Astro.slots.has('footer');
       (drawer as any)._triggerElement = document.activeElement;
       drawer.dataset.open = 'true';
       document.body.style.overflow = 'hidden';
-      const closeBtn = drawer.querySelector('.drawer-close-btn') as HTMLElement;
-      if (closeBtn) requestAnimationFrame(() => closeBtn.focus());
+      const firstFocusable = drawer.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) requestAnimationFrame(() => firstFocusable.focus());
     }
   };
 
