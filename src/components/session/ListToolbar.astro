@@ -415,9 +415,16 @@ const {
 
   /* --- Filter disclosure panel --- */
   .filter-disclosure {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-body);
+    border-bottom: 1px solid var(--bg-movie-hover);
     display: grid;
     grid-template-rows: 0fr;
     transition: grid-template-rows 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    z-index: 1;
   }
 
   .filter-disclosure.open {
@@ -429,7 +436,11 @@ const {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding-top: 10px;
+    padding: 0 12px;
+  }
+
+  .filter-disclosure.open .filter-disclosure-inner {
+    padding: 10px 12px;
   }
 
   /* --- Filter rows --- */
