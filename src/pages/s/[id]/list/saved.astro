@@ -31,7 +31,8 @@ try {
   const dataPath = path.join(process.cwd(), 'public', config.dataFile);
   const data = fs.readFileSync(dataPath, 'utf-8');
   allMovies = JSON.parse(data);
-} catch {
+} catch (e) {
+  console.warn(`[${id}] Failed to load movie data:`, e instanceof Error ? e.message : e);
   allMovies = [];
 }
 

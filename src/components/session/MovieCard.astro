@@ -53,6 +53,10 @@ const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
   class:list={['card', { 'card--has-poster': hasPoster && showImage, [`card--${reaction}`]: reaction !== 'none' }]}
   data-movie-id={id}
   data-reaction={reaction}
+  data-title={movie.Movie.toLowerCase()}
+  data-director={movie.director?.toLowerCase() || ''}
+  data-actors={movie.actors?.toLowerCase() || ''}
+  data-year={movie.year || ''}
 >
   <div class="card-image">
     {hasPoster && posterImage && (
