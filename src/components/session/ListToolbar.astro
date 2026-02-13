@@ -263,6 +263,14 @@ const {
     display: flex;
     flex-direction: column;
     gap: 0;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  @supports (backdrop-filter: blur(12px)) {
+    .list-toolbar {
+      background: color-mix(in srgb, var(--bg-body) 85%, transparent);
+    }
   }
 
   /* --- Main row: view + search + filter --- */
