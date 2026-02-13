@@ -1,8 +1,11 @@
 ---
 /**
- * Top toolbar for session list page.
- * Controls: search, filters (director/actor/decade), view mode, and sort.
+ * Compact toolbar for session list page.
+ * Row 1: View toggle (always visible, all view modes)
+ * Row 2: Search + filter disclosure button (hidden in single view)
+ * Disclosure panel: Sort, director, actor, decade filters
  */
+import Icon from '../Icon.astro';
 
 interface Props {
   viewMode?: 'list' | 'card' | 'single';
@@ -22,175 +25,265 @@ const {
 ---
 
 <div class="list-toolbar">
-  <!-- Search row -->
-  <div class="toolbar-search-row">
-    <div class="search-input-wrapper">
-      <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <input
-        type="text"
-        id="search-input"
-        class="search-input"
-        placeholder="Search title, director, actor..."
-        aria-label="Search films by title, director, or actor"
-        autocomplete="off"
-      />
-      <button id="search-clear" class="search-clear" aria-label="Clear search" style="display:none">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
+  <!-- Row 1: View mode (always visible) -->
+  <div class="toolbar-view-row">
+    <div class="view-toggle" role="radiogroup" aria-label="View mode">
+      <button
+        class:list={['view-btn', { active: viewMode === 'list' }]}
+        data-view="list"
+        role="radio"
+        aria-checked={viewMode === 'list'}
+        aria-label="List view"
+      >
+        <Icon name="rows-4" size={16} />
+      </button>
+      <button
+        class:list={['view-btn', { active: viewMode === 'card' }]}
+        data-view="card"
+        role="radio"
+        aria-checked={viewMode === 'card'}
+        aria-label="Card view"
+      >
+        <Icon name="grid-2x2" size={16} />
+      </button>
+      <button
+        class:list={['view-btn', { active: viewMode === 'single' }]}
+        data-view="single"
+        role="radio"
+        aria-checked={viewMode === 'single'}
+        aria-label="Single card view"
+      >
+        <Icon name="square" size={16} />
       </button>
     </div>
   </div>
 
-  <!-- Filters row -->
-  <div class="toolbar-row toolbar-filters-row">
-    <div class="toolbar-group">
-      <span class="toolbar-label">Director</span>
-      <select class="filter-select" id="filter-director" aria-label="Filter by director">
-        <option value="">All</option>
-        {directors.map(d => (
-          <option value={d.toLowerCase()}>{d}</option>
-        ))}
-      </select>
-    </div>
-
-    <div class="toolbar-group">
-      <span class="toolbar-label">Actor</span>
-      <select class="filter-select" id="filter-actor" aria-label="Filter by actor">
-        <option value="">All</option>
-        {actors.map(a => (
-          <option value={a.toLowerCase()}>{a}</option>
-        ))}
-      </select>
-    </div>
-
-    <div class="toolbar-group">
-      <span class="toolbar-label">Decade</span>
-      <select class="filter-select" id="filter-decade" aria-label="Filter by decade">
-        <option value="">All</option>
-        {decades.map(d => (
-          <option value={d}>{d}</option>
-        ))}
-      </select>
-    </div>
-  </div>
-
-  <!-- View/sort row -->
-  <div class="toolbar-row">
-    <div class="toolbar-group">
-      <span class="toolbar-label">View</span>
-      <div class="view-toggle" role="radiogroup" aria-label="View mode">
-        <button
-          class:list={['view-btn', { active: viewMode === 'list' }]}
-          data-view="list"
-          role="radio"
-          aria-checked={viewMode === 'list'}
-          aria-label="List view"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <button
-          class:list={['view-btn', { active: viewMode === 'card' }]}
-          data-view="card"
-          role="radio"
-          aria-checked={viewMode === 'card'}
-          aria-label="Card view"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="1.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="9.5" y="1.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="1.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="9.5" y="9.5" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-        </button>
-        <button
-          class:list={['view-btn', { active: viewMode === 'single' }]}
-          data-view="single"
-          role="radio"
-          aria-checked={viewMode === 'single'}
-          aria-label="Single card view"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+  <!-- Row 2+: Search, filter toggle, disclosure (hidden in single view) -->
+  <div class="toolbar-search-section" id="toolbar-search-section">
+    <div class="toolbar-search-row">
+      <div class="search-input-wrapper">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="Search films..."
+          aria-label="Search films by title, director, or actor"
+          autocomplete="off"
+        />
+        <button id="search-clear" class="search-clear" aria-label="Clear search" style="display:none">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </button>
       </div>
+
+      <button
+        class="filter-toggle-btn"
+        id="filter-toggle-btn"
+        aria-label="Toggle filters and sort"
+        aria-expanded="false"
+        aria-controls="filter-disclosure"
+      >
+        <Icon name="list-filter" size={16} />
+        <span class="filter-badge" id="filter-badge">0</span>
+      </button>
     </div>
 
-    <div class="toolbar-group">
-      <span class="toolbar-label">Sort</span>
-      <select class="sort-select" id="sort-select" aria-label="Sort movies by">
-        <option value="alpha" selected={sortBy === 'alpha'}>A &rarr; Z</option>
-        <option value="year" selected={sortBy === 'year'}>Year</option>
-        <option value="director" selected={sortBy === 'director'}>Director</option>
-        <option value="marked" selected={sortBy === 'marked'}>Marked</option>
-      </select>
-    </div>
+    <!-- Filter disclosure panel -->
+    <div class="filter-disclosure" id="filter-disclosure">
+      <div class="filter-disclosure-inner">
+        <div class="filter-row">
+          <span class="filter-row-label">Sort</span>
+          <select class="toolbar-select" id="sort-select" aria-label="Sort movies by">
+            <option value="alpha" selected={sortBy === 'alpha'}>A &rarr; Z</option>
+            <option value="year" selected={sortBy === 'year'}>Year</option>
+            <option value="director" selected={sortBy === 'director'}>Director</option>
+            <option value="marked" selected={sortBy === 'marked'}>Marked</option>
+          </select>
+        </div>
 
-    <div class="toolbar-group toolbar-results" id="filter-results" style="display:none">
-      <span class="filter-results-text" id="filter-results-text"></span>
-      <button class="filter-clear-btn" id="filter-clear-all" aria-label="Clear all filters">Clear</button>
+        <div class="filter-row">
+          <span class="filter-row-label">
+            <Icon name="megaphone" size={14} />
+            <span>Director</span>
+          </span>
+          <select class="toolbar-select filter-select" id="filter-director" aria-label="Filter by director">
+            <option value="">All directors</option>
+            {directors.map(d => (
+              <option value={d.toLowerCase()}>{d}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-row-label">
+            <Icon name="users-round" size={14} />
+            <span>Actor</span>
+          </span>
+          <select class="toolbar-select filter-select" id="filter-actor" aria-label="Filter by actor">
+            <option value="">All actors</option>
+            {actors.map(a => (
+              <option value={a.toLowerCase()}>{a}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="filter-row">
+          <span class="filter-row-label">
+            <Icon name="calendars" size={14} />
+            <span>Decade</span>
+          </span>
+          <select class="toolbar-select filter-select" id="filter-decade" aria-label="Filter by decade">
+            <option value="">All decades</option>
+            {decades.map(d => (
+              <option value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="filter-row filter-actions" id="filter-results" style="display:none">
+          <span class="filter-results-text" id="filter-results-text"></span>
+          <button class="filter-clear-btn" id="filter-clear-all" aria-label="Clear all filters">Clear all</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<script>
+  // --- Filter disclosure toggle ---
+  const filterToggleBtn = document.getElementById('filter-toggle-btn');
+  const filterDisclosure = document.getElementById('filter-disclosure');
+
+  filterToggleBtn?.addEventListener('click', () => {
+    const isOpen = filterDisclosure?.classList.contains('open');
+    filterDisclosure?.classList.toggle('open', !isOpen);
+    filterToggleBtn.classList.toggle('active', !isOpen);
+    filterToggleBtn.setAttribute('aria-expanded', String(!isOpen));
+  });
+
+  // --- Hide search/filter section in single view ---
+  const searchSection = document.getElementById('toolbar-search-section');
+
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = (btn as HTMLElement).dataset.view;
+      if (searchSection) {
+        searchSection.style.display = view === 'single' ? 'none' : '';
+      }
+      // Close disclosure when switching to single view
+      if (view === 'single' && filterDisclosure?.classList.contains('open')) {
+        filterDisclosure.classList.remove('open');
+        filterToggleBtn?.classList.remove('active');
+        filterToggleBtn?.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+
+  // --- Filter badge count ---
+  function updateFilterBadge() {
+    const badge = document.getElementById('filter-badge');
+    if (!badge) return;
+
+    const director = (document.getElementById('filter-director') as HTMLSelectElement)?.value;
+    const actor = (document.getElementById('filter-actor') as HTMLSelectElement)?.value;
+    const decade = (document.getElementById('filter-decade') as HTMLSelectElement)?.value;
+    const count = (director ? 1 : 0) + (actor ? 1 : 0) + (decade ? 1 : 0);
+
+    badge.textContent = String(count);
+    badge.classList.toggle('visible', count > 0);
+    filterToggleBtn?.classList.toggle('has-filters', count > 0);
+  }
+
+  document.getElementById('filter-director')?.addEventListener('change', updateFilterBadge);
+  document.getElementById('filter-actor')?.addEventListener('change', updateFilterBadge);
+  document.getElementById('filter-decade')?.addEventListener('change', updateFilterBadge);
+  document.getElementById('filter-clear-all')?.addEventListener('click', () => {
+    requestAnimationFrame(updateFilterBadge);
+  });
+
+  updateFilterBadge();
+</script>
+
 <style>
+  /* --- Toolbar container --- */
   .list-toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 16px;
-    background: color-mix(in srgb, var(--bg-body) 85%, transparent);
-    border-radius: 0;
-    margin: 0 -12px 12px;
-    padding: 12px 16px;
     position: sticky;
     top: 0;
     z-index: var(--z-drawer-bg);
+    background: color-mix(in srgb, var(--bg-body) 85%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--bg-movie-hover);
+    margin: 0 -12px 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
-  .toolbar-row {
+  /* --- View row (always visible) --- */
+  .toolbar-view-row {
     display: flex;
     align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
   }
 
-  .toolbar-filters-row {
-    gap: 12px;
+  .view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    overflow: hidden;
   }
 
-  .toolbar-group {
+  .view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .view-btn:not(:last-child) {
+    border-right: 1px solid var(--bg-movie-hover);
+  }
+
+  .view-btn:hover {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .view-btn.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  /* --- Search section (hidden in single view via JS) --- */
+  .toolbar-search-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* --- Search row --- */
+  .toolbar-search-row {
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .toolbar-label {
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-tertiary);
-  }
-
-  /* Search input */
-  .toolbar-search-row {
-    display: flex;
-    align-items: center;
-  }
-
   .search-input-wrapper {
     position: relative;
     flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
   }
@@ -200,6 +293,7 @@ const {
     left: 10px;
     color: var(--text-tertiary);
     pointer-events: none;
+    transition: color 0.15s;
   }
 
   .search-input {
@@ -244,26 +338,119 @@ const {
     color: var(--text-primary);
   }
 
-  /* Filter selects */
-  .filter-select {
+  /* --- Filter toggle button --- */
+  .filter-toggle-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .filter-toggle-btn:hover,
+  .filter-toggle-btn.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .filter-toggle-btn.has-filters {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* --- Filter badge --- */
+  .filter-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filter-badge.visible {
+    display: flex;
+  }
+
+  /* --- Filter disclosure panel --- */
+  .filter-disclosure {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .filter-disclosure.open {
+    grid-template-rows: 1fr;
+  }
+
+  .filter-disclosure-inner {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 10px;
+  }
+
+  /* --- Filter rows --- */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 4px;
+  }
+
+  .filter-row-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.01em;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  /* --- Selects (shared for sort + filters) --- */
+  .toolbar-select {
     appearance: none;
     -webkit-appearance: none;
-    padding: 5px 24px 5px 8px;
-    font-size: 12px;
+    flex: 1;
+    min-width: 0;
+    padding: 6px 28px 6px 10px;
+    font-size: 13px;
     font-family: inherit;
     color: var(--text-primary);
     background: var(--bg-movie);
     border: 1px solid var(--bg-movie-hover);
     border-radius: 6px;
     cursor: pointer;
-    max-width: 160px;
     text-overflow: ellipsis;
     background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 6px center;
+    background-position: right 8px center;
   }
 
-  .filter-select:focus {
+  .toolbar-select:focus {
     outline: 2px solid var(--accent);
     outline-offset: 1px;
   }
@@ -274,9 +461,12 @@ const {
     background-color: color-mix(in srgb, var(--accent) 8%, var(--bg-movie));
   }
 
-  /* Filter results / clear */
-  .toolbar-results {
-    margin-left: auto;
+  /* --- Filter actions row --- */
+  .filter-actions {
+    justify-content: flex-end;
+    padding-top: 6px;
+    border-top: 1px solid var(--bg-movie-hover);
+    margin-top: 4px;
   }
 
   .filter-results-text {
@@ -285,7 +475,7 @@ const {
   }
 
   .filter-clear-btn {
-    padding: 3px 8px;
+    padding: 4px 10px;
     font-size: 11px;
     font-family: inherit;
     font-weight: 500;
@@ -295,6 +485,7 @@ const {
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s;
+    margin-left: auto;
   }
 
   .filter-clear-btn:hover {
@@ -302,75 +493,11 @@ const {
     color: #fff;
   }
 
-  /* View toggle */
-  .view-toggle {
-    display: inline-flex;
-    border: 1px solid var(--bg-movie-hover);
-    border-radius: 6px;
-    overflow: hidden;
-  }
-
-  .view-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 32px;
-    padding: 0;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .view-btn:not(:last-child) {
-    border-right: 1px solid var(--bg-movie-hover);
-  }
-
-  .view-btn:hover {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  .view-btn.active {
-    background: var(--bg-movie);
-    color: var(--text-primary);
-  }
-
-  /* Sort select */
-  .sort-select {
-    appearance: none;
-    -webkit-appearance: none;
-    padding: 6px 28px 6px 10px;
-    font-size: 13px;
-    font-family: inherit;
-    color: var(--text-primary);
-    background: var(--bg-movie);
-    border: 1px solid var(--bg-movie-hover);
-    border-radius: 6px;
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-  }
-
-  .sort-select:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
-
-  @media (max-width: 480px) {
-    .toolbar-filters-row {
-      gap: 8px;
-    }
-
-    .toolbar-group {
-      gap: 4px;
-    }
-
-    .filter-select {
-      max-width: 120px;
+  @media (prefers-reduced-motion: reduce) {
+    .filter-disclosure,
+    .view-btn,
+    .filter-toggle-btn {
+      transition: none;
     }
   }
 </style>
