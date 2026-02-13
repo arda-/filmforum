@@ -44,6 +44,10 @@ const validatePosterImages = {
         console.log(`✓ Validated ${allMovies.length} movies have poster images`);
       }
 
+      // Validate series metadata files and hero images
+      const { validateSeriesMetadata } = await import('./src/config/seriesMetadata.ts');
+      validateSeriesMetadata(activeSeries);
+
       // Generate tiny thumbnail images for modal fast loading
       const thumbDir = path.join(process.cwd(), 'public/posters-thumb');
       if (!fs.existsSync(thumbDir)) {

@@ -11,6 +11,7 @@ export interface SeriesConfig {
   venueName: string;
   dateRange: string;
   dataFile: string;
+  metadataFile?: string; // Optional: series-level metadata (description, images, partnership info, etc.)
   active: boolean;
 }
 
@@ -23,6 +24,7 @@ export const SERIES: Record<string, SeriesConfig> = {
     venueName: 'Film Forum',
     dateRange: 'Feb 6\u201326, 2026',
     dataFile: '/tenement-stories-full.json',
+    metadataFile: '/series-metadata/tenement-stories.json',
     active: true,
   },
 };
