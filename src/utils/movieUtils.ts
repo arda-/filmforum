@@ -79,11 +79,9 @@ export function formatRuntime(runtime: string | undefined): string {
 
 // --- Time parsing and work hours ---
 
-/**
- * Work hours constants (in minutes since midnight)
- */
-export const WORK_START = 9 * 60; // 9:00 AM
-export const WORK_END = 17 * 60; // 5:00 PM
+// Import from calendarConstants (canonical source) and re-export for test access
+import { WORK_START, WORK_END } from './calendarConstants';
+export { WORK_START, WORK_END };
 
 /**
  * Parses a time string to minutes since midnight.
@@ -127,8 +125,7 @@ export function parseTimeToMins(timeStr: string): number {
  * Checks if a date string is a weekday (Mon-Fri)
  */
 export function isWeekday(dateStr: string): boolean {
-  const date = new Date(dateStr);
-  const day = date.getDay();
+  const day = new Date(dateStr + 'T12:00:00').getDay();
   return day >= 1 && day <= 5; // 0 = Sunday, 6 = Saturday
 }
 
