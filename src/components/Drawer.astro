@@ -2,6 +2,13 @@
 /**
  * Vaul-style drawer component.
  * Slides up from bottom with backdrop, swipe-to-dismiss, and smooth transitions.
+ *
+ * @slot default - Main body content.
+ * @slot close - Close button. Defaults to a floating frosted-glass X button.
+ *   Custom replacements should include `data-drawer-close` on clickable elements
+ *   so the built-in close handler fires.
+ * @slot footer - Optional sticky footer (e.g. action buttons). When present,
+ *   safe-area inset padding shifts from the body to the footer.
  */
 import Icon from './Icon.astro';
 
@@ -17,7 +24,7 @@ const hasFooter = Astro.slots.has('footer');
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
   <div class="drawer-backdrop" data-drawer-close></div>
-  <div class="drawer-container" style={`--drawer-max-height: ${maxHeight}`}>
+  <div class="drawer-container" style={`--drawer-max-height: ${maxHeight}`} data-has-footer={hasFooter ? '' : undefined}>
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
@@ -139,12 +146,12 @@ const hasFooter = Astro.slots.has('footer');
     width: 36px;
     height: 36px;
     padding: 0;
-    background: color-mix(in srgb, var(--bg-movie-hover) 40%, transparent);
+    background: color-mix(in srgb, var(--bg-movie-hover) var(--drawer-close-bg-opacity), transparent);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border: none;
     border-radius: 50%;
-    color: var(--text-tertiary);
+    color: var(--drawer-close-color);
     cursor: pointer;
     outline: none;
     transition: background-color 0.15s, color 0.15s, backdrop-filter 0.15s;
@@ -164,13 +171,6 @@ const hasFooter = Astro.slots.has('footer');
     }
   }
 
-  @media (prefers-color-scheme: dark) {
-    .drawer-close-btn {
-      background: color-mix(in srgb, var(--bg-movie-hover) 65%, transparent);
-      color: var(--text-secondary);
-    }
-  }
-
   .drawer-header {
     padding: 0 20px 12px;
     padding-right: 48px;
@@ -187,7 +187,7 @@ const hasFooter = Astro.slots.has('footer');
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0 20px calc(2px + env(safe-area-inset-bottom, 0px));
+    padding: 0 20px 2px;
     flex: 1 1 auto;
     min-height: 0;
     -webkit-overflow-scrolling: touch;
@@ -204,6 +204,12 @@ const hasFooter = Astro.slots.has('footer');
     .drawer-body {
       padding-bottom: 12px;
     }
+  }
+
+  /* Body gets safe area padding only when it's the bottom-most element
+     (no footer). When a footer exists, it handles the safe area instead. */
+  .drawer-container:not([data-has-footer]) .drawer-body {
+    padding-bottom: calc(2px + env(safe-area-inset-bottom, 0px));
   }
 
   .drawer-footer {
@@ -267,35 +273,6 @@ const hasFooter = Astro.slots.has('footer');
         e.stopPropagation();
         closeDrawer();
       });
-    });
-
-    // Close on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && (drawer as HTMLElement).dataset.open === 'true') {
-        closeDrawer();
-      }
-    });
-
-    // Focus trap — cycle Tab within the drawer while open
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Tab' || (drawer as HTMLElement).dataset.open !== 'true') return;
-      const focusable = drawer.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
     });
 
     // --- Swipe-to-dismiss ---
@@ -399,6 +376,38 @@ const hasFooter = Astro.slots.has('footer');
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       });
+    }
+  });
+
+  // Delegated keyboard handler — single listener for Escape + focus trap
+  // across all drawer instances (avoids per-drawer listener accumulation).
+  document.addEventListener('keydown', (e) => {
+    const openDrawer = document.querySelector<HTMLElement>('.drawer[data-open="true"]');
+    if (!openDrawer) return;
+
+    if (e.key === 'Escape') {
+      (window as any).closeDrawer(openDrawer.id);
+      return;
+    }
+
+    if (e.key === 'Tab') {
+      const focusable = openDrawer.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
   });
 

@@ -232,6 +232,9 @@ import Button from '../../components/Button.astro';
       <h3>8. Governing Law</h3>
       <p>These terms and conditions are governed by and construed in accordance with the laws and you irrevocably submit to the exclusive jurisdiction of the courts in that location.</p>
     </div>
+    <!-- Inline actions (not using the footer slot) — demonstrates a non-sticky
+         action bar that scrolls with the content, suitable when the user should
+         read through the full content before acting. -->
     <div class="drawer-actions">
       <Button variant="secondary" onclick="closeDrawer('drawer-scroll')">Decline</Button>
       <Button variant="primary" onclick="closeDrawer('drawer-scroll')">Accept</Button>
