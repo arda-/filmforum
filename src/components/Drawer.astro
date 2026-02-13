@@ -15,19 +15,32 @@ import Icon from './Icon.astro';
 interface Props {
   id: string;
   title?: string;
+  /** Fixed height — drawer is always exactly this tall. */
   height?: string;
-  /** @deprecated Use `height` instead */
+  /** Minimum height — drawer is at least this tall (content can push it taller). */
+  minHeight?: string;
+  /** Maximum height — drawer grows with content up to this limit, then scrolls.
+   *  Defaults to 85dvh when neither `height` nor `maxHeight` is set. */
   maxHeight?: string;
 }
 
-const { id, title, height, maxHeight } = Astro.props;
-const resolvedHeight = height ?? maxHeight ?? '85dvh';
+const { id, title, height, minHeight, maxHeight } = Astro.props;
 const hasFooter = Astro.slots.has('footer');
+
+// Build sizing inline styles from props
+const sizeStyles: string[] = [];
+if (height) {
+  sizeStyles.push(`height: ${height}`);
+} else {
+  if (minHeight) sizeStyles.push(`min-height: ${minHeight}`);
+  sizeStyles.push(`max-height: ${maxHeight ?? '85dvh'}`);
+}
+const containerStyle = sizeStyles.join('; ');
 ---
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
   <div class="drawer-backdrop" data-drawer-close></div>
-  <div class="drawer-container" style={`--drawer-height: ${resolvedHeight}`} data-has-footer={hasFooter ? '' : undefined}>
+  <div class="drawer-container" style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
@@ -108,7 +121,6 @@ const hasFooter = Astro.slots.has('footer');
   .drawer-container {
     position: relative;
     z-index: 1;
-    height: var(--drawer-height, 85dvh);
     max-height: 100dvh;
     background: var(--bg-day);
     border-radius: 1.5rem 1.5rem 0 0;
