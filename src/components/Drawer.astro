@@ -92,6 +92,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     max-height: var(--drawer-max-height, 85vh);
     background: var(--bg-day);
     border-radius: 1.5rem 1.5rem 0 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
@@ -157,9 +158,23 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0 20px 20px;
-    flex: 1;
+    padding: 0 20px 2px;
+    flex: 1 1 auto;
+    min-height: 0;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* Devices without mobile bottom browser chrome need explicit bottom padding.
+     Two cases:
+     1. Desktop/laptop with mouse or trackpad (hover + fine pointer)
+     2. Touch tablets in full-screen mode (coarse pointer + large viewport) —
+        when an iPad enters compact/split-view with bottom chrome, the viewport
+        narrows below 768px, correctly skipping this padding. */
+  @media (hover: hover) and (pointer: fine),
+         (pointer: coarse) and (min-width: 768px) and (min-height: 600px) {
+    .drawer-body {
+      padding-bottom: 12px;
+    }
   }
 </style>
 
@@ -207,9 +222,18 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     });
 
     // --- Swipe-to-dismiss ---
+    function isInsideScrolledContainer(target: EventTarget | null): boolean {
+      let el = target as HTMLElement | null;
+      while (el && el !== body) {
+        if (el.scrollTop > 0) return true;
+        el = el.parentElement;
+      }
+      return body.scrollTop > 0;
+    }
+
     function onTouchStart(e: TouchEvent, source: 'handle' | 'body') {
-      // For body drags, only start if scrolled to top
-      if (source === 'body' && body && body.scrollTop > 0) return;
+      // For body drags, only start if no scrollable ancestor is scrolled
+      if (source === 'body' && isInsideScrolledContainer(e.target)) return;
       isDragging = true;
       dragSource = source;
       startY = e.touches[0].clientY;

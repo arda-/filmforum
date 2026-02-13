@@ -436,11 +436,18 @@ import Button from '../../components/Button.astro';
     border-top: 1px solid var(--bg-movie-hover);
   }
 
+  :global(#drawer-sticky-footer .drawer-body) {
+    padding-bottom: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
   .drawer-sticky-layout {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    margin: 0 -20px -20px;
+    flex: 1;
+    min-height: 0;
+    margin: 0 -20px;
   }
 
   .drawer-sticky-content {
@@ -486,7 +493,7 @@ import Button from '../../components/Button.astro';
     flex-shrink: 0;
     display: flex;
     gap: 8px;
-    padding: 16px 20px;
+    padding: 12px 20px 2px;
     background: var(--bg-day);
     border-top: 1px solid var(--bg-movie-hover);
     backdrop-filter: blur(10px);
