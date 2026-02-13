@@ -96,7 +96,7 @@ function runCommand(cmd, args) {
 /** Run vitest for Tier 1 unit tests */
 function runTier1() {
   console.log('\n📋 Running Tier 1: Unit tests...\n');
-  const passed = runCommand('npx', ['vitest', 'run']);
+  const passed = runCommand('pnpm', ['vitest', 'run']);
   console.log(passed ? '\n✅ Tier 1 tests passed\n' : '\n❌ Tier 1 tests failed\n');
   return passed;
 }
@@ -104,7 +104,7 @@ function runTier1() {
 /** Run Playwright component tests for Tier 2 */
 function runTier2() {
   console.log('\n🎨 Running Tier 2: Component tests...\n');
-  const passed = runCommand('npx', ['playwright', 'test', 'tests/components']);
+  const passed = runCommand('pnpm', ['playwright', 'test', 'tests/components']);
   console.log(passed ? '\n✅ Tier 2 tests passed\n' : '\n❌ Tier 2 tests failed\n');
   return passed;
 }
@@ -112,7 +112,7 @@ function runTier2() {
 /** Run Playwright integration tests for Tier 3 */
 function runTier3() {
   console.log('\n🔗 Running Tier 3: Integration tests...\n');
-  const passed = runCommand('npx', ['playwright', 'test', 'tests/integration']);
+  const passed = runCommand('pnpm', ['playwright', 'test', 'tests/integration']);
   console.log(passed ? '\n✅ Tier 3 tests passed\n' : '\n❌ Tier 3 tests failed\n');
   return passed;
 }
@@ -129,6 +129,10 @@ function main() {
   if (runAll) {
     tiersToRun = ['tier1', 'tier2', 'tier3'];
   } else if (tier) {
+    if (!['1', '2', '3'].includes(tier)) {
+      console.error(`Invalid tier: ${tier}. Valid values: 1, 2, 3`);
+      process.exit(1);
+    }
     tiersToRun = [`tier${tier}`];
   } else {
     const changedFiles = getChangedFiles();
