@@ -80,7 +80,7 @@ export function formatRuntime(runtime: string | undefined): string {
 // --- Time parsing and work hours ---
 
 // Import from calendarConstants (canonical source) and re-export for test access
-import { WORK_START, WORK_END } from './calendarConstants';
+import { WORK_START, WORK_END } from '@utils/calendarConstants';
 export { WORK_START, WORK_END };
 
 /**
