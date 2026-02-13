@@ -1,0 +1,101 @@
+---
+/**
+ * Segmented toggle group.
+ * Container for .seg-btn buttons with shared sizing and interaction styles.
+ *
+ * @param size - "default" (40px, matches shadcn default) or "sm" (36px, matches shadcn sm)
+ * @param role - ARIA role ("group" for multi-select, "radiogroup" for single-select)
+ * @param label - Accessible label for the group
+ * @param class - Additional CSS classes
+ */
+interface Props {
+  size?: 'default' | 'sm';
+  role?: string;
+  'aria-label'?: string;
+  class?: string;
+}
+
+const { size = 'default', role = 'group', class: className, ...rest } = Astro.props;
+---
+
+<div
+  class:list={['seg-toggle', `seg-toggle--${size}`, className]}
+  role={role}
+  {...rest}
+>
+  <slot />
+</div>
+
+<style is:global>
+  /* ── Segmented toggle container ── */
+  .seg-toggle {
+    display: inline-flex;
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-body);
+  }
+
+  /* ── Size tokens (mobile-first) ── */
+  .seg-toggle--default,
+  .seg-toggle--sm {
+    --seg-py: 6px;
+    --seg-px: 8px;
+    --seg-min: 36px;
+  }
+
+  @media (min-width: 480px) {
+    .seg-toggle--default {
+      --seg-py: 8px;
+      --seg-px: 10px;
+      --seg-min: 40px;
+    }
+  }
+
+  /* ── Button base ── */
+  .seg-toggle .seg-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: var(--seg-py) var(--seg-px);
+    min-width: var(--seg-min);
+    min-height: var(--seg-min);
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 400;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+      color 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .seg-toggle .seg-btn:not(:last-child) {
+    border-right: 1px solid var(--bg-movie-hover);
+  }
+
+  @media (hover: hover) {
+    .seg-toggle .seg-btn:hover {
+      background: var(--bg-movie);
+      color: var(--text-primary);
+    }
+  }
+
+  .seg-toggle .seg-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+    outline: none;
+    z-index: 1;
+  }
+
+  .seg-toggle .seg-btn.active {
+    background: var(--bg-movie);
+    color: var(--text-primary);
+  }
+
+  .seg-toggle .seg-btn svg {
+    flex-shrink: 0;
+  }
+
+</style>

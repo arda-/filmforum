@@ -3,7 +3,7 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
-import { SAVED_FILTER_COUNT, HOURS_FILTER_MODE, SINGLE_SHOWTIMES_MODE } from '../constants';
+import { SAVED_FILTER_COUNT, TIME_CATEGORY_COUNT, ALL_TIME_CATEGORIES } from './calendarConstants';
 
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {
@@ -30,22 +30,32 @@ export function updateUrlParams(): void {
   const timelineInput = getToggleInput(document.getElementById('timeline-mode-toggle'));
   if (timelineInput) params.set('timeline', timelineInput.checked ? '1' : '0');
 
-  const fitWidthInput = getToggleInput(document.getElementById('fit-width-toggle'));
-  if (fitWidthInput) params.set('fit-width', fitWidthInput.checked ? '1' : '0');
+  const fitWidthSwitch = document.querySelector('#fit-width-switch input') as HTMLInputElement;
+  if (fitWidthSwitch) params.set('fit-width', fitWidthSwitch.checked ? '1' : '0');
 
   const weekStartInput = getToggleInput(document.getElementById('week-start-toggle'));
   if (weekStartInput) params.set('week-start', weekStartInput.checked ? '1' : '0');
 
-  if (isTogglePressed(document.getElementById('show-image'))) params.set('image', '1');
-  if (isTogglePressed(document.getElementById('show-year-director'))) params.set('year-director', '1');
-  if (isTogglePressed(document.getElementById('show-runtime'))) params.set('runtime', '1');
-  if (isTogglePressed(document.getElementById('show-actors'))) params.set('actors', '1');
+  const showImageCheckbox = document.getElementById('show-image-checkbox') as HTMLInputElement;
+  const showYearDirectorCheckbox = document.getElementById('show-year-director-checkbox') as HTMLInputElement;
+  const showRuntimeCheckbox = document.getElementById('show-runtime-checkbox') as HTMLInputElement;
+  const showActorsCheckbox = document.getElementById('show-actors-checkbox') as HTMLInputElement;
 
-  const hoursFilter = document.querySelector('input[name="hours-filter-mode"]:checked') as HTMLInputElement;
-  if (hoursFilter?.value && hoursFilter.value !== 'none') params.set('hours', hoursFilter.value);
+  if (showImageCheckbox?.checked) params.set('image', '1');
+  if (showYearDirectorCheckbox?.checked) params.set('year-director', '1');
+  if (showRuntimeCheckbox?.checked) params.set('runtime', '1');
+  if (showActorsCheckbox?.checked) params.set('actors', '1');
 
-  const singleFilter = document.querySelector('input[name="single-showtimes-mode"]:checked') as HTMLInputElement;
-  if (singleFilter?.value && singleFilter.value !== 'none') params.set('single', singleFilter.value);
+  // Time category filter: encode checked values as comma-separated string
+  const timesChecked = document.querySelectorAll<HTMLInputElement>('input[name="time-filter"]:checked');
+  const timesValues = Array.from(timesChecked).map(cb => cb.value);
+  // Only persist if not all are checked (all checked = default/no filter)
+  if (timesValues.length > 0 && timesValues.length < TIME_CATEGORY_COUNT) {
+    params.set('times', timesValues.join(','));
+  }
+
+  const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
+  if (highlightUniqueToggle) params.set('highlight-unique', highlightUniqueToggle.checked ? '1' : '0');
 
   // Saved filter: encode checked values as comma-separated string
   const savedChecked = document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]:checked');
@@ -75,13 +85,12 @@ export function restoreFromUrl(): void {
     if (input) input.checked = params.get('timeline') === '1';
   }
 
-  if (params.has('fit-width')) {
-    const input = document.querySelector('#fit-width-toggle input') as HTMLInputElement;
-    if (input) {
-      const wantFitWidth = params.get('fit-width') === '1';
-      input.checked = wantFitWidth;
-      document.body.classList.toggle('natural-width', !wantFitWidth);
-    }
+  const switchInput = document.querySelector('#fit-width-switch input') as HTMLInputElement;
+  if (switchInput && params.has('fit-width')) {
+    const wantFitWidth = params.get('fit-width') === '1';
+    switchInput.checked = wantFitWidth;
+    // Note: minimum-width body class is set after all checkboxes are restored
+    // by shouldEnableMinimumWidth() in calendar.astro
   }
 
   if (params.has('week-start')) {
@@ -94,38 +103,42 @@ export function restoreFromUrl(): void {
     }
   }
 
-  // --- Tile display toggles (set data-state + body classes) ---
+  // --- Tile display checkboxes (set .checked + body classes) ---
 
   ['image', 'year-director', 'runtime', 'actors'].forEach(key => {
-    const id = key === 'year-director' ? 'show-year-director' : `show-${key}`;
-    const toggle = document.getElementById(id) as HTMLButtonElement;
+    const id = key === 'year-director' ? 'show-year-director-checkbox' : `show-${key}-checkbox`;
+    const checkbox = document.getElementById(id) as HTMLInputElement;
     const className = key === 'year-director' ? 'year-director' : key;
     if (params.has(key)) {
-      const wantPressed = params.get(key) === '1';
-      if (toggle) setToggleState(toggle, wantPressed);
-      document.body.classList.toggle(`show-${className}`, wantPressed);
-    } else if (toggle) {
-      document.body.classList.toggle(`show-${className}`, isTogglePressed(toggle));
+      const wantChecked = params.get(key) === '1';
+      if (checkbox) checkbox.checked = wantChecked;
+      document.body.classList.toggle(`show-${className}`, wantChecked);
+
+      // Always enable scrim and blur when images are shown
+      if (key === 'image') {
+        document.body.classList.toggle('scrim-enabled', wantChecked);
+        document.body.classList.toggle('blur-enabled', wantChecked);
+      }
+    } else if (checkbox) {
+      const isChecked = checkbox.checked;
+      document.body.classList.toggle(`show-${className}`, isChecked);
+
+      // Always enable scrim and blur when images are shown
+      if (key === 'image') {
+        document.body.classList.toggle('scrim-enabled', isChecked);
+        document.body.classList.toggle('blur-enabled', isChecked);
+      }
     }
   });
 
-  // --- Radio groups (set .checked on the target radio) ---
-  // Values are validated against known constants before interpolation into
-  // querySelector strings. Without this check, a crafted URL param like
-  // ?hours="]injected could produce an invalid CSS selector and throw.
+  // --- Time category filter checkboxes ---
 
-  const hoursValues = new Set(Object.values(HOURS_FILTER_MODE));
-  const hoursValue = params.get('hours');
-  if (hoursValue && hoursValues.has(hoursValue as any)) {
-    const radio = document.querySelector(`input[name="hours-filter-mode"][value="${hoursValue}"]`) as HTMLInputElement;
-    if (radio) radio.checked = true;
-  }
-
-  const singleValues = new Set(Object.values(SINGLE_SHOWTIMES_MODE));
-  const singleValue = params.get('single');
-  if (singleValue && singleValues.has(singleValue as any)) {
-    const radio = document.querySelector(`input[name="single-showtimes-mode"][value="${singleValue}"]`) as HTMLInputElement;
-    if (radio) radio.checked = true;
+  if (params.has('times')) {
+    const validCategories = new Set(ALL_TIME_CATEGORIES as readonly string[]);
+    const timesValues = new Set(params.get('times')!.split(',').filter(v => validCategories.has(v)));
+    document.querySelectorAll<HTMLInputElement>('input[name="time-filter"]').forEach(cb => {
+      cb.checked = timesValues.has(cb.value);
+    });
   }
 
   // --- Saved filter checkboxes ---
@@ -135,5 +148,14 @@ export function restoreFromUrl(): void {
     document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]').forEach(cb => {
       cb.checked = savedValues.has(cb.value);
     });
+  }
+
+  // --- Highlight unique toggle ---
+
+  if (params.has('highlight-unique')) {
+    const highlightUnique = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
+    if (highlightUnique) {
+      highlightUnique.checked = params.get('highlight-unique') === '1';
+    }
   }
 }

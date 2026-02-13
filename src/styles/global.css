@@ -32,6 +32,7 @@ html { touch-action: manipulation; }
   --text-secondary: #64748b;
   --text-tertiary: #64748b;
   --accent: #0891b2;
+  --accent-light: #22d3ee;
   --accent-bg: #0e7490;
 
   /* Webcoreui theme - light */
@@ -47,6 +48,10 @@ html { touch-action: manipulation; }
   --w-switch-on-color: var(--accent);
   --w-md-radius: 5px;
   --w-xl-radius: 15px;
+
+  /* Drawer close button */
+  --drawer-close-bg-opacity: 40%;
+  --drawer-close-color: var(--text-tertiary);
 
   /* Reaction colors */
   --reaction-yes: #22c55e;
@@ -67,6 +72,7 @@ html { touch-action: manipulation; }
     --text-secondary: #94a3b8;
     --text-tertiary: #94a3b8;
     --accent: #06b6d4;
+    --accent-light: #67e8f9;
     --accent-bg: #0e7490;
 
     /* Webcoreui theme - dark (midnight) */
@@ -80,6 +86,10 @@ html { touch-action: manipulation; }
     --w-color-primary-70: #061321;
     --w-switch-off-color: var(--w-color-primary-40);
     --w-switch-on-color: var(--accent);
+
+    /* Drawer close button */
+    --drawer-close-bg-opacity: 65%;
+    --drawer-close-color: var(--text-secondary);
 
     /* Reaction colors - brighter for dark mode */
     --reaction-yes: #4ade80;
@@ -157,10 +167,16 @@ body {
   margin-top: 20px;
   color: var(--text-secondary);
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.legend-star {
+  color: var(--accent);
+  font-size: 14px;
 }
 
 /* Natural width mode - prevent page from shrinking/scrolling */
-body.natural-width {
+body.minimum-width {
   overflow-x: hidden;
 }
 

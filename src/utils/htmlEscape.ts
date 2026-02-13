@@ -39,6 +39,18 @@ export function escapeAttr(str: string | null | undefined): string {
  * @param url - The URL to validate
  * @returns The URL if safe, empty string otherwise
  */
+/**
+ * Safely serializes data as JSON for embedding inside a `<script>` tag.
+ * Escapes `<` as `\u003c` to prevent `</script>` from breaking out of the tag.
+ * OWASP-recommended pattern for inline JSON.
+ *
+ * @param data - The data to serialize
+ * @returns JSON string safe for use with set:html in script tags
+ */
+export function safeJsonForScript(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 export function safeHref(url: string | null | undefined): string {
   if (!url) return '';
   const trimmed = String(url).trim();

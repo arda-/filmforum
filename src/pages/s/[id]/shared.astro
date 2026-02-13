@@ -29,7 +29,8 @@ try {
   const dataPath = path.join(process.cwd(), 'public', config.dataFile);
   const data = fs.readFileSync(dataPath, 'utf-8');
   allMovies = JSON.parse(data);
-} catch {
+} catch (e) {
+  console.warn(`[${id}] Failed to load movie data:`, e instanceof Error ? e.message : e);
   allMovies = [];
 }
 
@@ -48,7 +49,7 @@ const canonical = `/s/${id}/shared`;
   canonical={canonical}
   noindex={true}
 >
-  <main class="shared-list-page" data-session-id={id}>
+  <div data-session-id={id}>
     <header class="page-header">
       <a href={`/s/${id}/list`} class="back-link">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -91,7 +92,7 @@ const canonical = `/s/${id}/shared`;
         Compare with my list
       </button>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <script define:vars={{ movieDataJson, sessionId: id }}>
@@ -100,7 +101,8 @@ const canonical = `/s/${id}/shared`;
 </script>
 
 <script>
-  import { decodeReactions, getReactions, setReaction, encodeReactions, getUserId } from '@utils/storageManager';
+  import { getReactions, setReaction, getUserId } from '@utils/storageManager';
+  import { encodeReactionsCompact, decodeReactionsCompact } from '@utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '@utils/movieUtils';
   import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
   import type { UniqueMovie, MovieReaction } from '@types/session';
@@ -108,11 +110,21 @@ const canonical = `/s/${id}/shared`;
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
 
+  // Validate user ID format to prevent abuse
+  function validateUserId(id: string | null): string {
+    // Allow alphanumeric, hyphens, and underscores up to 20 characters
+    // Supports both generated IDs (8 chars) and future readable IDs
+    if (id && /^[a-zA-Z0-9_-]{1,20}$/.test(id)) {
+      return id;
+    }
+    return 'unknown';
+  }
+
   // Parse userId and reactions from URL query params
   const urlParams = new URLSearchParams(window.location.search);
-  const friendUserId = urlParams.get('u') || 'unknown';
+  const friendUserId = validateUserId(urlParams.get('u'));
   const encodedReactions = urlParams.get('r') || '';
-  const friendReactions = decodeReactions(encodedReactions);
+  const friendReactions = decodeReactionsCompact(encodedReactions, allMovies);
 
   // Display friend ID
   const friendIdEl = document.getElementById('friend-id');
@@ -190,19 +202,13 @@ const canonical = `/s/${id}/shared`;
   // Compare button
   document.getElementById('compare-btn')?.addEventListener('click', () => {
     const myReactions = getReactions(sessionId);
-    const myEncoded = encodeReactions(myReactions);
+    const myEncoded = encodeReactionsCompact(myReactions, allMovies);
     const friendEncoded = encodedReactions;
     window.location.href = `/s/${sessionId}/compare/${friendEncoded}/${myEncoded}`;
   });
 </script>
 
 <style>
-  .shared-list-page {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 0 16px;
-  }
-
   .page-header {
     padding: 16px 0 12px;
   }

@@ -3,9 +3,10 @@
  * Handles populating and opening the movie detail modal/dialog.
  */
 
-import type { Movie } from './icsGenerator';
+import type { Movie } from '../types/movie';
 import { downloadICS } from './icsGenerator';
 import { toTitleCase, processFFJr } from '../components/MovieTile';
+import { formatRuntime } from './movieUtils';
 
 /** Open the movie detail modal and populate it with data. */
 export function openMovieModal(movie: Movie): void {
@@ -53,7 +54,7 @@ export function openMovieModal(movie: Movie): void {
   if (titleEl) titleEl.textContent = toTitleCase(movie.Movie);
 
   if (metaEl) {
-    const runtime = movie.runtime?.replace(' minutes', 'min') || '';
+    const runtime = formatRuntime(movie.runtime);
     metaEl.textContent = [movie.year, movie.director, runtime].filter(Boolean).join(' \u00b7 ');
   }
 

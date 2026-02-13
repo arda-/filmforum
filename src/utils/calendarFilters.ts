@@ -1,82 +1,47 @@
 /**
  * Calendar filtering logic.
- * Functions for filtering movies by availability (work hours, weekends)
- * and by saved reaction status.
+ * Functions for filtering movies by time category and by saved reaction status.
  */
 
-import type { Movie } from './icsGenerator';
-import { WORK_START, WORK_END, HOURS_FILTER_MODE, SAVED_FILTER_COUNT, type HoursFilterMode, type SavedFilter } from '../constants';
-import { parseTimeToMins } from './calendarTime';
-import type { ReactionMap } from '../types/session';
-import { movieId } from './sessionUtils';
+import type { Movie } from '@types/movie';
+import { WORK_START, WORK_END, TIME_CATEGORY_COUNT, type TimeCategory, type SavedFilter, SAVED_FILTER_COUNT } from '@utils/calendarConstants';
+import { parseTimeToMins } from '@utils/movieUtils';
+import type { ReactionMap } from '@types/session';
+import { movieId } from '@utils/sessionUtils';
 
-/** Get movies hidden by the "after 5pm" work-hours filter. */
-export function getHiddenWorkHoursMovies(allMovies: Movie[]): Movie[] {
-  return allMovies.filter(movie => {
-    const date = movie.Datetime.split('T')[0];
-    const dayOfWeek = new Date(date + 'T12:00:00').getDay();
-    const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-    if (!isWeekday) return false;
-    const mins = parseTimeToMins(movie.Time);
-    return mins >= WORK_START && mins < WORK_END;
-  });
-}
+/**
+ * Classify a movie into a time category: weekdays, weeknights, or weekends.
+ * - Weekdays: Mon-Fri, 9am-5pm
+ * - Weeknights: Mon-Fri, before 9am or after 5pm
+ * - Weekends: Sat-Sun, any time
+ */
+export function classifyTimeCategory(movie: Movie, dateStr: string): TimeCategory {
+  const dayOfWeek = new Date(dateStr + 'T12:00:00').getDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-/** Get all weekday movies (hidden by "weekends only" filter). */
-export function getWeekdayMovies(allMovies: Movie[]): Movie[] {
-  return allMovies.filter(movie => {
-    const date = movie.Datetime.split('T')[0];
-    const dayOfWeek = new Date(date + 'T12:00:00').getDay();
-    return dayOfWeek >= 1 && dayOfWeek <= 5;
-  });
-}
+  if (isWeekend) return 'weekends';
 
-/** Update the filter status text showing how many showtimes/films are hidden. */
-export function updateHoursFilterStatus(
-  mode: HoursFilterMode,
-  allMovies: Movie[]
-): void {
-  const statusEl = document.getElementById('hours-filter-status');
-  if (!statusEl) return;
-
-  if (mode === HOURS_FILTER_MODE.NONE) {
-    statusEl.textContent = '';
-    statusEl.style.display = 'none';
-    return;
-  }
-
-  const hiddenMovies = mode === HOURS_FILTER_MODE.WEEKENDS
-    ? getWeekdayMovies(allMovies)
-    : getHiddenWorkHoursMovies(allMovies);
-  const uniqueTitles = new Set(hiddenMovies.map(m => m.Movie));
-  statusEl.textContent = `(${hiddenMovies.length} showtimes, ${uniqueTitles.size} films hidden)`;
-  statusEl.style.display = 'inline';
+  const mins = parseTimeToMins(movie.Time);
+  if (mins >= WORK_START && mins < WORK_END) return 'weekdays';
+  return 'weeknights';
 }
 
 /**
- * Filter a day's movies based on filter mode and day of week.
- * Returns the filtered movie list for a given date.
+ * Filter a day's movies based on enabled time categories.
+ * Each movie falls into exactly one category; it's shown if that category is enabled.
+ * All categories enabled = show everything (fast path).
  */
-export function filterDayMovies(
+export function filterByTimeCategories(
   dayMovies: Movie[],
   dateStr: string,
-  hoursFilterMode: HoursFilterMode
+  enabledCategories: Set<TimeCategory>
 ): Movie[] {
-  const dayOfWeek = new Date(dateStr + 'T12:00:00').getDay();
-  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+  // All enabled = no filtering needed
+  if (enabledCategories.size === TIME_CATEGORY_COUNT) return dayMovies;
+  // None enabled = hide everything
+  if (enabledCategories.size === 0) return [];
 
-  if (hoursFilterMode === HOURS_FILTER_MODE.WEEKENDS && isWeekday) {
-    return [];
-  }
-
-  if (hoursFilterMode === HOURS_FILTER_MODE.AFTERHOURS && isWeekday) {
-    return dayMovies.filter(m => {
-      const mins = parseTimeToMins(m.Time);
-      return mins < WORK_START || mins >= WORK_END;
-    });
-  }
-
-  return dayMovies;
+  return dayMovies.filter(m => enabledCategories.has(classifyTimeCategory(m, dateStr)));
 }
 
 /**

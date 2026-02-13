@@ -2,49 +2,37 @@
  * Movie-related utility functions for calendar display and filtering
  */
 
-export interface Movie {
-  Movie: string;
-  Time: string;
-  Tickets: string;
-  Datetime: string;
-  year?: string;
-  director?: string;
-  runtime?: string;
-  actors?: string;
-  description?: string;
-  country?: string;
-  film_url?: string;
-  poster_url?: string;
-  _col?: number;
-  _hasOverlap?: boolean;
-}
+import type { Movie, Showtime, GroupedMovie, AggregationResult } from '@types/movie';
+
+// Re-export types for backwards compatibility
+export type { Movie, Showtime, GroupedMovie, AggregationResult };
+
+// Common roman numerals pattern (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
+const romanNumeralPattern = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)$/i;
 
 /**
  * Converts a string to title case (first letter of each word capitalized)
+ * Preserves acronyms (all-caps words) and roman numerals
  */
 export function toTitleCase(str: string): string {
   return str
     .split(' ')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .map((w) => {
+      // Preserve words that are all uppercase (likely acronyms)
+      if (w === w.toUpperCase() && w.length > 1 && /[A-Z]/.test(w)) {
+        return w;
+      }
+      // Preserve roman numerals
+      if (romanNumeralPattern.test(w)) {
+        return w.toUpperCase();
+      }
+      // Normal title case
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    })
     .join(' ');
 }
 
 // --- Movie aggregation for "Showing Today" ---
-
-export interface Showtime {
-  time: string;
-  tickets?: string;
-}
-
-export interface GroupedMovie {
-  film: Movie;
-  showtimes: Showtime[];
-}
-
-export interface AggregationResult {
-  targetDate: string;
-  movies: GroupedMovie[];
-}
 
 /**
  * Finds the next showing date (>= todayStr, or wraps to earliest available)
@@ -89,115 +77,180 @@ export function formatRuntime(runtime: string | undefined): string {
   return runtime.replace(' minutes', 'min').replace(' ', '');
 }
 
+// --- Time parsing and work hours ---
+
+// Import from calendarConstants (canonical source) and re-export for test access
+import { WORK_START, WORK_END } from '@utils/calendarConstants';
+export { WORK_START, WORK_END };
+
 /**
- * Parses a time string to minutes since midnight
- * Handles FF Jr. (morning) shows and assumes other times are PM
+ * Parses a time string to minutes since midnight.
+ * Handles formats like:
+ * - "1:00" -> 13:00 (1 PM)
+ * - "7:30" -> 19:30 (7:30 PM)
+ * - "12:00" -> 12:00 (noon)
+ * - "10:00 FF Jr" -> 10:00 (10 AM, morning shows)
+ * - "11:30 FF Jr" -> 11:30 (11:30 AM)
+ * - "11:00 – FF Jr." -> 11:00 (11 AM, variant format with dash/period)
  */
 export function parseTimeToMins(timeStr: string): number {
+  if (!timeStr) return 0;
+
+  const ffJr = /FF\s*Jr/i.test(timeStr);
+
+  // Extract the H:MM or HH:MM portion from anywhere in the string
   const match = timeStr.match(/(\d{1,2}):(\d{2})/);
   if (!match) return 0;
-  let h = parseInt(match[1]);
-  const m = parseInt(match[2]);
-  // FF Jr. shows are morning (AM)
-  const isMorning = timeStr.includes('FF Jr');
-  // 12:XX is always noon (PM), 1-11 without FF Jr are PM
-  if (!isMorning && h !== 12 && h < 12) h += 12;
-  return h * 60 + m;
-}
 
-/**
- * Assigns overlap columns to movies that overlap in time
- * Used for timeline view to display overlapping movies side by side
- */
-export function assignOverlapColumns(movies: Movie[]): Movie[] {
-  const sorted = [...movies].sort(
-    (a, b) => parseTimeToMins(a.Time) - parseTimeToMins(b.Time)
-  );
-  sorted.forEach((movie, i) => {
-    movie._col = 0;
-    movie._hasOverlap = false;
-    const myStart = parseTimeToMins(movie.Time);
-    for (let j = 0; j < i; j++) {
-      const prev = sorted[j];
-      const prevEnd = parseTimeToMins(prev.Time) + parseInt(prev.runtime || '90');
-      if (prevEnd > myStart) {
-        movie._col = 1;
-        prev._hasOverlap = true;
-        movie._hasOverlap = true;
-        break;
-      }
+  let hours = parseInt(match[1], 10);
+  const mins = parseInt(match[2], 10);
+
+  if (ffJr) {
+    // FF Jr means morning show (AM)
+    return hours * 60 + mins;
+  } else {
+    // Default to PM times (film forum typically shows evening films)
+    // 12:xx is already PM (noon)
+    if (hours === 12) {
+      return hours * 60 + mins;
     }
-  });
-  return sorted;
+    // Convert to 24-hour format for PM
+    if (hours < 12) {
+      hours += 12;
+    }
+    return hours * 60 + mins;
+  }
 }
 
 /**
- * Work hours constants (in minutes since midnight)
+ * Checks if a date string is a weekday (Mon-Fri)
  */
-export const WORK_START = 9 * 60; // 9:00 AM = 540 mins
-export const WORK_END = 17 * 60; // 5:00 PM = 1020 mins
-
-/**
- * Checks if a date is a weekday (Mon-Fri)
- */
-export function isWeekday(date: string): boolean {
-  const dayOfWeek = new Date(date + 'T12:00:00').getDay();
-  return dayOfWeek >= 1 && dayOfWeek <= 5;
+export function isWeekday(dateStr: string): boolean {
+  const day = new Date(dateStr + 'T12:00:00').getDay();
+  return day >= 1 && day <= 5; // 0 = Sunday, 6 = Saturday
 }
 
 /**
- * Checks if a movie showtime falls within work hours (9am-5pm)
+ * Checks if a time string falls within work hours (9 AM - 5 PM)
  */
 export function isWorkHours(timeStr: string): boolean {
   const mins = parseTimeToMins(timeStr);
   return mins >= WORK_START && mins < WORK_END;
 }
 
+// --- Movie filtering by time ---
+
 /**
- * Filters movies to get only those during weekday work hours (9am-5pm Mon-Fri)
+ * Returns movies that fall on weekdays during work hours
  */
-export function getHiddenWorkHoursMovies(allMovies: Movie[]): Movie[] {
-  return allMovies.filter((movie) => {
-    const date = movie.Datetime.split('T')[0];
-    if (!isWeekday(date)) return false;
-    return isWorkHours(movie.Time);
+export function getHiddenWorkHoursMovies(movies: Movie[]): Movie[] {
+  return movies.filter(m => {
+    const dateStr = m.Datetime.split('T')[0];
+    return isWeekday(dateStr) && isWorkHours(m.Time);
   });
 }
 
 /**
- * Filters movies to get only those on weekdays (Mon-Fri)
+ * Returns only movies that are on weekdays
  */
-export function getWeekdayMovies(allMovies: Movie[]): Movie[] {
-  return allMovies.filter((movie) => {
-    const date = movie.Datetime.split('T')[0];
-    return isWeekday(date);
+export function getWeekdayMovies(movies: Movie[]): Movie[] {
+  return movies.filter(m => {
+    const dateStr = m.Datetime.split('T')[0];
+    return isWeekday(dateStr);
   });
 }
 
 /**
- * Filters movies for after-hours availability (outside 9-5 on weekdays, all times on weekends)
+ * Filters movies based on work hours:
+ * - Weekends: returns all movies
+ * - Weekdays: returns only non-work-hour movies
  */
-export function filterAfterHoursMovies(movies: Movie[], date: string): Movie[] {
-  if (!isWeekday(date)) return movies;
-  return movies.filter((m) => !isWorkHours(m.Time));
+export function filterAfterHoursMovies(movies: Movie[], dateStr: string): Movie[] {
+  if (!isWeekday(dateStr)) {
+    return movies; // Weekend: show all
+  }
+  // Weekday: filter out work hours
+  return movies.filter(m => !isWorkHours(m.Time));
+}
+
+// --- Overlap detection and time ranges ---
+
+/**
+ * Calculates the time range for a day's movies
+ */
+export function getDayTimeRange(movies: Movie[]): { start: number; end: number; range: number } {
+  if (movies.length === 0) {
+    return { start: 0, end: 0, range: 0 };
+  }
+
+  let start = Infinity;
+  let end = 0;
+
+  for (const movie of movies) {
+    const startMins = parseTimeToMins(movie.Time);
+    const runtime = parseInt(movie.runtime || '0', 10);
+    const endMins = startMins + runtime;
+
+    start = Math.min(start, startMins);
+    end = Math.max(end, endMins);
+  }
+
+  return {
+    start,
+    end,
+    range: end - start,
+  };
 }
 
 /**
- * Gets the time range (start, end, range in minutes) for a list of movies
+ * Assigns overlap columns to movies based on their showtimes.
+ * Movies that overlap in time get different column numbers.
+ * Returns movies with added _col and _hasOverlap properties.
  */
-export function getDayTimeRange(movies: Movie[]): {
-  start: number;
-  end: number;
-  range: number;
-} {
-  let minStart = Infinity;
-  let maxEnd = 0;
-  movies.forEach((m) => {
+export function assignOverlapColumns(movies: Movie[]): (Movie & { _col: number; _hasOverlap: boolean })[] {
+  if (movies.length === 0) return [];
+
+  // Parse movies with start and end times
+  const parsed = movies.map(m => {
     const start = parseTimeToMins(m.Time);
-    const runtime = parseInt(m.runtime || '90');
+    const runtime = parseInt(m.runtime || '0', 10);
     const end = start + runtime;
-    if (start < minStart) minStart = start;
-    if (end > maxEnd) maxEnd = end;
+    return { movie: m, start, end, col: 0 };
   });
-  return { start: minStart, end: maxEnd, range: maxEnd - minStart };
+
+  // Sort by start time
+  parsed.sort((a, b) => a.start - b.start);
+
+  // Track which columns are occupied up to what time
+  const columnEndTimes: number[] = [];
+
+  // Assign columns using greedy algorithm
+  for (const item of parsed) {
+    // Find first available column
+    let col = 0;
+    for (let i = 0; i < columnEndTimes.length; i++) {
+      if (columnEndTimes[i] <= item.start) {
+        col = i;
+        break;
+      }
+      col = i + 1;
+    }
+
+    item.col = col;
+    columnEndTimes[col] = item.end;
+  }
+
+  // Check if any overlaps exist
+  const hasAnyOverlap = parsed.some(p => p.col > 0);
+
+  // Return results with _col and _hasOverlap
+  return movies.map(m => {
+    const parsed_item = parsed.find(p => p.movie === m)!;
+    return {
+      ...m,
+      _col: parsed_item.col,
+      _hasOverlap: hasAnyOverlap,
+    };
+  });
 }
+

@@ -69,7 +69,17 @@
       "Bash(npx vitest run:*)",
       "Bash(gh pr review:*)",
       "Bash(rg:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(test:*)",
+      "Bash(git mv:*)",
+      "WebFetch(domain:lucide.dev)",
+      "WebFetch(domain:unpkg.com)",
+      "Bash(at this window size\" when switch is disabled at 640px+\n- Tooltip automatically shows/hides based on viewport size\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "WebFetch(domain:tabler.io)",
+      "Bash(GIT_EDITOR=true git rebase:*)",
+      "Bash(git branch:*)",
+      "Bash(pnpm run test:run:*)",
+      "WebFetch(domain:docs.astro.build)"
     ]
   }
 }

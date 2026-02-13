@@ -12,7 +12,9 @@ import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
+  extractFilterOptions,
 } from '@utils/sessionUtils';
+import { safeJsonForScript } from '@utils/htmlEscape';
 
 export function getStaticPaths() {
   return getAllSeriesIds().map(id => ({ params: { id } }));
@@ -30,14 +32,16 @@ try {
   const dataPath = path.join(process.cwd(), 'public', config.dataFile);
   const data = fs.readFileSync(dataPath, 'utf-8');
   allMovies = JSON.parse(data);
-} catch {
+} catch (e) {
+  console.warn(`[${id}] Failed to load movie data:`, e instanceof Error ? e.message : e);
   allMovies = [];
 }
 
 const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 
-// Serialize movie data for client-side use
-const movieDataJson = JSON.stringify(uniqueMovies);
+// Extract unique directors, actors, and decades for filter dropdowns
+const { directors, actors, decades } = extractFilterOptions(uniqueMovies);
+
 
 // SEO metadata
 const title = `${config.name} Movie List - Browse ${uniqueMovies.length} Films`;
@@ -68,60 +72,63 @@ const structuredData = {
   ogImage={ogImage}
   ogImageAlt={`${config.name} movie list`}
   structuredData={structuredData}
+  fullWidth
 >
-  <main class="session-list-page" data-session-id={id} data-drawer-wrapper>
-    <header class="page-header">
-      <a href={`/s/${id}`} class="back-link">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Back
-      </a>
-      <h1 class="page-title">{config.name}</h1>
-      {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
-      <p class="page-movie-count">{uniqueMovies.length} films</p>
-    </header>
-
-    <ListToolbar />
-
-    <!-- List view -->
-    <div class="movie-list-view" id="list-view" style="display: none;">
-      {uniqueMovies.map(um => (
-        <MovieListItem uniqueMovie={um} />
-      ))}
+  <div data-session-id={id} data-drawer-wrapper>
+    <div class="page-content">
+      <header class="page-header">
+        <a href={`/s/${id}`} class="back-link">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </a>
+        <h1 class="page-title">{config.name}</h1>
+        {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
+        <p class="page-movie-count" id="page-movie-count">{uniqueMovies.length} films</p>
+      </header>
     </div>
 
-    <!-- Card view (default) -->
-    <div class="movie-card-grid" id="card-view">
-      {uniqueMovies.map(um => (
-        <MovieCard uniqueMovie={um} />
-      ))}
+    <ListToolbar directors={directors} actors={actors} decades={decades} />
+
+    <div class="page-content">
+      <!-- List view -->
+      <div class="movie-list-view" id="list-view" style="display: none;">
+        {uniqueMovies.map(um => (
+          <MovieListItem uniqueMovie={um} />
+        ))}
+      </div>
+
+      <!-- Card view (default) -->
+      <div class="movie-card-grid" id="card-view">
+        {uniqueMovies.map(um => (
+          <MovieCard uniqueMovie={um} />
+        ))}
+      </div>
+
+      <!-- Single card view (Apple-style drawer) -->
+      <SingleCardView movies={uniqueMovies} hidden={true} />
+
+      <!-- Spacer for bottom toolbar -->
+      <div class="bottom-spacer"></div>
     </div>
-
-    <!-- Single card view (Apple-style drawer) -->
-    <SingleCardView movies={uniqueMovies} hidden={true} />
-
-    <!-- Spacer for bottom toolbar -->
-    <div class="bottom-spacer"></div>
 
     <BottomToolbar sessionId={id!} />
     <MovieDetailDrawer />
-  </main>
+  </div>
 </Layout>
 
-<script define:vars={{ movieDataJson, sessionId: id }}>
-  window.__movieData = JSON.parse(movieDataJson);
-  window.__sessionId = sessionId;
-</script>
+<script type="application/json" id="movie-data" set:html={safeJsonForScript(uniqueMovies)} />
+<script type="application/json" id="session-id" set:html={safeJsonForScript(id)} />
 
 <script>
   import { getReactions, setReaction, getReactionCounts } from '@utils/storageManager';
   import { toTitleCase, formatRuntime } from '@utils/movieUtils';
-  import { sortMovies } from '@utils/sessionUtils';
+  import { sortMovies, matchesFilter } from '@utils/sessionUtils';
   import type { MovieReaction, UniqueMovie } from '@types/session';
 
-  const sessionId = (window as any).__sessionId as string;
-  const allMovies = (window as any).__movieData as UniqueMovie[];
+  const sessionId = JSON.parse(document.getElementById('session-id')!.textContent!) as string;
+  const allMovies = JSON.parse(document.getElementById('movie-data')!.textContent!) as UniqueMovie[];
 
   // --- State ---
   let currentView: 'list' | 'card' | 'single' = 'card';
@@ -276,6 +283,108 @@ const structuredData = {
     });
   }
 
+  // --- Search & Filter ---
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const searchClear = document.getElementById('search-clear') as HTMLElement;
+  const filterDirector = document.getElementById('filter-director') as HTMLSelectElement;
+  const filterActor = document.getElementById('filter-actor') as HTMLSelectElement;
+  const decadeToggles = document.getElementById('decade-toggles');
+  const filterResults = document.getElementById('filter-results') as HTMLElement;
+  const filterResultsText = document.getElementById('filter-results-text') as HTMLElement;
+  const filterClearAll = document.getElementById('filter-clear-all') as HTMLElement;
+  const movieCount = document.getElementById('page-movie-count') as HTMLElement;
+  const totalCount = allMovies.length;
+
+  function applyFilters() {
+    const query = searchInput?.value.toLowerCase().trim() || '';
+    const director = filterDirector?.value || '';
+    const actor = filterActor?.value || '';
+    const decades = Array.from(
+      decadeToggles?.querySelectorAll('.decade-btn[aria-pressed="true"]') ?? []
+    ).map(btn => (btn as HTMLElement).dataset.decade!);
+
+    const hasFilters = query || director || actor || decades.length > 0;
+    const filters = { query, director, actor, decades };
+
+    // Show/hide clear button on search input
+    if (searchClear) {
+      searchClear.style.display = query ? '' : 'none';
+    }
+
+    // Highlight active filter selects
+    filterDirector?.classList.toggle('active-filter', !!director);
+    filterActor?.classList.toggle('active-filter', !!actor);
+
+    let visibleCount = 0;
+
+    // Filter cards and list items using shared matching logic
+    const selectors = '.card[data-movie-id], .list-item[data-movie-id]';
+    document.querySelectorAll(selectors).forEach(el => {
+      const htmlEl = el as HTMLElement;
+      const movieData = {
+        title: htmlEl.dataset.title || '',
+        director: htmlEl.dataset.director || '',
+        actors: htmlEl.dataset.actors || '',
+        year: htmlEl.dataset.year || '',
+      };
+
+      const visible = matchesFilter(movieData, filters);
+      htmlEl.style.display = visible ? '' : 'none';
+
+      // Count unique visible movies (count cards only to avoid double-counting)
+      if (visible && htmlEl.classList.contains('card')) {
+        visibleCount++;
+      }
+    });
+
+    // Update movie count display
+    if (movieCount) {
+      if (hasFilters) {
+        movieCount.textContent = `${visibleCount} of ${totalCount} films`;
+      } else {
+        movieCount.textContent = `${totalCount} films`;
+      }
+    }
+
+    // Show/hide filter results bar
+    if (filterResults) {
+      if (hasFilters) {
+        filterResults.style.display = '';
+        filterResultsText.textContent = `${visibleCount} of ${totalCount}`;
+      } else {
+        filterResults.style.display = 'none';
+      }
+    }
+  }
+
+  function clearAllFilters() {
+    if (searchInput) searchInput.value = '';
+    if (filterDirector) filterDirector.value = '';
+    if (filterActor) filterActor.value = '';
+    decadeToggles?.querySelectorAll('.decade-btn').forEach(btn => {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('active');
+    });
+    applyFilters();
+  }
+
+  // Debounce search input
+  let searchTimeout: ReturnType<typeof setTimeout>;
+  searchInput?.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(applyFilters, 150);
+  });
+
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    applyFilters();
+  });
+
+  filterDirector?.addEventListener('change', applyFilters);
+  filterActor?.addEventListener('change', applyFilters);
+  decadeToggles?.addEventListener('change', applyFilters);
+  filterClearAll?.addEventListener('click', clearAllFilters);
+
   // --- More Info Drawer ---
   function openMovieDetail(movieId: string, sourceEl?: HTMLElement) {
     const idx = allMovies.findIndex(m => m.id === movieId);
@@ -373,14 +482,14 @@ const structuredData = {
 </script>
 
 <style>
-  .session-list-page {
-    max-width: 700px;
+  .page-content {
+    max-width: 960px;
     margin: 0 auto;
-    padding: 0 12px;
+    padding: 0 16px;
   }
 
   .page-header {
-    padding: 16px 4px 12px;
+    padding: 20px 0 12px;
   }
 
   .back-link {

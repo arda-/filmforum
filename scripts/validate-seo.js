@@ -58,6 +58,12 @@ function getTitle(html) {
 
 /**
  * Extract all JSON-LD structured data
+ *
+ * IMPORTANT: This function relies on SEO.astro escaping < as \u003c in JSON-LD
+ * content. The regex extracts content between <script> tags and passes it to
+ * JSON.parse. Without the escaping in SEO.astro, JSON-LD containing "</script>"
+ * would break the regex extraction. The \u003c escape is valid JSON and parses
+ * correctly. Keep these two files in sync.
  */
 function getStructuredData(html) {
   const regex = /<script\s+type=["']application\/ld\+json["']>([\s\S]+?)<\/script>/gi;
@@ -341,7 +347,6 @@ function runTests() {
     'demo/index.html',
     'demo/button/index.html',
     'demo/dialog/index.html',
-    'demo/apple-card/index.html',
   ];
 
   for (const demoPage of demoPages) {
