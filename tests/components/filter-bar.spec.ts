@@ -120,15 +120,17 @@ test.describe('CalendarFilterBar', () => {
   test.describe('Keyboard accessibility', () => {
     test('should be keyboard navigable with Tab', async ({ page }) => {
       const firstBtn = page.locator('button[data-time="weekdays"]');
-      const secondBtn = page.locator('button[data-time="weeknights"]');
 
       await firstBtn.focus();
+      await expect(firstBtn).toBeFocused();
+
       await page.keyboard.press('Tab');
 
-      const focused = page.locator(':focus');
-      // After Tab from first button, focus should move to next button
-      // (exact element depends on DOM structure)
-      expect(focused).toBeTruthy();
+      // After Tab, focus should have moved away from the first button
+      await expect(firstBtn).not.toBeFocused();
+      // And some element should be focused
+      const focusedCount = await page.locator(':focus').count();
+      expect(focusedCount).toBeGreaterThan(0);
     });
 
     test('should toggle state with Space key', async ({ page }) => {
@@ -157,19 +159,25 @@ test.describe('CalendarFilterBar', () => {
       expect(position).toBe('sticky');
     });
 
-    test('should have proper ARIA labels', async ({ page }) => {
-      // Time filter should have aria-label
-      const timeToggle = page.locator('[aria-label*="Filter by time"]').first();
-      if (await timeToggle.count() > 0) {
-        const label = await timeToggle.getAttribute('aria-label');
-        expect(label).toBeTruthy();
-      }
+    test('should have proper ARIA labels on time filter buttons', async ({ page }) => {
+      const timeButtons = page.locator('button[data-time]');
+      const count = await timeButtons.count();
+      expect(count).toBeGreaterThan(0);
 
-      // Saved filter should have aria-label
-      const savedToggle = page.locator('[aria-label*="Filter saved"]').first();
-      if (await savedToggle.count() > 0) {
-        const label = await savedToggle.getAttribute('aria-label');
-        expect(label).toBeTruthy();
+      for (let i = 0; i < count; i++) {
+        const ariaPressed = await timeButtons.nth(i).getAttribute('aria-pressed');
+        expect(['true', 'false']).toContain(ariaPressed);
+      }
+    });
+
+    test('should have proper ARIA labels on saved filter buttons', async ({ page }) => {
+      const savedButtons = page.locator('button[data-filter]');
+      const count = await savedButtons.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const ariaPressed = await savedButtons.nth(i).getAttribute('aria-pressed');
+        expect(['true', 'false']).toContain(ariaPressed);
       }
     });
   });

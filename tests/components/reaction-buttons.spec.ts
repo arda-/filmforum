@@ -69,7 +69,7 @@ test.describe('ReactionButtons', () => {
       await expect(yesBtn).toHaveAttribute('aria-pressed', 'false');
     });
 
-    test('should allow only one button active at a time', async ({ page }) => {
+    test('clicking a second button should activate it independently', async ({ page }) => {
       const unmarked = page.locator('[data-testid="md-unmarked"]');
       const yesBtn = unmarked.locator('button[data-reaction="yes"]');
       const maybeBtn = unmarked.locator('button[data-reaction="maybe"]');
@@ -77,11 +77,12 @@ test.describe('ReactionButtons', () => {
       // Activate Yes
       await yesBtn.click();
       await expect(yesBtn).toHaveClass(/active/);
+      await expect(yesBtn).toHaveAttribute('aria-pressed', 'true');
 
-      // Activate Maybe (should not deactivate Yes yet - that's handled by parent)
+      // Activate Maybe
       await maybeBtn.click();
-      // Note: The component itself doesn't enforce single selection
-      // That's typically handled by parent state management
+      await expect(maybeBtn).toHaveClass(/active/);
+      await expect(maybeBtn).toHaveAttribute('aria-pressed', 'true');
     });
   });
 
@@ -116,31 +117,36 @@ test.describe('ReactionButtons', () => {
   });
 
   test.describe('Color coding', () => {
-    test('Yes button should use green color', async ({ page }) => {
-      const yesBtn = page.locator('[data-testid="md-yes"] button[data-reaction="yes"]');
-
-      const color = await yesBtn.evaluate(el =>
+    test('active buttons should have distinct color from inactive buttons', async ({ page }) => {
+      // Get color of an active Yes button
+      const activeYes = page.locator('[data-testid="md-yes"] button[data-reaction="yes"]');
+      const activeColor = await activeYes.evaluate(el =>
         window.getComputedStyle(el).color
       );
-      expect(color).toBeTruthy();
+
+      // Get color of an inactive Yes button (in unmarked set)
+      const inactiveYes = page.locator('[data-testid="md-unmarked"] button[data-reaction="yes"]');
+      const inactiveColor = await inactiveYes.evaluate(el =>
+        window.getComputedStyle(el).color
+      );
+
+      expect(activeColor).not.toBe(inactiveColor);
     });
 
-    test('No button should use red color', async ({ page }) => {
-      const noBtn = page.locator('[data-testid="md-no"] button[data-reaction="no"]');
-
-      const color = await noBtn.evaluate(el =>
+    test('Yes, Maybe, and No active buttons should have different colors', async ({ page }) => {
+      const yesColor = await page.locator('[data-testid="md-yes"] button[data-reaction="yes"]').evaluate(el =>
         window.getComputedStyle(el).color
       );
-      expect(color).toBeTruthy();
-    });
-
-    test('Maybe button should use orange color', async ({ page }) => {
-      const maybeBtn = page.locator('[data-testid="md-maybe"] button[data-reaction="maybe"]');
-
-      const color = await maybeBtn.evaluate(el =>
+      const maybeColor = await page.locator('[data-testid="md-maybe"] button[data-reaction="maybe"]').evaluate(el =>
         window.getComputedStyle(el).color
       );
-      expect(color).toBeTruthy();
+      const noColor = await page.locator('[data-testid="md-no"] button[data-reaction="no"]').evaluate(el =>
+        window.getComputedStyle(el).color
+      );
+
+      // Each reaction type should have its own distinct color
+      expect(yesColor).not.toBe(noColor);
+      expect(yesColor).not.toBe(maybeColor);
     });
   });
 
@@ -197,14 +203,16 @@ test.describe('ReactionButtons', () => {
       expect(noLabel).toBeTruthy();
     });
 
-    test('buttons should have focus ring', async ({ page }) => {
+    test('buttons should have visible focus ring', async ({ page }) => {
       const btn = page.locator('[data-testid="md-unmarked"] .rbtn').first();
       await btn.focus();
 
       const outline = await btn.evaluate(el =>
         window.getComputedStyle(el).outline
       );
-      expect(outline).toBeTruthy();
+      // outline should not be 'none' or empty when focused
+      expect(outline).not.toBe('none');
+      expect(outline).not.toBe('');
     });
   });
 });
