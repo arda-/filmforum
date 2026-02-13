@@ -10,9 +10,7 @@
  *   node scripts/test-trigger.js --tier=1         # Run Tier 1 only
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 
 const args = process.argv.slice(2);
 const flags = new Map(args
@@ -84,63 +82,45 @@ function getTestTiers(files) {
 }
 
 /**
- * Run vitest for Tier 1 unit tests
+ * Run a test command via spawnSync. Returns true if exit code is 0.
  */
-async function runTier1() {
+function runCommand(cmd, args) {
+  const result = spawnSync(cmd, args, {
+    stdio: 'inherit',
+    cwd: process.cwd(),
+    shell: true,
+  });
+  return result.status === 0;
+}
+
+/** Run vitest for Tier 1 unit tests */
+function runTier1() {
   console.log('\n📋 Running Tier 1: Unit tests...\n');
-  try {
-    execSync('npx vitest run', {
-      stdio: 'inherit',
-      cwd: process.cwd(),
-    });
-    console.log('\n✅ Tier 1 tests passed\n');
-    return true;
-  } catch (e) {
-    console.log('\n❌ Tier 1 tests failed\n');
-    return false;
-  }
+  const passed = runCommand('npx', ['vitest', 'run']);
+  console.log(passed ? '\n✅ Tier 1 tests passed\n' : '\n❌ Tier 1 tests failed\n');
+  return passed;
 }
 
-/**
- * Run Playwright component tests for Tier 2
- */
-async function runTier2() {
+/** Run Playwright component tests for Tier 2 */
+function runTier2() {
   console.log('\n🎨 Running Tier 2: Component tests...\n');
-  try {
-    execSync('npx playwright test tests/components', {
-      stdio: 'inherit',
-      cwd: process.cwd(),
-    });
-    console.log('\n✅ Tier 2 tests passed\n');
-    return true;
-  } catch (e) {
-    console.log('\n❌ Tier 2 tests failed (or server not running)\n');
-    return false;
-  }
+  const passed = runCommand('npx', ['playwright', 'test', 'tests/components']);
+  console.log(passed ? '\n✅ Tier 2 tests passed\n' : '\n❌ Tier 2 tests failed\n');
+  return passed;
 }
 
-/**
- * Run Playwright integration tests for Tier 3
- */
-async function runTier3() {
+/** Run Playwright integration tests for Tier 3 */
+function runTier3() {
   console.log('\n🔗 Running Tier 3: Integration tests...\n');
-  try {
-    execSync('npx playwright test tests/integration', {
-      stdio: 'inherit',
-      cwd: process.cwd(),
-    });
-    console.log('\n✅ Tier 3 tests passed\n');
-    return true;
-  } catch (e) {
-    console.log('\n❌ Tier 3 tests failed (many are skipped until calendar page is available)\n');
-    return false;
-  }
+  const passed = runCommand('npx', ['playwright', 'test', 'tests/integration']);
+  console.log(passed ? '\n✅ Tier 3 tests passed\n' : '\n❌ Tier 3 tests failed\n');
+  return passed;
 }
 
 /**
  * Main entry point
  */
-async function main() {
+function main() {
   const tier = flags.get('tier');
   const runAll = flags.get('all');
 
@@ -171,18 +151,15 @@ async function main() {
   const results = [];
 
   if (tiersToRun.includes('tier1')) {
-    const passed = await runTier1();
-    results.push({ tier: 'Tier 1 (Unit)', passed });
+    results.push({ tier: 'Tier 1 (Unit)', passed: runTier1() });
   }
 
   if (tiersToRun.includes('tier2')) {
-    const passed = await runTier2();
-    results.push({ tier: 'Tier 2 (Component)', passed });
+    results.push({ tier: 'Tier 2 (Component)', passed: runTier2() });
   }
 
   if (tiersToRun.includes('tier3')) {
-    const passed = await runTier3();
-    results.push({ tier: 'Tier 3 (Integration)', passed });
+    results.push({ tier: 'Tier 3 (Integration)', passed: runTier3() });
   }
 
   // Summary
@@ -205,7 +182,4 @@ async function main() {
   }
 }
 
-main().catch(err => {
-  console.error('Error:', err.message);
-  process.exit(1);
-});
+main();
