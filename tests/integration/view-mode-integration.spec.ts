@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 
 const CALENDAR_URL = '/s/tenement-stories/calendar';
 
-test.describe('View Mode Integration: Timeline ↔ Grid rendering', () => {
+test.describe('View Mode Integration: Timeline <-> Grid rendering', () => {
   test('should render timeline elements in default timeline mode', async ({ page }) => {
     await page.goto(CALENDAR_URL);
     await page.waitForSelector('.movie');
@@ -23,7 +23,7 @@ test.describe('View Mode Integration: Timeline ↔ Grid rendering', () => {
 
     const gridBtn = page.locator('button[data-view="grid"]');
     await gridBtn.click();
-    await page.waitForTimeout(300);
+    await expect(gridBtn).toHaveClass(/active/);
 
     // In grid mode, movies should not have timeline class
     const timelineMovies = page.locator('.movie--timeline');
@@ -41,13 +41,15 @@ test.describe('View Mode Integration: Timeline ↔ Grid rendering', () => {
     const countTimeline = await page.locator('.movie').count();
 
     // Switch to grid
-    await page.locator('button[data-view="grid"]').click();
-    await page.waitForTimeout(300);
+    const gridBtn = page.locator('button[data-view="grid"]');
+    await gridBtn.click();
+    await expect(gridBtn).toHaveClass(/active/);
     const countGrid = await page.locator('.movie').count();
 
     // Switch back to timeline
-    await page.locator('button[data-view="timeline"]').click();
-    await page.waitForTimeout(300);
+    const timelineBtn = page.locator('button[data-view="timeline"]');
+    await timelineBtn.click();
+    await expect(timelineBtn).toHaveClass(/active/);
     const countBack = await page.locator('.movie').count();
 
     expect(countGrid).toBe(countTimeline);
@@ -59,13 +61,17 @@ test.describe('View Mode Integration: Timeline ↔ Grid rendering', () => {
     await page.waitForSelector('.movie');
 
     // Disable weekends filter
-    await page.locator('button[data-time="weekends"]').click();
-    await page.waitForTimeout(300);
+    const weekendBtn = page.locator('button[data-time="weekends"]');
+    await weekendBtn.click();
+    await expect(weekendBtn).not.toHaveClass(/active/);
+
     const filteredCount = await page.locator('.movie').count();
 
     // Switch to grid
-    await page.locator('button[data-view="grid"]').click();
-    await page.waitForTimeout(300);
+    const gridBtn = page.locator('button[data-view="grid"]');
+    await gridBtn.click();
+    await expect(gridBtn).toHaveClass(/active/);
+
     const gridFiltered = await page.locator('.movie').count();
 
     expect(gridFiltered).toBe(filteredCount);
@@ -79,10 +85,7 @@ test.describe('View Mode Integration: Detail options → Body classes', () => {
     const detailBtn = page.locator('button[data-detail="year-director"]');
     await detailBtn.click();
 
-    const hasClass = await page.evaluate(() =>
-      document.body.classList.contains('show-year-director')
-    );
-    expect(hasClass).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/show-year-director/);
   });
 
   test('should add show-runtime class when detail toggle enabled', async ({ page }) => {
@@ -90,10 +93,7 @@ test.describe('View Mode Integration: Detail options → Body classes', () => {
 
     await page.locator('button[data-detail="runtime"]').click();
 
-    const hasClass = await page.evaluate(() =>
-      document.body.classList.contains('show-runtime')
-    );
-    expect(hasClass).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/show-runtime/);
   });
 
   test('should add show-image class when detail toggle enabled', async ({ page }) => {
@@ -101,10 +101,7 @@ test.describe('View Mode Integration: Detail options → Body classes', () => {
 
     await page.locator('button[data-detail="image"]').click();
 
-    const hasImage = await page.evaluate(() =>
-      document.body.classList.contains('show-image')
-    );
-    expect(hasImage).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/show-image/);
   });
 
   test('should remove body class when detail toggle disabled', async ({ page }) => {
@@ -114,17 +111,11 @@ test.describe('View Mode Integration: Detail options → Body classes', () => {
 
     // Enable
     await detailBtn.click();
-    let hasClass = await page.evaluate(() =>
-      document.body.classList.contains('show-year-director')
-    );
-    expect(hasClass).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/show-year-director/);
 
     // Disable
     await detailBtn.click();
-    hasClass = await page.evaluate(() =>
-      document.body.classList.contains('show-year-director')
-    );
-    expect(hasClass).toBe(false);
+    await expect(page.locator('body')).not.toHaveClass(/show-year-director/);
   });
 });
 
@@ -132,10 +123,7 @@ test.describe('View Mode Integration: Week start → Calendar reorganization', (
   test('should add monday-start class by default', async ({ page }) => {
     await page.goto(CALENDAR_URL);
 
-    const hasClass = await page.evaluate(() =>
-      document.body.classList.contains('monday-start')
-    );
-    expect(hasClass).toBe(true);
+    await expect(page.locator('body')).toHaveClass(/monday-start/);
   });
 
   test('should remove monday-start class when switching to Sunday', async ({ page }) => {
@@ -145,12 +133,10 @@ test.describe('View Mode Integration: Week start → Calendar reorganization', (
     await page.locator('#view-settings-btn').click();
 
     // Switch to Sunday
-    await page.locator('button[data-weekstart="sun"]').click();
-    await page.waitForTimeout(300);
+    const sunBtn = page.locator('button[data-weekstart="sun"]');
+    await sunBtn.click();
+    await expect(sunBtn).toHaveClass(/active/);
 
-    const hasClass = await page.evaluate(() =>
-      document.body.classList.contains('monday-start')
-    );
-    expect(hasClass).toBe(false);
+    await expect(page.locator('body')).not.toHaveClass(/monday-start/);
   });
 });

@@ -11,8 +11,9 @@ test.describe('URL State Integration: Parameter persistence', () => {
   test('should encode timeline=0 in URL when switching to grid mode', async ({ page }) => {
     await page.goto(CALENDAR_URL);
 
-    await page.locator('button[data-view="grid"]').click();
-    await page.waitForTimeout(300);
+    const gridBtn = page.locator('button[data-view="grid"]');
+    await gridBtn.click();
+    await expect(gridBtn).toHaveClass(/active/);
 
     const url = page.url();
     expect(url).toContain('timeline=0');
@@ -22,8 +23,9 @@ test.describe('URL State Integration: Parameter persistence', () => {
     await page.goto(CALENDAR_URL);
 
     await page.locator('#view-settings-btn').click();
-    await page.locator('button[data-weekstart="sun"]').click();
-    await page.waitForTimeout(300);
+    const sunBtn = page.locator('button[data-weekstart="sun"]');
+    await sunBtn.click();
+    await expect(sunBtn).toHaveClass(/active/);
 
     const url = page.url();
     expect(url).toContain('week-start=0');
@@ -33,8 +35,9 @@ test.describe('URL State Integration: Parameter persistence', () => {
     await page.goto(CALENDAR_URL);
 
     // Disable weekends
-    await page.locator('button[data-time="weekends"]').click();
-    await page.waitForTimeout(300);
+    const weekendBtn = page.locator('button[data-time="weekends"]');
+    await weekendBtn.click();
+    await expect(weekendBtn).not.toHaveClass(/active/);
 
     const url = page.url();
     expect(url).toContain('times=');
@@ -117,8 +120,9 @@ test.describe('URL State Integration: Round-trip', () => {
     await page.goto(CALENDAR_URL);
 
     // Switch to grid mode
-    await page.locator('button[data-view="grid"]').click();
-    await page.waitForTimeout(300);
+    const gridBtn = page.locator('button[data-view="grid"]');
+    await gridBtn.click();
+    await expect(gridBtn).toHaveClass(/active/);
 
     // Grab the URL
     const urlAfterClick = page.url();
@@ -128,7 +132,6 @@ test.describe('URL State Integration: Round-trip', () => {
     await page.reload();
 
     // Grid mode should still be active
-    const gridBtn = page.locator('button[data-view="grid"]');
-    await expect(gridBtn).toHaveClass(/active/);
+    await expect(page.locator('button[data-view="grid"]')).toHaveClass(/active/);
   });
 });

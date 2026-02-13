@@ -18,8 +18,8 @@ test.describe('Filter Integration: Time filter toggle → Movie rendering', () =
     const weekdayBtn = page.locator('button[data-time="weekdays"]');
     await weekdayBtn.click();
 
-    // Wait for re-render
-    await page.waitForTimeout(300);
+    // Wait for button state to update
+    await expect(weekdayBtn).not.toHaveClass(/active/);
 
     const visibleAfter = await page.locator('.movie').count();
     expect(visibleAfter).toBeLessThanOrEqual(visibleBefore);
@@ -34,9 +34,10 @@ test.describe('Filter Integration: Time filter toggle → Movie rendering', () =
     // Disable then re-enable weekdays
     const weekdayBtn = page.locator('button[data-time="weekdays"]');
     await weekdayBtn.click();
-    await page.waitForTimeout(300);
+    await expect(weekdayBtn).not.toHaveClass(/active/);
+
     await weekdayBtn.click();
-    await page.waitForTimeout(300);
+    await expect(weekdayBtn).toHaveClass(/active/);
 
     const visibleAfter = await page.locator('.movie').count();
     expect(visibleAfter).toBe(visibleBefore);
@@ -47,13 +48,20 @@ test.describe('Filter Integration: Time filter toggle → Movie rendering', () =
     await page.waitForSelector('.movie');
 
     // Disable all time filters
-    await page.locator('button[data-time="weekdays"]').click();
-    await page.locator('button[data-time="weeknights"]').click();
-    await page.locator('button[data-time="weekends"]').click();
-    await page.waitForTimeout(300);
+    const weekdayBtn = page.locator('button[data-time="weekdays"]');
+    const weeknightBtn = page.locator('button[data-time="weeknights"]');
+    const weekendBtn = page.locator('button[data-time="weekends"]');
 
-    const visible = await page.locator('.movie').count();
-    expect(visible).toBe(0);
+    await weekdayBtn.click();
+    await expect(weekdayBtn).not.toHaveClass(/active/);
+
+    await weeknightBtn.click();
+    await expect(weeknightBtn).not.toHaveClass(/active/);
+
+    await weekendBtn.click();
+    await expect(weekendBtn).not.toHaveClass(/active/);
+
+    await expect(page.locator('.movie')).toHaveCount(0);
   });
 });
 
@@ -67,7 +75,7 @@ test.describe('Filter Integration: Saved status filter → Movie rendering', () 
     // Enable "No" filter (off by default)
     const noBtn = page.locator('button[data-filter="no"]');
     await noBtn.click();
-    await page.waitForTimeout(300);
+    await expect(noBtn).toHaveClass(/active/);
 
     const visibleAfter = await page.locator('.movie').count();
     // Enabling an additional filter can only keep or increase count
@@ -83,7 +91,7 @@ test.describe('Filter Integration: Saved status filter → Movie rendering', () 
     // Disable "Yes" filter (on by default)
     const yesBtn = page.locator('button[data-filter="yes"]');
     await yesBtn.click();
-    await page.waitForTimeout(300);
+    await expect(yesBtn).not.toHaveClass(/active/);
 
     const visibleAfter = await page.locator('.movie').count();
     expect(visibleAfter).toBeLessThanOrEqual(visibleBefore);
@@ -98,9 +106,14 @@ test.describe('Filter Integration: Multiple filters together', () => {
     const allMovies = await page.locator('.movie').count();
 
     // Apply multiple restrictive filters
-    await page.locator('button[data-time="weekdays"]').click();
-    await page.locator('button[data-filter="maybe"]').click();
-    await page.waitForTimeout(300);
+    const weekdayBtn = page.locator('button[data-time="weekdays"]');
+    const maybeBtn = page.locator('button[data-filter="maybe"]');
+
+    await weekdayBtn.click();
+    await expect(weekdayBtn).not.toHaveClass(/active/);
+
+    await maybeBtn.click();
+    await expect(maybeBtn).not.toHaveClass(/active/);
 
     const filtered = await page.locator('.movie').count();
     expect(filtered).toBeLessThanOrEqual(allMovies);
