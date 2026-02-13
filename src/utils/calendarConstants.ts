@@ -1,5 +1,6 @@
 /**
- * Calendar and timeline display constants
+ * Calendar and timeline constants.
+ * Shared across calendar page, calendarTime, calendarFilters, and calendarUrlState.
  */
 
 // Days of the week (Sunday-indexed to match JavaScript Date.getDay())
