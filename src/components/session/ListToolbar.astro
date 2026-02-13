@@ -72,6 +72,8 @@ const {
           id="search-input"
           class="search-input"
           placeholder="Search films..."
+          data-placeholder-sm="Search films..."
+          data-placeholder-lg="Search titles, directors, actors..."
           aria-label="Search films by title, director, or actor"
           autocomplete="off"
         />
@@ -133,17 +135,22 @@ const {
           </select>
         </div>
 
-        <div class="filter-row">
+        <div class="filter-row filter-row-wrap">
           <span class="filter-row-label">
             <Icon name="calendar" size={14} />
             <span>Decade</span>
           </span>
-          <select class="toolbar-select filter-select" id="filter-decade" aria-label="Filter by decade">
-            <option value="">All decades</option>
+          <div class="decade-toggles" id="decade-toggles" role="group" aria-label="Filter by decade (multi-select)">
             {decades.map(d => (
-              <option value={d}>{d}</option>
+              <button
+                class="decade-btn"
+                data-decade={d}
+                aria-pressed="false"
+              >
+                {d}
+              </button>
             ))}
-          </select>
+          </div>
         </div>
 
         <div class="filter-row filter-actions" id="filter-results" style="display:none">
@@ -156,6 +163,18 @@ const {
 </div>
 
 <script>
+  // --- Responsive search placeholder ---
+  const searchEl = document.getElementById('search-input') as HTMLInputElement;
+  function updateSearchPlaceholder() {
+    if (!searchEl) return;
+    const wide = window.matchMedia('(min-width: 640px)').matches;
+    searchEl.placeholder = wide
+      ? searchEl.dataset.placeholderLg!
+      : searchEl.dataset.placeholderSm!;
+  }
+  updateSearchPlaceholder();
+  window.matchMedia('(min-width: 640px)').addEventListener('change', updateSearchPlaceholder);
+
   // --- Filter disclosure toggle ---
   const filterToggleBtn = document.getElementById('filter-toggle-btn');
   const filterDisclosure = document.getElementById('filter-disclosure');
@@ -185,15 +204,32 @@ const {
     });
   });
 
+  // --- Decade toggle buttons ---
+  const decadeToggles = document.getElementById('decade-toggles');
+
+  decadeToggles?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.decade-btn') as HTMLElement;
+    if (!btn) return;
+    const isActive = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', String(!isActive));
+    btn.classList.toggle('active', !isActive);
+    // Dispatch a custom event so the page script can react
+    decadeToggles.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
   // --- Filter badge count ---
+  function getActiveDecadeCount(): number {
+    return decadeToggles?.querySelectorAll('.decade-btn[aria-pressed="true"]').length ?? 0;
+  }
+
   function updateFilterBadge() {
     const badge = document.getElementById('filter-badge');
     if (!badge) return;
 
     const director = (document.getElementById('filter-director') as HTMLSelectElement)?.value;
     const actor = (document.getElementById('filter-actor') as HTMLSelectElement)?.value;
-    const decade = (document.getElementById('filter-decade') as HTMLSelectElement)?.value;
-    const count = (director ? 1 : 0) + (actor ? 1 : 0) + (decade ? 1 : 0);
+    const hasDecades = getActiveDecadeCount() > 0;
+    const count = (director ? 1 : 0) + (actor ? 1 : 0) + (hasDecades ? 1 : 0);
 
     badge.textContent = String(count);
     badge.classList.toggle('visible', count > 0);
@@ -202,8 +238,13 @@ const {
 
   document.getElementById('filter-director')?.addEventListener('change', updateFilterBadge);
   document.getElementById('filter-actor')?.addEventListener('change', updateFilterBadge);
-  document.getElementById('filter-decade')?.addEventListener('change', updateFilterBadge);
+  decadeToggles?.addEventListener('change', updateFilterBadge);
   document.getElementById('filter-clear-all')?.addEventListener('click', () => {
+    // Clear decade toggles
+    decadeToggles?.querySelectorAll('.decade-btn').forEach(btn => {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('active');
+    });
     requestAnimationFrame(updateFilterBadge);
   });
 
@@ -427,6 +468,10 @@ const {
     padding: 5px 4px;
   }
 
+  .filter-row-wrap {
+    flex-wrap: wrap;
+  }
+
   .filter-row-label {
     display: inline-flex;
     align-items: center;
@@ -439,6 +484,40 @@ const {
     letter-spacing: -0.01em;
     min-width: 90px;
     flex-shrink: 0;
+  }
+
+  /* --- Decade toggle buttons --- */
+  .decade-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .decade-btn {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-movie);
+    border: 1px solid var(--bg-movie-hover);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .decade-btn:hover {
+    background: var(--bg-movie-hover);
+    color: var(--text-primary);
+  }
+
+  .decade-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
   }
 
   /* --- Selects (shared for sort + filters) --- */

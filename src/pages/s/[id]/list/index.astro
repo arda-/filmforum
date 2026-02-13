@@ -285,7 +285,7 @@ const structuredData = {
   const searchClear = document.getElementById('search-clear') as HTMLElement;
   const filterDirector = document.getElementById('filter-director') as HTMLSelectElement;
   const filterActor = document.getElementById('filter-actor') as HTMLSelectElement;
-  const filterDecade = document.getElementById('filter-decade') as HTMLSelectElement;
+  const decadeToggles = document.getElementById('decade-toggles');
   const filterResults = document.getElementById('filter-results') as HTMLElement;
   const filterResultsText = document.getElementById('filter-results-text') as HTMLElement;
   const filterClearAll = document.getElementById('filter-clear-all') as HTMLElement;
@@ -296,10 +296,12 @@ const structuredData = {
     const query = searchInput?.value.toLowerCase().trim() || '';
     const director = filterDirector?.value || '';
     const actor = filterActor?.value || '';
-    const decade = filterDecade?.value || '';
+    const decades = Array.from(
+      decadeToggles?.querySelectorAll('.decade-btn[aria-pressed="true"]') ?? []
+    ).map(btn => (btn as HTMLElement).dataset.decade!);
 
-    const hasFilters = query || director || actor || decade;
-    const filters = { query, director, actor, decade };
+    const hasFilters = query || director || actor || decades.length > 0;
+    const filters = { query, director, actor, decades };
 
     // Show/hide clear button on search input
     if (searchClear) {
@@ -309,7 +311,6 @@ const structuredData = {
     // Highlight active filter selects
     filterDirector?.classList.toggle('active-filter', !!director);
     filterActor?.classList.toggle('active-filter', !!actor);
-    filterDecade?.classList.toggle('active-filter', !!decade);
 
     let visibleCount = 0;
 
@@ -357,7 +358,10 @@ const structuredData = {
     if (searchInput) searchInput.value = '';
     if (filterDirector) filterDirector.value = '';
     if (filterActor) filterActor.value = '';
-    if (filterDecade) filterDecade.value = '';
+    decadeToggles?.querySelectorAll('.decade-btn').forEach(btn => {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('active');
+    });
     applyFilters();
   }
 
@@ -375,7 +379,7 @@ const structuredData = {
 
   filterDirector?.addEventListener('change', applyFilters);
   filterActor?.addEventListener('change', applyFilters);
-  filterDecade?.addEventListener('change', applyFilters);
+  decadeToggles?.addEventListener('change', applyFilters);
   filterClearAll?.addEventListener('click', clearAllFilters);
 
   // --- More Info Drawer ---

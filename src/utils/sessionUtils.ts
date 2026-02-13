@@ -6,7 +6,7 @@ export interface MovieFilters {
   query: string;
   director: string;
   actor: string;
-  decade: string;
+  decades: string[];
 }
 
 /** Result of extracting filter options from a movie list. */
@@ -164,7 +164,7 @@ export function matchesFilter(
   movie: { title: string; director: string; actors: string; year: string },
   filters: MovieFilters
 ): boolean {
-  const { query, director, actor, decade } = filters;
+  const { query, director, actor, decades } = filters;
 
   // Text search: matches title, director, or actors
   if (query && query.trim()) {
@@ -188,9 +188,10 @@ export function matchesFilter(
     if (!actorList.includes(actorLower)) return false;
   }
 
-  // Decade filter
-  if (decade && getDecade(movie.year) !== decade) {
-    return false;
+  // Decade filter: match any of the selected decades
+  if (decades.length > 0) {
+    const movieDecade = getDecade(movie.year);
+    if (!movieDecade || !decades.includes(movieDecade)) return false;
   }
 
   return true;

@@ -324,8 +324,8 @@ describe('sessionUtils', () => {
       };
     }
 
-    const noFilters: () => { query: string; director: string; actor: string; decade: string } =
-      () => ({ query: '', director: '', actor: '', decade: '' });
+    const noFilters: () => { query: string; director: string; actor: string; decades: string[] } =
+      () => ({ query: '', director: '', actor: '', decades: [] });
 
     const taxi = filterMovie({
       title: 'TAXI!',
@@ -432,14 +432,20 @@ describe('sessionUtils', () => {
 
     describe('decade filter', () => {
       it('should match movies from the correct decade', () => {
-        expect(matchesFilter(taxi, { ...noFilters(), decade: '1930s' })).toBe(true);
-        expect(matchesFilter(crowd, { ...noFilters(), decade: '1920s' })).toBe(true);
-        expect(matchesFilter(meanStreets, { ...noFilters(), decade: '1970s' })).toBe(true);
+        expect(matchesFilter(taxi, { ...noFilters(), decades: ['1930s'] })).toBe(true);
+        expect(matchesFilter(crowd, { ...noFilters(), decades: ['1920s'] })).toBe(true);
+        expect(matchesFilter(meanStreets, { ...noFilters(), decades: ['1970s'] })).toBe(true);
       });
 
       it('should not match movies from other decades', () => {
-        expect(matchesFilter(taxi, { ...noFilters(), decade: '1920s' })).toBe(false);
-        expect(matchesFilter(taxi, { ...noFilters(), decade: '1970s' })).toBe(false);
+        expect(matchesFilter(taxi, { ...noFilters(), decades: ['1920s'] })).toBe(false);
+        expect(matchesFilter(taxi, { ...noFilters(), decades: ['1970s'] })).toBe(false);
+      });
+
+      it('should match movies from any of the selected decades (multi-select)', () => {
+        expect(matchesFilter(taxi, { ...noFilters(), decades: ['1920s', '1930s'] })).toBe(true);
+        expect(matchesFilter(crowd, { ...noFilters(), decades: ['1920s', '1930s'] })).toBe(true);
+        expect(matchesFilter(meanStreets, { ...noFilters(), decades: ['1920s', '1930s'] })).toBe(false);
       });
     });
 
@@ -447,35 +453,35 @@ describe('sessionUtils', () => {
       it('should require all filters to match', () => {
         // Director + decade that both match
         expect(matchesFilter(taxi, {
-          query: '', director: 'Roy Del Ruth', actor: '', decade: '1930s',
+          query: '', director: 'Roy Del Ruth', actor: '', decades: ['1930s'],
         })).toBe(true);
 
         // Director matches but decade doesn't
         expect(matchesFilter(taxi, {
-          query: '', director: 'Roy Del Ruth', actor: '', decade: '1920s',
+          query: '', director: 'Roy Del Ruth', actor: '', decades: ['1920s'],
         })).toBe(false);
       });
 
       it('should combine text search with dropdown filters', () => {
         // Search matches + director matches
         expect(matchesFilter(taxi, {
-          query: 'cagney', director: 'Roy Del Ruth', actor: '', decade: '',
+          query: 'cagney', director: 'Roy Del Ruth', actor: '', decades: [],
         })).toBe(true);
 
         // Search matches but director doesn't
         expect(matchesFilter(taxi, {
-          query: 'taxi', director: 'King Vidor', actor: '', decade: '',
+          query: 'taxi', director: 'King Vidor', actor: '', decades: [],
         })).toBe(false);
       });
 
       it('should combine all four filters', () => {
         expect(matchesFilter(taxi, {
-          query: 'taxi', director: 'Roy Del Ruth', actor: 'James Cagney', decade: '1930s',
+          query: 'taxi', director: 'Roy Del Ruth', actor: 'James Cagney', decades: ['1930s'],
         })).toBe(true);
 
         // One filter wrong
         expect(matchesFilter(taxi, {
-          query: 'taxi', director: 'Roy Del Ruth', actor: 'Robert De Niro', decade: '1930s',
+          query: 'taxi', director: 'Roy Del Ruth', actor: 'Robert De Niro', decades: ['1930s'],
         })).toBe(false);
       });
     });
@@ -495,7 +501,7 @@ describe('sessionUtils', () => {
 
       it('should handle movie with no year', () => {
         const noYear = filterMovie({ title: 'Unknown Film', director: 'Someone' });
-        expect(matchesFilter(noYear, { ...noFilters(), decade: '1950s' })).toBe(false);
+        expect(matchesFilter(noYear, { ...noFilters(), decades: ['1950s'] })).toBe(false);
         expect(matchesFilter(noYear, noFilters())).toBe(true);
       });
 
