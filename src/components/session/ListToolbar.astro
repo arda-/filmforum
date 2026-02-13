@@ -228,8 +228,7 @@ const {
 
     const director = (document.getElementById('filter-director') as HTMLSelectElement)?.value;
     const actor = (document.getElementById('filter-actor') as HTMLSelectElement)?.value;
-    const hasDecades = getActiveDecadeCount() > 0;
-    const count = (director ? 1 : 0) + (actor ? 1 : 0) + (hasDecades ? 1 : 0);
+    const count = (director ? 1 : 0) + (actor ? 1 : 0) + getActiveDecadeCount();
 
     badge.textContent = String(count);
     badge.classList.toggle('visible', count > 0);
