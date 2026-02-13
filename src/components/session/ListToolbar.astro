@@ -4,11 +4,15 @@
  * Single row: View toggle + Search bar + Filter disclosure button
  * Search/filter hidden in single view.
  * Disclosure panel: Sort, director, actor, decade filters
+ *
+ * View toggle uses <a> links for list/cards (enabling Astro View Transitions)
+ * and a <button> for the single-card drawer overlay.
  */
 import Icon from '../Icon.astro';
 
 interface Props {
-  viewMode?: 'list' | 'card' | 'single';
+  sessionId: string;
+  currentView?: 'list' | 'cards';
   sortBy?: string;
   directors?: string[];
   actors?: string[];
@@ -16,41 +20,43 @@ interface Props {
 }
 
 const {
-  viewMode = 'card',
+  sessionId,
+  currentView = 'cards',
   sortBy = 'alpha',
   directors = [],
   actors = [],
   decades = [],
 } = Astro.props;
+
+const listHref = `/s/${sessionId}/list/list`;
+const cardsHref = `/s/${sessionId}/list/cards`;
 ---
 
-<div class="list-toolbar">
+<div class="list-toolbar" transition:persist="list-toolbar">
   <!-- Single row: View toggle + Search + Filter button -->
   <div class="toolbar-main-row" id="toolbar-main-row">
-    <div class="view-toggle" role="radiogroup" aria-label="View mode">
-      <button
-        class:list={['view-btn', { active: viewMode === 'list' }]}
+    <div class="view-toggle" role="group" aria-label="View mode">
+      <a
+        href={listHref}
+        class:list={['view-btn', { active: currentView === 'list' }]}
         data-view="list"
-        role="radio"
-        aria-checked={viewMode === 'list'}
         aria-label="List view"
+        aria-current={currentView === 'list' ? 'page' : undefined}
       >
         <Icon name="rows-4" size={16} />
-      </button>
-      <button
-        class:list={['view-btn', { active: viewMode === 'card' }]}
-        data-view="card"
-        role="radio"
-        aria-checked={viewMode === 'card'}
+      </a>
+      <a
+        href={cardsHref}
+        class:list={['view-btn', { active: currentView === 'cards' }]}
+        data-view="cards"
         aria-label="Card view"
+        aria-current={currentView === 'cards' ? 'page' : undefined}
       >
         <Icon name="grid-2x2" size={16} />
-      </button>
+      </a>
       <button
-        class:list={['view-btn', { active: viewMode === 'single' }]}
+        class="view-btn"
         data-view="single"
-        role="radio"
-        aria-checked={viewMode === 'single'}
         aria-label="Single card view"
       >
         <Icon name="square" size={16} />
@@ -162,98 +168,112 @@ const {
 </div>
 
 <script>
-  // --- Responsive search placeholder ---
-  const searchEl = document.getElementById('search-input') as HTMLInputElement;
-  function updateSearchPlaceholder() {
-    if (!searchEl) return;
-    const wide = window.matchMedia('(min-width: 640px)').matches;
-    searchEl.placeholder = wide
-      ? (searchEl.dataset.placeholderLg ?? 'Search films...')
-      : (searchEl.dataset.placeholderSm ?? 'Search films...');
-  }
-  updateSearchPlaceholder();
-  window.matchMedia('(min-width: 640px)').addEventListener('change', updateSearchPlaceholder);
+  // --- Toolbar initialization ---
+  // Uses astro:page-load to re-init after View Transition navigations.
+  // The toolbar DOM persists via transition:persist, so event listeners
+  // are only bound once; the page-load handler updates active state.
 
-  // --- Filter disclosure toggle ---
-  const filterToggleBtn = document.getElementById('filter-toggle-btn');
-  const filterDisclosure = document.getElementById('filter-disclosure');
+  function initToolbar() {
+    const searchEl = document.getElementById('search-input') as HTMLInputElement;
+    const filterToggleBtn = document.getElementById('filter-toggle-btn');
+    const filterDisclosure = document.getElementById('filter-disclosure');
+    const decadeToggles = document.getElementById('decade-toggles');
 
-  filterToggleBtn?.addEventListener('click', () => {
-    const isOpen = filterDisclosure?.classList.contains('open');
-    filterDisclosure?.classList.toggle('open', !isOpen);
-    filterToggleBtn.classList.toggle('active', !isOpen);
-    filterToggleBtn.setAttribute('aria-expanded', String(!isOpen));
-  });
+    // --- Responsive search placeholder ---
+    function updateSearchPlaceholder() {
+      if (!searchEl) return;
+      const wide = window.matchMedia('(min-width: 640px)').matches;
+      searchEl.placeholder = wide
+        ? (searchEl.dataset.placeholderLg ?? 'Search films...')
+        : (searchEl.dataset.placeholderSm ?? 'Search films...');
+    }
+    updateSearchPlaceholder();
+    window.matchMedia('(min-width: 640px)').addEventListener('change', updateSearchPlaceholder);
 
-  // --- Hide search/filter in single view ---
-  const searchWrapper = document.getElementById('search-wrapper');
-  const mainRow = document.getElementById('toolbar-main-row');
+    // --- Filter disclosure toggle ---
+    filterToggleBtn?.addEventListener('click', () => {
+      const isOpen = filterDisclosure?.classList.contains('open');
+      filterDisclosure?.classList.toggle('open', !isOpen);
+      filterToggleBtn.classList.toggle('active', !isOpen);
+      filterToggleBtn.setAttribute('aria-expanded', String(!isOpen));
+    });
 
-  document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const view = (btn as HTMLElement).dataset.view;
-      const isSingle = view === 'single';
-      if (searchWrapper) searchWrapper.style.display = isSingle ? 'none' : '';
-      if (filterToggleBtn) (filterToggleBtn as HTMLElement).style.display = isSingle ? 'none' : '';
-      if (mainRow) mainRow.classList.toggle('single-mode', isSingle);
-      // Close disclosure when switching to single view
-      if (view === 'single' && filterDisclosure?.classList.contains('open')) {
-        filterDisclosure.classList.remove('open');
-        filterToggleBtn?.classList.remove('active');
-        filterToggleBtn?.setAttribute('aria-expanded', 'false');
+    // --- Single-card drawer button ---
+    const singleBtn = document.querySelector('.view-btn[data-view="single"]');
+    singleBtn?.addEventListener('click', () => {
+      const ctrl = (window as any).singleCardController;
+      if (ctrl) {
+        ctrl.reactions = (window as any).__ffReactions?.() ?? {};
+        ctrl.open();
       }
     });
-  });
 
-  // --- Decade toggle buttons ---
-  const decadeToggles = document.getElementById('decade-toggles');
-
-  decadeToggles?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest('.decade-btn') as HTMLElement;
-    if (!btn) return;
-    const isActive = btn.getAttribute('aria-pressed') === 'true';
-    btn.setAttribute('aria-pressed', String(!isActive));
-    btn.classList.toggle('active', !isActive);
-    // Dispatch a custom event so the page script can react
-    decadeToggles.dispatchEvent(new Event('change', { bubbles: true }));
-  });
-
-  // --- Filter badge count ---
-  function getActiveDecadeCount(): number {
-    return decadeToggles?.querySelectorAll('.decade-btn[aria-pressed="true"]').length ?? 0;
-  }
-
-  function updateFilterBadge() {
-    const badge = document.getElementById('filter-badge');
-    if (!badge) return;
-
-    const director = (document.getElementById('filter-director') as HTMLSelectElement)?.value;
-    const actor = (document.getElementById('filter-actor') as HTMLSelectElement)?.value;
-    const count = (director ? 1 : 0) + (actor ? 1 : 0) + getActiveDecadeCount();
-
-    badge.textContent = String(count);
-    badge.classList.toggle('visible', count > 0);
-    filterToggleBtn?.classList.toggle('has-filters', count > 0);
-  }
-
-  document.getElementById('filter-director')?.addEventListener('change', updateFilterBadge);
-  document.getElementById('filter-actor')?.addEventListener('change', updateFilterBadge);
-  decadeToggles?.addEventListener('change', updateFilterBadge);
-  document.getElementById('filter-clear-all')?.addEventListener('click', () => {
-    // Clear decade toggles
-    decadeToggles?.querySelectorAll('.decade-btn').forEach(btn => {
-      btn.setAttribute('aria-pressed', 'false');
-      btn.classList.remove('active');
+    // --- Decade toggle buttons ---
+    decadeToggles?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.decade-btn') as HTMLElement;
+      if (!btn) return;
+      const isActive = btn.getAttribute('aria-pressed') === 'true';
+      btn.setAttribute('aria-pressed', String(!isActive));
+      btn.classList.toggle('active', !isActive);
+      decadeToggles.dispatchEvent(new Event('change', { bubbles: true }));
     });
-    // Clear dropdown filters
-    const directorSelect = document.getElementById('filter-director') as HTMLSelectElement | null;
-    const actorSelect = document.getElementById('filter-actor') as HTMLSelectElement | null;
-    if (directorSelect) directorSelect.value = '';
-    if (actorSelect) actorSelect.value = '';
-    requestAnimationFrame(updateFilterBadge);
-  });
 
-  updateFilterBadge();
+    // --- Filter badge count ---
+    function getActiveDecadeCount(): number {
+      return decadeToggles?.querySelectorAll('.decade-btn[aria-pressed="true"]').length ?? 0;
+    }
+
+    function updateFilterBadge() {
+      const badge = document.getElementById('filter-badge');
+      if (!badge) return;
+
+      const director = (document.getElementById('filter-director') as HTMLSelectElement)?.value;
+      const actor = (document.getElementById('filter-actor') as HTMLSelectElement)?.value;
+      const count = (director ? 1 : 0) + (actor ? 1 : 0) + getActiveDecadeCount();
+
+      badge.textContent = String(count);
+      badge.classList.toggle('visible', count > 0);
+      filterToggleBtn?.classList.toggle('has-filters', count > 0);
+    }
+
+    document.getElementById('filter-director')?.addEventListener('change', updateFilterBadge);
+    document.getElementById('filter-actor')?.addEventListener('change', updateFilterBadge);
+    decadeToggles?.addEventListener('change', updateFilterBadge);
+    document.getElementById('filter-clear-all')?.addEventListener('click', () => {
+      decadeToggles?.querySelectorAll('.decade-btn').forEach(btn => {
+        btn.setAttribute('aria-pressed', 'false');
+        btn.classList.remove('active');
+      });
+      const directorSelect = document.getElementById('filter-director') as HTMLSelectElement | null;
+      const actorSelect = document.getElementById('filter-actor') as HTMLSelectElement | null;
+      if (directorSelect) directorSelect.value = '';
+      if (actorSelect) actorSelect.value = '';
+      requestAnimationFrame(updateFilterBadge);
+    });
+
+    updateFilterBadge();
+  }
+
+  // Update view-toggle active state based on current URL
+  function updateViewToggleState() {
+    const path = window.location.pathname;
+    document.querySelectorAll('.view-toggle a.view-btn').forEach(link => {
+      const href = link.getAttribute('href') || '';
+      const isActive = path.startsWith(href);
+      link.classList.toggle('active', isActive);
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  // Run once on first load — toolbar persists across navigations
+  initToolbar();
+
+  // Update active link on every navigation (including initial)
+  document.addEventListener('astro:page-load', updateViewToggleState);
 </script>
 
 <style>
@@ -309,6 +329,7 @@ const {
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s ease;
+    text-decoration: none;
   }
 
   .view-btn:not(:last-child) {
