@@ -87,9 +87,10 @@ import Button from '../../components/Button.astro';
   <Drawer id="drawer-basic" title="Basic Drawer">
     <p class="drawer-text">This is a basic drawer with a title and close button.</p>
     <p class="drawer-text">Try dragging it down using the handle at the top, or click the backdrop to close.</p>
-    <div class="drawer-actions">
+
+    <Fragment slot="footer">
       <Button variant="primary" onclick="closeDrawer('drawer-basic')">Got it</Button>
-    </div>
+    </Fragment>
   </Drawer>
 
   <!-- Height: 50% -->
@@ -309,12 +310,12 @@ import Button from '../../components/Button.astro';
           <span class="score-value">70</span>
         </div>
       </div>
-
-      <div class="movie-actions">
-        <Button variant="secondary" onclick="closeDrawer('drawer-movie')">Close</Button>
-        <Button variant="primary" onclick="closeDrawer('drawer-movie')">Buy Tickets</Button>
-      </div>
     </div>
+
+    <Fragment slot="footer">
+      <Button variant="secondary" onclick="closeDrawer('drawer-movie')">Close</Button>
+      <Button variant="primary" onclick="closeDrawer('drawer-movie')">Buy Tickets</Button>
+    </Fragment>
   </Drawer>
 
 </Layout>
@@ -566,12 +567,6 @@ import Button from '../../components/Button.astro';
     font-size: 18px;
     font-weight: 600;
     color: var(--accent);
-  }
-
-  .movie-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
   }
 
   @media (max-width: 480px) {
