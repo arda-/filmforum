@@ -1,0 +1,131 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CalendarViewToolbar from '../../components/CalendarViewToolbar.astro';
+---
+
+<Layout title="View Toolbar Demo" noindex={true}>
+  <div>
+    <h1>Calendar View Toolbar</h1>
+    <p class="subtitle">View mode toggle, width settings, detail options, and gear popover</p>
+
+    <div class="demo-section">
+      <h2>Default State</h2>
+      <div class="demo-container">
+        <CalendarViewToolbar />
+      </div>
+      <p class="demo-note">
+        Timeline view selected, Fit to width mode, Monday start, all detail options disabled.
+      </p>
+    </div>
+
+    <div class="demo-section">
+      <h2>Features to Test</h2>
+      <ul class="features-list">
+        <li><strong>View mode toggle:</strong> Timeline/Grid buttons should toggle</li>
+        <li><strong>Width mode:</strong> Fit/Content buttons (hidden at 640px+)</li>
+        <li><strong>Gear popover:</strong> Click gear icon to open/close settings</li>
+        <li><strong>Week start selection:</strong> Mon/Sun buttons in popover</li>
+        <li><strong>Detail toggles:</strong> Year & Director, Runtime, Cast, Image</li>
+        <li><strong>Auto-mode switch:</strong> Enabling details auto-switches to Content mode</li>
+        <li><strong>aria-checked attributes:</strong> Radio buttons should update</li>
+        <li><strong>aria-pressed attributes:</strong> Detail buttons should update</li>
+        <li><strong>Popover keyboard:</strong> Escape key should close popover</li>
+        <li><strong>Popover click-outside:</strong> Clicking outside should close popover</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Interactive Testing</h2>
+      <p>Try the following interactions:</p>
+      <ol>
+        <li>Click "Rows" button → should switch to grid mode</li>
+        <li>Click "Timeline" button → should switch back</li>
+        <li>Click gear icon → popover should appear</li>
+        <li>Click gear icon again → popover should close</li>
+        <li>Press Escape with popover open → popover should close</li>
+        <li>Click outside popover → popover should close</li>
+        <li>Click "Year & Director" detail button → should enable, Content mode auto-switches</li>
+        <li>Click "Fit" button with details on → details should disable, switch to Fit</li>
+        <li>Click "Content" button → details should restore</li>
+        <li>Open gear, change week start to Sunday → should update and close</li>
+      </ol>
+    </div>
+
+    <div class="demo-section">
+      <h2>Responsive Behavior</h2>
+      <p>
+        At viewport widths less than 640px, the Width toggle (Fit/Content) is hidden because
+        the calendar naturally fits. At 640px+, it's hidden again as content-width is not needed.
+        Resize your browser to test this behavior.
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+
+  .demo-section {
+    margin-bottom: 40px;
+  }
+
+  .demo-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .demo-container {
+    background: var(--bg-body);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--bg-movie-hover);
+  }
+
+  .demo-note {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .features-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bg-movie-hover);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .features-list li:last-child {
+    border-bottom: none;
+  }
+
+  .demo-section ol,
+  .demo-section > p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .demo-section li {
+    margin-bottom: 6px;
+  }
+</style>
