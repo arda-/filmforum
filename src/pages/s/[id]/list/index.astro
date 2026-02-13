@@ -12,6 +12,7 @@ import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import {
   deduplicateMovies,
   sortMovies,
+  extractFilterOptions,
 } from '@utils/sessionUtils';
 
 export function getStaticPaths() {
@@ -37,28 +38,7 @@ try {
 const uniqueMovies = sortMovies(deduplicateMovies(allMovies), 'alpha');
 
 // Extract unique directors, actors, and decades for filter dropdowns
-const directorsSet = new Set<string>();
-const actorsSet = new Set<string>();
-const decadesSet = new Set<string>();
-
-for (const um of uniqueMovies) {
-  const m = um.movie;
-  if (m.director) directorsSet.add(m.director);
-  if (m.actors) {
-    for (const actor of m.actors.split(', ')) {
-      const trimmed = actor.trim();
-      if (trimmed) actorsSet.add(trimmed);
-    }
-  }
-  if (m.year) {
-    const decade = Math.floor(parseInt(m.year) / 10) * 10;
-    if (!isNaN(decade)) decadesSet.add(`${decade}s`);
-  }
-}
-
-const directors = [...directorsSet].sort((a, b) => a.localeCompare(b));
-const actors = [...actorsSet].sort((a, b) => a.localeCompare(b));
-const decades = [...decadesSet].sort();
+const { directors, actors, decades } = extractFilterOptions(uniqueMovies);
 
 // Serialize movie data for client-side use
 const movieDataJson = JSON.stringify(uniqueMovies);
@@ -141,7 +121,7 @@ const structuredData = {
 <script>
   import { getReactions, setReaction, getReactionCounts } from '@utils/storageManager';
   import { toTitleCase, formatRuntime } from '@utils/movieUtils';
-  import { sortMovies } from '@utils/sessionUtils';
+  import { sortMovies, matchesFilter } from '@utils/sessionUtils';
   import type { MovieReaction, UniqueMovie } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
@@ -312,12 +292,6 @@ const structuredData = {
   const movieCount = document.getElementById('page-movie-count') as HTMLElement;
   const totalCount = allMovies.length;
 
-  function getDecade(year: string): string {
-    const y = parseInt(year);
-    if (isNaN(y)) return '';
-    return `${Math.floor(y / 10) * 10}s`;
-  }
-
   function applyFilters() {
     const query = searchInput?.value.toLowerCase().trim() || '';
     const director = filterDirector?.value || '';
@@ -325,6 +299,7 @@ const structuredData = {
     const decade = filterDecade?.value || '';
 
     const hasFilters = query || director || actor || decade;
+    const filters = { query, director, actor, decade };
 
     // Show/hide clear button on search input
     if (searchClear) {
@@ -338,42 +313,18 @@ const structuredData = {
 
     let visibleCount = 0;
 
-    // Filter cards and list items by matching data attributes
+    // Filter cards and list items using shared matching logic
     const selectors = '.card[data-movie-id], .list-item[data-movie-id]';
     document.querySelectorAll(selectors).forEach(el => {
       const htmlEl = el as HTMLElement;
-      const elTitle = htmlEl.dataset.title || '';
-      const elDirector = htmlEl.dataset.director || '';
-      const elActors = htmlEl.dataset.actors || '';
-      const elYear = htmlEl.dataset.year || '';
-      const elDecade = getDecade(elYear);
-      const movieId = htmlEl.dataset.movieId || '';
+      const movieData = {
+        title: htmlEl.dataset.title || '',
+        director: htmlEl.dataset.director || '',
+        actors: htmlEl.dataset.actors || '',
+        year: htmlEl.dataset.year || '',
+      };
 
-      let visible = true;
-
-      // Text search: matches title, director, or actors
-      if (query) {
-        const matchesSearch = elTitle.includes(query) ||
-          elDirector.includes(query) ||
-          elActors.includes(query);
-        if (!matchesSearch) visible = false;
-      }
-
-      // Director filter
-      if (director && elDirector !== director) {
-        visible = false;
-      }
-
-      // Actor filter: check if the selected actor appears in the actors list
-      if (actor && !elActors.includes(actor)) {
-        visible = false;
-      }
-
-      // Decade filter
-      if (decade && elDecade !== decade) {
-        visible = false;
-      }
-
+      const visible = matchesFilter(movieData, filters);
       htmlEl.style.display = visible ? '' : 'none';
 
       // Count unique visible movies (count cards only to avoid double-counting)
