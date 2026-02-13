@@ -168,8 +168,8 @@ const {
     if (!searchEl) return;
     const wide = window.matchMedia('(min-width: 640px)').matches;
     searchEl.placeholder = wide
-      ? searchEl.dataset.placeholderLg!
-      : searchEl.dataset.placeholderSm!;
+      ? (searchEl.dataset.placeholderLg ?? 'Search films...')
+      : (searchEl.dataset.placeholderSm ?? 'Search films...');
   }
   updateSearchPlaceholder();
   window.matchMedia('(min-width: 640px)').addEventListener('change', updateSearchPlaceholder);
@@ -259,7 +259,8 @@ const {
     z-index: var(--z-drawer-bg);
     background: var(--bg-body);
     border-bottom: 1px solid var(--bg-movie-hover);
-    padding: 10px 16px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
     gap: 0;
