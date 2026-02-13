@@ -8,6 +8,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+// TODO: Replace [key: string]: unknown with fully typed fields once the metadata
+// schema stabilizes. This would let TypeScript verify the validation logic matches
+// the actual data shape, and allow the demo page to drop its `any` annotations.
 interface SeriesMetadata {
   id: string;
   name: string;
