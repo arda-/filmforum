@@ -70,3 +70,27 @@ The test suite includes:
 - Timestamp generation tests
 - File handling tests
 - End-to-end integration tests
+
+### Pre-push Hook
+
+A git pre-push hook automatically runs Python tests when `data-processing/*.py` files have changed. This ensures code quality without slowing down pushes when only frontend files change.
+
+**The hook:**
+- ✅ Only runs when Python files in `data-processing/` are modified
+- ✅ Installs pytest automatically if needed
+- ✅ Blocks push if tests fail
+- ✅ Shows clear colored output
+
+**Install the hook:**
+
+The hook is located at `.git/hooks/pre-push` and should be set up automatically. If you need to reinstall it:
+
+```bash
+# From project root
+chmod +x .git/hooks/pre-push
+```
+
+**Bypass the hook** (not recommended):
+```bash
+git push --no-verify
+```
