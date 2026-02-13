@@ -10,6 +10,7 @@ interface Props {
 }
 
 const { id, title, maxHeight = '85vh' } = Astro.props;
+const hasFooter = Astro.slots.has('footer');
 ---
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
@@ -30,6 +31,11 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     <div class="drawer-body">
       <slot />
     </div>
+    {hasFooter && (
+      <div class="drawer-footer">
+        <slot name="footer" />
+      </div>
+    )}
   </div>
 </div>
 
@@ -173,6 +179,22 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
   @media (hover: hover) and (pointer: fine),
          (pointer: coarse) and (min-width: 768px) and (min-height: 600px) {
     .drawer-body {
+      padding-bottom: 12px;
+    }
+  }
+
+  .drawer-footer {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-day);
+    border-top: 1px solid var(--bg-movie-hover);
+  }
+
+  @media (hover: hover) and (pointer: fine),
+         (pointer: coarse) and (min-width: 768px) and (min-height: 600px) {
+    .drawer-footer {
       padding-bottom: 12px;
     }
   }
