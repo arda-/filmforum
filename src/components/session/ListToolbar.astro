@@ -27,6 +27,7 @@ const {
 <div class="list-toolbar">
   <!-- Row 1: View mode (always visible) -->
   <div class="toolbar-view-row">
+    <span class="toolbar-label">View</span>
     <div class="view-toggle" role="radiogroup" aria-label="View mode">
       <button
         class:list={['view-btn', { active: viewMode === 'list' }]}
@@ -230,6 +231,16 @@ const {
   .toolbar-view-row {
     display: flex;
     align-items: center;
+    gap: 8px;
+  }
+
+  .toolbar-label {
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    letter-spacing: -0.01em;
   }
 
   .view-toggle {
