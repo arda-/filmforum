@@ -118,10 +118,8 @@ const structuredData = {
   </div>
 </Layout>
 
-<script define:vars={{ movieDataJson, sessionId: id }}>
-  window.__movieData = JSON.parse(movieDataJson);
-  window.__sessionId = sessionId;
-</script>
+<script type="application/json" id="movie-data" set:html={movieDataJson} />
+<script type="application/json" id="session-id" set:html={JSON.stringify(id)} />
 
 <script>
   import { getReactions, setReaction, getReactionCounts } from '@utils/storageManager';
@@ -129,8 +127,8 @@ const structuredData = {
   import { sortMovies, matchesFilter } from '@utils/sessionUtils';
   import type { MovieReaction, UniqueMovie } from '@types/session';
 
-  const sessionId = (window as any).__sessionId as string;
-  const allMovies = (window as any).__movieData as UniqueMovie[];
+  const sessionId = JSON.parse(document.getElementById('session-id')!.textContent!) as string;
+  const allMovies = JSON.parse(document.getElementById('movie-data')!.textContent!) as UniqueMovie[];
 
   // --- State ---
   let currentView: 'list' | 'card' | 'single' = 'card';
