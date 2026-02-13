@@ -1,8 +1,8 @@
 ---
 /**
  * Compact toolbar for session list page.
- * Row 1: View toggle (always visible, all view modes)
- * Row 2: Search + filter disclosure button (hidden in single view)
+ * Single row: View toggle + Search bar + Filter disclosure button
+ * Search/filter hidden in single view.
  * Disclosure panel: Sort, director, actor, decade filters
  */
 import Icon from '../Icon.astro';
@@ -25,9 +25,8 @@ const {
 ---
 
 <div class="list-toolbar">
-  <!-- Row 1: View mode (always visible) -->
-  <div class="toolbar-view-row">
-    <span class="toolbar-label">View</span>
+  <!-- Single row: View toggle + Search + Filter button -->
+  <div class="toolbar-main-row" id="toolbar-main-row">
     <div class="view-toggle" role="radiogroup" aria-label="View mode">
       <button
         class:list={['view-btn', { active: viewMode === 'list' }]}
@@ -57,106 +56,101 @@ const {
         <Icon name="square" size={16} />
       </button>
     </div>
-  </div>
 
-  <!-- Row 2+: Search, filter toggle, disclosure (hidden in single view) -->
-  <div class="toolbar-search-section" id="toolbar-search-section">
-    <div class="toolbar-search-row">
-      <div class="search-input-wrapper">
-        <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <div class="search-input-wrapper" id="search-wrapper">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="Search films..."
+        data-placeholder-sm="Search films..."
+        data-placeholder-lg="Search titles, directors, actors..."
+        aria-label="Search films by title, director, or actor"
+        autocomplete="off"
+      />
+      <button id="search-clear" class="search-clear" aria-label="Clear search" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <input
-          type="text"
-          id="search-input"
-          class="search-input"
-          placeholder="Search films..."
-          data-placeholder-sm="Search films..."
-          data-placeholder-lg="Search titles, directors, actors..."
-          aria-label="Search films by title, director, or actor"
-          autocomplete="off"
-        />
-        <button id="search-clear" class="search-clear" aria-label="Clear search" style="display:none">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <button
-        class="filter-toggle-btn"
-        id="filter-toggle-btn"
-        aria-label="Toggle filters and sort"
-        aria-expanded="false"
-        aria-controls="filter-disclosure"
-      >
-        <Icon name="list-filter" size={16} />
-        <span class="filter-badge" id="filter-badge">0</span>
       </button>
     </div>
 
-    <!-- Filter disclosure panel -->
-    <div class="filter-disclosure" id="filter-disclosure">
-      <div class="filter-disclosure-inner">
-        <div class="filter-row">
-          <span class="filter-row-label">Sort</span>
-          <select class="toolbar-select" id="sort-select" aria-label="Sort movies by">
-            <option value="alpha" selected={sortBy === 'alpha'}>A &rarr; Z</option>
-            <option value="year" selected={sortBy === 'year'}>Year</option>
-            <option value="director" selected={sortBy === 'director'}>Director</option>
-            <option value="marked" selected={sortBy === 'marked'}>Marked</option>
-          </select>
-        </div>
+    <button
+      class="filter-toggle-btn"
+      id="filter-toggle-btn"
+      aria-label="Toggle filters and sort"
+      aria-expanded="false"
+      aria-controls="filter-disclosure"
+    >
+      <Icon name="list-filter" size={16} />
+      <span class="filter-badge" id="filter-badge">0</span>
+    </button>
+  </div>
 
-        <div class="filter-row">
-          <span class="filter-row-label">
-            <Icon name="megaphone" size={14} />
-            <span>Director</span>
-          </span>
-          <select class="toolbar-select filter-select" id="filter-director" aria-label="Filter by director">
-            <option value="">All directors</option>
-            {directors.map(d => (
-              <option value={d.toLowerCase()}>{d}</option>
-            ))}
-          </select>
-        </div>
+  <!-- Filter disclosure panel -->
+  <div class="filter-disclosure" id="filter-disclosure">
+    <div class="filter-disclosure-inner">
+      <div class="filter-row">
+        <span class="filter-row-label">Sort</span>
+        <select class="toolbar-select" id="sort-select" aria-label="Sort movies by">
+          <option value="alpha" selected={sortBy === 'alpha'}>A &rarr; Z</option>
+          <option value="year" selected={sortBy === 'year'}>Year</option>
+          <option value="director" selected={sortBy === 'director'}>Director</option>
+          <option value="marked" selected={sortBy === 'marked'}>Marked</option>
+        </select>
+      </div>
 
-        <div class="filter-row">
-          <span class="filter-row-label">
-            <Icon name="users-round" size={14} />
-            <span>Actor</span>
-          </span>
-          <select class="toolbar-select filter-select" id="filter-actor" aria-label="Filter by actor">
-            <option value="">All actors</option>
-            {actors.map(a => (
-              <option value={a.toLowerCase()}>{a}</option>
-            ))}
-          </select>
-        </div>
+      <div class="filter-row">
+        <span class="filter-row-label">
+          <Icon name="megaphone" size={14} />
+          <span>Director</span>
+        </span>
+        <select class="toolbar-select filter-select" id="filter-director" aria-label="Filter by director">
+          <option value="">All directors</option>
+          {directors.map(d => (
+            <option value={d.toLowerCase()}>{d}</option>
+          ))}
+        </select>
+      </div>
 
-        <div class="filter-row filter-row-wrap">
-          <span class="filter-row-label">
-            <Icon name="calendar" size={14} />
-            <span>Decade</span>
-          </span>
-          <div class="decade-toggles" id="decade-toggles" role="group" aria-label="Filter by decade (multi-select)">
-            {decades.map(d => (
-              <button
-                class="decade-btn"
-                data-decade={d}
-                aria-pressed="false"
-              >
-                {d}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div class="filter-row">
+        <span class="filter-row-label">
+          <Icon name="users-round" size={14} />
+          <span>Actor</span>
+        </span>
+        <select class="toolbar-select filter-select" id="filter-actor" aria-label="Filter by actor">
+          <option value="">All actors</option>
+          {actors.map(a => (
+            <option value={a.toLowerCase()}>{a}</option>
+          ))}
+        </select>
+      </div>
 
-        <div class="filter-row filter-actions" id="filter-results" style="display:none">
-          <span class="filter-results-text" id="filter-results-text"></span>
-          <button class="filter-clear-btn" id="filter-clear-all" aria-label="Clear all filters">Clear all</button>
+      <div class="filter-row filter-row-wrap">
+        <span class="filter-row-label">
+          <Icon name="calendar" size={14} />
+          <span>Decade</span>
+        </span>
+        <div class="decade-toggles" id="decade-toggles" role="group" aria-label="Filter by decade (multi-select)">
+          {decades.map(d => (
+            <button
+              class="decade-btn"
+              data-decade={d}
+              aria-pressed="false"
+            >
+              {d}
+            </button>
+          ))}
         </div>
+      </div>
+
+      <div class="filter-row filter-actions" id="filter-results" style="display:none">
+        <span class="filter-results-text" id="filter-results-text"></span>
+        <button class="filter-clear-btn" id="filter-clear-all" aria-label="Clear all filters">Clear all</button>
       </div>
     </div>
   </div>
@@ -186,15 +180,17 @@ const {
     filterToggleBtn.setAttribute('aria-expanded', String(!isOpen));
   });
 
-  // --- Hide search/filter section in single view ---
-  const searchSection = document.getElementById('toolbar-search-section');
+  // --- Hide search/filter in single view ---
+  const searchWrapper = document.getElementById('search-wrapper');
+  const mainRow = document.getElementById('toolbar-main-row');
 
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const view = (btn as HTMLElement).dataset.view;
-      if (searchSection) {
-        searchSection.style.display = view === 'single' ? 'none' : '';
-      }
+      const isSingle = view === 'single';
+      if (searchWrapper) searchWrapper.style.display = isSingle ? 'none' : '';
+      if (filterToggleBtn) (filterToggleBtn as HTMLElement).style.display = isSingle ? 'none' : '';
+      if (mainRow) mainRow.classList.toggle('single-mode', isSingle);
       // Close disclosure when switching to single view
       if (view === 'single' && filterDisclosure?.classList.contains('open')) {
         filterDisclosure.classList.remove('open');
@@ -256,31 +252,23 @@ const {
     position: sticky;
     top: 0;
     z-index: var(--z-drawer-bg);
-    background: color-mix(in srgb, var(--bg-body) 85%, transparent);
+    background: color-mix(in srgb, var(--bg-body) 92%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--bg-movie-hover) 40%, transparent);
     border-bottom: 1px solid var(--bg-movie-hover);
     margin: 0 -12px 12px;
     padding: 10px 12px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0;
   }
 
-  /* --- View row (always visible) --- */
-  .toolbar-view-row {
+  /* --- Main row: view + search + filter --- */
+  .toolbar-main-row {
     display: flex;
     align-items: center;
     gap: 8px;
-  }
-
-  .toolbar-label {
-    font-size: 12px;
-    font-weight: 400;
-    text-transform: uppercase;
-    color: var(--text-tertiary);
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    letter-spacing: -0.01em;
   }
 
   .view-toggle {
@@ -288,6 +276,7 @@ const {
     border: 1px solid var(--bg-movie-hover);
     border-radius: 6px;
     overflow: hidden;
+    flex-shrink: 0;
   }
 
   .view-btn {
@@ -318,19 +307,6 @@ const {
     color: var(--text-primary);
   }
 
-  /* --- Search section (hidden in single view via JS) --- */
-  .toolbar-search-section {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* --- Search row --- */
-  .toolbar-search-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
   .search-input-wrapper {
     position: relative;
     flex: 1;
@@ -349,7 +325,7 @@ const {
 
   .search-input {
     width: 100%;
-    padding: 8px 32px 8px 32px;
+    padding: 6px 32px 6px 32px;
     font-size: 14px;
     font-family: inherit;
     color: var(--text-primary);
@@ -395,8 +371,8 @@ const {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 32px;
     padding: 0;
     background: transparent;
     border: 1px solid var(--bg-movie-hover);
