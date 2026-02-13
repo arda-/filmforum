@@ -9,6 +9,9 @@ from unittest.mock import patch, mock_open
 import sys
 import os
 
+# Import the actual production functions
+from parse_showtimes import parse_html, process_matches, write_csv
+
 # Sample HTML fixtures for testing
 VALID_HTML = """
 <h3 class="title style-c"><a class="blue-type" href="#">The Godfather</a></h3>
@@ -70,9 +73,7 @@ class TestHTMLParsing:
 
     def test_parse_single_movie_single_showtime(self):
         """Test parsing a single movie with one showtime"""
-        import re
-        pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
-        matches = re.findall(pattern, VALID_HTML, re.DOTALL)
+        matches = parse_html(VALID_HTML)
 
         assert len(matches) == 1
         title, schedule, url = matches[0]
@@ -82,9 +83,7 @@ class TestHTMLParsing:
 
     def test_parse_multiple_movies(self):
         """Test parsing multiple movies"""
-        import re
-        pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
-        matches = re.findall(pattern, MULTIPLE_MOVIES_HTML, re.DOTALL)
+        matches = parse_html(MULTIPLE_MOVIES_HTML)
 
         assert len(matches) == 2
         assert matches[0][0] == "The Godfather"
@@ -92,40 +91,27 @@ class TestHTMLParsing:
 
     def test_parse_multiple_showtimes_same_movie(self):
         """Test parsing a movie with multiple showtimes on same day"""
-        import re
-        import html as html_lib
+        matches = parse_html(VALID_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, _ = process_matches(matches, scrape_timestamp)
 
-        pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
-        matches = re.findall(pattern, VALID_HTML, re.DOTALL)
-
-        title, schedule_html, ticket_url = matches[0]
-        lines = re.split(r'<br\s*/>', schedule_html)
-        lines = [l.strip() for l in lines if l.strip()]
-
-        # Parse date-time pairs
-        showtimes = []
-        current_date = None
-        for line in lines:
-            line = html_lib.unescape(line).strip()
-            if re.match(r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)', line):
-                current_date = line
-            elif re.match(r'\d{1,2}:\d{2}', line) and current_date:
-                showtimes.append((current_date, line))
-
-        assert len(showtimes) == 2
-        assert showtimes[0] == ("Monday, February 17", "7:00 PM")
-        assert showtimes[1] == ("Monday, February 17", "9:45 PM")
+        # Should produce 2 rows for the 2 showtimes
+        assert len(rows) == 2
+        assert rows[0][0] == "The Godfather"
+        assert rows[0][1] == "Monday, February 17"
+        assert rows[0][2] == "7:00 PM"
+        assert rows[1][0] == "The Godfather"
+        assert rows[1][1] == "Monday, February 17"
+        assert rows[1][2] == "9:45 PM"
 
     def test_html_entity_decoding(self):
         """Test that HTML entities like &amp; are properly decoded"""
-        import re
-        import html as html_lib
+        matches = parse_html(HTML_ENTITIES_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, _ = process_matches(matches, scrape_timestamp)
 
-        pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
-        matches = re.findall(pattern, HTML_ENTITIES_HTML, re.DOTALL)
-
-        title = html_lib.unescape(matches[0][0])
-        assert title == "Film & Director"
+        # Title should have decoded ampersand
+        assert rows[0][0] == "Film & Director"
 
 
 class TestValidation:
@@ -133,92 +119,69 @@ class TestValidation:
 
     def test_empty_title_validation(self):
         """Test that empty titles are caught"""
-        validation_warnings = []
-        title = "   "
+        matches = parse_html(EMPTY_TITLE_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, warnings = process_matches(matches, scrape_timestamp)
 
-        if not title.strip():
-            validation_warnings.append("Skipping entry with empty title")
-
-        assert len(validation_warnings) == 1
-        assert "empty title" in validation_warnings[0]
+        # Empty title should be skipped
+        assert len(rows) == 0
+        assert any("empty title" in w for w in warnings)
 
     def test_missing_ticket_url_validation(self):
         """Test that missing ticket URLs are caught"""
-        validation_warnings = []
-        ticket_url = ""
-        title = "Movie Title"
+        # Create HTML with whitespace ticket URL (empty href won't match regex)
+        html_no_url = """
+<h3 class="title style-c"><a class="blue-type" href="#">Movie Title</a></h3>
+<div class="details">
+    <p>Monday, February 17<br />7:00 PM</p>
+</div>
+<a class="button small blue" href="   ">Buy Tickets</a>
+"""
+        matches = parse_html(html_no_url)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, warnings = process_matches(matches, scrape_timestamp)
 
-        if not ticket_url or not ticket_url.strip():
-            validation_warnings.append(f"Warning: Movie '{title}' has no ticket URL")
-
-        assert len(validation_warnings) == 1
-        assert "no ticket URL" in validation_warnings[0]
+        assert len(rows) == 0
+        assert any("no ticket URL" in w for w in warnings)
 
     def test_invalid_url_format_validation(self):
-        """Test that non-http URLs are caught"""
-        import re
-        validation_warnings = []
-        ticket_url = "/relative/path"
-        title = "Movie Title"
+        """Test that non-http URLs are caught and entry is skipped"""
+        matches = parse_html(INVALID_URL_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, warnings = process_matches(matches, scrape_timestamp)
 
-        if not re.match(r'^https?://', ticket_url):
-            validation_warnings.append(f"Warning: Invalid ticket URL for '{title}': {ticket_url}")
-
-        assert len(validation_warnings) == 1
-        assert "Invalid ticket URL" in validation_warnings[0]
+        # Should produce warning for invalid URL and skip the entry
+        assert len(rows) == 0
+        assert any("Invalid ticket URL" in w for w in warnings)
 
     def test_valid_url_passes_validation(self):
         """Test that valid URLs pass validation"""
-        import re
-        validation_warnings = []
-        ticket_url = "https://tickets.example.com/movie"
+        matches = parse_html(VALID_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, warnings = process_matches(matches, scrape_timestamp)
 
-        if not re.match(r'^https?://', ticket_url):
-            validation_warnings.append(f"Warning: Invalid ticket URL: {ticket_url}")
-
-        assert len(validation_warnings) == 0
+        # Should not produce URL validation warnings
+        assert not any("Invalid ticket URL" in w for w in warnings)
 
     def test_duplicate_detection(self):
         """Test that duplicate entries are detected"""
-        seen_entries = set()
-        validation_warnings = []
+        matches = parse_html(DUPLICATE_ENTRIES_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, warnings = process_matches(matches, scrape_timestamp)
 
-        # First entry
-        entry1 = ("Movie Title", "Monday, Feb 17", "7:00 PM", "https://example.com")
-        if entry1 in seen_entries:
-            validation_warnings.append(f"Skipping duplicate: {entry1[0]} on {entry1[1]} at {entry1[2]}")
-        else:
-            seen_entries.add(entry1)
-
-        # Duplicate entry
-        entry2 = ("Movie Title", "Monday, Feb 17", "7:00 PM", "https://example.com")
-        if entry2 in seen_entries:
-            validation_warnings.append(f"Skipping duplicate: {entry2[0]} on {entry2[1]} at {entry2[2]}")
-        else:
-            seen_entries.add(entry2)
-
-        assert len(validation_warnings) == 1
-        assert "duplicate" in validation_warnings[0].lower()
+        # Should only produce 1 row (duplicate skipped)
+        assert len(rows) == 1
+        assert any("duplicate" in w.lower() for w in warnings)
 
     def test_different_entries_not_flagged_as_duplicate(self):
         """Test that different entries are not flagged as duplicates"""
-        seen_entries = set()
-        validation_warnings = []
+        matches = parse_html(MULTIPLE_MOVIES_HTML)
+        scrape_timestamp = datetime.now().isoformat()
+        rows, warnings = process_matches(matches, scrape_timestamp)
 
-        entries = [
-            ("Movie A", "Monday, Feb 17", "7:00 PM", "https://example.com/a"),
-            ("Movie B", "Monday, Feb 17", "7:00 PM", "https://example.com/b"),
-            ("Movie A", "Tuesday, Feb 18", "7:00 PM", "https://example.com/a"),
-        ]
-
-        for entry in entries:
-            if entry in seen_entries:
-                validation_warnings.append(f"Skipping duplicate: {entry[0]}")
-            else:
-                seen_entries.add(entry)
-
-        assert len(validation_warnings) == 0
-        assert len(seen_entries) == 3
+        # Should produce 2 rows with no duplicate warnings
+        assert len(rows) == 2
+        assert not any("duplicate" in w.lower() for w in warnings)
 
 
 class TestCSVOutput:
@@ -226,12 +189,14 @@ class TestCSVOutput:
 
     def test_csv_header_format(self):
         """Test that CSV has correct headers"""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt'])
+        scrape_timestamp = datetime.now().isoformat()
+        rows = []
+
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
             temp_path = f.name
 
         try:
+            write_csv(rows, temp_path)
             with open(temp_path, 'r', newline='') as f:
                 reader = csv.reader(f)
                 headers = next(reader)
@@ -246,13 +211,11 @@ class TestCSVOutput:
             ['The Godfather', 'Monday, February 17', '7:00 PM', 'https://example.com', scrape_timestamp]
         ]
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt'])
-            writer.writerows(rows)
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
             temp_path = f.name
 
         try:
+            write_csv(rows, temp_path)
             with open(temp_path, 'r', newline='') as f:
                 reader = csv.reader(f)
                 next(reader)  # Skip header
@@ -274,13 +237,11 @@ class TestCSVOutput:
             ['Café Müller', 'Monday, February 17', '7:00 PM', 'https://example.com', scrape_timestamp]
         ]
 
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt'])
-            writer.writerows(rows)
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
             temp_path = f.name
 
         try:
+            write_csv(rows, temp_path)
             with open(temp_path, 'r', newline='', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 next(reader)  # Skip header
@@ -382,52 +343,12 @@ class TestIntegration:
 
     def test_end_to_end_parsing(self):
         """Test complete parsing flow from HTML to CSV"""
-        import re
-        import html as html_lib
+        # Parse HTML using production function
+        matches = parse_html(MULTIPLE_MOVIES_HTML)
 
-        # Parse HTML
-        pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
-        matches = re.findall(pattern, MULTIPLE_MOVIES_HTML, re.DOTALL)
-
-        # Process matches
+        # Process matches using production function
         scrape_timestamp = datetime.now().isoformat()
-        rows = []
-        seen_entries = set()
-        validation_warnings = []
-
-        for title, schedule_html, ticket_url in matches:
-            title = title.strip()
-
-            if not title:
-                validation_warnings.append("Skipping entry with empty title")
-                continue
-
-            if not ticket_url or not ticket_url.strip():
-                validation_warnings.append(f"Warning: Movie '{title}' has no ticket URL")
-                continue
-
-            ticket_url = ticket_url.strip()
-            if not re.match(r'^https?://', ticket_url):
-                validation_warnings.append(f"Warning: Invalid ticket URL for '{title}': {ticket_url}")
-
-            lines = re.split(r'<br\s*/>', schedule_html)
-            lines = [l.strip() for l in lines if l.strip()]
-
-            current_date = None
-            for line in lines:
-                line = html_lib.unescape(line).strip()
-                if re.match(r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)', line):
-                    current_date = line
-                elif re.match(r'\d{1,2}:\d{2}', line) and current_date:
-                    time = line
-
-                    entry_key = (title, current_date, time, ticket_url)
-                    if entry_key in seen_entries:
-                        validation_warnings.append(f"Skipping duplicate: {title} on {current_date} at {time}")
-                        continue
-                    seen_entries.add(entry_key)
-
-                    rows.append([title, current_date, time, ticket_url, scrape_timestamp])
+        rows, validation_warnings = process_matches(matches, scrape_timestamp)
 
         # Verify results
         assert len(rows) == 2
@@ -435,19 +356,19 @@ class TestIntegration:
         assert rows[0][0] == "The Godfather"
         assert rows[1][0] == "Taxi Driver"
 
-        # Verify CSV can be written
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt'])
-            writer.writerows(rows)
+        # Verify CSV can be written using production function
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
             temp_path = f.name
 
         try:
+            write_csv(rows, temp_path)
+
             # Verify CSV can be read back
             with open(temp_path, 'r', newline='', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 headers = next(reader)
                 data_rows = list(reader)
                 assert len(data_rows) == 2
+                assert headers == ['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt']
         finally:
             os.unlink(temp_path)
