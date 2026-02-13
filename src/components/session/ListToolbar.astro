@@ -245,6 +245,11 @@ const {
       btn.setAttribute('aria-pressed', 'false');
       btn.classList.remove('active');
     });
+    // Clear dropdown filters
+    const directorSelect = document.getElementById('filter-director') as HTMLSelectElement | null;
+    const actorSelect = document.getElementById('filter-actor') as HTMLSelectElement | null;
+    if (directorSelect) directorSelect.value = '';
+    if (actorSelect) actorSelect.value = '';
     requestAnimationFrame(updateFilterBadge);
   });
 
