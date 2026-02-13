@@ -83,6 +83,42 @@ do
     else
         echo -e "${GREEN}✓ No Python files changed in data-processing/, skipping tests${NC}"
     fi
+
+    # Check if any frontend files changed
+    echo ""
+    echo "Checking for changes in frontend files..."
+    changed_frontend_files=$(git diff --name-only "$range" | \
+        grep -E "\.(ts|tsx|astro|test\.ts|test\.tsx|scss|css)$" | \
+        grep -v "^data-processing/" || true)
+
+    if [ -n "$changed_frontend_files" ]; then
+        echo -e "${YELLOW}Frontend files changed:${NC}"
+        echo "$changed_frontend_files" | sed 's/^/  - /'
+        echo ""
+
+        # Run frontend tests
+        echo "Running frontend tests..."
+        if pnpm test:run; then
+            echo -e "${GREEN}✓ All frontend tests passed${NC}"
+        else
+            echo -e "${RED}✗ Frontend tests failed${NC}"
+            echo "Fix the tests before pushing, or use --no-verify to skip"
+            exit 1
+        fi
+
+        # Run build verification
+        echo ""
+        echo "Building project..."
+        if pnpm build; then
+            echo -e "${GREEN}✓ Build successful${NC}"
+        else
+            echo -e "${RED}✗ Build failed${NC}"
+            echo "Fix the build errors before pushing"
+            exit 1
+        fi
+    else
+        echo -e "${GREEN}✓ No frontend files changed, skipping frontend tests and build check${NC}"
+    fi
 done
 
 exit 0
@@ -96,5 +132,6 @@ echo "Git hooks installed successfully!"
 echo ""
 echo "The pre-push hook will:"
 echo "  - Run Python tests when data-processing/*.py files change"
-echo "  - Skip tests when only frontend files change"
-echo "  - Block pushes if tests fail"
+echo "  - Run frontend tests (pnpm test:run) when frontend files change"
+echo "  - Run build check (pnpm build) after frontend tests"
+echo "  - Block pushes if any checks fail"
