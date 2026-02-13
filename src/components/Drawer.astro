@@ -60,7 +60,7 @@ const hasFooter = Astro.slots.has('footer');
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    animation: drawer-backdrop-in 0.2s ease-out;
+    animation: drawer-backdrop-in 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .drawer[data-open="true"] .drawer-container {
@@ -68,7 +68,7 @@ const hasFooter = Astro.slots.has('footer');
   }
 
   .drawer.closing .drawer-backdrop {
-    animation: drawer-backdrop-out 0.2s ease-in forwards;
+    animation: drawer-backdrop-out 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
 
   .drawer.closing .drawer-container {
@@ -228,7 +228,11 @@ const hasFooter = Astro.slots.has('footer');
     .drawer.closing .drawer-container,
     .drawer-backdrop,
     .drawer.closing .drawer-backdrop {
-      animation-duration: 0.01ms !important;
+      animation: none;
+    }
+
+    .drawer-close-btn {
+      transition: none;
     }
   }
 </style>
