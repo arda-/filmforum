@@ -11,14 +11,20 @@
 # Example: ./scripts/fetch-series-html.sh tenement-stories
 
 # Validate that a series slug was provided
-# WHY: Without a slug, we can't construct the URL or know where to save the file
 if [ -z "$1" ]; then
   echo "Usage: ./scripts/fetch-series-html.sh <series-slug>"
   echo "Example: ./scripts/fetch-series-html.sh tenement-stories"
   exit 1
 fi
 
-# Setup paths and URLs
+# Slug must be lowercase alphanumeric with hyphens only.
+# This ensures the constructed URL is well-formed (these characters are all URL-safe)
+# and prevents path traversal in OUTPUT_FILE (no slashes or dots allowed).
+if [[ ! "$1" =~ ^[a-z0-9-]+$ ]]; then
+  echo "Invalid slug: must contain only lowercase letters, numbers, and hyphens"
+  exit 1
+fi
+
 SERIES_SLUG="$1"
 URL="https://filmforum.org/series/${SERIES_SLUG}"
 OUTPUT_DIR="data/raw-html"

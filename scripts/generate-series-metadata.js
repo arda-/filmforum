@@ -35,6 +35,14 @@ if (!seriesSlug) {
   process.exit(1);
 }
 
+// Slug must be lowercase alphanumeric with hyphens only.
+// Prevents path traversal (e.g., "../../etc/passwd") since the slug is
+// interpolated into file paths like data/parsed/<slug>.json.
+if (!/^[a-z0-9-]+$/.test(seriesSlug)) {
+  console.error(`Invalid slug "${seriesSlug}": must contain only lowercase letters, numbers, and hyphens`);
+  process.exit(1);
+}
+
 // Read the parsed data
 const parsedPath = join(process.cwd(), 'data', 'parsed', `${seriesSlug}.json`);
 console.log(`Reading: ${parsedPath}`);

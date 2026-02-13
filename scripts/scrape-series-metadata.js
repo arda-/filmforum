@@ -20,13 +20,12 @@
  * Example: node scripts/scrape-series-metadata.js tenement-stories
  */
 
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as cheerio from 'cheerio';
 
 // Validate CLI argument
-// WHY: Require explicit series slug to avoid accidental scraping of wrong pages
 const seriesSlug = process.argv[2];
 if (!seriesSlug) {
   console.error('Usage: node scripts/scrape-series-metadata.js <series-slug>');
@@ -34,12 +33,23 @@ if (!seriesSlug) {
   process.exit(1);
 }
 
+// Slug must be lowercase alphanumeric with hyphens only.
+// This ensures the constructed URL is well-formed (these characters are all URL-safe)
+// and prevents path traversal in the output file path (no slashes or dots).
+if (!/^[a-z0-9-]+$/.test(seriesSlug)) {
+  console.error(`Invalid slug "${seriesSlug}": must contain only lowercase letters, numbers, and hyphens`);
+  process.exit(1);
+}
+
 const url = `https://filmforum.org/series/${seriesSlug}`;
 console.log(`Fetching: ${url}`);
 
-// Fetch the page using curl
-// WHY: Use curl instead of fetch() for simplicity - no need for node-fetch dependency
-const html = execSync(`curl -sL "${url}"`, { encoding: 'utf-8' });
+// Fetch the page using curl via execFileSync.
+// execFileSync calls curl directly without a shell, so the URL is passed as a
+// literal argument. This avoids command injection — even if the URL contained
+// shell metacharacters like ; or $(), they'd be treated as part of the URL
+// string, not as shell commands.
+const html = execFileSync('curl', ['-sL', url], { encoding: 'utf-8' });
 const $ = cheerio.load(html);
 
 // Extract series name and subtitle
