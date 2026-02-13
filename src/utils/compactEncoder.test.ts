@@ -4,35 +4,13 @@
 
 import { describe, it, expect } from 'vitest';
 import { encodeReactionsCompact, decodeReactionsCompact } from './compactEncoder';
-import type { ReactionMap, UniqueMovie } from '../types/session';
-
-// Mock movie data
-function createMockMovies(count: number): UniqueMovie[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `movie-${i}`,
-    movie: {
-      Movie: `Movie ${i}`,
-      Date: '2026-02-07',
-      Time: '19:00',
-      Tickets: 'https://example.com',
-      Datetime: '2026-02-07T19:00:00',
-      country: 'U.S.',
-      year: '2020',
-      director: 'Director',
-      actors: 'Actor',
-      runtime: '90 minutes',
-      description: 'Description',
-      film_url: 'https://example.com',
-      poster_url: '/poster.png',
-    },
-    showtimes: [],
-  }));
-}
+import { MovieBuilder } from './__test__/fixtures';
+import type { ReactionMap } from '../types/session';
 
 describe('compactEncoder', () => {
   describe('VarInt encoding/decoding', () => {
     it('should handle small numbers (0-127)', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-5': 'maybe',
@@ -45,7 +23,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle large indices (128+)', () => {
-      const movies = createMockMovies(200);
+      const movies = MovieBuilder.create(200).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-127': 'maybe',
@@ -61,7 +39,7 @@ describe('compactEncoder', () => {
 
   describe('Basic encoding/decoding', () => {
     it('should encode and decode empty reactions', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {};
 
       const encoded = encodeReactionsCompact(reactions, movies);
@@ -71,7 +49,7 @@ describe('compactEncoder', () => {
     });
 
     it('should encode and decode single reaction', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-5': 'yes',
       };
@@ -83,7 +61,7 @@ describe('compactEncoder', () => {
     });
 
     it('should encode and decode multiple reactions', () => {
-      const movies = createMockMovies(20);
+      const movies = MovieBuilder.create(20).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-5': 'maybe',
@@ -98,7 +76,7 @@ describe('compactEncoder', () => {
     });
 
     it('should only encode non-none reactions', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-1': 'none',
@@ -119,7 +97,7 @@ describe('compactEncoder', () => {
 
   describe('All reaction types', () => {
     it('should handle yes reactions', () => {
-      const movies = createMockMovies(5);
+      const movies = MovieBuilder.create(5).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-1': 'yes',
@@ -133,7 +111,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle maybe reactions', () => {
-      const movies = createMockMovies(5);
+      const movies = MovieBuilder.create(5).build();
       const reactions: ReactionMap = {
         'movie-0': 'maybe',
         'movie-1': 'maybe',
@@ -147,7 +125,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle no reactions', () => {
-      const movies = createMockMovies(5);
+      const movies = MovieBuilder.create(5).build();
       const reactions: ReactionMap = {
         'movie-0': 'no',
         'movie-1': 'no',
@@ -161,7 +139,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle mixed reactions', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-1': 'maybe',
@@ -180,7 +158,7 @@ describe('compactEncoder', () => {
 
   describe('Edge cases', () => {
     it('should handle reaction at index 0', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
       };
@@ -192,7 +170,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle reaction at last index', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-9': 'yes',
       };
@@ -204,7 +182,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle all movies with reactions', () => {
-      const movies = createMockMovies(5);
+      const movies = MovieBuilder.create(5).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-1': 'maybe',
@@ -220,14 +198,14 @@ describe('compactEncoder', () => {
     });
 
     it('should handle invalid encoded data gracefully', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const decoded = decodeReactionsCompact('invalid!!!', movies);
 
       expect(decoded).toEqual({});
     });
 
     it('should handle empty string gracefully', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const decoded = decodeReactionsCompact('', movies);
 
       expect(decoded).toEqual({});
@@ -236,7 +214,7 @@ describe('compactEncoder', () => {
 
   describe('Compactness', () => {
     it('should be more compact than naive base64 encoding', () => {
-      const movies = createMockMovies(50);
+      const movies = MovieBuilder.create(50).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-5': 'maybe',
@@ -251,7 +229,7 @@ describe('compactEncoder', () => {
     });
 
     it('should produce short URLs for typical use case', () => {
-      const movies = createMockMovies(50);
+      const movies = MovieBuilder.create(50).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-3': 'yes',
@@ -269,7 +247,7 @@ describe('compactEncoder', () => {
 
   describe('Reproducibility', () => {
     it('should produce same encoding for same input', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-5': 'maybe',
@@ -282,7 +260,7 @@ describe('compactEncoder', () => {
     });
 
     it('should be deterministic across multiple encode/decode cycles', () => {
-      const movies = createMockMovies(20);
+      const movies = MovieBuilder.create(20).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-5': 'maybe',
@@ -302,7 +280,7 @@ describe('compactEncoder', () => {
 
   describe('Stress test', () => {
     it('should handle large movie lists', () => {
-      const movies = createMockMovies(1000);
+      const movies = MovieBuilder.create(1000).build();
       const reactions: ReactionMap = {};
 
       // Mark every 10th movie
@@ -317,7 +295,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle sparse reactions (few reactions, many movies)', () => {
-      const movies = createMockMovies(500);
+      const movies = MovieBuilder.create(500).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-250': 'maybe',
@@ -334,7 +312,7 @@ describe('compactEncoder', () => {
     });
 
     it('should handle dense reactions (many reactions, few movies)', () => {
-      const movies = createMockMovies(10);
+      const movies = MovieBuilder.create(10).build();
       const reactions: ReactionMap = {
         'movie-0': 'yes',
         'movie-1': 'maybe',

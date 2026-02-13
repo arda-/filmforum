@@ -6,34 +6,12 @@
 import { describe, it, expect } from 'vitest';
 import { encodeReactionsCompact, decodeReactionsCompact } from './compactEncoder';
 import { encodeReactions, decodeReactions } from './storageManager';
+import { MovieBuilder } from './__test__/fixtures';
 import type { ReactionMap, UniqueMovie } from '../types/session';
-
-// Mock movie data
-function createMockMovies(count: number): UniqueMovie[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `movie-${i}`,
-    movie: {
-      Movie: `Movie ${i}`,
-      Date: '2026-02-07',
-      Time: '19:00',
-      Tickets: 'https://example.com',
-      Datetime: '2026-02-07T19:00:00',
-      country: 'U.S.',
-      year: '2020',
-      director: 'Director',
-      actors: 'Actor',
-      runtime: '90 minutes',
-      description: 'Description',
-      film_url: 'https://example.com',
-      poster_url: '/poster.png',
-    },
-    showtimes: [],
-  }));
-}
 
 describe('Encoding Comparison: Old vs New', () => {
   it('should be significantly smaller for sparse reactions', () => {
-    const movies = createMockMovies(50);
+    const movies = MovieBuilder.create(50).build();
     const reactions: ReactionMap = {
       'movie-0': 'yes',
       'movie-5': 'maybe',
@@ -57,7 +35,7 @@ describe('Encoding Comparison: Old vs New', () => {
   });
 
   it('should be smaller for typical use case (10 reactions out of 50)', () => {
-    const movies = createMockMovies(50);
+    const movies = MovieBuilder.create(50).build();
     const reactions: ReactionMap = {
       'movie-0': 'yes',
       'movie-3': 'yes',
@@ -142,7 +120,7 @@ describe('Encoding Comparison: Old vs New', () => {
   });
 
   it('should be much smaller for large lists with few reactions', () => {
-    const movies = createMockMovies(200);
+    const movies = MovieBuilder.create(200).build();
     const reactions: ReactionMap = {
       'movie-0': 'yes',
       'movie-100': 'maybe',
@@ -166,7 +144,7 @@ describe('Encoding Comparison: Old vs New', () => {
   });
 
   it('should handle empty reactions identically', () => {
-    const movies = createMockMovies(10);
+    const movies = MovieBuilder.create(10).build();
     const reactions: ReactionMap = {};
 
     const oldEncoded = encodeReactions(reactions);
@@ -187,7 +165,7 @@ describe('Encoding Comparison: Old vs New', () => {
   });
 
   it('should produce URLs under 100 chars for typical use', () => {
-    const movies = createMockMovies(50);
+    const movies = MovieBuilder.create(50).build();
     const reactions: ReactionMap = {
       'movie-0': 'yes',
       'movie-5': 'maybe',
@@ -209,7 +187,7 @@ describe('Encoding Comparison: Old vs New', () => {
   });
 
   it('should scale well with many reactions', () => {
-    const movies = createMockMovies(100);
+    const movies = MovieBuilder.create(100).build();
     const reactions: ReactionMap = {};
 
     // Mark 30 movies (30% engagement rate)

@@ -136,7 +136,8 @@ const canonical = `/s/${id}/compare`;
   import { decodeReactionsCompact } from '@utils/compactEncoder';
   import { toTitleCase, formatRuntime } from '@utils/movieUtils';
   import { escapeHtml, escapeAttr } from '@utils/htmlEscape';
-  import type { UniqueMovie, MovieReaction } from '@types/session';
+  import { categorizeMovies, type Category, type CompareItem } from '@utils/listComparison';
+  import type { UniqueMovie } from '@types/session';
 
   const sessionId = (window as any).__sessionId as string;
   const allMovies = (window as any).__movieData as UniqueMovie[];
@@ -149,39 +150,8 @@ const canonical = `/s/${id}/compare`;
   const listA = decodeReactionsCompact(listAEncoded, allMovies);
   const listB = decodeReactionsCompact(listBEncoded, allMovies);
 
-  type Category = 'strong' | 'possible' | 'disagree' | 'pass' | 'unreviewed';
-
-  interface CompareItem {
-    movie: UniqueMovie;
-    reactionA: MovieReaction;
-    reactionB: MovieReaction;
-    category: Category;
-  }
-
   // Categorize each movie
-  const items: CompareItem[] = allMovies.map(m => {
-    const rA: MovieReaction = listA[m.id] || 'none';
-    const rB: MovieReaction = listB[m.id] || 'none';
-    let category: Category = 'unreviewed';
-
-    if (rA === 'none' || rB === 'none') {
-      category = 'unreviewed';
-    } else if (rA === 'yes' && rB === 'yes') {
-      category = 'strong';
-    } else if (
-      (rA === 'yes' && rB === 'maybe') ||
-      (rA === 'maybe' && rB === 'yes') ||
-      (rA === 'maybe' && rB === 'maybe')
-    ) {
-      category = 'possible';
-    } else if (rA === 'no' && rB === 'no') {
-      category = 'pass';
-    } else {
-      category = 'disagree';
-    }
-
-    return { movie: m, reactionA: rA, reactionB: rB, category };
-  });
+  const items: CompareItem[] = categorizeMovies(allMovies, listA, listB);
 
   const categories: Category[] = ['strong', 'possible', 'disagree', 'pass', 'unreviewed'];
   let totalCategorized = 0;
