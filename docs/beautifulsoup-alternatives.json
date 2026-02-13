@@ -1,0 +1,125 @@
+{
+  "title": "Python HTML Parsers: BeautifulSoup Alternatives Comparison",
+  "conversation_summary": "User sought modern, faster alternatives to BeautifulSoup for HTML/JS parsing with equal reliability, requested benchmark data for concrete performance comparison, asked for developer UX evaluation with code examples, and finally requested this structured summary.",
+  "timestamp": "2026-02-13T11:09-05:00",
+  "parsers_compared": {
+    "beautifulsoup4": {
+      "description": "The incumbent - most popular Python HTML parser",
+      "performance": {
+        "single_page_parsing_time": "~0.05s (with lxml backend)",
+        "relative_speed": "Baseline (slowest)",
+        "memory_usage": "Higher than alternatives"
+      },
+      "developer_ux": {
+        "ease_of_use": "Excellent - most beginner-friendly",
+        "api_style": "Multiple approaches (find, find_all, select), very forgiving",
+        "documentation": "Extensive, massive community support",
+        "error_handling": "Graceful with malformed HTML",
+        "tree_navigation": "Rich - .parent, .children, .next_sibling, etc.",
+        "return_type": "BeautifulSoup Tag objects with many methods"
+      },
+      "code_example": "soup.find('h2').text  # or soup.select_one('.price').text",
+      "best_for": ["Learning", "Prototyping", "Messy real-world HTML", "When debugging time matters more than runtime"],
+      "trade_offs": ["~25x slower than Selectolax", "Verbose API with too many ways to do same thing"]
+    },
+    "lxml": {
+      "description": "C-based XML/HTML parser, foundation for many others",
+      "performance": {
+        "single_page_parsing_time": "~0.01s",
+        "relative_speed": "6x faster than BeautifulSoup, 5x slower than Selectolax",
+        "memory_usage": "Moderate"
+      },
+      "developer_ux": {
+        "ease_of_use": "Moderate - requires XPath knowledge",
+        "api_style": "XPath-first, CSS selectors available via separate import",
+        "documentation": "Good, but more technical/terse",
+        "error_handling": "Automatic tree correction for broken HTML",
+        "tree_navigation": "Available via .getparent(), etc. - less intuitive",
+        "return_type": "lxml Element objects, lists that may be empty"
+      },
+      "code_example": "tree.xpath('//h2/text()')[0]  # or CSSSelector('.price')(tree)[0].text",
+      "best_for": ["XML-heavy work", "Transformation pipelines", "XPath power users", "Speed/robustness balance"],
+      "trade_offs": ["Steeper learning curve", "Unpythonic list returns", "Less hand-holding than BeautifulSoup"]
+    },
+    "parsel": {
+      "description": "Scrapy's selector library - modern abstraction over lxml",
+      "performance": {
+        "single_page_parsing_time": "Faster than BeautifulSoup+lxml despite using same backend",
+        "relative_speed": "~5-6x faster than BeautifulSoup",
+        "memory_usage": "Moderate"
+      },
+      "developer_ux": {
+        "ease_of_use": "Very good - clean, explicit API",
+        "api_style": "Unified CSS/XPath with .get()/.getall() pattern",
+        "documentation": "Good, Scrapy ecosystem integration",
+        "error_handling": ".get() returns None instead of raising exceptions",
+        "tree_navigation": "Limited - use xpath('..') for parent",
+        "return_type": "Strings directly by default, not objects"
+      },
+      "code_example": "sel.css('h2::text').get()  # or sel.xpath('//h2/text()').get()",
+      "best_for": ["Production scraping", "Scrapy projects", "Readability at scale", "Explicit, predictable behavior"],
+      "trade_offs": ["No built-in rich tree navigation", "Scrapy-centric ecosystem"]
+    },
+    "selectolax": {
+      "description": "C-based (Lexbor) parser - speed champion",
+      "performance": {
+        "single_page_parsing_time": "~0.002s",
+        "relative_speed": "~25x faster than BeautifulSoup, ~5x faster than lxml",
+        "memory_usage": "~50% less than all other parsers"
+      },
+      "developer_ux": {
+        "ease_of_use": "Good - minimal API surface",
+        "api_style": "CSS selectors only, explicit .css_first() vs .css()",
+        "documentation": "Smaller community, less Stack Overflow coverage",
+        "error_handling": "Less forgiving with malformed HTML",
+        "tree_navigation": "Limited - .parent exists but less introspection",
+        "return_type": "Lightweight Node objects, immediate .text() method"
+      },
+      "code_example": "parser.css_first('h2').text()  # [n.text() for n in parser.css('.price')]",
+      "best_for": ["High-volume scraping", "Performance-critical paths", "Memory-constrained environments", "Well-formed HTML"],
+      "trade_offs": ["Smallest ecosystem", "No XPath support", "Less debugging help", "CSS-only selection"]
+    },
+    "html5lib": {
+      "description": "Pure Python HTML5 spec-compliant parser",
+      "performance": {
+        "single_page_parsing_time": "Slowest of all",
+        "relative_speed": "Significantly slower than all alternatives",
+        "memory_usage": "Higher"
+      },
+      "developer_ux": {
+        "ease_of_use": "Simple but slow",
+        "api_style": "Browser-identical parsing behavior",
+        "documentation": "Adequate",
+        "error_handling": "Most lenient - browser-level accuracy",
+        "tree_navigation": "Standard DOM-like",
+        "return_type": "HTML5-compliant tree matching browser rendering"
+      },
+      "code_example": "Typically used as BeautifulSoup backend: BeautifulSoup(html, 'html5lib')",
+      "best_for": ["Standards compliance", "Extremely broken HTML requiring browser accuracy"],
+      "trade_offs": ["Slowest parser available", "External dependency", "Rarely needed in practice"]
+    }
+  },
+  "benchmark_summary": {
+    "single_page_times": {
+      "selectolax_lexbor": "0.002s",
+      "lxml": "0.01s",
+      "beautifulsoup4_lxml": "0.05s",
+      "requests_html": "~0.1s+"
+    },
+    "scale_impact": {
+      "1000_pages": {"beautifulsoup": "~50s", "lxml": "~10s", "selectolax": "~2s"},
+      "10000_pages": {"beautifulsoup": "~500s (8+ min)", "lxml": "~100s (1.7 min)", "selectolax": "~20s"},
+      "100000_pages": {"beautifulsoup": "~1.4 hours", "lxml": "~17 min", "selectolax": "~3.5 min"}
+    },
+    "speed_ranking": ["selectolax", "lxml", "parsel", "beautifulsoup4", "html5lib"],
+    "memory_efficiency_leader": "selectolax"
+  },
+  "recommendations": {
+    "learning_and_prototyping": "BeautifulSoup4",
+    "production_scraping_balanced": "Parsel",
+    "maximum_speed_well_formed_html": "Selectolax",
+    "xml_transformation_power_user": "lxml",
+    "browser_level_broken_html": "html5lib"
+  },
+  "key_insight": "Parsel offers the best modern developer UX for production work—clean .get()/.getall() API, explicit None handling, unified CSS/XPath, and ~5x speedup over BeautifulSoup with good ecosystem support. Selectolax is 25x faster but with smaller community trade-off. BeautifulSoup remains best for learning despite performance cost."
+}
