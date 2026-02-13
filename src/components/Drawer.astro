@@ -344,7 +344,22 @@ const containerStyle = sizeStyles.join('; ');
       });
     });
 
-    // --- Swipe-to-dismiss ---
+    // --- Drag-to-dismiss (shared touch + mouse) ---
+
+    // Damping for upward drag past the natural position.
+    // Logarithmic decay — the further you pull, the more resistance.
+    const DAMP_MAX = 100;
+    function dampen(distance: number): number {
+      return DAMP_MAX * Math.log(1 + distance / DAMP_MAX);
+    }
+
+    // Velocity tracking for flick-to-dismiss
+    let lastMoveY = 0;
+    let lastMoveTime = 0;
+    let velocity = 0;
+    const VELOCITY_THRESHOLD = 0.5;  // px/ms — a brisk flick
+    const DISTANCE_THRESHOLD = 80;   // px — slow drag threshold
+
     function isInsideScrolledContainer(target: EventTarget | null): boolean {
       let el = target as HTMLElement | null;
       while (el && el !== body) {
@@ -354,96 +369,93 @@ const containerStyle = sizeStyles.join('; ');
       return body.scrollTop > 0;
     }
 
-    function onTouchStart(e: TouchEvent, source: 'handle' | 'body') {
-      // For body drags, only start if no scrollable ancestor is scrolled
-      if (source === 'body' && isInsideScrolledContainer(e.target)) return;
+    function onDragStart(clientY: number, source: 'handle' | 'body', target?: EventTarget | null) {
+      if (source === 'body' && target && isInsideScrolledContainer(target)) return;
       isDragging = true;
       dragSource = source;
-      startY = e.touches[0].clientY;
+      startY = clientY;
       currentY = 0;
+      lastMoveY = clientY;
+      lastMoveTime = Date.now();
+      velocity = 0;
       container.style.transition = 'none';
     }
 
-    function onTouchMove(e: TouchEvent) {
+    function onDragMove(clientY: number, preventDefault?: () => void) {
       if (!isDragging) return;
-      const delta = e.touches[0].clientY - startY;
+      const now = Date.now();
+      const dt = now - lastMoveTime;
+      if (dt > 0) {
+        velocity = (clientY - lastMoveY) / dt;
+      }
+      lastMoveY = clientY;
+      lastMoveTime = now;
+
+      const delta = clientY - startY;
       if (delta < 0) {
-        // Swiping up — if from body, cancel drag and let scroll take over
+        // Dragging up — from body, cancel and let scroll take over;
+        // from handle, apply damping resistance
         if (dragSource === 'body') {
           isDragging = false;
           container.style.transition = '';
           container.style.transform = '';
           return;
         }
-        currentY = 0;
+        currentY = -dampen(Math.abs(delta));
       } else {
         currentY = delta;
-        // Prevent native scroll immediately when dragging down
-        e.preventDefault();
+        if (preventDefault) preventDefault();
       }
       container.style.transform = `translateY(${currentY}px)`;
     }
 
-    function onTouchEnd() {
+    function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
       dragSource = null;
       container.style.transition = '';
 
-      if (currentY > 80) {
+      // Dismiss on distance OR velocity (flick)
+      if (currentY > DISTANCE_THRESHOLD || (currentY > 0 && velocity > VELOCITY_THRESHOLD)) {
         closeDrawer();
       } else {
         container.style.transform = '';
       }
       currentY = 0;
+      velocity = 0;
     }
 
-    // Handle area — always draggable
+    // --- Touch events ---
     if (handle) {
-      handle.addEventListener('touchstart', (e) => onTouchStart(e, 'handle'), { passive: true });
+      handle.addEventListener('touchstart', (e) => onDragStart(e.touches[0].clientY, 'handle'), { passive: true });
     }
-
-    // Body area — draggable when at scroll top
     if (body) {
-      body.addEventListener('touchstart', (e) => onTouchStart(e, 'body'), { passive: true });
+      body.addEventListener('touchstart', (e) => onDragStart(e.touches[0].clientY, 'body', e.target), { passive: true });
     }
+    drawer.addEventListener('touchmove', (e) => {
+      onDragMove((e as TouchEvent).touches[0].clientY, () => e.preventDefault());
+    }, { passive: false });
+    drawer.addEventListener('touchend', () => onDragEnd());
 
-    // Shared move/end — listen on the entire drawer element (not just container)
-    // so touches that start on body but move to container are captured
-    drawer.addEventListener('touchmove', (e) => onTouchMove(e as TouchEvent), { passive: false });
-    drawer.addEventListener('touchend', () => onTouchEnd());
-
-    // Mouse drag support (handle only, for desktop)
+    // --- Mouse events (handle + body) ---
+    function onMouseDragStart(e: MouseEvent, source: 'handle' | 'body') {
+      onDragStart(e.clientY, source, e.target);
+      const onMouseMove = (e: MouseEvent) => onDragMove(e.clientY);
+      const onMouseUp = () => {
+        onDragEnd();
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
     if (handle) {
-      handle.addEventListener('mousedown', (e: MouseEvent) => {
-        isDragging = true;
-        dragSource = 'handle';
-        startY = e.clientY;
-        container.style.transition = 'none';
-
-        const onMouseMove = (e: MouseEvent) => {
-          if (!isDragging) return;
-          currentY = e.clientY - startY;
-          if (currentY < 0) currentY = 0;
-          container.style.transform = `translateY(${currentY}px)`;
-        };
-
-        const onMouseUp = () => {
-          isDragging = false;
-          dragSource = null;
-          container.style.transition = '';
-          if (currentY > 80) {
-            closeDrawer();
-          } else {
-            container.style.transform = '';
-          }
-          currentY = 0;
-          document.removeEventListener('mousemove', onMouseMove);
-          document.removeEventListener('mouseup', onMouseUp);
-        };
-
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
+      handle.addEventListener('mousedown', (e) => onMouseDragStart(e, 'handle'));
+    }
+    if (body) {
+      body.addEventListener('mousedown', (e) => {
+        if (isInsideScrolledContainer(e.target)) return;
+        onMouseDragStart(e, 'body');
       });
     }
   });
