@@ -9,18 +9,8 @@ import { DAYS } from './calendarConstants';
 // Re-export Movie type for centralized access
 export type { Movie };
 
-/** Parse a time string (e.g. "2:10", "12:30 – FF Jr.") to minutes since midnight. */
-export function parseTimeToMins(timeStr: string): number {
-  const match = timeStr.match(/(\d{1,2}):(\d{2})/);
-  if (!match) return 0;
-  let h = parseInt(match[1]);
-  const m = parseInt(match[2]);
-  // FF Jr. shows are morning (AM)
-  const isMorning = timeStr.includes('FF Jr');
-  // 12:XX is always noon (PM), 1-11 without FF Jr are PM
-  if (!isMorning && h !== 12 && h < 12) h += 12;
-  return h * 60 + m;
-}
+// Re-export from movieUtils (canonical, tested implementation)
+export { parseTimeToMins } from './movieUtils';
 
 /** Get the earliest start and latest end time for a day's movies. */
 export function getDayTimeRange(movies: Movie[]) {
