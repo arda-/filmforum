@@ -139,6 +139,128 @@ Film Forum embeds schema.org structured data in their pages.
 
 **Series pages are valuable** - they provide a complete list of films in a retrospective/series with direct ticketing links.
 
+## Series-Level Metadata
+
+In addition to individual film data, series pages contain rich metadata about the series itself. This includes curatorial descriptions, partnership information, funding credits, and visual assets.
+
+### What to Scrape from Series Pages
+
+**Visual Assets:**
+- Hero/slideshow images (typically 4 key images from featured films)
+- Partnership logos (e.g., Tenement Museum)
+- Located at: `/do-not-enter-or-modify-or-erase/client-uploads/_1000w/{FILM}_slideshow.png`
+
+**Textual Content:**
+- Curatorial introduction/series description
+- Partnership details (associated organizations, their mission)
+- Funding credits (grant/fund acknowledgments)
+- Special programming notes (live music, post-film Q&As, special guests)
+- Community engagement info (member discounts, special tours)
+
+### Metadata Schema
+
+Series metadata is stored as JSON in `/public/series-metadata/{series-id}.json`:
+
+```json
+{
+  "id": "tenement-stories",
+  "name": "Tenement Stories",
+  "subtitle": "From Immigrants to Bohemians",
+  "dateRange": "Feb 6–26, 2026",
+  "seriesUrl": "https://filmforum.org/series/tenement-stories",
+  "venueName": "Film Forum",
+  "description": {
+    "short": "Brief one-line description",
+    "curatorial": "Full curatorial text about the series theme"
+  },
+  "heroImages": [
+    {
+      "filename": "west-side-story-slideshow.png",
+      "path": "/series-images/tenement-stories/west-side-story-slideshow.png",
+      "alt": "West Side Story - The iconic musical about tenement life"
+    }
+  ],
+  "partnership": {
+    "name": "Partner Organization Name",
+    "description": "Full description of the partner and their mission",
+    "presentedBy": "Presented in association with..."
+  },
+  "funding": {
+    "credits": [
+      {
+        "name": "Fund Name",
+        "type": "funding"
+      }
+    ],
+    "acknowledgment": "Full funding acknowledgment text"
+  },
+  "specialProgramming": {
+    "livePiano": {
+      "enabled": true,
+      "artist": "Musician Name",
+      "description": "Details about live accompaniment"
+    },
+    "events": [
+      {
+        "type": "post-film-conversation",
+        "description": "Details about special events"
+      }
+    ]
+  },
+  "communityEngagement": {
+    "discounts": {
+      "ticketHolders": {
+        "offer": "Discount details",
+        "howToRedeem": "Redemption instructions"
+      }
+    },
+    "specialtyTours": [
+      {
+        "name": "Tour Name",
+        "dates": ["Feb 8", "Feb 13"],
+        "description": "Tour description"
+      }
+    ]
+  }
+}
+```
+
+### Series Configuration
+
+Series are registered in `src/config/series.ts`:
+
+```typescript
+export const SERIES: Record<string, SeriesConfig> = {
+  'tenement-stories': {
+    id: 'tenement-stories',
+    name: 'Tenement Stories',
+    subtitle: 'From Immigrants to Bohemians',
+    seriesUrl: 'https://filmforum.org/series/tenement-stories',
+    venueName: 'Film Forum',
+    dateRange: 'Feb 6–26, 2026',
+    dataFile: '/tenement-stories-full.json',  // Individual film showings
+    metadataFile: '/series-metadata/tenement-stories.json',  // Series-level metadata
+    active: true,
+  },
+};
+```
+
+### Build-Time Validation
+
+The build process validates:
+1. Metadata file exists and is valid JSON
+2. Required fields (id, name) are present
+3. Metadata ID matches series config ID
+4. All referenced hero images exist in `/public/series-images/`
+
+Validation output during build:
+```
+✓ Validated 98 movies have poster images
+✓ Validated 1 series metadata file(s) with 4 hero image(s)
+```
+
+See `src/config/seriesMetadata.ts` for validation implementation.
+
 ## Ticketing System
 
 - URL: `my.filmforum.org`

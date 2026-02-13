@@ -5,6 +5,12 @@ import sitemap from '@astrojs/sitemap';
 import fs from 'node:fs';
 import path from 'node:path';
 
+// Thumbnail generation constants
+const THUMB_WIDTH = 100;
+const THUMB_HEIGHT = 133;
+const THUMB_BLUR = 5;
+const THUMB_QUALITY = 30;
+
 // Build-time validation + thumbnail generation
 const validatePosterImages = {
   name: 'validate-poster-images',
@@ -38,6 +44,10 @@ const validatePosterImages = {
         console.log(`✓ Validated ${allMovies.length} movies have poster images`);
       }
 
+      // Validate series metadata files and hero images
+      const { validateSeriesMetadata } = await import('./src/config/seriesMetadata.ts');
+      validateSeriesMetadata(activeSeries);
+
       // Generate tiny thumbnail images for modal fast loading
       const thumbDir = path.join(process.cwd(), 'public/posters-thumb');
       if (!fs.existsSync(thumbDir)) {
@@ -53,9 +63,9 @@ const validatePosterImages = {
 
         try {
           await sharp.default(input)
-            .resize(100, 133, { fit: 'cover' })
-            .blur(5)
-            .jpeg({ quality: 30, progressive: true })
+            .resize(THUMB_WIDTH, THUMB_HEIGHT, { fit: 'cover' })
+            .blur(THUMB_BLUR)
+            .jpeg({ quality: THUMB_QUALITY, progressive: true })
             .toFile(output);
         } catch (e) {
           console.warn(`Failed to generate thumbnail for ${file}:`, e.message);

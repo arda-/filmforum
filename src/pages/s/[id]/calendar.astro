@@ -97,7 +97,7 @@ const ogImage = movieData[0]?.poster_url || null;
     SAVED_FILTER_COUNT,
     type TimeCategory,
     type SavedFilter,
-  } from '@/constants';
+  } from '@utils/calendarConstants';
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins, getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';

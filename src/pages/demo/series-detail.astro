@@ -1,0 +1,413 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getSeriesConfig } from '../../config/series';
+
+// Load series metadata at build time
+const seriesId = 'tenement-stories';
+const config = getSeriesConfig(seriesId);
+
+if (!config) {
+  throw new Error(`Series config not found for: ${seriesId}`);
+}
+
+// Load metadata from public folder
+let metadata = null;
+let metadataUrl = null;
+if (config.metadataFile) {
+  metadataUrl = config.metadataFile;
+  try {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const metadataPath = path.join(process.cwd(), 'public', config.metadataFile);
+    const content = fs.readFileSync(metadataPath, 'utf-8');
+    metadata = JSON.parse(content);
+  } catch (e) {
+    console.error(`Failed to load metadata from ${config.metadataFile}:`, e);
+  }
+}
+---
+
+<Layout title="Series Metadata Demo" noindex={true}>
+  <h1>Series Metadata Demo</h1>
+  <p class="subtitle">Demonstrating series-level metadata and hero images</p>
+
+  {metadata ? (
+    <div class="series-container">
+      <!-- Header Section -->
+      <div class="series-header">
+        <h2 class="series-name">{metadata.name}</h2>
+        <p class="series-subtitle">{metadata.subtitle}</p>
+        <div class="series-meta">
+          <span class="meta-item">{metadata.dateRange}</span>
+          <span class="meta-separator">•</span>
+          <span class="meta-item">{metadata.venueName}</span>
+          <span class="meta-separator">•</span>
+          <span class="meta-item">{metadata.stats?.filmCount || 0} films, {metadata.stats?.screeningCount || 0} screenings</span>
+        </div>
+      </div>
+
+      <!-- Hero Images Slideshow -->
+      {metadata.heroImages && metadata.heroImages.length > 0 && (
+        <div class="hero-section">
+          <h3>Hero Images</h3>
+          <div class="hero-grid">
+            {metadata.heroImages.map((image: any) => (
+              <div class="hero-image-wrapper">
+                <img
+                  src={image.path}
+                  alt={image.alt}
+                  class="hero-image"
+                />
+                <p class="image-caption">{image.alt}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Description Section -->
+      <div class="content-section">
+        <h3>Description</h3>
+        <p class="description-curatorial">{metadata.description?.curatorial || metadata.description?.short}</p>
+      </div>
+
+      <!-- Partnership Section -->
+      {metadata.partnership && (
+        <div class="content-section">
+          <h3>Partnership</h3>
+          <p class="partnership-presented">{metadata.partnership.presentedBy}</p>
+          <p class="partnership-description">{metadata.partnership.description}</p>
+        </div>
+      )}
+
+      <!-- Funding Section -->
+      {metadata.funding && (
+        <div class="content-section">
+          <h3>Funding & Support</h3>
+          <p class="funding-acknowledgment">{metadata.funding.acknowledgment}</p>
+          <ul class="funding-list">
+            {metadata.funding.credits?.map((credit: any) => (
+              <li>{credit.name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <!-- Special Programming Section -->
+      {metadata.specialProgramming && (
+        <div class="content-section">
+          <h3>Special Programming</h3>
+          {metadata.specialProgramming.livePiano?.enabled && (
+            <div class="programming-item">
+              <h4>Live Musical Accompaniment</h4>
+              <p>{metadata.specialProgramming.livePiano.description}</p>
+            </div>
+          )}
+          {metadata.specialProgramming.events?.map((event: any) => (
+            <div class="programming-item">
+              <h4>{event.type === 'post-film-conversation' ? 'Post-Film Conversations' : event.type}</h4>
+              <p>{event.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <!-- Community Engagement Section -->
+      {metadata.communityEngagement && (
+        <div class="content-section">
+          <h3>Community Engagement</h3>
+
+          {metadata.communityEngagement.discounts && (
+            <div class="engagement-subsection">
+              <h4>Member Benefits</h4>
+              {metadata.communityEngagement.discounts.ticketHolders && (
+                <div class="discount-item">
+                  <strong>Ticket Holders:</strong> {metadata.communityEngagement.discounts.ticketHolders.offer}
+                  <br />
+                  <em class="redeem-info">{metadata.communityEngagement.discounts.ticketHolders.howToRedeem}</em>
+                </div>
+              )}
+              {metadata.communityEngagement.discounts.members && (
+                <div class="discount-item">
+                  <strong>Members:</strong> {metadata.communityEngagement.discounts.members.offer}
+                  <br />
+                  <em class="redeem-info">{metadata.communityEngagement.discounts.members.howToRedeem}</em>
+                </div>
+              )}
+              {metadata.communityEngagement.discounts.exclusions && (
+                <p class="discount-exclusions"><small>{metadata.communityEngagement.discounts.exclusions}</small></p>
+              )}
+            </div>
+          )}
+
+          {metadata.communityEngagement.specialtyTours && metadata.communityEngagement.specialtyTours.length > 0 && (
+            <div class="engagement-subsection">
+              <h4>Specialty Tours</h4>
+              <ul class="tours-list">
+                {metadata.communityEngagement.specialtyTours.map((tour: any) => (
+                  <li>
+                    <strong>{tour.name}</strong> ({tour.dates?.join(', ')})
+                    <br />
+                    <span class="tour-description">{tour.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      <!-- Metadata JSON Preview -->
+      <div class="content-section debug-section">
+        <h3>Raw Metadata (JSON)</h3>
+        <details>
+          <summary>Click to expand</summary>
+          <pre class="json-preview">{JSON.stringify(metadata, null, 2)}</pre>
+        </details>
+      </div>
+    </div>
+  ) : (
+    <div class="error-message">
+      <p>No metadata found for series: {seriesId}</p>
+      <p>Check that the metadata file exists at: {config?.metadataFile}</p>
+    </div>
+  )}
+</Layout>
+
+<style>
+  h1 {
+    margin-top: 32px;
+    padding-top: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-tertiary);
+    margin-bottom: 32px;
+  }
+
+  .series-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .series-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--bg-movie);
+  }
+
+  .series-name {
+    font-size: 2.5em;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .series-subtitle {
+    font-size: 1.3em;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .series-meta {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    color: var(--text-tertiary);
+    font-size: 0.9em;
+  }
+
+  .meta-separator {
+    opacity: 0.5;
+  }
+
+  .hero-section {
+    margin-bottom: 48px;
+  }
+
+  .hero-section h3 {
+    margin-bottom: 16px;
+    font-size: 1.5em;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .hero-image-wrapper {
+    background: var(--bg-movie);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .image-caption {
+    padding: 12px;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    text-align: center;
+    margin: 0;
+  }
+
+  .content-section {
+    margin-bottom: 40px;
+  }
+
+  .content-section h3 {
+    font-size: 1.5em;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .content-section h4 {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    margin-top: 16px;
+    color: var(--text-secondary);
+  }
+
+  .content-section p {
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .description-curatorial {
+    font-size: 1.05em;
+    line-height: 1.7;
+  }
+
+  .partnership-presented {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .partnership-description {
+    margin-top: 12px;
+  }
+
+  .funding-acknowledgment {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+
+  .funding-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .funding-list li {
+    padding: 8px 0;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .funding-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--text-tertiary);
+  }
+
+  .programming-item {
+    margin-bottom: 24px;
+  }
+
+  .engagement-subsection {
+    margin-bottom: 32px;
+  }
+
+  .discount-item {
+    padding: 12px;
+    background: var(--bg-movie);
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .redeem-info {
+    color: var(--text-tertiary);
+    font-size: 0.9em;
+  }
+
+  .discount-exclusions {
+    color: var(--text-tertiary);
+    font-size: 0.85em;
+    margin-top: 8px;
+  }
+
+  .tours-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .tours-list li {
+    padding: 12px;
+    background: var(--bg-movie);
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .tour-description {
+    color: var(--text-secondary);
+    font-size: 0.95em;
+  }
+
+  .debug-section {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--bg-movie);
+  }
+
+  .debug-section h3 {
+    color: var(--text-tertiary);
+  }
+
+  details {
+    cursor: pointer;
+  }
+
+  summary {
+    padding: 12px;
+    background: var(--bg-movie);
+    border-radius: 6px;
+    user-select: none;
+  }
+
+  summary:hover {
+    background: var(--bg-day);
+  }
+
+  .json-preview {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--bg-movie);
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+
+  .error-message {
+    padding: 32px;
+    background: var(--bg-movie);
+    border-radius: 8px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+
+  .error-message p {
+    margin: 8px 0;
+  }
+</style>
