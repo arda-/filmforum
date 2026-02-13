@@ -203,7 +203,7 @@ const containerStyle = sizeStyles.join('; ');
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 0 20px 2px;
+    padding: 0 20px 12px;
     flex: 1 1 auto;
     min-height: 0;
     -webkit-overflow-scrolling: touch;
@@ -225,7 +225,7 @@ const containerStyle = sizeStyles.join('; ');
   /* Body gets safe area padding only when it's the bottom-most element
      (no footer). When a footer exists, it handles the safe area instead. */
   .drawer-container:not([data-has-footer]) .drawer-body {
-    padding-bottom: calc(2px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   }
 
   .drawer-footer {
