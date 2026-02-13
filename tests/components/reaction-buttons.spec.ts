@@ -12,15 +12,15 @@ test.describe('ReactionButtons', () => {
 
   test.describe('Medium size (default)', () => {
     test('should render three buttons (Yes, Maybe, No)', async ({ page }) => {
-      const buttons = page.locator('.reactions').first().locator('.rbtn');
+      const buttons = page.locator('[data-testid="md-unmarked"] .rbtn');
       expect(await buttons.count()).toBe(3);
     });
 
     test('should have all buttons in unmarked state initially', async ({ page }) => {
-      const firstSet = page.locator('.reactions').first();
-      const yesBtn = firstSet.locator('button[data-reaction="yes"]');
-      const maybeBtn = firstSet.locator('button[data-reaction="maybe"]');
-      const noBtn = firstSet.locator('button[data-reaction="no"]');
+      const unmarked = page.locator('[data-testid="md-unmarked"]');
+      const yesBtn = unmarked.locator('button[data-reaction="yes"]');
+      const maybeBtn = unmarked.locator('button[data-reaction="maybe"]');
+      const noBtn = unmarked.locator('button[data-reaction="no"]');
 
       await expect(yesBtn).not.toHaveClass(/active/);
       await expect(maybeBtn).not.toHaveClass(/active/);
@@ -32,32 +32,28 @@ test.describe('ReactionButtons', () => {
     });
 
     test('should have Yes button active in marked-yes example', async ({ page }) => {
-      const marked = page.locator('text=Marked as Yes').first().locator('..').locator('.reactions');
-      const yesBtn = marked.locator('button[data-reaction="yes"]');
+      const yesBtn = page.locator('[data-testid="md-yes"] button[data-reaction="yes"]');
 
       await expect(yesBtn).toHaveClass(/active/);
       await expect(yesBtn).toHaveAttribute('aria-pressed', 'true');
     });
 
     test('should have Maybe button active in marked-maybe example', async ({ page }) => {
-      const marked = page.locator('text=Marked as Maybe').first().locator('..').locator('.reactions');
-      const maybeBtn = marked.locator('button[data-reaction="maybe"]');
+      const maybeBtn = page.locator('[data-testid="md-maybe"] button[data-reaction="maybe"]');
 
       await expect(maybeBtn).toHaveClass(/active/);
       await expect(maybeBtn).toHaveAttribute('aria-pressed', 'true');
     });
 
     test('should have No button active in marked-no example', async ({ page }) => {
-      const marked = page.locator('text=Marked as No').first().locator('..').locator('.reactions');
-      const noBtn = marked.locator('button[data-reaction="no"]');
+      const noBtn = page.locator('[data-testid="md-no"] button[data-reaction="no"]');
 
       await expect(noBtn).toHaveClass(/active/);
       await expect(noBtn).toHaveAttribute('aria-pressed', 'true');
     });
 
     test('should toggle Yes button state on click', async ({ page }) => {
-      const firstSet = page.locator('.reactions').first();
-      const yesBtn = firstSet.locator('button[data-reaction="yes"]');
+      const yesBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="yes"]');
 
       // Initially inactive
       await expect(yesBtn).not.toHaveClass(/active/);
@@ -74,9 +70,9 @@ test.describe('ReactionButtons', () => {
     });
 
     test('should allow only one button active at a time', async ({ page }) => {
-      const firstSet = page.locator('.reactions').first();
-      const yesBtn = firstSet.locator('button[data-reaction="yes"]');
-      const maybeBtn = firstSet.locator('button[data-reaction="maybe"]');
+      const unmarked = page.locator('[data-testid="md-unmarked"]');
+      const yesBtn = unmarked.locator('button[data-reaction="yes"]');
+      const maybeBtn = unmarked.locator('button[data-reaction="maybe"]');
 
       // Activate Yes
       await yesBtn.click();
@@ -91,13 +87,13 @@ test.describe('ReactionButtons', () => {
 
   test.describe('Small size', () => {
     test('should render buttons with sm class', async ({ page }) => {
-      const smallSet = page.locator('.reactions--sm').first();
+      const smallSet = page.locator('[data-testid="sm-unmarked"] .reactions--sm');
       expect(await smallSet.count()).toBeGreaterThan(0);
     });
 
     test('should have buttons with smaller padding', async ({ page }) => {
-      const smallBtn = page.locator('.reactions--sm').first().locator('.rbtn').first();
-      const mediumBtn = page.locator('.reactions--md').first().locator('.rbtn').first();
+      const smallBtn = page.locator('[data-testid="sm-unmarked"] .rbtn').first();
+      const mediumBtn = page.locator('[data-testid="md-unmarked"] .rbtn').first();
 
       const smallPadding = await smallBtn.evaluate(el =>
         window.getComputedStyle(el).padding
@@ -107,12 +103,11 @@ test.describe('ReactionButtons', () => {
       );
 
       // Small should have less padding than medium
-      // (exact values depend on CSS, but should be different)
       expect(smallPadding).not.toBe(mediumPadding);
     });
 
     test('should have smaller SVG in small size', async ({ page }) => {
-      const smallSvg = page.locator('.reactions--sm').first().locator('svg').first();
+      const smallSvg = page.locator('[data-testid="sm-unmarked"] svg').first();
 
       const width = await smallSvg.getAttribute('width');
       // SVG in small should be 14px
@@ -122,19 +117,16 @@ test.describe('ReactionButtons', () => {
 
   test.describe('Color coding', () => {
     test('Yes button should use green color', async ({ page }) => {
-      const marked = page.locator('text=Marked as Yes').first().locator('..').locator('.reactions');
-      const yesBtn = marked.locator('button[data-reaction="yes"]');
+      const yesBtn = page.locator('[data-testid="md-yes"] button[data-reaction="yes"]');
 
       const color = await yesBtn.evaluate(el =>
         window.getComputedStyle(el).color
       );
-      // Button should have some color applied
       expect(color).toBeTruthy();
     });
 
     test('No button should use red color', async ({ page }) => {
-      const marked = page.locator('text=Marked as No').first().locator('..').locator('.reactions');
-      const noBtn = marked.locator('button[data-reaction="no"]');
+      const noBtn = page.locator('[data-testid="md-no"] button[data-reaction="no"]');
 
       const color = await noBtn.evaluate(el =>
         window.getComputedStyle(el).color
@@ -143,8 +135,7 @@ test.describe('ReactionButtons', () => {
     });
 
     test('Maybe button should use orange color', async ({ page }) => {
-      const marked = page.locator('text=Marked as Maybe').first().locator('..').locator('.reactions');
-      const maybeBtn = marked.locator('button[data-reaction="maybe"]');
+      const maybeBtn = page.locator('[data-testid="md-maybe"] button[data-reaction="maybe"]');
 
       const color = await maybeBtn.evaluate(el =>
         window.getComputedStyle(el).color
@@ -155,8 +146,7 @@ test.describe('ReactionButtons', () => {
 
   test.describe('Keyboard accessibility', () => {
     test('buttons should be keyboard navigable with Tab', async ({ page }) => {
-      const firstSet = page.locator('.reactions').first();
-      const yesBtn = firstSet.locator('button[data-reaction="yes"]');
+      const yesBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="yes"]');
 
       await yesBtn.focus();
       const focused = page.locator(':focus');
@@ -164,8 +154,7 @@ test.describe('ReactionButtons', () => {
     });
 
     test('should toggle with Space key', async ({ page }) => {
-      const firstSet = page.locator('.reactions').first();
-      const yesBtn = firstSet.locator('button[data-reaction="yes"]');
+      const yesBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="yes"]');
 
       await yesBtn.focus();
       await page.keyboard.press('Space');
@@ -174,8 +163,7 @@ test.describe('ReactionButtons', () => {
     });
 
     test('should toggle with Enter key', async ({ page }) => {
-      const firstSet = page.locator('.reactions').first();
-      const maybeBtn = firstSet.locator('button[data-reaction="maybe"]');
+      const maybeBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="maybe"]');
 
       await maybeBtn.focus();
       await page.keyboard.press('Enter');
@@ -186,9 +174,9 @@ test.describe('ReactionButtons', () => {
 
   test.describe('Accessibility', () => {
     test('all buttons should have aria-pressed', async ({ page }) => {
-      const allBtns = page.locator('.reactions .rbtn');
+      const allBtns = page.locator('[data-testid="md-unmarked"] .rbtn');
 
-      for (let i = 0; i < Math.min(3, await allBtns.count()); i++) {
+      for (let i = 0; i < await allBtns.count(); i++) {
         const btn = allBtns.nth(i);
         const ariaPressed = await btn.getAttribute('aria-pressed');
         expect(['true', 'false']).toContain(ariaPressed);
@@ -196,9 +184,9 @@ test.describe('ReactionButtons', () => {
     });
 
     test('buttons should have aria-labels', async ({ page }) => {
-      const yesBtn = page.locator('button[data-reaction="yes"]').first();
-      const maybeBtn = page.locator('button[data-reaction="maybe"]').first();
-      const noBtn = page.locator('button[data-reaction="no"]').first();
+      const yesBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="yes"]');
+      const maybeBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="maybe"]');
+      const noBtn = page.locator('[data-testid="md-unmarked"] button[data-reaction="no"]');
 
       const yesLabel = await yesBtn.getAttribute('aria-label');
       const maybeLabel = await maybeBtn.getAttribute('aria-label');
@@ -210,7 +198,7 @@ test.describe('ReactionButtons', () => {
     });
 
     test('buttons should have focus ring', async ({ page }) => {
-      const btn = page.locator('.reactions .rbtn').first();
+      const btn = page.locator('[data-testid="md-unmarked"] .rbtn').first();
       await btn.focus();
 
       const outline = await btn.evaluate(el =>

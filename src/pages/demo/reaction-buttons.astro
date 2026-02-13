@@ -11,19 +11,19 @@ import ReactionButtons from '../../components/session/ReactionButtons.astro';
     <div class="demo-section">
       <h2>Medium Size (Default)</h2>
       <div class="demo-row">
-        <div class="demo-item">
+        <div class="demo-item" data-testid="md-unmarked">
           <p class="demo-label">Unmarked</p>
           <ReactionButtons movieId="test-movie-1" />
         </div>
-        <div class="demo-item">
+        <div class="demo-item" data-testid="md-yes">
           <p class="demo-label">Marked as Yes</p>
           <ReactionButtons movieId="test-movie-2" reaction="yes" />
         </div>
-        <div class="demo-item">
+        <div class="demo-item" data-testid="md-maybe">
           <p class="demo-label">Marked as Maybe</p>
           <ReactionButtons movieId="test-movie-3" reaction="maybe" />
         </div>
-        <div class="demo-item">
+        <div class="demo-item" data-testid="md-no">
           <p class="demo-label">Marked as No</p>
           <ReactionButtons movieId="test-movie-4" reaction="no" />
         </div>
@@ -33,19 +33,19 @@ import ReactionButtons from '../../components/session/ReactionButtons.astro';
     <div class="demo-section">
       <h2>Small Size</h2>
       <div class="demo-row">
-        <div class="demo-item">
+        <div class="demo-item" data-testid="sm-unmarked">
           <p class="demo-label">Unmarked</p>
           <ReactionButtons movieId="test-movie-5" size="sm" />
         </div>
-        <div class="demo-item">
+        <div class="demo-item" data-testid="sm-yes">
           <p class="demo-label">Marked as Yes</p>
           <ReactionButtons movieId="test-movie-6" size="sm" reaction="yes" />
         </div>
-        <div class="demo-item">
+        <div class="demo-item" data-testid="sm-maybe">
           <p class="demo-label">Marked as Maybe</p>
           <ReactionButtons movieId="test-movie-7" size="sm" reaction="maybe" />
         </div>
-        <div class="demo-item">
+        <div class="demo-item" data-testid="sm-no">
           <p class="demo-label">Marked as No</p>
           <ReactionButtons movieId="test-movie-8" size="sm" reaction="no" />
         </div>
