@@ -94,40 +94,32 @@ const {
   <!-- Filter disclosure panel -->
   <div class="filter-disclosure" id="filter-disclosure">
     <div class="filter-disclosure-inner">
-      <div class="filter-row">
-        <span class="filter-row-label">Sort</span>
-        <select class="toolbar-select" id="sort-select" aria-label="Sort movies by">
-          <option value="alpha" selected={sortBy === 'alpha'}>A &rarr; Z</option>
-          <option value="year" selected={sortBy === 'year'}>Year</option>
-          <option value="director" selected={sortBy === 'director'}>Director</option>
-          <option value="marked" selected={sortBy === 'marked'}>Marked</option>
-        </select>
-      </div>
+      <div class="filter-people-row">
+        <div class="filter-row">
+          <span class="filter-row-label">
+            <Icon name="megaphone" size={14} />
+            <span>Director</span>
+          </span>
+          <select class="toolbar-select filter-select" id="filter-director" aria-label="Filter by director">
+            <option value="">All directors</option>
+            {directors.map(d => (
+              <option value={d.toLowerCase()}>{d}</option>
+            ))}
+          </select>
+        </div>
 
-      <div class="filter-row">
-        <span class="filter-row-label">
-          <Icon name="megaphone" size={14} />
-          <span>Director</span>
-        </span>
-        <select class="toolbar-select filter-select" id="filter-director" aria-label="Filter by director">
-          <option value="">All directors</option>
-          {directors.map(d => (
-            <option value={d.toLowerCase()}>{d}</option>
-          ))}
-        </select>
-      </div>
-
-      <div class="filter-row">
-        <span class="filter-row-label">
-          <Icon name="users-round" size={14} />
-          <span>Actor</span>
-        </span>
-        <select class="toolbar-select filter-select" id="filter-actor" aria-label="Filter by actor">
-          <option value="">All actors</option>
-          {actors.map(a => (
-            <option value={a.toLowerCase()}>{a}</option>
-          ))}
-        </select>
+        <div class="filter-row">
+          <span class="filter-row-label">
+            <Icon name="users-round" size={14} />
+            <span>Actor</span>
+          </span>
+          <select class="toolbar-select filter-select" id="filter-actor" aria-label="Filter by actor">
+            <option value="">All actors</option>
+            {actors.map(a => (
+              <option value={a.toLowerCase()}>{a}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div class="filter-row filter-row-wrap">
@@ -146,6 +138,19 @@ const {
             </button>
           ))}
         </div>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-row-label">
+          <Icon name="arrow-down-up" size={14} />
+          <span>Sort</span>
+        </span>
+        <select class="toolbar-select" id="sort-select" aria-label="Sort movies by">
+          <option value="alpha" selected={sortBy === 'alpha'}>A &rarr; Z</option>
+          <option value="year" selected={sortBy === 'year'}>Year</option>
+          <option value="director" selected={sortBy === 'director'}>Director</option>
+          <option value="marked" selected={sortBy === 'marked'}>Marked</option>
+        </select>
       </div>
 
       <div class="filter-row filter-actions" id="filter-results" style="display:none">
@@ -453,6 +458,24 @@ const {
 
   .filter-row-wrap {
     flex-wrap: wrap;
+  }
+
+  /* Director + Actor side-by-side at wider viewports */
+  .filter-people-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  @media (min-width: 480px) {
+    .filter-people-row {
+      flex-direction: row;
+      gap: 12px;
+    }
+    .filter-people-row .filter-row {
+      flex: 1;
+      min-width: 0;
+    }
   }
 
   .filter-row-label {
