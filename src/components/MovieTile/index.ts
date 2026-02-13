@@ -4,7 +4,11 @@
  */
 
 import type { Movie } from '../../types/movie';
-import { TIMELINE_HEADER_OFFSET, CLICKABLE_VERTICAL_PADDING, POSTER_IMG_SIZE } from '@/constants';
+
+/** Layout constants scoped to MovieTile */
+const TIMELINE_HEADER_OFFSET = 28; // Vertical offset for timeline tile positioning (px)
+const CLICKABLE_VERTICAL_PADDING = 8; // .movie-clickable padding: 4px top + 4px bottom
+const POSTER_IMG_SIZE = 300; // Poster <img> intrinsic width & height (px)
 
 export interface TileOptions {
   isTimeline: boolean;

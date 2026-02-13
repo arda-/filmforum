@@ -4,7 +4,12 @@ import { webcore } from 'webcoreui/integration';
 import sitemap from '@astrojs/sitemap';
 import fs from 'node:fs';
 import path from 'node:path';
-import { THUMB_WIDTH, THUMB_HEIGHT, THUMB_BLUR, THUMB_QUALITY } from './src/constants/index.ts';
+
+// Thumbnail generation constants
+const THUMB_WIDTH = 100;
+const THUMB_HEIGHT = 133;
+const THUMB_BLUR = 5;
+const THUMB_QUALITY = 30;
 
 // Build-time validation + thumbnail generation
 const validatePosterImages = {

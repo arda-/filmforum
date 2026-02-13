@@ -12,18 +12,6 @@ export const PX_PER_MIN = 0.7;
 // Timeline height constants
 export const MIN_TIMELINE_HEIGHT = 100; // Minimum day cell height in pixels
 export const TIMELINE_PADDING = 32;    // Day header padding in pixels
-export const TIMELINE_HEADER_OFFSET = 28; // Vertical offset for timeline tile positioning (px)
-
-// Movie tile layout
-export const CLICKABLE_VERTICAL_PADDING = 8; // .movie-clickable padding: 4px top + 4px bottom
-export const POSTER_IMG_SIZE = 300; // Poster <img> intrinsic width & height (px)
-
-// Thumbnail generation (build-time, astro.config.mjs)
-export const THUMB_WIDTH = 100;
-export const THUMB_HEIGHT = 133;
-export const THUMB_BLUR = 5;
-export const THUMB_QUALITY = 30;
-
 // Work hours in minutes from midnight
 export const WORK_START = 9 * 60;   // 9:00 AM = 540 minutes
 export const WORK_END = 17 * 60;    // 5:00 PM = 1020 minutes
