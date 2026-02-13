@@ -24,15 +24,20 @@ const flags = new Map(args
 );
 
 /**
- * Get changed files from git
+ * Get changed files from git (unstaged, staged, and untracked).
+ * Uses git status --porcelain for a complete picture of all modified files.
  */
 function getChangedFiles() {
   try {
-    // Get all unstaged and staged changes
-    const output = execSync('git diff --name-only HEAD', { encoding: 'utf-8' });
-    return output.trim().split('\n').filter(Boolean);
+    const output = execSync('git status --porcelain', { encoding: 'utf-8' });
+    return output
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map(line => line.slice(3).trim()) // Strip status prefix (e.g. " M ", "?? ", "A  ")
+      .filter(Boolean);
   } catch (e) {
-    console.warn('Could not get git diff, running all tests');
+    console.warn('Could not get git status, running all tests');
     return [];
   }
 }
