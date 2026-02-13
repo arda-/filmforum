@@ -91,7 +91,7 @@ export { WORK_START, WORK_END };
  * - "12:00" -> 12:00 (noon)
  * - "10:00 FF Jr" -> 10:00 (10 AM, morning shows)
  * - "11:30 FF Jr" -> 11:30 (11:30 AM)
- * - "11:00 – FF Jr." -> 11:00 (10 AM, variant format with dash/period)
+ * - "11:00 – FF Jr." -> 11:00 (11 AM, variant format with dash/period)
  */
 export function parseTimeToMins(timeStr: string): number {
   if (!timeStr) return 0;
