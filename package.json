@@ -16,7 +16,7 @@
     "test:tier3": "node scripts/test-trigger.js --tier=3",
     "test:seo": "node scripts/validate-seo.js",
     "test:python": "cd data-processing && pytest -v",
-    "test:all": "node scripts/test-trigger.js --all"
+    "test:all": "node scripts/test-trigger.js --all && pnpm test:python"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
