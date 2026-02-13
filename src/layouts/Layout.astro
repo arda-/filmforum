@@ -1,5 +1,6 @@
 ---
 import SEO from '../components/SEO.astro';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -12,6 +13,7 @@ interface Props {
   structuredData?: object | object[];
   twitterCard?: 'summary' | 'summary_large_image';
   fullWidth?: boolean;
+  viewTransitions?: boolean;
 }
 
 const {
@@ -25,6 +27,7 @@ const {
   structuredData,
   twitterCard,
   fullWidth = false,
+  viewTransitions = false,
 } = Astro.props;
 ---
 
@@ -52,6 +55,7 @@ const {
     twitterCard={twitterCard}
   />
 
+  {viewTransitions && <ClientRouter />}
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
