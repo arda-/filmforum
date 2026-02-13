@@ -2,7 +2,16 @@
 /**
  * Vaul-style drawer component.
  * Slides up from bottom with backdrop, swipe-to-dismiss, and smooth transitions.
+ *
+ * @slot default - Main body content.
+ * @slot close - Close button. Defaults to a floating frosted-glass X button.
+ *   Custom replacements should include `data-drawer-close` on clickable elements
+ *   so the built-in close handler fires.
+ * @slot footer - Optional sticky footer (e.g. action buttons). When present,
+ *   safe-area inset padding shifts from the body to the footer.
  */
+import Icon from './Icon.astro';
+
 interface Props {
   id: string;
   title?: string;
@@ -10,26 +19,33 @@ interface Props {
 }
 
 const { id, title, maxHeight = '85vh' } = Astro.props;
+const hasFooter = Astro.slots.has('footer');
 ---
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
   <div class="drawer-backdrop" data-drawer-close></div>
-  <div class="drawer-container" style={`--drawer-max-height: ${maxHeight}`}>
+  <div class="drawer-container" style={`--drawer-max-height: ${maxHeight}`} data-has-footer={hasFooter ? '' : undefined}>
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
-    <div class="drawer-header">
-      {title && <h2 id={`${id}-title`} class="drawer-title">{title}</h2>}
-      {!title && <div></div>}
-      <button class="drawer-close-btn" aria-label="Close">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M11.78 4.03a.5.5 0 00-.71-.71L7.5 6.89 3.93 3.32a.5.5 0 10-.71.71L6.79 7.5l-3.57 3.47a.5.5 0 00.71.71L7.5 8.11l3.57 3.57a.5.5 0 00.71-.71L8.21 7.5l3.57-3.47z" fill="currentColor"/>
-        </svg>
+    <slot name="close">
+      <button class="drawer-close-btn" data-drawer-close aria-label="Close">
+        <Icon name="x" size={18} />
       </button>
-    </div>
+    </slot>
+    {title && (
+      <div class="drawer-header">
+        <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
+      </div>
+    )}
     <div class="drawer-body">
       <slot />
     </div>
+    {hasFooter && (
+      <div class="drawer-footer">
+        <slot name="footer" />
+      </div>
+    )}
   </div>
 </div>
 
@@ -51,7 +67,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    animation: drawer-backdrop-in 0.2s ease-out;
+    animation: drawer-backdrop-in 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .drawer[data-open="true"] .drawer-container {
@@ -59,7 +75,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
   }
 
   .drawer.closing .drawer-backdrop {
-    animation: drawer-backdrop-out 0.2s ease-in forwards;
+    animation: drawer-backdrop-out 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
   }
 
   .drawer.closing .drawer-container {
@@ -97,6 +113,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     flex-direction: column;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     will-change: transform;
+    outline: none;
   }
 
   .drawer-handle-area {
@@ -118,11 +135,45 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     border-radius: 2px;
   }
 
-  .drawer-header {
+  .drawer-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 8px 20px 12px;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: color-mix(in srgb, var(--bg-movie-hover) var(--drawer-close-bg-opacity), transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: none;
+    border-radius: 50%;
+    color: var(--drawer-close-color);
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.15s, color 0.15s, backdrop-filter 0.15s;
+  }
+
+  .drawer-close-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .drawer-close-btn:hover {
+      background: var(--bg-movie-hover);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      color: var(--text-primary);
+    }
+  }
+
+  .drawer-header {
+    padding: 0 20px 12px;
+    padding-right: 48px;
     flex-shrink: 0;
   }
 
@@ -131,28 +182,6 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
-  }
-
-  .drawer-close-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    background: var(--bg-movie);
-    border: none;
-    border-radius: 50%;
-    color: var(--text-tertiary);
-    cursor: pointer;
-    transition: background-color 0.15s, color 0.15s;
-  }
-
-  @media (hover: hover) {
-    .drawer-close-btn:hover {
-      background: var(--bg-movie-hover);
-      color: var(--text-primary);
-    }
   }
 
   .drawer-body {
@@ -176,6 +205,42 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
       padding-bottom: 12px;
     }
   }
+
+  /* Body gets safe area padding only when it's the bottom-most element
+     (no footer). When a footer exists, it handles the safe area instead. */
+  .drawer-container:not([data-has-footer]) .drawer-body {
+    padding-bottom: calc(2px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .drawer-footer {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-day);
+    border-top: 1px solid var(--bg-movie-hover);
+  }
+
+  @media (hover: hover) and (pointer: fine),
+         (pointer: coarse) and (min-width: 768px) and (min-height: 600px) {
+    .drawer-footer {
+      padding-bottom: 12px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drawer[data-open="true"] .drawer-container,
+    .drawer.closing .drawer-container,
+    .drawer-backdrop,
+    .drawer.closing .drawer-backdrop {
+      animation: none;
+    }
+
+    .drawer-close-btn {
+      transition: none;
+    }
+  }
 </style>
 
 <script>
@@ -191,34 +256,23 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     let dragSource: 'handle' | 'body' | null = null;
 
     function closeDrawer() {
+      const trigger = (drawer as any)._triggerElement as HTMLElement | null;
       drawer.classList.add('closing');
       setTimeout(() => {
         (drawer as HTMLElement).dataset.open = 'false';
         drawer.classList.remove('closing');
         container.style.transform = '';
         document.body.style.overflow = '';
+        if (trigger && typeof trigger.focus === 'function') trigger.focus();
       }, 250);
     }
 
-    // Close on backdrop click
-    const backdrop = drawer.querySelector('.drawer-backdrop');
-    if (backdrop) {
-      backdrop.addEventListener('click', () => closeDrawer());
-    }
-
-    // Close on close button click (use closest to handle SVG children)
-    drawer.querySelectorAll('.drawer-close-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    // Close on any element with data-drawer-close (default X button, custom close buttons, backdrop)
+    drawer.querySelectorAll('[data-drawer-close]').forEach(el => {
+      el.addEventListener('click', (e) => {
         e.stopPropagation();
         closeDrawer();
       });
-    });
-
-    // Close on Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && (drawer as HTMLElement).dataset.open === 'true') {
-        closeDrawer();
-      }
     });
 
     // --- Swipe-to-dismiss ---
@@ -325,18 +379,58 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
     }
   });
 
+  // Delegated keyboard handler — single listener for Escape + focus trap
+  // across all drawer instances (avoids per-drawer listener accumulation).
+  document.addEventListener('keydown', (e) => {
+    const openDrawer = document.querySelector<HTMLElement>('.drawer[data-open="true"]');
+    if (!openDrawer) return;
+
+    if (e.key === 'Escape') {
+      (window as any).closeDrawer(openDrawer.id);
+      return;
+    }
+
+    if (e.key === 'Tab') {
+      const focusable = openDrawer.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  });
+
   // Global drawer API
   (window as any).openDrawer = (id: string) => {
     const drawer = document.getElementById(id);
     if (drawer) {
+      (drawer as any)._triggerElement = document.activeElement;
       drawer.dataset.open = 'true';
       document.body.style.overflow = 'hidden';
+      // Focus the container for screen readers (outline suppressed via CSS)
+      const container = drawer.querySelector<HTMLElement>('.drawer-container');
+      if (container) {
+        container.setAttribute('tabindex', '-1');
+        requestAnimationFrame(() => container.focus());
+      }
     }
   };
 
   (window as any).closeDrawer = (id: string) => {
     const drawer = document.getElementById(id);
     if (drawer) {
+      const trigger = (drawer as any)._triggerElement as HTMLElement | null;
       const container = drawer.querySelector('.drawer-container') as HTMLElement;
       drawer.classList.add('closing');
       setTimeout(() => {
@@ -344,6 +438,7 @@ const { id, title, maxHeight = '85vh' } = Astro.props;
         drawer.classList.remove('closing');
         if (container) container.style.transform = '';
         document.body.style.overflow = '';
+        if (trigger && typeof trigger.focus === 'function') trigger.focus();
       }, 250);
     }
   };
