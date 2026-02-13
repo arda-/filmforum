@@ -3,7 +3,7 @@
  * Saves and restores calendar view settings to/from URL parameters.
  */
 
-import { SAVED_FILTER_COUNT, TIME_CATEGORY_COUNT, ALL_TIME_CATEGORIES } from '../constants';
+import { SAVED_FILTER_COUNT, TIME_CATEGORY_COUNT, ALL_TIME_CATEGORIES } from './calendarConstants';
 
 /** Read whether a toggle button is pressed. */
 export function isTogglePressed(el: HTMLElement | null): boolean {

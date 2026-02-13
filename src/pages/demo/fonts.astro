@@ -92,7 +92,7 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 <script>
   import type { Movie } from '../../utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
-  import { PX_PER_MIN, MIN_TIMELINE_HEIGHT, TIMELINE_PADDING } from '../../constants';
+  import { PX_PER_MIN, MIN_TIMELINE_HEIGHT, TIMELINE_PADDING } from '@utils/calendarConstants';
   import { parseTimeToMins } from '../../utils/calendarTime';
 
   let allMovies: Movie[] = [];

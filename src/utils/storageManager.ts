@@ -35,7 +35,8 @@ export function getReactions(sessionId: string): ReactionMap {
   if (!raw) return {};
   try {
     return JSON.parse(raw);
-  } catch {
+  } catch (e) {
+    console.error(`[storageManager] Failed to parse reactions for session "${sessionId}":`, e);
     return {};
   }
 }
@@ -109,8 +110,8 @@ export function decodeReactions(encoded: string): ReactionMap {
         reactions[id] = codes[code];
       }
     }
-  } catch {
-    // Invalid encoding, return empty
+  } catch (e) {
+    console.error('[storageManager] Failed to decode reactions string:', e);
   }
   return reactions;
 }

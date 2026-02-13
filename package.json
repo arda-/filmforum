@@ -10,7 +10,9 @@
     "astro": "astro",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:seo": "node scripts/validate-seo.js"
+    "test:seo": "node scripts/validate-seo.js",
+    "test:python": "cd data-processing && pytest -v",
+    "test:all": "pnpm test:run && pnpm test:python"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
