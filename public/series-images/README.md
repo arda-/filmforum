@@ -1,32 +1,18 @@
 # Series Images
 
-This directory stores hero and slideshow images downloaded from filmforum.org for each series.
-
-## Purpose
-
-These images are used in the frontend UI for series detail pages and promotional content. They are organized by series slug for easy reference and validated at build time.
+Hero and slideshow images for series detail pages, organized by series slug.
 
 ## How Files Get Here
 
-Images are downloaded and organized by the build script:
-```bash
-node scripts/generate-series-metadata.js
-```
-
-This script downloads images referenced in the parsed HTML data and saves them to subdirectories named by series slug.
+Images are manually downloaded from filmforum.org and committed to the repo.
+Their paths are referenced in `public/series-metadata/<series-slug>.json`.
 
 ## Directory Structure
 
 ```
 series-images/
-├── tenement-stories/
-│   ├── hero.jpg
-│   └── slide-1.jpg
-└── noir-city/
-    ├── hero.jpg
-    └── slide-1.jpg
+└── tenement-stories/
+    ├── WEST_SIDE_STORY_slideshow.png
+    ├── THE_WINDOW_slideshow.png
+    └── ...
 ```
-
-## Validation
-
-Image paths are referenced in the series metadata JSON files (`public/series-metadata/*.json`) and validated at build time.
