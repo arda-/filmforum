@@ -4,6 +4,7 @@ import { webcore } from 'webcoreui/integration';
 import sitemap from '@astrojs/sitemap';
 import fs from 'node:fs';
 import path from 'node:path';
+import { THUMB_WIDTH, THUMB_HEIGHT, THUMB_BLUR, THUMB_QUALITY } from './src/constants/index.ts';
 
 // Build-time validation + thumbnail generation
 const validatePosterImages = {
@@ -53,9 +54,9 @@ const validatePosterImages = {
 
         try {
           await sharp.default(input)
-            .resize(100, 133, { fit: 'cover' })
-            .blur(5)
-            .jpeg({ quality: 30, progressive: true })
+            .resize(THUMB_WIDTH, THUMB_HEIGHT, { fit: 'cover' })
+            .blur(THUMB_BLUR)
+            .jpeg({ quality: THUMB_QUALITY, progressive: true })
             .toFile(output);
         } catch (e) {
           console.warn(`Failed to generate thumbnail for ${file}:`, e.message);

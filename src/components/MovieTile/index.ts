@@ -4,6 +4,7 @@
  */
 
 import type { Movie } from '../../types/movie';
+import { TIMELINE_HEADER_OFFSET, CLICKABLE_VERTICAL_PADDING, POSTER_IMG_SIZE } from '../../constants';
 
 export interface TileOptions {
   isTimeline: boolean;
@@ -47,7 +48,7 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
 
   // Timeline positioning
   if (isTimeline && topPx !== undefined && heightPx !== undefined) {
-    el.style.top = `${topPx + 28}px`;
+    el.style.top = `${topPx + TIMELINE_HEADER_OFFSET}px`;
     el.style.height = `${heightPx}px`;
   } else if (isTimeline && heightPx !== undefined) {
     // Demo mode: just height, no top positioning
@@ -67,7 +68,7 @@ export function createMovieElement(movie: Movie, options: TileOptions): HTMLElem
 
   el.innerHTML = `
     ${badge}
-    ${movie.poster_url ? `<img class="movie-poster-img" src="${movie.poster_url}" alt="${movie.Movie}" loading="lazy" width="300" height="300" />` : ''}
+    ${movie.poster_url ? `<img class="movie-poster-img" src="${movie.poster_url}" alt="${movie.Movie}" loading="lazy" width="${POSTER_IMG_SIZE}" height="${POSTER_IMG_SIZE}" />` : ''}
     <div class="movie-clickable">
       <div class="movie-text">
         <div class="movie-header">
@@ -108,8 +109,7 @@ export function updateTextHeights(): void {
     const textWrapper = tile.querySelector('.movie-text') as HTMLElement;
 
     if (clickable && textWrapper) {
-      // Add 8px for .movie-clickable's vertical padding (4px top + 4px bottom)
-      const textHeight = textWrapper.offsetHeight + 8;
+      const textHeight = textWrapper.offsetHeight + CLICKABLE_VERTICAL_PADDING;
       measurements.push({ clickable, textHeight });
     }
   });
