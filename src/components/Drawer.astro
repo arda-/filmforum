@@ -22,9 +22,12 @@ interface Props {
   /** Maximum height — drawer grows with content up to this limit, then scrolls.
    *  Defaults to 85dvh when neither `height` nor `maxHeight` is set. */
   maxHeight?: string;
+  /** Full-bleed mode — removes body padding and floats the handle/close button
+   *  over the content. Use for hero images that extend to the edges. */
+  fullBleed?: boolean;
 }
 
-const { id, title, height, minHeight, maxHeight } = Astro.props;
+const { id, title, height, minHeight, maxHeight, fullBleed } = Astro.props;
 const hasFooter = Astro.slots.has('footer');
 
 // Build sizing inline styles from props
@@ -40,7 +43,7 @@ const containerStyle = sizeStyles.join('; ');
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
   <div class="drawer-backdrop" data-drawer-close></div>
-  <div class="drawer-container" style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
+  <div class:list={['drawer-container', { 'full-bleed': fullBleed }]} style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
@@ -245,6 +248,43 @@ const containerStyle = sizeStyles.join('; ');
     }
   }
 
+  /* ── Full-bleed variant ─────────────────────────────────────────────
+     Handle and close button float over the content so images can
+     extend all the way to the top edge (clipped by border-radius). */
+  .drawer-container.full-bleed .drawer-handle-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), transparent);
+  }
+
+  .drawer-container.full-bleed .drawer-handle {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .drawer-container.full-bleed .drawer-close-btn {
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.75);
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  @media (hover: hover) {
+    .drawer-container.full-bleed .drawer-close-btn:hover {
+      background: rgba(255, 255, 255, 0.95);
+      color: rgba(0, 0, 0, 0.9);
+    }
+  }
+
+  .drawer-container.full-bleed .drawer-body {
+    padding: 0;
+  }
+
+  .drawer-container.full-bleed:not([data-has-footer]) .drawer-body {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .drawer[data-open="true"] .drawer-container,
     .drawer.closing .drawer-container,
@@ -270,6 +310,19 @@ const containerStyle = sizeStyles.join('; ');
     let currentY = 0;
     let isDragging = false;
     let dragSource: 'handle' | 'body' | null = null;
+
+    // Full-bleed mode: block upward elastic overscroll while allowing downward.
+    // Intercept wheel events at scrollTop 0 so the bounce never starts.
+    const isFullBleed = container.classList.contains('full-bleed');
+    if (isFullBleed) {
+      const scrollTopThreshold = parseFloat(getComputedStyle(document.documentElement).fontSize) * 2;
+      body.addEventListener('wheel', (e) => {
+        if (e.deltaY < 0 && body.scrollTop <= scrollTopThreshold) e.preventDefault();
+      }, { passive: false });
+      body.addEventListener('scroll', () => {
+        if (body.scrollTop <= scrollTopThreshold) body.scrollTop = 0;
+      });
+    }
 
     function closeDrawer() {
       const trigger = (drawer as any)._triggerElement as HTMLElement | null;
