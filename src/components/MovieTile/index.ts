@@ -4,7 +4,7 @@
  */
 
 import type { Movie } from '../../types/movie';
-import { TIMELINE_HEADER_OFFSET, CLICKABLE_VERTICAL_PADDING, POSTER_IMG_SIZE } from '../../constants';
+import { TIMELINE_HEADER_OFFSET, CLICKABLE_VERTICAL_PADDING, POSTER_IMG_SIZE } from '@/constants';
 
 export interface TileOptions {
   isTimeline: boolean;

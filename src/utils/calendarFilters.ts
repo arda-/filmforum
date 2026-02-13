@@ -4,7 +4,7 @@
  */
 
 import type { Movie } from '../types/movie';
-import { WORK_START, WORK_END, TIME_CATEGORY_COUNT, type TimeCategory, type SavedFilter, SAVED_FILTER_COUNT } from '../constants';
+import { WORK_START, WORK_END, TIME_CATEGORY_COUNT, type TimeCategory, type SavedFilter, SAVED_FILTER_COUNT } from '@/constants';
 import { parseTimeToMins } from './calendarTime';
 import type { ReactionMap } from '../types/session';
 import { movieId } from './sessionUtils';
