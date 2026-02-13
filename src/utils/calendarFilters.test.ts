@@ -63,7 +63,7 @@ describe('classifyTimeCategory', () => {
   });
 
   it('should classify 5:00 PM weekday as weeknights (WORK_END boundary)', () => {
-    // 5:00 PM = 1020 min, exactly WORK_END (exclusive)
+    // 5:00 PM = 1020 min, >= WORK_END so classified as weeknights
     const movie = makeMovie({ Time: '5:00' });
     expect(classifyTimeCategory(movie, '2026-02-11')).toBe('weeknights');
   });
