@@ -3,10 +3,10 @@
  * Functions for filtering movies by time category and by saved reaction status.
  */
 
-import type { Movie } from '../types/movie';
+import type { Movie } from '@types/movie';
 import { WORK_START, WORK_END, TIME_CATEGORY_COUNT, type TimeCategory, type SavedFilter, SAVED_FILTER_COUNT } from './calendarConstants';
 import { parseTimeToMins } from './movieUtils';
-import type { ReactionMap } from '../types/session';
+import type { ReactionMap } from '@types/session';
 import { movieId } from './sessionUtils';
 
 /**

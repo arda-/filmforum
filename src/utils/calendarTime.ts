@@ -3,7 +3,7 @@
  * Pure utility functions with no DOM or state dependencies.
  */
 
-import type { Movie } from '../types/movie';
+import type { Movie } from '@types/movie';
 import { DAYS } from './calendarConstants';
 
 // Re-export Movie type for centralized access

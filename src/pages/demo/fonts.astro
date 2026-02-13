@@ -1,7 +1,7 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import ToggleGroup from '../../components/ToggleGroup.astro';
-import { loadMovieData } from '../../utils/loadMovieData';
+import Layout from '@layouts/Layout.astro';
+import ToggleGroup from '@components/ToggleGroup.astro';
+import { loadMovieData } from '@utils/loadMovieData';
 
 // Load movie data at build time
 const { movieDataJson } = loadMovieData('tenement-stories-full.json');
@@ -90,10 +90,10 @@ const { movieDataJson } = loadMovieData('tenement-stories-full.json');
 </script>
 
 <script>
-  import type { Movie } from '../../utils/icsGenerator';
-  import { createMovieElement, updateTextHeights } from '../../components/MovieTile';
+  import type { Movie } from '@utils/icsGenerator';
+  import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { PX_PER_MIN, MIN_TIMELINE_HEIGHT, TIMELINE_PADDING } from '@utils/calendarConstants';
-  import { parseTimeToMins } from '../../utils/movieUtils';
+  import { parseTimeToMins } from '@utils/movieUtils';
 
   let allMovies: Movie[] = [];
 

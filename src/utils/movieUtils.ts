@@ -2,7 +2,7 @@
  * Movie-related utility functions for calendar display and filtering
  */
 
-import type { Movie, Showtime, GroupedMovie, AggregationResult } from '../types/movie';
+import type { Movie, Showtime, GroupedMovie, AggregationResult } from '@types/movie';
 
 // Re-export types for backwards compatibility
 export type { Movie, Showtime, GroupedMovie, AggregationResult };
