@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/astro';
-import CalendarFilterBar from '../CalendarFilterBar.astro';
+import CalendarFilterBar from './CalendarFilterBar.astro';
 
 type Story = StoryObj<typeof CalendarFilterBar>;
 

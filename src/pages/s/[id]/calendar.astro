@@ -2,9 +2,9 @@
 import Layout from '@layouts/Layout.astro';
 import Header from '@components/Header.astro';
 import MovieModal from '@components/MovieModal.astro';
-import CalendarFilterBar from '@components/CalendarFilterBar.astro';
-import CalendarViewToolbar from '@components/CalendarViewToolbar.astro';
-import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@components/Dialog/index';
+import CalendarFilterBar from '@components/calendar/CalendarFilterBar.astro';
+import CalendarViewToolbar from '@components/calendar/CalendarViewToolbar.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody } from '@components/popovers/Dialog/index';
 import { getAllSeriesIds, getSeriesConfig } from '@config/series';
 import { loadMovieData } from '@utils/loadMovieData';
 
