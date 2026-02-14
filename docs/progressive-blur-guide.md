@@ -271,11 +271,13 @@ For better performance with nearly identical visual results:
 .layer-5 { backdrop-filter: blur(64px); mask-image: linear-gradient(to bottom, transparent 90%, black 100%); }
 ```
 
-## Demo Pages
+## Demo Pages (Archived)
 
-See the live demos in this project:
-- `/demo/blur-simple` - Single-layer technique with controls
-- `/demo/blur-progressive` - 7-layer technique with layer toggles
+Demo source code has been moved to `docs/demos/blur/`:
+- `blur-simple.astro` - Single-layer technique with controls
+- `blur-progressive.astro` - 7-layer technique with layer toggles
+
+See `docs/progressive-blur-findings.md` for the full writeup of findings.
 
 ## Lessons Learned (from building the demos)
 
