@@ -101,7 +101,7 @@ const ogImage = movieData[0]?.poster_url || null;
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins } from '@utils/movieUtils';
-  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange, isDateInPast, isDatetimeInPast } from '@utils/calendarTime';
+  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange, isDatetimeInPast } from '@utils/calendarTime';
   import { filterByTimeCategories, classifyTimeCategory, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
   import { openMovieModal } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
@@ -146,27 +146,35 @@ const ogImage = movieData[0]?.poster_url || null;
     reactions: ReactionMap;
     filteredShowtimeCounts: Record<string, number>;
     hidePastShowtimes?: boolean;
+    now?: Date;
   }
 
   /**
    * Apply the complete filter pipeline to movies for a given date.
-   * This includes time category filter, saved status filter, and past showtimes filter.
+   * Filters are ordered by cost/selectivity for optimal performance:
+   * 1. Saved status (cheapest, potentially very selective)
+   * 2. Past showtimes (medium cost, high selectivity)
+   * 3. Time categories (medium cost, medium selectivity)
    */
   function applyFilterPipeline(
     date: string,
     rawMovies: Movie[],
     options: FilterOptions
   ): Movie[] {
-    let filtered = filterByTimeCategories(rawMovies, date, options.timeCategories);
+    let filtered = rawMovies;
 
+    // 1. Saved status filter (cheapest operation, Set.has() lookup)
     if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
       filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
     }
 
-    // Filter out past showtimes if enabled
+    // 2. Past showtimes filter (medium cost, high selectivity)
     if (options.hidePastShowtimes) {
-      filtered = filtered.filter(movie => !isDatetimeInPast(movie.Datetime));
+      filtered = filtered.filter(movie => !isDatetimeInPast(movie.Datetime, options.now));
     }
+
+    // 3. Time category filter (medium cost, medium selectivity)
+    filtered = filterByTimeCategories(filtered, date, options.timeCategories);
 
     return filtered;
   }
@@ -204,6 +212,9 @@ const ogImage = movieData[0]?.poster_url || null;
     // Re-read reactions from localStorage so modal changes are reflected
     currentReactions = getReactions(sessionId);
     updateSavedFilterCounts();
+
+    // Create 'now' once for consistent time checks across all filter operations
+    const now = new Date();
 
     const timelineToggle = document.getElementById('timeline-mode-toggle');
     const timelineInput = timelineToggle?.tagName === 'INPUT' ? timelineToggle : timelineToggle?.querySelector('input');
@@ -272,7 +283,8 @@ const ogImage = movieData[0]?.poster_url || null;
               savedFilterSet,
               reactions: currentReactions,
               filteredShowtimeCounts,
-              hidePastShowtimes
+              hidePastShowtimes,
+              now
             }
           );
           filteredMoviesByDate.set(date, filtered);
@@ -312,7 +324,8 @@ const ogImage = movieData[0]?.poster_url || null;
               savedFilterSet,
               reactions: currentReactions,
               filteredShowtimeCounts,
-              hidePastShowtimes
+              hidePastShowtimes,
+              now
             }
           );
           return filtered.length > 0;
@@ -351,7 +364,8 @@ const ogImage = movieData[0]?.poster_url || null;
           savedFilterSet,
           reactions: currentReactions,
           filteredShowtimeCounts,
-          hidePastShowtimes
+          hidePastShowtimes,
+          now
         }
       );
 
@@ -405,7 +419,7 @@ const ogImage = movieData[0]?.poster_url || null;
             singleShowtimeMode: singleShowtimesMode
           });
           // Apply dimming class if enabled and showtime is in the past
-          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime)) {
+          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime, now)) {
             movieEl.classList.add('past-showtime');
           }
           dayCell.appendChild(movieEl);
@@ -418,7 +432,7 @@ const ogImage = movieData[0]?.poster_url || null;
             singleShowtimeMode: singleShowtimesMode
           });
           // Apply dimming class if enabled and showtime is in the past
-          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime)) {
+          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime, now)) {
             movieEl.classList.add('past-showtime');
           }
           dayCell.appendChild(movieEl);
