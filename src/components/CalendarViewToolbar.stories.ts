@@ -8,7 +8,7 @@ export const Default = {
   args: {},
 };
 
-export const TimelineView = {
+export const View_timeline = {
   args: {
     viewMode: 'timeline',
   },
@@ -21,7 +21,7 @@ export const TimelineView = {
   },
 };
 
-export const RowsView = {
+export const View_rows = {
   args: {
     viewMode: 'grid',
   },
