@@ -9,7 +9,9 @@ export const Default = {
 };
 
 export const TimelineView = {
-  args: {},
+  args: {
+    viewMode: 'timeline',
+  },
   parameters: {
     docs: {
       description: {
