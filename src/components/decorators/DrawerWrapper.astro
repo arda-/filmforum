@@ -1,0 +1,45 @@
+---
+/**
+ * DrawerWrapper - Astrobook adapter for Drawer component
+ *
+ * This wrapper exists because:
+ * 1. Astrobook doesn't support passing slot content directly to components
+ * 2. Drawer requires a trigger button to open (via window.openDrawer API)
+ * 3. Story needs to demonstrate actual user interaction patterns
+ *
+ * It accepts 'content' as a prop and passes it as slot content to the Drawer,
+ * plus provides a trigger button that opens the drawer.
+ *
+ * Usage in stories:
+ *   args: { id: 'drawer-default', title: 'My Drawer', content: 'Drawer content here' }
+ */
+import Drawer from '../Drawer.astro';
+import Button from '../Button.astro';
+
+interface Props {
+  id: string;
+  title?: string;
+  maxHeight?: string;
+  content?: string;
+  triggerText?: string;
+}
+
+const { id, content = 'No content provided', triggerText = 'Open Drawer', ...drawerProps } = Astro.props;
+---
+
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+  <Button onclick={`window.openDrawer('${id}')`}>
+    {triggerText}
+  </Button>
+
+  <Drawer id={id} {...drawerProps}>
+    {content}
+  </Drawer>
+</div>
+
+<script>
+  // Ensure the drawer API is available
+  if (typeof (window as any).openDrawer === 'undefined') {
+    console.warn('Drawer API not available. Make sure Drawer.astro script is loaded.');
+  }
+</script>
