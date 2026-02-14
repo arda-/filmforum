@@ -120,6 +120,28 @@ const ogImage = movieData[0]?.poster_url || null;
   let cachedDates: string[] | null = null;
   let cachedMondayStart: boolean | null = null;
 
+  // --- Past date/time detection ---
+  /**
+   * Returns true if the given date is in the past (before today).
+   * @param dateStr - Date string in YYYY-MM-DD format
+   */
+  function isDateInPast(dateStr: string): boolean {
+    const date = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  }
+
+  /**
+   * Returns true if the given datetime is in the past (before current time).
+   * @param datetimeStr - ISO 8601 datetime string
+   */
+  function isDatetimeInPast(datetimeStr: string): boolean {
+    const showtime = new Date(datetimeStr);
+    const now = new Date();
+    return showtime < now;
+  }
+
   /** Read which saved filter checkboxes are currently checked. */
   function getActiveSavedFilters(): SavedFilter[] {
     const checked = document.querySelectorAll('input[name="saved-filter"]:checked');
@@ -169,6 +191,9 @@ const ogImage = movieData[0]?.poster_url || null;
   function createDayCell(date: string): HTMLElement {
     const dayEl = document.createElement('div');
     dayEl.className = 'day';
+    if (isDateInPast(date)) {
+      dayEl.classList.add('past-day');
+    }
     dayEl.dataset.date = date;
     dayEl.dataset.dayNumber = formatDayLabel(date);
     const labelEl = document.createElement('div');
@@ -299,6 +324,14 @@ const ogImage = movieData[0]?.poster_url || null;
       dayCell.innerHTML = '';
       dayCell.classList.remove('timeline-view');
       dayCell.classList.add('has-movies');
+
+      // Mark past days
+      if (isDateInPast(date)) {
+        dayCell.classList.add('past-day');
+      } else {
+        dayCell.classList.remove('past-day');
+      }
+
       dayCell.style.height = '';
 
       const dayNumDiv = document.createElement('div');
@@ -336,19 +369,27 @@ const ogImage = movieData[0]?.poster_url || null;
           const runtime = parseInt(movie.runtime || '90');
           const topPx = (start - dayStartTime) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
-          dayCell.appendChild(createMovieElement(movie, {
+          const movieEl = createMovieElement(movie, {
             isTimeline: true, topPx, heightPx,
             filteredCounts: filteredShowtimeCounts,
             singleShowtimeMode: singleShowtimesMode
-          }));
+          });
+          if (isDatetimeInPast(movie.Datetime)) {
+            movieEl.classList.add('past-showtime');
+          }
+          dayCell.appendChild(movieEl);
         });
       } else {
         filteredMovies.forEach(movie => {
-          dayCell.appendChild(createMovieElement(movie, {
+          const movieEl = createMovieElement(movie, {
             isTimeline: false,
             filteredCounts: filteredShowtimeCounts,
             singleShowtimeMode: singleShowtimesMode
-          }));
+          });
+          if (isDatetimeInPast(movie.Datetime)) {
+            movieEl.classList.add('past-showtime');
+          }
+          dayCell.appendChild(movieEl);
         });
       }
     });
