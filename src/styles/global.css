@@ -98,6 +98,43 @@ html { touch-action: manipulation; }
   }
 }
 
+/* Dark mode via Astrobook theme toggle (.dark class) */
+.dark {
+  --bg-body: #020617;
+  --bg-grid: #0f172a;
+  --bg-day: #1e293b;
+  --bg-day-movies: #1e293b;
+  --bg-movie: #334155;
+  --bg-movie-hover: #475569;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #94a3b8;
+  --accent: #06b6d4;
+  --accent-light: #67e8f9;
+  --accent-bg: #0e7490;
+
+  /* Webcoreui theme - dark (midnight) */
+  --w-color-primary: #FFF;
+  --w-color-primary-10: #EEE;
+  --w-color-primary-20: #a5b7cf;
+  --w-color-primary-30: #667f9e;
+  --w-color-primary-40: #2d4463;
+  --w-color-primary-50: #20344e;
+  --w-color-primary-60: #101a2d;
+  --w-color-primary-70: #061321;
+  --w-switch-off-color: var(--w-color-primary-40);
+  --w-switch-on-color: var(--accent);
+
+  /* Drawer close button */
+  --drawer-close-bg-opacity: 65%;
+  --drawer-close-color: var(--text-secondary);
+
+  /* Reaction colors - brighter for dark mode */
+  --reaction-yes: #4ade80;
+  --reaction-maybe: #fbbf24;
+  --reaction-no: #f87171;
+}
+
 body {
   font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--bg-body);
