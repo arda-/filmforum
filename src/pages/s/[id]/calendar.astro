@@ -315,6 +315,13 @@ const ogImage = movieData[0]?.poster_url || null;
       weeks.forEach((weekDates) => {
         // Check if entire week has no movies after filtering
         const hasAnyMovies = weekDates.some(date => {
+          // Use cached filtered results if available (timeline mode), otherwise compute fresh
+          const cached = filteredMoviesByDate.get(date);
+          if (cached !== undefined) {
+            return cached.length > 0;
+          }
+
+          // Fallback: compute fresh for non-timeline mode
           const dayMovies = moviesByDate[date] || [];
           const filtered = applyFilterPipeline(
             date,
