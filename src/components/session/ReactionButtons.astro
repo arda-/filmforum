@@ -14,7 +14,7 @@ interface Props {
 const { movieId, reaction = 'none', size = 'md' } = Astro.props;
 ---
 
-<div class:list={['reactions', `reactions--${size}`]} data-movie-id={movieId}>
+<div class:list={['reactions', `reactions--${size}`]} data-movie-id={movieId} data-reaction-group>
   <button
     class:list={['rbtn', 'rbtn--yes', { active: reaction === 'yes' }]}
     data-reaction="yes"
@@ -53,6 +53,40 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
     <span>No</span>
   </button>
 </div>
+
+<script>
+  /**
+   * Handle reaction button interactions.
+   * Toggles the active state and aria-pressed attribute on click or keyboard.
+   */
+  function initReactionButtons() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-reaction-group] .rbtn');
+      if (!btn) return;
+
+      // Toggle the clicked button
+      btn.classList.toggle('active');
+      // Update aria-pressed to reflect the new active state
+      const isActive = btn.classList.contains('active');
+      btn.setAttribute('aria-pressed', String(isActive));
+    });
+
+    // Handle keyboard activation (Space and Enter)
+    document.addEventListener('keydown', (e) => {
+      const btn = e.target.closest('[data-reaction-group] .rbtn');
+      if (!btn) return;
+      if (e.key !== ' ' && e.key !== 'Enter') return;
+
+      e.preventDefault();
+      btn.classList.toggle('active');
+      // Update aria-pressed to reflect the new active state
+      const isActive = btn.classList.contains('active');
+      btn.setAttribute('aria-pressed', String(isActive));
+    });
+  }
+
+  initReactionButtons();
+</script>
 
 <style>
   .reactions {
