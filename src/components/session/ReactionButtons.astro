@@ -57,18 +57,27 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
 <script>
   /**
    * Handle reaction button interactions.
-   * Browsers automatically convert Space/Enter keypresses to click events,
-   * so we only need to listen for clicks.
+   * Implements radio-like single selection with deselection support.
+   * Browsers automatically convert Space/Enter keypresses to click events.
    */
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-reaction-group] .rbtn');
     if (!btn) return;
 
-    // Toggle the clicked button
-    btn.classList.toggle('active');
-    // Update aria-pressed to reflect the new active state
-    const isActive = btn.classList.contains('active');
-    btn.setAttribute('aria-pressed', String(isActive));
+    const wasActive = btn.classList.contains('active');
+
+    // Deactivate all sibling buttons in this group
+    const group = btn.closest('[data-reaction-group]');
+    group.querySelectorAll('.rbtn').forEach(sibling => {
+      sibling.classList.remove('active');
+      sibling.setAttribute('aria-pressed', 'false');
+    });
+
+    // If button wasn't active, activate it (allows deselection)
+    if (!wasActive) {
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+    }
   });
 </script>
 
