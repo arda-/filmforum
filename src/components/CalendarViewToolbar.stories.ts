@@ -100,7 +100,7 @@ export const Details_cast = {
   },
 };
 
-export const WithImage = {
+export const Details_image = {
   args: {
     widthMode: 'content',
     showImage: true,
@@ -114,7 +114,7 @@ export const WithImage = {
   },
 };
 
-export const AllDetailsEnabled = {
+export const Details_all = {
   args: {
     widthMode: 'content',
     showYearDirector: true,
