@@ -63,7 +63,7 @@ import Button from '../../components/Button.astro';
 
     <div class="demo-section">
       <h2>Full-Bleed Image</h2>
-      <p class="section-desc">Hero image extends to the edges, under the rounded corners. Handle and close button float over the image. With image title variant, title text overlays the bottom using text-relative blur + scrim.</p>
+      <p class="section-desc">Full-bleed hero image with title/subtitle overlaid using text-relative blur + scrim. Handle and close button float over the image.</p>
       <div class="button-row">
         <button class="demo-btn" onclick="openDrawer('drawer-full-bleed')">Full-Bleed Image</button>
         <button class="demo-btn" onclick="openDrawer('drawer-image-title')">With Image Title</button>
@@ -289,16 +289,8 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Full-Bleed Image Example -->
-  <Drawer id="drawer-full-bleed" height="85dvh" fullBleed>
-    <img
-      class="full-bleed-hero"
-      src="/posters/mean-streets.png"
-      alt="Mean Streets"
-      loading="lazy"
-    />
+  <Drawer id="drawer-full-bleed" title="Mean Streets" subtitle="1973 · Martin Scorsese · 112 min" height="85dvh" fullBleedImage="/posters/mean-streets.png" fullBleedImageAlt="Mean Streets">
     <div class="full-bleed-content">
-      <h2 class="movie-title">Mean Streets</h2>
-      <p class="movie-meta">1973 · Martin Scorsese · 112 min</p>
       <p class="movie-actors">Robert De Niro, Harvey Keitel, David Proval, Amy Robinson</p>
 
       <p class="movie-description">
@@ -314,14 +306,7 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Full-Bleed with Image Title -->
-  <Drawer id="drawer-image-title" height="85dvh" fullBleed imageTitle="Taxi Driver" imageSubtitle="1976 · Martin Scorsese · 113 min">
-    <img
-      slot="hero"
-      class="full-bleed-hero"
-      src="/posters/taxi-driver.png"
-      alt="Taxi Driver"
-      loading="lazy"
-    />
+  <Drawer id="drawer-image-title" title="Taxi Driver" subtitle="1976 · Martin Scorsese · 113 min" height="85dvh" fullBleedImage="/posters/taxi-driver.png" fullBleedImageAlt="Taxi Driver">
     <div class="full-bleed-content">
       <p class="movie-actors">Robert De Niro, Jodie Foster, Albert Brooks, Harvey Keitel</p>
 
@@ -585,14 +570,6 @@ import Button from '../../components/Button.astro';
     text-align: right;
     margin: 0 0 12px 0;
     font-style: italic;
-  }
-
-  /* Full-bleed image demo */
-  .full-bleed-hero {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    display: block;
   }
 
   .full-bleed-content {

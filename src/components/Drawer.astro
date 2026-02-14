@@ -9,12 +9,16 @@
  *   so the built-in close handler fires.
  * @slot footer - Optional sticky footer (e.g. action buttons). When present,
  *   safe-area inset padding shifts from the body to the footer.
+ *
+ * When `fullBleedImage` is provided, the drawer renders a full-bleed hero image
+ * with `title`/`subtitle` overlaid using blur + scrim treatment.
  */
 import Icon from './Icon.astro';
 
 interface Props {
   id: string;
   title?: string;
+  subtitle?: string;
   /** Fixed height — drawer is always exactly this tall. */
   height?: string;
   /** Minimum height — drawer is at least this tall (content can push it taller). */
@@ -22,19 +26,16 @@ interface Props {
   /** Maximum height — drawer grows with content up to this limit, then scrolls.
    *  Defaults to 85dvh when neither `height` nor `maxHeight` is set. */
   maxHeight?: string;
-  /** Full-bleed mode — removes body padding and floats the handle/close button
-   *  over the content. Use for hero images that extend to the edges. */
-  fullBleed?: boolean;
-  /** Title text overlaid at the bottom of the hero image, using blur + scrim
-   *  treatment inspired by MovieCard. Requires `fullBleed` and the `hero` slot. */
-  imageTitle?: string;
-  /** Subtitle line below the imageTitle (e.g. "2024 · Sofia Moretti · 128 min"). */
-  imageSubtitle?: string;
+  /** Full-bleed hero image src. Enables full-bleed mode, renders the image,
+   *  and overlays `title`/`subtitle` with blur + scrim treatment. */
+  fullBleedImage?: string;
+  /** Alt text for the full-bleed hero image. */
+  fullBleedImageAlt?: string;
 }
 
-const { id, title, height, minHeight, maxHeight, fullBleed, imageTitle, imageSubtitle } = Astro.props;
+const { id, title, subtitle, height, minHeight, maxHeight, fullBleedImage, fullBleedImageAlt } = Astro.props;
 const hasFooter = Astro.slots.has('footer');
-const hasHero = Astro.slots.has('hero');
+const isFullBleed = !!fullBleedImage;
 
 // Build sizing inline styles from props
 const sizeStyles: string[] = [];
@@ -49,7 +50,7 @@ const containerStyle = sizeStyles.join('; ');
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
   <div class="drawer-backdrop" data-drawer-close></div>
-  <div class:list={['drawer-container', { 'full-bleed': fullBleed }]} style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
+  <div class:list={['drawer-container', { 'full-bleed': isFullBleed }]} style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
@@ -58,23 +59,23 @@ const containerStyle = sizeStyles.join('; ');
         <Icon name="x" size={18} />
       </button>
     </slot>
-    {hasHero && fullBleed && (
+    {fullBleedImage ? (
       <div class="drawer-hero">
-        <slot name="hero" />
-        {imageTitle && (
+        <img src={fullBleedImage} alt={fullBleedImageAlt ?? ''} loading="lazy" />
+        {title && (
           <>
             <div class="drawer-hero-blur"></div>
             <div class="drawer-hero-overlay">
-              <h2 class="drawer-hero-title">{imageTitle}</h2>
-              {imageSubtitle && <p class="drawer-hero-subtitle">{imageSubtitle}</p>}
+              <h2 class="drawer-hero-title" id={`${id}-title`}>{title}</h2>
+              {subtitle && <p class="drawer-hero-subtitle">{subtitle}</p>}
             </div>
           </>
         )}
       </div>
-    )}
-    {title && (
+    ) : title && (
       <div class="drawer-header">
         <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
+        {subtitle && <p class="drawer-subtitle">{subtitle}</p>}
       </div>
     )}
     <div class="drawer-body">
@@ -223,6 +224,12 @@ const containerStyle = sizeStyles.join('; ');
     margin: 0;
   }
 
+  .drawer-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0 0;
+  }
+
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -315,7 +322,7 @@ const containerStyle = sizeStyles.join('; ');
     overflow: hidden;
   }
 
-  .drawer-hero :global(img) {
+  .drawer-hero img {
     width: 100%;
     display: block;
     object-fit: cover;
