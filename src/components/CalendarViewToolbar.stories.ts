@@ -58,7 +58,7 @@ export const ContentWidth = {
   },
 };
 
-export const WithYearDirector = {
+export const Details_year_director = {
   args: {
     widthMode: 'content',
     showYearDirector: true,
@@ -72,7 +72,7 @@ export const WithYearDirector = {
   },
 };
 
-export const WithRuntime = {
+export const Details_runtime = {
   args: {
     widthMode: 'content',
     showRuntime: true,
@@ -86,7 +86,7 @@ export const WithRuntime = {
   },
 };
 
-export const WithCast = {
+export const Details_cast = {
   args: {
     widthMode: 'content',
     showCast: true,
