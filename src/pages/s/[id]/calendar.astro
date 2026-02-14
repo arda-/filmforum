@@ -101,7 +101,7 @@ const ogImage = movieData[0]?.poster_url || null;
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins } from '@utils/movieUtils';
-  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
+  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange, isDateInPast, isDatetimeInPast } from '@utils/calendarTime';
   import { filterByTimeCategories, classifyTimeCategory, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
   import { openMovieModal } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
@@ -119,28 +119,6 @@ const ogImage = movieData[0]?.poster_url || null;
   // Cache computed date ranges to avoid redundant computation in renderAllDays
   let cachedDates: string[] | null = null;
   let cachedMondayStart: boolean | null = null;
-
-  // --- Past date/time detection ---
-  /**
-   * Returns true if the given date is in the past (before today).
-   * @param dateStr - Date string in YYYY-MM-DD format
-   */
-  function isDateInPast(dateStr: string): boolean {
-    const date = new Date(dateStr + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date < today;
-  }
-
-  /**
-   * Returns true if the given datetime is in the past (before current time).
-   * @param datetimeStr - ISO 8601 datetime string
-   */
-  function isDatetimeInPast(datetimeStr: string): boolean {
-    const showtime = new Date(datetimeStr);
-    const now = new Date();
-    return showtime < now;
-  }
 
   /** Read which saved filter checkboxes are currently checked. */
   function getActiveSavedFilters(): SavedFilter[] {
@@ -167,11 +145,12 @@ const ogImage = movieData[0]?.poster_url || null;
     savedFilterSet: Set<SavedFilter>;
     reactions: ReactionMap;
     filteredShowtimeCounts: Record<string, number>;
+    hidePastShowtimes?: boolean;
   }
 
   /**
    * Apply the complete filter pipeline to movies for a given date.
-   * This includes time category filter and saved status filter.
+   * This includes time category filter, saved status filter, and past showtimes filter.
    */
   function applyFilterPipeline(
     date: string,
@@ -184,6 +163,11 @@ const ogImage = movieData[0]?.poster_url || null;
       filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
     }
 
+    // Filter out past showtimes if enabled
+    if (options.hidePastShowtimes) {
+      filtered = filtered.filter(movie => !isDatetimeInPast(movie.Datetime));
+    }
+
     return filtered;
   }
 
@@ -191,9 +175,6 @@ const ogImage = movieData[0]?.poster_url || null;
   function createDayCell(date: string): HTMLElement {
     const dayEl = document.createElement('div');
     dayEl.className = 'day';
-    if (isDateInPast(date)) {
-      dayEl.classList.add('past-day');
-    }
     dayEl.dataset.date = date;
     dayEl.dataset.dayNumber = formatDayLabel(date);
     const labelEl = document.createElement('div');
@@ -235,6 +216,13 @@ const ogImage = movieData[0]?.poster_url || null;
     // Highlight unique showings (★) from gear menu toggle
     const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
     const singleShowtimesMode = (highlightUniqueToggle?.checked ?? false) ? 'highlight' : 'none';
+
+    // Past showtimes toggles
+    const hidePastToggle = document.querySelector('#hide-past-showtimes-toggle input') as HTMLInputElement;
+    const hidePastShowtimes = hidePastToggle?.checked ?? false;
+
+    const dimPastToggle = document.querySelector('#dim-past-showtimes-toggle input') as HTMLInputElement;
+    const dimPastShowtimes = dimPastToggle?.checked ?? false;
 
     const activeSavedFilters = getActiveSavedFilters();
     const savedFilterSet = new Set(activeSavedFilters);
@@ -284,7 +272,8 @@ const ogImage = movieData[0]?.poster_url || null;
               timeCategories,
               savedFilterSet,
               reactions: currentReactions,
-              filteredShowtimeCounts
+              filteredShowtimeCounts,
+              hidePastShowtimes
             }
           );
           filteredMoviesByDate.set(date, filtered);
@@ -313,7 +302,8 @@ const ogImage = movieData[0]?.poster_url || null;
           timeCategories,
           savedFilterSet,
           reactions: currentReactions,
-          filteredShowtimeCounts
+          filteredShowtimeCounts,
+          hidePastShowtimes
         }
       );
 
@@ -324,14 +314,6 @@ const ogImage = movieData[0]?.poster_url || null;
       dayCell.innerHTML = '';
       dayCell.classList.remove('timeline-view');
       dayCell.classList.add('has-movies');
-
-      // Mark past days
-      if (isDateInPast(date)) {
-        dayCell.classList.add('past-day');
-      } else {
-        dayCell.classList.remove('past-day');
-      }
-
       dayCell.style.height = '';
 
       const dayNumDiv = document.createElement('div');
@@ -374,7 +356,8 @@ const ogImage = movieData[0]?.poster_url || null;
             filteredCounts: filteredShowtimeCounts,
             singleShowtimeMode: singleShowtimesMode
           });
-          if (isDatetimeInPast(movie.Datetime)) {
+          // Apply dimming class if enabled and showtime is in the past
+          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime)) {
             movieEl.classList.add('past-showtime');
           }
           dayCell.appendChild(movieEl);
@@ -386,7 +369,8 @@ const ogImage = movieData[0]?.poster_url || null;
             filteredCounts: filteredShowtimeCounts,
             singleShowtimeMode: singleShowtimesMode
           });
-          if (isDatetimeInPast(movie.Datetime)) {
+          // Apply dimming class if enabled and showtime is in the past
+          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime)) {
             movieEl.classList.add('past-showtime');
           }
           dayCell.appendChild(movieEl);
@@ -478,6 +462,20 @@ const ogImage = movieData[0]?.poster_url || null;
 
   // Highlight unique toggle
   document.querySelector('#highlight-unique-toggle input')?.addEventListener('change', () => {
+    renderAllDays();
+    updateUrlParams();
+    setTimeout(updateTextHeights, 10);
+  });
+
+  // Hide past showtimes toggle
+  document.querySelector('#hide-past-showtimes-toggle input')?.addEventListener('change', () => {
+    renderAllDays();
+    updateUrlParams();
+    setTimeout(updateTextHeights, 10);
+  });
+
+  // Dim past showtimes toggle
+  document.querySelector('#dim-past-showtimes-toggle input')?.addEventListener('change', () => {
     renderAllDays();
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
