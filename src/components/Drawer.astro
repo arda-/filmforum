@@ -573,9 +573,9 @@ const containerStyle = sizeStyles.join('; ');
       const blurEndPct = Math.min((textHeight * 1.1 / heroHeight) * 100, 100);
       const mask = `linear-gradient(to top, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
       blur.style.maskImage = mask;
-      (blur.style as any).webkitMaskImage = mask;
+      (blur.style as any).webkitMaskImage = mask; // `as any`: webkitMaskImage not in TS CSSStyleDeclaration (Safari compat)
 
-      // Scrim: full darkness at 0.5× text height, fades out at 1× text height
+      // Scrim: full darkness at 0.5× text height, fades out at 1.1× text height
       const scrimFullPct = (textHeight * 0.5 / heroHeight) * 100;
       const scrimEndPct = blurEndPct;
       blur.style.setProperty('--scrim-full', `${scrimFullPct}%`);
