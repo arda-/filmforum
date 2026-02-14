@@ -30,7 +30,7 @@ export const Default: Story = {
  * Only daytime showtimes are shown.
  * Useful for filtering to movies showing during the day.
  */
-export const OnlyDayShowings: Story = {
+export const Showings_day: Story = {
   args: {
     day: true,
     nite: false,
@@ -46,7 +46,7 @@ export const OnlyDayShowings: Story = {
  * Only night showtimes are shown.
  * Filters to evening and late-night screenings.
  */
-export const OnlyNiteShowings: Story = {
+export const Showings_nite: Story = {
   args: {
     day: false,
     nite: true,
@@ -62,7 +62,7 @@ export const OnlyNiteShowings: Story = {
  * Only weekend showtimes are shown.
  * Good for planning weekend movie trips.
  */
-export const OnlyWeekendShowings: Story = {
+export const Showings_weekend: Story = {
   args: {
     day: false,
     nite: false,
@@ -78,7 +78,7 @@ export const OnlyWeekendShowings: Story = {
  * Show only movies marked as "Yes" (wanted).
  * Combined with all time filters for movies you're interested in.
  */
-export const OnlySavedYes: Story = {
+export const Saved_yes: Story = {
   args: {
     day: true,
     nite: true,
@@ -94,7 +94,7 @@ export const OnlySavedYes: Story = {
  * Day and weekend showtimes combined.
  * Filters out nighttime screenings but includes all saved states.
  */
-export const DayAndWeekendShowings: Story = {
+export const Showings_dayWeekend: Story = {
   args: {
     day: true,
     nite: false,
@@ -110,7 +110,7 @@ export const DayAndWeekendShowings: Story = {
  * Show "Yes" and "Maybe" saved movies across all times.
  * Useful for seeing your top consideration movies regardless of showtime.
  */
-export const SavedYesAndMaybe: Story = {
+export const Saved_yesMaybe: Story = {
   args: {
     day: true,
     nite: true,
@@ -126,7 +126,7 @@ export const SavedYesAndMaybe: Story = {
  * Highly filtered view: only day and weekend showtimes with "Yes" movies.
  * Maximum filtering for a specific search scenario.
  */
-export const DayWeekendYesOnly: Story = {
+export const Showings_dayWeekend_Saved_yes: Story = {
   args: {
     day: true,
     nite: false,
