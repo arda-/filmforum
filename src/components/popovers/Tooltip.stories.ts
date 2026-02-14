@@ -1,0 +1,37 @@
+/**
+ * Tooltip component stories
+ *
+ * INTERACTION TESTING:
+ * Tooltips show on hover (300ms delay) on devices with hover support.
+ * To see tooltips work in Astrobook:
+ * 1. Hover over the button/trigger element in each story
+ * 2. The tooltip will appear above (or below if no room) after a brief delay
+ * 3. Move mouse away to dismiss
+ *
+ * NOTE: Astrobook does NOT support passing slot content directly to components.
+ * The Tooltip component uses <slot /> for its trigger content, but Astrobook only
+ * passes args as props. We use a TooltipWrapper decorator that accepts 'triggerText'
+ * as a prop and passes it as slot content to the actual Tooltip component.
+ *
+ * See: TooltipWrapper.astro
+ */
+import TooltipWrapper from '../decorators/TooltipWrapper.astro';
+
+export default {
+  component: TooltipWrapper,
+};
+
+/** Basic tooltip - hover over the text to see it appear after 300ms */
+export const Default = {
+  args: { text: 'Download calendar file (.ics)', triggerText: 'calendar file' },
+};
+
+/** Tooltip with longer text that wraps within the max width (240px) */
+export const LongText = {
+  args: { text: 'This tooltip has a much longer text to demonstrate how it wraps within the max width constraint', triggerText: 'long description' },
+};
+
+/** Disabled tooltips should not appear when hovering */
+export const Disabled = {
+  args: { text: 'You should not see this', disabled: true, triggerText: 'disabled text' },
+};

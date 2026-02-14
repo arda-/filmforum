@@ -1,8 +1,11 @@
 ---
+import Icon from './Icon.astro';
+
 interface ToggleOption {
   label: string;
   value: string;
   checked?: boolean;
+  icon?: string;
 }
 
 interface Props {
@@ -10,17 +13,20 @@ interface Props {
   name: string;
   options: ToggleOption[];
   statusId?: string;
+  size?: 'sm' | 'default' | 'lg';
+  disabled?: boolean;
 }
 
-const { label, name, options, statusId } = Astro.props;
+const { label, name, options, statusId, size = 'default', disabled = false } = Astro.props;
 ---
 
 <div class="toggle-group-container">
   <span class="toggle-group-label">{label}</span>
-  <div class="toggle-group">
+  <div class:list={['toggle-group', { 'toggle-group--disabled': disabled }]}>
     {options.map(option => (
-      <label class="toggle-item">
-        <input type="radio" name={name} value={option.value} {...(option.checked && { checked: true })} />
+      <label class:list={['toggle-item', `toggle-item--${size}`]}>
+        <input type="radio" name={name} value={option.value} {...(option.checked ? { checked: true } : {})} {...(disabled ? { disabled: true } : {})} />
+        {option.icon && <Icon name={option.icon} size={16} />}
         <span>{option.label}</span>
       </label>
     ))}
@@ -47,6 +53,12 @@ const { label, name, options, statusId } = Astro.props;
     border-radius: 6px;
     overflow: hidden;
     background: transparent;
+  }
+
+  .toggle-group--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .toggle-item {
@@ -96,6 +108,10 @@ const { label, name, options, statusId } = Astro.props;
     white-space: nowrap;
   }
 
+  .toggle-item :global(svg) {
+    margin-right: 6px;
+  }
+
   .toggle-status {
     font-size: 12px;
     color: var(--text-tertiary);
@@ -112,5 +128,21 @@ const { label, name, options, statusId } = Astro.props;
 
   .toggle-status:hover {
     color: var(--accent);
+  }
+
+  /* Size variants */
+  .toggle-item--sm {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .toggle-item--default {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .toggle-item--lg {
+    padding: 8px 16px;
+    font-size: 14px;
   }
 </style>

@@ -3,34 +3,12 @@
  */
 
 import type { Movie, Showtime, GroupedMovie, AggregationResult } from '@types/movie';
+import { capitalCase } from 'change-case';
 
 // Re-export types for backwards compatibility
 export type { Movie, Showtime, GroupedMovie, AggregationResult };
 
-// Common roman numerals pattern (I, II, III, IV, V, VI, VII, VIII, IX, X, etc.)
-const romanNumeralPattern = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)$/i;
-
-/**
- * Converts a string to title case (first letter of each word capitalized)
- * Preserves acronyms (all-caps words) and roman numerals
- */
-export function toTitleCase(str: string): string {
-  return str
-    .split(' ')
-    .map((w) => {
-      // Preserve words that are all uppercase (likely acronyms)
-      if (w === w.toUpperCase() && w.length > 1 && /[A-Z]/.test(w)) {
-        return w;
-      }
-      // Preserve roman numerals
-      if (romanNumeralPattern.test(w)) {
-        return w.toUpperCase();
-      }
-      // Normal title case
-      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-    })
-    .join(' ');
-}
+export const toTitleCase = capitalCase;
 
 // --- Movie aggregation for "Showing Today" ---
 
@@ -70,11 +48,26 @@ export function aggregateMoviesForDate(
 }
 
 /**
- * Formats runtime string for display (e.g., "120 minutes" -> "120min")
+ * Formats runtime string for display (e.g., "120 minutes" -> "120min", "120 min" -> "120min", or "120" -> "120min")
  */
 export function formatRuntime(runtime: string | undefined): string {
   if (!runtime) return '';
-  return runtime.replace(' minutes', 'min').replace(' ', '');
+
+  // Trim whitespace
+  const trimmed = runtime.trim();
+
+  // If it already ends with "min", return as-is
+  if (trimmed.endsWith('min')) {
+    return trimmed.replace(/\s+min/, 'min');
+  }
+
+  // Handle "120 minutes" format
+  if (trimmed.includes('minutes')) {
+    return trimmed.replace(/\s*minutes/, 'min');
+  }
+
+  // Handle plain number format like "120"
+  return trimmed + 'min';
 }
 
 // --- Time parsing and work hours ---

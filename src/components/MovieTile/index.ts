@@ -4,6 +4,7 @@
  */
 
 import type { Movie } from '../../types/movie';
+import { capitalCase as toTitleCase } from 'change-case';
 
 /** Layout constants scoped to MovieTile */
 const TIMELINE_HEADER_OFFSET = 28; // Vertical offset for timeline tile positioning (px)
@@ -17,10 +18,6 @@ export interface TileOptions {
   // For main page state integration
   filteredCounts?: Record<string, number>;
   singleShowtimeMode?: string;
-}
-
-function toTitleCase(str: string): string {
-  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
 function processFFJr(time: string, title: string): { displayTime: string; displayTitle: string } {

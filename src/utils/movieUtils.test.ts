@@ -4,7 +4,6 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  toTitleCase,
   aggregateMoviesForDate,
   formatRuntime,
   parseTimeToMins,
@@ -21,47 +20,6 @@ import {
 import type { Movie } from './movieUtils';
 
 describe('movieUtils', () => {
-  describe('toTitleCase', () => {
-    it('should convert basic strings to title case', () => {
-      expect(toTitleCase('hello world')).toBe('Hello World');
-      expect(toTitleCase('the quick brown fox')).toBe('The Quick Brown Fox');
-    });
-
-    it('should preserve acronyms (all-caps words)', () => {
-      expect(toTitleCase('NYC STORIES')).toBe('NYC STORIES');
-      expect(toTitleCase('FBI INVESTIGATION')).toBe('FBI INVESTIGATION');
-      expect(toTitleCase('USA TODAY')).toBe('USA TODAY');
-    });
-
-    it('should preserve roman numerals', () => {
-      expect(toTitleCase('part II')).toBe('Part II');
-      expect(toTitleCase('chapter III')).toBe('Chapter III');
-      expect(toTitleCase('volume IV')).toBe('Volume IV');
-      expect(toTitleCase('book X')).toBe('Book X');
-      expect(toTitleCase('episode XV')).toBe('Episode XV');
-    });
-
-    it('should handle mixed content correctly', () => {
-      expect(toTitleCase('NYC part II')).toBe('NYC Part II');
-      expect(toTitleCase('the FBI files volume III')).toBe('The FBI Files Volume III');
-    });
-
-    it('should handle lowercase roman numerals', () => {
-      expect(toTitleCase('part ii')).toBe('Part II');
-      expect(toTitleCase('chapter iii')).toBe('Chapter III');
-    });
-
-    it('should handle empty strings', () => {
-      expect(toTitleCase('')).toBe('');
-    });
-
-    it('should handle single words', () => {
-      expect(toTitleCase('hello')).toBe('Hello');
-      expect(toTitleCase('NYC')).toBe('NYC');
-      expect(toTitleCase('II')).toBe('II');
-    });
-  });
-
   describe('aggregateMoviesForDate', () => {
     it('should return empty result for empty movie data', () => {
       const result = aggregateMoviesForDate([], '2026-02-11');

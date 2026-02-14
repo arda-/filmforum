@@ -1,0 +1,15 @@
+---
+/**
+ * Story decorator that wraps components with a dark background.
+ * Useful for testing components that are designed to be used on dark surfaces.
+ */
+interface Props {
+  padding?: string;
+}
+
+const { padding = '2rem' } = Astro.props;
+---
+
+<div style={`background-color: #1a1a1a; padding: ${padding};`}>
+  <slot />
+</div>

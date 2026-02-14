@@ -8,6 +8,42 @@ import Switch from '@components/Switch.astro';
 import Icon from '@components/Icon.astro';
 import Tooltip from '@components/Tooltip.astro';
 import SegmentedToggle from '@components/SegmentedToggle.astro';
+
+interface Props {
+  /** View mode: 'timeline' or 'grid' */
+  viewMode?: 'timeline' | 'grid';
+  /** Width mode: 'fit' or 'content' */
+  widthMode?: 'fit' | 'content';
+  /** Show year and director detail toggle */
+  showYearDirector?: boolean;
+  /** Show runtime detail toggle */
+  showRuntime?: boolean;
+  /** Show cast detail toggle */
+  showCast?: boolean;
+  /** Show image detail toggle */
+  showImage?: boolean;
+  /** Week start: 'mon' or 'sun' */
+  weekStart?: 'mon' | 'sun';
+  /** Is gear popover open */
+  gearOpen?: boolean;
+  /** Highlight unique showings (★) */
+  highlightUnique?: boolean;
+  /** Highlight alternate showtimes on hover */
+  highlightAlternate?: boolean;
+}
+
+const {
+  viewMode = 'timeline',
+  widthMode = 'fit',
+  showYearDirector = false,
+  showRuntime = false,
+  showCast = false,
+  showImage = false,
+  weekStart = 'mon',
+  gearOpen = false,
+  highlightUnique = true,
+  highlightAlternate = true,
+} = Astro.props as Props;
 ---
 
 <div class="calendar-view-toolbar">
@@ -18,10 +54,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
         <span class="toolbar-label">View</span>
         <SegmentedToggle role="radiogroup" aria-label="Calendar view mode">
           <button
-            class="seg-btn active"
+            class={`seg-btn ${viewMode === 'timeline' ? 'active' : ''}`}
             data-view="timeline"
             role="radio"
-            aria-checked="true"
+            aria-checked={viewMode === 'timeline'}
             aria-label="Timeline view"
             id="view-mode-timeline"
           >
@@ -29,10 +65,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
             <span class="seg-btn-label">Timeline</span>
           </button>
           <button
-            class="seg-btn"
+            class={`seg-btn ${viewMode === 'grid' ? 'active' : ''}`}
             data-view="grid"
             role="radio"
-            aria-checked="false"
+            aria-checked={viewMode === 'grid'}
             aria-label="Rows view"
             id="view-mode-grid"
           >
@@ -48,10 +84,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
         <Tooltip text="At this viewport width, calendar content naturally fits">
           <SegmentedToggle role="radiogroup" aria-label="Content width mode">
             <button
-              class="seg-btn active"
+              class={`seg-btn ${widthMode === 'fit' ? 'active' : ''}`}
               data-width="fit"
               role="radio"
-              aria-checked="true"
+              aria-checked={widthMode === 'fit'}
               aria-label="Fit to window width"
               id="width-fit"
             >
@@ -59,10 +95,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
               <span class="seg-btn-label">Fit</span>
             </button>
             <button
-              class="seg-btn"
+              class={`seg-btn ${widthMode === 'content' ? 'active' : ''}`}
               data-width="content"
               role="radio"
-              aria-checked="false"
+              aria-checked={widthMode === 'content'}
               aria-label="Show full content width"
               id="width-content"
             >
@@ -75,7 +111,7 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
 
       <!-- Hidden fit-width switch for backward compat with existing JS -->
       <div style="display:none">
-        <Switch id="fit-width-switch" label="" checked />
+        <Switch id="fit-width-switch" label="" checked={widthMode === 'fit'} />
       </div>
     </div>
 
@@ -85,30 +121,30 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
         class="gear-btn"
         id="view-settings-btn"
         aria-label="View settings"
-        aria-expanded="false"
+        aria-expanded={gearOpen}
         aria-controls="view-settings-popover"
       >
         <Icon name="settings" size={16} />
       </button>
 
-      <div class="view-settings-popover" id="view-settings-popover">
+      <div class={`view-settings-popover ${gearOpen ? 'open' : ''}`} id="view-settings-popover">
         <div class="popover-section">
           <div class="popover-row">
             <span class="popover-label">Start week on</span>
             <SegmentedToggle size="sm" role="radiogroup" aria-label="Week start day">
               <button
-                class="seg-btn"
+                class={`seg-btn ${weekStart === 'sun' ? 'active' : ''}`}
                 data-weekstart="sun"
                 role="radio"
-                aria-checked="false"
+                aria-checked={weekStart === 'sun'}
                 aria-label="Start week on Sunday"
                 id="weekstart-sun"
               >Sun</button>
               <button
-                class="seg-btn active"
+                class={`seg-btn ${weekStart === 'mon' ? 'active' : ''}`}
                 data-weekstart="mon"
                 role="radio"
-                aria-checked="true"
+                aria-checked={weekStart === 'mon'}
                 aria-label="Start week on Monday"
                 id="weekstart-mon"
               >Mon</button>
@@ -116,10 +152,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
           </div>
         </div>
         <div class="popover-section">
-          <Switch id="highlight-unique-toggle" label="Highlight unique showings (★)" checked small />
+          <Switch id="highlight-unique-toggle" label="Highlight unique showings (★)" checked={highlightUnique} small />
         </div>
         <div class="popover-section desktop-only">
-          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" checked small />
+          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" checked={highlightAlternate} small />
         </div>
       </div>
     </div>
@@ -130,42 +166,42 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
     <span class="toolbar-label">Details</span>
     <SegmentedToggle>
       <button
-        class="seg-btn"
+        class={`seg-btn ${showYearDirector ? 'active' : ''}`}
         data-detail="year-director"
-        aria-pressed="false"
+        aria-pressed={showYearDirector}
         aria-label="Show year and director"
       >
-        <input type="checkbox" id="show-year-director-checkbox" style="display: none;" />
+        <input type="checkbox" id="show-year-director-checkbox" style="display: none;" checked={showYearDirector} />
         <Icon name="megaphone" size={16} />
         <span class="seg-btn-label">Year & Director</span>
       </button>
       <button
-        class="seg-btn"
+        class={`seg-btn ${showRuntime ? 'active' : ''}`}
         data-detail="runtime"
-        aria-pressed="false"
+        aria-pressed={showRuntime}
         aria-label="Show runtime"
       >
-        <input type="checkbox" id="show-runtime-checkbox" style="display: none;" />
+        <input type="checkbox" id="show-runtime-checkbox" style="display: none;" checked={showRuntime} />
         <Icon name="timer" size={16} />
         <span class="seg-btn-label">Runtime</span>
       </button>
       <button
-        class="seg-btn"
+        class={`seg-btn ${showCast ? 'active' : ''}`}
         data-detail="cast"
-        aria-pressed="false"
+        aria-pressed={showCast}
         aria-label="Show cast"
       >
-        <input type="checkbox" id="show-actors-checkbox" style="display: none;" />
+        <input type="checkbox" id="show-actors-checkbox" style="display: none;" checked={showCast} />
         <Icon name="users-round" size={16} />
         <span class="seg-btn-label">Cast</span>
       </button>
       <button
-        class="seg-btn"
+        class={`seg-btn ${showImage ? 'active' : ''}`}
         data-detail="image"
-        aria-pressed="false"
+        aria-pressed={showImage}
         aria-label="Show poster image"
       >
-        <input type="checkbox" id="show-image-checkbox" style="display: none;" />
+        <input type="checkbox" id="show-image-checkbox" style="display: none;" checked={showImage} />
         <Icon name="image" size={16} />
         <span class="seg-btn-label">Image</span>
       </button>
@@ -176,8 +212,8 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
 
 <!-- Hidden switch elements that the existing JS references by ID -->
 <div style="display:none">
-  <Switch id="timeline-mode-toggle" label="" checked />
-  <Switch id="week-start-toggle" label="" checked />
+  <Switch id="timeline-mode-toggle" label="" checked={viewMode === 'timeline'} />
+  <Switch id="week-start-toggle" label="" checked={weekStart === 'mon'} />
 </div>
 
 <script>

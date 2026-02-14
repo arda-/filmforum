@@ -1,0 +1,29 @@
+---
+/**
+ * ButtonWrapper - Astrobook adapter for Button component
+ *
+ * This wrapper exists because Astrobook doesn't support passing slot content
+ * directly to components. It accepts 'text' or 'html' as props and passes them
+ * as slot content to the actual Button component.
+ *
+ * Usage in stories:
+ *   args: { variant: 'primary', text: 'Click me' }
+ *   args: { variant: 'primary', html: '<icon /> Click' }
+ */
+import Button from '../Button.astro';
+
+interface Props {
+  text?: string;
+  html?: string;
+  variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+}
+
+const { text, html, ...buttonProps } = Astro.props;
+---
+
+<Button {...buttonProps}>
+  {html ? <Fragment set:html={html} /> : text}
+</Button>

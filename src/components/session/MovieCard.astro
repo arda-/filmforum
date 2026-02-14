@@ -70,8 +70,8 @@ const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
     <div class="card-overlay">
       <h3 class="card-title">{title}</h3>
       <p class="card-meta">{meta}</p>
-      {movie.actors && <p class="card-actors">{movie.actors}</p>}
-      {movie.description && <p class="card-blurb">{movie.description}</p>}
+      {showActors && movie.actors && <p class="card-actors">{movie.actors}</p>}
+      {showBlurb && movie.description && <p class="card-blurb">{movie.description}</p>}
     </div>
 
     <div class="card-reactions" data-movie-id={id}>

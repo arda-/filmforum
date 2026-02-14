@@ -1,0 +1,176 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ReactionButtons from '../../components/session/ReactionButtons.astro';
+---
+
+<Layout title="Reaction Buttons Demo" noindex={true}>
+  <div>
+    <h1>Reaction Buttons</h1>
+    <p class="subtitle">Yes/Maybe/No reaction toggle buttons with size variants</p>
+
+    <div class="demo-section">
+      <h2>Medium Size (Default)</h2>
+      <div class="demo-row">
+        <div class="demo-item" data-testid="md-unmarked">
+          <p class="demo-label">Unmarked</p>
+          <ReactionButtons movieId="test-movie-1" />
+        </div>
+        <div class="demo-item" data-testid="md-yes">
+          <p class="demo-label">Marked as Yes</p>
+          <ReactionButtons movieId="test-movie-2" reaction="yes" />
+        </div>
+        <div class="demo-item" data-testid="md-maybe">
+          <p class="demo-label">Marked as Maybe</p>
+          <ReactionButtons movieId="test-movie-3" reaction="maybe" />
+        </div>
+        <div class="demo-item" data-testid="md-no">
+          <p class="demo-label">Marked as No</p>
+          <ReactionButtons movieId="test-movie-4" reaction="no" />
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Small Size</h2>
+      <div class="demo-row">
+        <div class="demo-item" data-testid="sm-unmarked">
+          <p class="demo-label">Unmarked</p>
+          <ReactionButtons movieId="test-movie-5" size="sm" />
+        </div>
+        <div class="demo-item" data-testid="sm-yes">
+          <p class="demo-label">Marked as Yes</p>
+          <ReactionButtons movieId="test-movie-6" size="sm" reaction="yes" />
+        </div>
+        <div class="demo-item" data-testid="sm-maybe">
+          <p class="demo-label">Marked as Maybe</p>
+          <ReactionButtons movieId="test-movie-7" size="sm" reaction="maybe" />
+        </div>
+        <div class="demo-item" data-testid="sm-no">
+          <p class="demo-label">Marked as No</p>
+          <ReactionButtons movieId="test-movie-8" size="sm" reaction="no" />
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Features to Test</h2>
+      <ul class="features-list">
+        <li><strong>Button states:</strong> Unmarked buttons have border only, active have filled background</li>
+        <li><strong>Color coding:</strong> Yes (green), Maybe (orange), No (red)</li>
+        <li><strong>Toggle behavior:</strong> Clicking a button toggles its active state</li>
+        <li><strong>Single selection:</strong> Only one button should be active at a time</li>
+        <li><strong>Deselection:</strong> Clicking an active button again should deactivate it</li>
+        <li><strong>aria-pressed:</strong> Active button should have aria-pressed="true"</li>
+        <li><strong>Focus management:</strong> Tab through buttons should be accessible</li>
+        <li><strong>Hover state:</strong> Buttons should have hover effect on desktop</li>
+        <li><strong>Size variants:</strong> Small buttons should be visually smaller</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Interactive Testing</h2>
+      <p>Try the following interactions:</p>
+      <ol>
+        <li>Click the "Yes" button in first row → should become active (filled green)</li>
+        <li>Click the "Maybe" button → "Yes" should deactivate, "Maybe" should activate</li>
+        <li>Click the "Maybe" button again → should deactivate (only border)</li>
+        <li>Click "No" button → should activate (filled red)</li>
+        <li>Tab through buttons → all should be keyboard accessible</li>
+        <li>Press Enter/Space on button → should toggle state</li>
+        <li>Compare small vs medium buttons → should see size difference</li>
+      </ol>
+    </div>
+
+    <div class="demo-section">
+      <h2>Accessibility Notes</h2>
+      <ul class="features-list">
+        <li>Each button has an aria-label for screen readers</li>
+        <li>aria-pressed attribute reflects the current state</li>
+        <li>Buttons are keyboard accessible with Tab navigation</li>
+        <li>Focus ring should be visible on focus</li>
+      </ul>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+
+  .demo-section {
+    margin-bottom: 40px;
+  }
+
+  .demo-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+  }
+
+  .demo-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+  }
+
+  .demo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .demo-label {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-tertiary);
+    margin: 0;
+  }
+
+  .demo-note {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .features-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bg-movie-hover);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .features-list li:last-child {
+    border-bottom: none;
+  }
+
+  .demo-section ol,
+  .demo-section > p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .demo-section li {
+    margin-bottom: 6px;
+  }
+</style>

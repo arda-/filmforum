@@ -1,0 +1,134 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CalendarFilterBar from '../../components/CalendarFilterBar.astro';
+---
+
+<Layout title="Filter Bar Demo" noindex={true}>
+  <div>
+    <h1>Calendar Filter Bar</h1>
+    <p class="subtitle">Multi-select time category and saved movie status filters</p>
+
+    <div class="demo-section">
+      <h2>Default State (All Enabled)</h2>
+      <div class="demo-container">
+        <div class="filter-demo">
+          <CalendarFilterBar />
+        </div>
+      </div>
+      <p class="demo-note">
+        Weekdays, Weeknights, and Weekends all enabled.
+        Yes, Maybe, Unmarked filters enabled. No filter disabled by default.
+      </p>
+    </div>
+
+    <div class="demo-section">
+      <h2>Features to Test</h2>
+      <ul class="features-list">
+        <li><strong>Checkbox state:</strong> Click buttons to toggle checkbox states</li>
+        <li><strong>aria-pressed:</strong> Buttons should update aria-pressed attribute</li>
+        <li><strong>Button styling:</strong> Active buttons should have different background</li>
+        <li><strong>Filter counts:</strong> Count badges should display dynamically</li>
+        <li><strong>Saved filter colors:</strong> Yes/Maybe/No buttons should use theme colors</li>
+        <li><strong>Multi-select:</strong> Multiple options can be active simultaneously</li>
+        <li><strong>Sticky positioning:</strong> Should stick to top when scrolling</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Interactive Testing</h2>
+      <p>Try the following interactions:</p>
+      <ol>
+        <li>Click on "Day" button → checkbox should toggle, aria-pressed should change</li>
+        <li>Click on "Yes" button → should turn green and become active</li>
+        <li>Click "No" button → should turn red and become active</li>
+        <li>Click the same button again → should deactivate</li>
+        <li>Scroll down → filter bar should remain sticky at top</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Extra content to enable sticky scrolling test -->
+  <div class="spacer"></div>
+</Layout>
+
+<style>
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+  }
+
+  .demo-section {
+    margin-bottom: 40px;
+  }
+
+  .demo-section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .demo-container {
+    background: var(--bg-body);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--bg-movie-hover);
+  }
+
+  .filter-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .demo-note {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .features-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--bg-movie-hover);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .features-list li:last-child {
+    border-bottom: none;
+  }
+
+  .demo-section ol {
+    padding-left: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .demo-section li {
+    margin-bottom: 6px;
+  }
+
+  .spacer {
+    height: 200vh;
+    background: linear-gradient(to bottom, transparent, var(--bg-movie-hover));
+    margin-top: 32px;
+    padding: 32px;
+    border-radius: 8px;
+  }
+</style>
