@@ -16,13 +16,13 @@ export default defineConfig({
   /* Retry failed tests once */
   retries: 1,
 
-  /* Reporter configuration */
-  reporter: 'html',
+  /* Reporter: list for terminal feedback, html for detailed reports */
+  reporter: process.env.CI ? 'html' : 'list',
 
   /* Shared settings for all tests */
   use: {
     /* Use a single baseURL for all tests */
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:4321',
 
     /* Collect trace on failure for debugging */
     trace: 'on-first-retry',
@@ -62,8 +62,9 @@ export default defineConfig({
   /* Run dev server before starting tests */
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
     timeout: 120000,
   },
 });
