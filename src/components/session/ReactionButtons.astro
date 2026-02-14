@@ -57,35 +57,19 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
 <script>
   /**
    * Handle reaction button interactions.
-   * Toggles the active state and aria-pressed attribute on click or keyboard.
+   * Browsers automatically convert Space/Enter keypresses to click events,
+   * so we only need to listen for clicks.
    */
-  function initReactionButtons() {
-    document.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-reaction-group] .rbtn');
-      if (!btn) return;
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-reaction-group] .rbtn');
+    if (!btn) return;
 
-      // Toggle the clicked button
-      btn.classList.toggle('active');
-      // Update aria-pressed to reflect the new active state
-      const isActive = btn.classList.contains('active');
-      btn.setAttribute('aria-pressed', String(isActive));
-    });
-
-    // Handle keyboard activation (Space and Enter)
-    document.addEventListener('keydown', (e) => {
-      const btn = e.target.closest('[data-reaction-group] .rbtn');
-      if (!btn) return;
-      if (e.key !== ' ' && e.key !== 'Enter') return;
-
-      e.preventDefault();
-      btn.classList.toggle('active');
-      // Update aria-pressed to reflect the new active state
-      const isActive = btn.classList.contains('active');
-      btn.setAttribute('aria-pressed', String(isActive));
-    });
-  }
-
-  initReactionButtons();
+    // Toggle the clicked button
+    btn.classList.toggle('active');
+    // Update aria-pressed to reflect the new active state
+    const isActive = btn.classList.contains('active');
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
 </script>
 
 <style>
