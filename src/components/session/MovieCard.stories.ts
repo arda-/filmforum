@@ -1,4 +1,14 @@
-import MovieCard from './MovieCard.astro';
+/**
+ * MovieCard component stories
+ *
+ * NOTE: Astrobook does NOT support passing slot content directly to components.
+ * The MovieCard component needs padding around it to prevent the card's outline
+ * and shadow from being clipped at the container edges. We use a MovieCardWrapper
+ * decorator that adds 20px of padding around the component.
+ *
+ * See: decorators/MovieCardWrapper.astro
+ */
+import MovieCardWrapper from '../decorators/MovieCardWrapper.astro';
 
 const sampleMovie = {
   id: 'movie-1',
@@ -57,7 +67,7 @@ const shortMovie = {
 };
 
 export default {
-  component: MovieCard,
+  component: MovieCardWrapper,
 };
 
 export const Default = {
