@@ -1,12 +1,11 @@
 /**
  * Test suite for session utility functions.
- * Covers: movieId, deduplicateMovies, sortMovies, getDecade,
+ * Covers: deduplicateMovies, sortMovies, getDecade,
  * extractFilterOptions, matchesFilter.
  */
 
 import { describe, it, expect } from 'vitest';
 import {
-  movieId,
   deduplicateMovies,
   sortMovies,
   getDecade,
@@ -19,11 +18,15 @@ import type { Movie } from './movieUtils';
 describe('sessionUtils', () => {
   // --- Helpers ---
 
+  /** Counter for generating unique film_slug values in tests. */
+  let slugCounter = 0;
+
   function makeMovie(overrides: Partial<Movie> & { Movie: string }): Movie {
     return {
       Time: '7:00',
-      Tickets: 'https://example.com',
+      ticket_url: 'https://example.com',
       Datetime: '2026-02-11T19:00:00',
+      film_slug: overrides.film_slug ?? `test-${slugCounter++}`,
       ...overrides,
     };
   }
@@ -33,47 +36,19 @@ describe('sessionUtils', () => {
   ): UniqueMovie {
     const movie = makeMovie(overrides);
     return {
-      id: movieId(movie.Movie),
+      id: movie.film_slug,
       movie,
-      showtimes: [{ datetime: movie.Datetime, time: movie.Time, tickets: movie.Tickets }],
+      showtimes: [{ datetime: movie.Datetime, time: movie.Time, tickets: movie.ticket_url }],
     };
   }
-
-  // --- movieId ---
-
-  describe('movieId', () => {
-    it('should normalize to lowercase with hyphens', () => {
-      expect(movieId('TAXI!')).toBe('taxi');
-      expect(movieId('Mean Streets')).toBe('mean-streets');
-      expect(movieId('West Side Story')).toBe('west-side-story');
-    });
-
-    it('should strip leading and trailing hyphens', () => {
-      expect(movieId('!Hello!')).toBe('hello');
-      expect(movieId('---test---')).toBe('test');
-    });
-
-    it('should collapse multiple non-alphanumeric chars into single hyphen', () => {
-      expect(movieId('A -- B')).toBe('a-b');
-      expect(movieId('Film (1932)')).toBe('film-1932');
-    });
-
-    it('should handle empty string', () => {
-      expect(movieId('')).toBe('');
-    });
-
-    it('should preserve numbers', () => {
-      expect(movieId('2001: A Space Odyssey')).toBe('2001-a-space-odyssey');
-    });
-  });
 
   // --- deduplicateMovies ---
 
   describe('deduplicateMovies', () => {
     it('should group showtimes for the same movie', () => {
       const movies: Movie[] = [
-        makeMovie({ Movie: 'TAXI!', Time: '2:10', Datetime: '2026-02-06T14:10:00' }),
-        makeMovie({ Movie: 'TAXI!', Time: '7:30', Datetime: '2026-02-06T19:30:00' }),
+        makeMovie({ Movie: 'TAXI!', film_slug: 'taxi', Time: '2:10', Datetime: '2026-02-06T14:10:00' }),
+        makeMovie({ Movie: 'TAXI!', film_slug: 'taxi', Time: '7:30', Datetime: '2026-02-06T19:30:00' }),
       ];
 
       const result = deduplicateMovies(movies);
@@ -86,8 +61,8 @@ describe('sessionUtils', () => {
 
     it('should keep different movies separate', () => {
       const movies: Movie[] = [
-        makeMovie({ Movie: 'TAXI!', Time: '2:10' }),
-        makeMovie({ Movie: 'Mean Streets', Time: '7:00' }),
+        makeMovie({ Movie: 'TAXI!', film_slug: 'taxi', Time: '2:10' }),
+        makeMovie({ Movie: 'Mean Streets', film_slug: 'mean-streets', Time: '7:00' }),
       ];
 
       const result = deduplicateMovies(movies);
@@ -100,8 +75,8 @@ describe('sessionUtils', () => {
 
     it('should use the first occurrence as the base movie data', () => {
       const movies: Movie[] = [
-        makeMovie({ Movie: 'TAXI!', director: 'Roy Del Ruth', Time: '2:10' }),
-        makeMovie({ Movie: 'TAXI!', director: 'Roy Del Ruth', Time: '7:30' }),
+        makeMovie({ Movie: 'TAXI!', film_slug: 'taxi', director: 'Roy Del Ruth', Time: '2:10' }),
+        makeMovie({ Movie: 'TAXI!', film_slug: 'taxi', director: 'Roy Del Ruth', Time: '7:30' }),
       ];
 
       const result = deduplicateMovies(movies);
@@ -110,7 +85,7 @@ describe('sessionUtils', () => {
 
     it('should handle a single movie entry', () => {
       const movies: Movie[] = [
-        makeMovie({ Movie: 'Lonesome' }),
+        makeMovie({ Movie: 'Lonesome', film_slug: 'lonesome' }),
       ];
 
       const result = deduplicateMovies(movies);
@@ -122,9 +97,9 @@ describe('sessionUtils', () => {
   // --- sortMovies ---
 
   describe('sortMovies', () => {
-    const taxi = makeUniqueMovie({ Movie: 'TAXI!', year: '1932', director: 'Roy Del Ruth' });
-    const crowd = makeUniqueMovie({ Movie: 'The Crowd', year: '1928', director: 'King Vidor' });
-    const meanStreets = makeUniqueMovie({ Movie: 'Mean Streets', year: '1973', director: 'Martin Scorsese' });
+    const taxi = makeUniqueMovie({ Movie: 'TAXI!', film_slug: 'taxi', year: '1932', director: 'Roy Del Ruth' });
+    const crowd = makeUniqueMovie({ Movie: 'The Crowd', film_slug: 'the-crowd', year: '1928', director: 'King Vidor' });
+    const meanStreets = makeUniqueMovie({ Movie: 'Mean Streets', film_slug: 'mean-streets', year: '1973', director: 'Martin Scorsese' });
 
     describe('alpha sort', () => {
       it('should sort alphabetically ignoring leading articles', () => {
@@ -176,10 +151,10 @@ describe('sessionUtils', () => {
 
     describe('marked sort', () => {
       it('should sort by reaction: yes > maybe > no > none', () => {
-        const a = makeUniqueMovie({ Movie: 'A' });
-        const b = makeUniqueMovie({ Movie: 'B' });
-        const c = makeUniqueMovie({ Movie: 'C' });
-        const d = makeUniqueMovie({ Movie: 'D' });
+        const a = makeUniqueMovie({ Movie: 'A', film_slug: 'a' });
+        const b = makeUniqueMovie({ Movie: 'B', film_slug: 'b' });
+        const c = makeUniqueMovie({ Movie: 'C', film_slug: 'c' });
+        const d = makeUniqueMovie({ Movie: 'D', film_slug: 'd' });
 
         const reactions = { [a.id]: 'no', [b.id]: 'yes', [c.id]: 'maybe' };
         const sorted = sortMovies([a, b, c, d], 'marked', reactions);
@@ -187,8 +162,8 @@ describe('sessionUtils', () => {
       });
 
       it('should preserve order when no reactions provided', () => {
-        const a = makeUniqueMovie({ Movie: 'A' });
-        const b = makeUniqueMovie({ Movie: 'B' });
+        const a = makeUniqueMovie({ Movie: 'A', film_slug: 'a' });
+        const b = makeUniqueMovie({ Movie: 'B', film_slug: 'b' });
         const sorted = sortMovies([a, b], 'marked');
         expect(sorted.map(m => m.movie.Movie)).toEqual(['A', 'B']);
       });

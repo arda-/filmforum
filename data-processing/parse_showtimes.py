@@ -16,7 +16,36 @@ SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 
 
-def parse_html(html: str) -> List[Tuple[str, str, str]]:
+def extract_slug_from_film_url(film_url: str, series_name: str = 'tenement-stories') -> str:
+    """
+    Extract film slug from Film Forum canonical URL.
+
+    Args:
+        film_url: Full film URL (e.g., https://filmforum.org/film/street-scene-tenement-stories)
+        series_name: Series name to remove from slug (default: tenement-stories)
+
+    Returns:
+        Film slug (e.g., street-scene)
+
+    Examples:
+        >>> extract_slug_from_film_url('https://filmforum.org/film/street-scene-tenement-stories')
+        'street-scene'
+        >>> extract_slug_from_film_url('https://filmforum.org/film/the-naked-city-tenement-stories')
+        'the-naked-city'
+    """
+    # Get the last path segment from URL
+    path_segment = film_url.rstrip('/').split('/')[-1]
+
+    # Remove series suffix (pattern: {slug}-{series-name})
+    suffix = f'-{series_name}'
+    if path_segment.endswith(suffix):
+        return path_segment[:-len(suffix)]
+
+    # Fallback: return full path segment if pattern doesn't match
+    return path_segment
+
+
+def parse_html(html: str) -> List[Tuple[str, str, str, str]]:
     """
     Parse HTML to extract movie information.
 
@@ -24,10 +53,10 @@ def parse_html(html: str) -> List[Tuple[str, str, str]]:
         html: HTML content to parse
 
     Returns:
-        List of tuples (title, schedule_html, ticket_url)
+        List of tuples (film_url, title, schedule_html, ticket_url)
     """
-    # Pattern captures: title, schedule, and Buy Tickets URL
-    pattern = r'<h3 class="title style-c"><a class="blue-type"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
+    # Pattern captures: film_url (from title link), title, schedule, and Buy Tickets URL
+    pattern = r'<h3 class="title style-c"><a class="blue-type" href="([^"]+)"[^>]*>([^<]+)</a></h3>.*?<div class="details">\s*<p>([^<]*(?:<br />[^<]*)*)</p>.*?<a class="button small blue" href="([^"]+)">Buy Tickets</a>'
 
     try:
         matches = re.findall(pattern, html, re.DOTALL)
@@ -37,13 +66,14 @@ def parse_html(html: str) -> List[Tuple[str, str, str]]:
         raise
 
 
-def process_matches(matches: List[Tuple[str, str, str]], scrape_timestamp: str) -> Tuple[List[List[str]], List[str]]:
+def process_matches(matches: List[Tuple[str, str, str, str]], scrape_timestamp: str, series_name: str = 'tenement-stories') -> Tuple[List[List[str]], List[str]]:
     """
     Process regex matches into CSV rows with validation.
 
     Args:
-        matches: List of (title, schedule_html, ticket_url) tuples
+        matches: List of (film_url, title, schedule_html, ticket_url) tuples
         scrape_timestamp: ISO format timestamp for this scrape
+        series_name: Series name used for slug extraction (default: tenement-stories)
 
     Returns:
         Tuple of (rows, validation_warnings)
@@ -52,7 +82,7 @@ def process_matches(matches: List[Tuple[str, str, str]], scrape_timestamp: str) 
     seen_entries: Set[Tuple[str, str, str, str]] = set()
     validation_warnings = []
 
-    for title, schedule_html, ticket_url in matches:
+    for film_url, title, schedule_html, ticket_url in matches:
         # Decode HTML entities in title
         title = html_lib.unescape(title).strip()
 
@@ -60,6 +90,19 @@ def process_matches(matches: List[Tuple[str, str, str]], scrape_timestamp: str) 
         if not title:
             validation_warnings.append("Skipping entry with empty title")
             continue
+
+        if not film_url or not film_url.strip():
+            validation_warnings.append(f"Warning: Movie '{title}' has no film URL")
+            continue
+
+        # Validate film URL format
+        film_url = film_url.strip()
+        if not re.match(r'^https?://', film_url):
+            validation_warnings.append(f"Warning: Invalid film URL for '{title}': {film_url}")
+            continue
+
+        # Extract film slug from film URL
+        film_slug = extract_slug_from_film_url(film_url, series_name)
 
         if not ticket_url or not ticket_url.strip():
             validation_warnings.append(f"Warning: Movie '{title}' has no ticket URL")
@@ -92,7 +135,7 @@ def process_matches(matches: List[Tuple[str, str, str]], scrape_timestamp: str) 
                     continue
                 seen_entries.add(entry_key)
 
-                rows.append([title, current_date, time, ticket_url, scrape_timestamp])
+                rows.append([title, current_date, time, ticket_url, film_url, film_slug, scrape_timestamp])
 
     return rows, validation_warnings
 
@@ -102,12 +145,12 @@ def write_csv(rows: List[List[str]], output_path: str) -> None:
     Write parsed showtime data to CSV file.
 
     Args:
-        rows: List of row data [title, date, time, url, timestamp]
+        rows: List of row data [title, date, time, ticket_url, film_url, film_slug, timestamp]
         output_path: Path to output CSV file
     """
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt'])
+        writer.writerow(['Movie', 'Date', 'Time', 'ticket_url', 'film_url', 'film_slug', 'ScrapedAt'])
         writer.writerows(rows)
 
 
@@ -175,7 +218,7 @@ Examples:
 
     # Process matches
     scrape_timestamp = datetime.now().isoformat()
-    rows, validation_warnings = process_matches(matches, scrape_timestamp)
+    rows, validation_warnings = process_matches(matches, scrape_timestamp, args.series)
 
     # Report validation warnings
     if validation_warnings:

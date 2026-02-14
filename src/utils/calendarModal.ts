@@ -73,7 +73,7 @@ export function openMovieModal(movie: Movie): void {
   }
 
   if (ticketsEl) {
-    ticketsEl.href = movie.Tickets;
+    ticketsEl.href = movie.ticket_url;
   }
 
   if (disclaimerEl) {

@@ -3,7 +3,6 @@
     "Movie": "STREET SCENE",
     "Date": "Friday, February 6",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/street-scene",
     "Datetime": "2026-02-06T18:10:00",
     "country": "U.S.",
     "year": "1931",
@@ -12,13 +11,14 @@
     "runtime": "80 minutes",
     "description": "The film depicts life at a working-class New York apartment building where residents face multiple crises. A jealous stagehand suspects his wife of infidelity, a secretary experiences unwanted advances from her married boss, and an abandoned woman faces eviction. Neighbors gossip while expressing political views and ethnic prejudices. Director Vidor employs dynamic cinematography with deep-focus imagery to capture sexual violence, relentless poverty, crude emotions, and stifled dreams.",
     "film_url": "https://filmforum.org/film/street-scene-tenement-stories",
-    "poster_url": "/posters/street-scene.png"
+    "poster_url": "/posters/street-scene.png",
+    "film_slug": "street-scene",
+    "ticket_url": "https://my.filmforum.org/events/street-scene"
   },
   {
     "Movie": "THE WINDOW",
     "Date": "Friday, February 6",
     "Time": "8:00",
-    "Tickets": "https://my.filmforum.org/events/the-window-tene",
     "Datetime": "2026-02-06T20:00:00",
     "country": "U.S.",
     "year": "1949",
@@ -27,13 +27,14 @@
     "runtime": "73 minutes",
     "description": "A young tenement resident who frequently tells tall tales claims to witness a sailor's murder, but nobody believes his account—except for the actual killers. Based on a Cornell Woolrich story, the film received a special Academy Award for child star Bobby Driscoll.",
     "film_url": "https://filmforum.org/film/the-window-tenement-stories",
-    "poster_url": "/posters/the-window.png"
+    "poster_url": "/posters/the-window.png",
+    "film_slug": "the-window",
+    "ticket_url": "https://my.filmforum.org/events/the-window-tene"
   },
   {
     "Movie": "THREE ON A MATCH",
     "Date": "Saturday, February 7",
     "Time": "12:40",
-    "Tickets": "https://my.filmforum.org/events/three-on-a-match",
     "Datetime": "2026-02-07T12:40:00",
     "country": "U.S.",
     "year": "1932",
@@ -42,13 +43,14 @@
     "runtime": "63 minutes",
     "description": "An early version of the gangster-movie myth about childhood friends who wind up on opposite sides of the class divide. Three schoolgirls follow different paths—to finishing school, secretarial school, and reform school—with their lives intersecting around themes of addiction and class struggle.",
     "film_url": "https://filmforum.org/film/three-on-a-match-tenement-stories",
-    "poster_url": "/posters/three-on-a-match.png"
+    "poster_url": "/posters/three-on-a-match.png",
+    "film_slug": "three-on-a-match",
+    "ticket_url": "https://my.filmforum.org/events/three-on-a-match"
   },
   {
     "Movie": "STREET SCENE",
     "Date": "Saturday, February 7",
     "Time": "2:10",
-    "Tickets": "https://my.filmforum.org/events/street-scene",
     "Datetime": "2026-02-07T14:10:00",
     "country": "U.S.",
     "year": "1931",
@@ -57,13 +59,14 @@
     "runtime": "80 minutes",
     "description": "The film depicts life at a working-class New York apartment building where residents face multiple crises. A jealous stagehand suspects his wife of infidelity, a secretary experiences unwanted advances from her married boss, and an abandoned woman faces eviction. Neighbors gossip while expressing political views and ethnic prejudices. Director Vidor employs dynamic cinematography with deep-focus imagery to capture sexual violence, relentless poverty, crude emotions, and stifled dreams.",
     "film_url": "https://filmforum.org/film/street-scene-tenement-stories",
-    "poster_url": "/posters/street-scene.png"
+    "poster_url": "/posters/street-scene.png",
+    "film_slug": "street-scene",
+    "ticket_url": "https://my.filmforum.org/events/street-scene"
   },
   {
     "Movie": "THE WINDOW",
     "Date": "Saturday, February 7",
     "Time": "4:00",
-    "Tickets": "https://my.filmforum.org/events/the-window-tene",
     "Datetime": "2026-02-07T16:00:00",
     "country": "U.S.",
     "year": "1949",
@@ -72,13 +75,14 @@
     "runtime": "73 minutes",
     "description": "A young tenement resident who frequently tells tall tales claims to witness a sailor's murder, but nobody believes his account—except for the actual killers. Based on a Cornell Woolrich story, the film received a special Academy Award for child star Bobby Driscoll.",
     "film_url": "https://filmforum.org/film/the-window-tenement-stories",
-    "poster_url": "/posters/the-window.png"
+    "poster_url": "/posters/the-window.png",
+    "film_slug": "the-window",
+    "ticket_url": "https://my.filmforum.org/events/the-window-tene"
   },
   {
     "Movie": "ITALIANAMERICAN",
     "Date": "Saturday, February 7",
     "Time": "5:40",
-    "Tickets": "https://my.filmforum.org/events/italianamerican-tene",
     "Datetime": "2026-02-07T17:40:00",
     "country": "U.S.",
     "year": "1974",
@@ -87,13 +91,14 @@
     "runtime": "49 minutes",
     "description": "Scorsese conducts a freewheeling interview with his parents in their Elizabeth Street walk-up, reflecting on 40 years of marriage. The conversation ranges from courtship to family cooking traditions. Catherine shares snapshots from an Italy trip and demonstrates her spaghetti sauce recipe, while the director explores their Italian-American identity.",
     "film_url": "https://filmforum.org/film/italianamerican-tenement-stories",
-    "poster_url": "/posters/italianamerican.png"
+    "poster_url": "/posters/italianamerican.png",
+    "film_slug": "italianamerican",
+    "ticket_url": "https://my.filmforum.org/events/italianamerican-tene"
   },
   {
     "Movie": "MEAN STREETS",
     "Date": "Saturday, February 7",
     "Time": "7:10",
-    "Tickets": "https://my.filmforum.org/events/mean-streets-tene",
     "Datetime": "2026-02-07T19:10:00",
     "country": "U.S.",
     "year": "1973",
@@ -102,13 +107,14 @@
     "runtime": "112 minutes",
     "description": "A guilt-ridden hood tries to keep a low profile while his reckless cousin ignores mounting gambling debts in this portrait of life in New York's Little Italy.",
     "film_url": "https://filmforum.org/film/mean-streets-tenement-stories",
-    "poster_url": "/posters/mean-streets.png"
+    "poster_url": "/posters/mean-streets.png",
+    "film_slug": "mean-streets",
+    "ticket_url": "https://my.filmforum.org/events/mean-streets-tene"
   },
   {
     "Movie": "HEAVY TRAFFIC",
     "Date": "Saturday, February 7",
     "Time": "9:40",
-    "Tickets": "https://my.filmforum.org/events/heavy-traffic",
     "Datetime": "2026-02-07T21:40:00",
     "country": "U.S.",
     "year": "1973",
@@ -117,13 +123,14 @@
     "runtime": "79 minutes",
     "description": "The film follows Michael, an inexperienced protagonist living with his aggressive Jewish mother and unemployed Italian father. Director Bakshi blends live-action with distinctive animation to explore themes of urban life. A love note to a city kept alive by its freaks.",
     "film_url": "https://filmforum.org/film/heavy-traffic-tenement-stories",
-    "poster_url": "/posters/heavy-traffic.png"
+    "poster_url": "/posters/heavy-traffic.png",
+    "film_slug": "heavy-traffic",
+    "ticket_url": "https://my.filmforum.org/events/heavy-traffic"
   },
   {
     "Movie": "THE KID",
     "Date": "Sunday, February 8",
     "Time": "11:00 – FF Jr.",
-    "Tickets": "https://my.filmforum.org/the-kid-ffjr",
     "Datetime": "2026-02-08T11:00:00",
     "country": "U.S.",
     "year": "1921",
@@ -132,13 +139,14 @@
     "runtime": "58 minutes",
     "description": "A streetwise 6-year-old ragamuffin becomes the companion of the Little Tramp character in the first true Chaplin feature. The film combines physical comedy with emotionally resonant moments, exploring human needs and ideals through the relationship between the two characters.",
     "film_url": "https://filmforum.org/film/the-kid-tenement-stories",
-    "poster_url": "/posters/the-kid.jpg"
+    "poster_url": "/posters/the-kid.jpg",
+    "film_slug": "the-kid",
+    "ticket_url": "https://my.filmforum.org/the-kid-ffjr"
   },
   {
     "Movie": "APPLAUSE",
     "Date": "Sunday, February 8",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/applause-tene",
     "Datetime": "2026-02-08T13:00:00",
     "country": "U.S.",
     "year": "1929",
@@ -147,13 +155,14 @@
     "runtime": "80 minutes",
     "description": "A young woman raised in a Wisconsin convent moves to New York to join her mother, only to discover she is a struggling burlesque performer. Director Mamoulian's directorial debut pioneered innovative sound film techniques.",
     "film_url": "https://filmforum.org/film/applause-tenement-stories",
-    "poster_url": "/posters/applause.png"
+    "poster_url": "/posters/applause.png",
+    "film_slug": "applause",
+    "ticket_url": "https://my.filmforum.org/events/applause-tene"
   },
   {
     "Movie": "TAXI!",
     "Date": "Sunday, February 8",
     "Time": "2:50",
-    "Tickets": "https://my.filmforum.org/events/taxi",
     "Datetime": "2026-02-08T14:50:00",
     "country": "U.S.",
     "year": "1932",
@@ -162,13 +171,14 @@
     "runtime": "69 minutes",
     "description": "A cocky New York cab driver (Cagney) struggles to keep his hands off his new bride (Young) during their wedding supper, then engages in a heated union conflict against a rival taxi company. The film features city sounds instead of traditional musical accompaniment. Cagney learned to drive specifically for this role.",
     "film_url": "https://filmforum.org/film/taxi-tenement-stories",
-    "poster_url": "/posters/taxi.png"
+    "poster_url": "/posters/taxi.png",
+    "film_slug": "taxi",
+    "ticket_url": "https://my.filmforum.org/events/taxi"
   },
   {
     "Movie": "THREE ON A MATCH",
     "Date": "Sunday, February 8",
     "Time": "4:30",
-    "Tickets": "https://my.filmforum.org/events/three-on-a-match",
     "Datetime": "2026-02-08T16:30:00",
     "country": "U.S.",
     "year": "1932",
@@ -177,13 +187,14 @@
     "runtime": "63 minutes",
     "description": "An early version of the gangster-movie myth about childhood friends who wind up on opposite sides of the class divide. Three schoolgirls follow different paths—to finishing school, secretarial school, and reform school—with their lives intersecting around themes of addiction and class struggle.",
     "film_url": "https://filmforum.org/film/three-on-a-match-tenement-stories",
-    "poster_url": "/posters/three-on-a-match.png"
+    "poster_url": "/posters/three-on-a-match.png",
+    "film_slug": "three-on-a-match",
+    "ticket_url": "https://my.filmforum.org/events/three-on-a-match"
   },
   {
     "Movie": "DEAD END",
     "Date": "Sunday, February 8",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/dead-end",
     "Datetime": "2026-02-08T18:00:00",
     "country": "U.S.",
     "year": "1937",
@@ -192,13 +203,14 @@
     "runtime": "93 minutes",
     "description": "The film depicts contrasting New York neighborhoods where luxury apartments overlook tenements along the East River. It explores class divisions and social inequality through interconnected relationships of an unemployed architect, a working-class woman, and neighborhood youth who admire a local criminal.",
     "film_url": "https://filmforum.org/film/dead-end-tenement-stories",
-    "poster_url": "/posters/dead-end.png"
+    "poster_url": "/posters/dead-end.png",
+    "film_slug": "dead-end",
+    "ticket_url": "https://my.filmforum.org/events/dead-end"
   },
   {
     "Movie": "MIXED BLOOD",
     "Date": "Sunday, February 8",
     "Time": "8:40",
-    "Tickets": "https://my.filmforum.org/events/mixed-blood",
     "Datetime": "2026-02-08T20:40:00",
     "country": "U.S.",
     "year": "1984",
@@ -207,13 +219,14 @@
     "runtime": "98 minutes",
     "description": "Rita La Punta and her son Thiago recruit local teenagers for a gang selling cocaine from abandoned tenements in pre-gentrification Alphabet City. Described as 'a frantic, highly enjoyable romp,' the film combines comedic and brutal elements.",
     "film_url": "https://filmforum.org/film/mixed-blood-tenement-stories",
-    "poster_url": "/posters/mixed-blood.png"
+    "poster_url": "/posters/mixed-blood.png",
+    "film_slug": "mixed-blood",
+    "ticket_url": "https://my.filmforum.org/events/mixed-blood"
   },
   {
     "Movie": "TWO SECONDS",
     "Date": "Monday, February 9",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/two-seconds",
     "Datetime": "2026-02-09T18:10:00",
     "country": "U.S.",
     "year": "1932",
@@ -222,13 +235,14 @@
     "runtime": "68 minutes",
     "description": "The film depicts the final moments of a man facing execution, exploring two seconds of his death by electric chair while revealing his troubled past through flashbacks, including a troubled marriage, railroad work, and a murder.",
     "film_url": "https://filmforum.org/film/two-seconds-tenement-stories",
-    "poster_url": "/posters/two-seconds.png"
+    "poster_url": "/posters/two-seconds.png",
+    "film_slug": "two-seconds",
+    "ticket_url": "https://my.filmforum.org/events/two-seconds"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Monday, February 9",
     "Time": "7:50",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-09T19:50:00",
     "country": "United States",
     "year": "1975",
@@ -237,13 +251,14 @@
     "runtime": "92 minutes",
     "description": "Set in 1896 New York, the film follows Yankel, who reinvents himself as the Americanized 'Jake,' complete with a new girlfriend. His plans are disrupted when his traditional wife arrives from the shtetl. Carol Kane received an Oscar nomination for her performance.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "THE HEART OF NEW YORK",
     "Date": "Tuesday, February 10",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/the-heart-of-new-york",
     "Datetime": "2026-02-10T18:00:00",
     "country": "U.S.",
     "year": "1932",
@@ -252,13 +267,14 @@
     "runtime": "73 minutes",
     "description": "A comedy about a lower East Side plumber who becomes wealthy after inventing the dishwasher. The film features vaudevillians Smith and Dale reprising their stage roles as quarreling business partners, with a Hester Street setting that includes details like 'Goldstein's Chop Suey' signage reflecting the neighborhood's immigrant character.",
     "film_url": "https://filmforum.org/film/the-heart-of-new-york-tenement-stories",
-    "poster_url": "/posters/the-heart-of-new-york.png"
+    "poster_url": "/posters/the-heart-of-new-york.png",
+    "film_slug": "the-heart-of-new-york",
+    "ticket_url": "https://my.filmforum.org/events/the-heart-of-new-york"
   },
   {
     "Movie": "HUMORESQUE",
     "Date": "Tuesday, February 10",
     "Time": "7:40",
-    "Tickets": "https://my.filmforum.org/events/humoresque-tene",
     "Datetime": "2026-02-10T19:40:00",
     "country": "U.S.",
     "year": "1920",
@@ -267,13 +283,14 @@
     "runtime": "60 minutes",
     "description": "Borzage's adaptation of Fannie Hurst's 1919 story follows a devoted mother who encourages her son to become an accomplished violinist. The film has been described as the quintessential ghetto film... the Lower East Side as an exalted state of mind, exploring themes of ambition, family devotion, and immigrant success in America.",
     "film_url": "https://filmforum.org/film/humoresque-tenement-stories",
-    "poster_url": "/posters/humoresque.png"
+    "poster_url": "/posters/humoresque.png",
+    "film_slug": "humoresque",
+    "ticket_url": "https://my.filmforum.org/events/humoresque-tene"
   },
   {
     "Movie": "EL SUPER",
     "Date": "Wednesday, February 11",
     "Time": "5:50",
-    "Tickets": "https://my.filmforum.org/events/el-super-tene",
     "Datetime": "2026-02-11T17:50:00",
     "country": "U.S.",
     "year": "1979",
@@ -282,13 +299,14 @@
     "runtime": "90 minutes",
     "description": "The film follows Roberto, a 42-year-old Cuban exile working as superintendent of a large Washington Heights apartment building. A funny, even-tempered, unsentimental drama exploring exile, isolation, and homesickness.",
     "film_url": "https://filmforum.org/film/el-super-tenement-stories",
-    "poster_url": "/posters/el-super.png"
+    "poster_url": "/posters/el-super.png",
+    "film_slug": "el-super",
+    "ticket_url": "https://my.filmforum.org/events/el-super-tene"
   },
   {
     "Movie": "SOMETHING WILD",
     "Date": "Wednesday, February 11",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/something-wild",
     "Datetime": "2026-02-11T20:30:00",
     "country": "U.S.",
     "year": "1961",
@@ -297,13 +315,14 @@
     "runtime": "112 minutes",
     "description": "A college student escapes her overbearing mother to the Lower East Side but struggles with trauma from a violent park incident. She encounters a garage mechanic who may offer salvation or further complications. Features Aaron Copland's score and cinematography by Eugene Schuftan.",
     "film_url": "https://filmforum.org/film/something-wild-tenement-stories",
-    "poster_url": "/posters/something-wild.png"
+    "poster_url": "/posters/something-wild.png",
+    "film_slug": "something-wild",
+    "ticket_url": "https://my.filmforum.org/events/something-wild"
   },
   {
     "Movie": "HUNGRY HEARTS",
     "Date": "Thursday, February 12",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/hungry-hearts",
     "Datetime": "2026-02-12T18:00:00",
     "country": "U.S.",
     "year": "1922",
@@ -312,13 +331,14 @@
     "runtime": "70 minutes",
     "description": "Based on Anzia Yezierska's short stories, this film follows the Levin family as they immigrate from Eastern Europe to New York's Lower East Side. The father Abraham struggles with assimilation and earning a living, while daughter Sara works as a cleaner to become a somebody. Mother Hannah represents the immigrant matriarch, attempting to improve their tenement home despite economic hardship. The film combines studio production with authentic Lower East Side location shooting, capturing the hopes and hardships of Jewish immigrants during this transformative period.",
     "film_url": "https://filmforum.org/film/hungry-hearts-tenement-stories",
-    "poster_url": "/posters/hungry-hearts.png"
+    "poster_url": "/posters/hungry-hearts.png",
+    "film_slug": "hungry-hearts",
+    "ticket_url": "https://my.filmforum.org/events/hungry-hearts"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Friday, February 13",
     "Time": "5:50",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-13T17:50:00",
     "country": "United States",
     "year": "1975",
@@ -327,13 +347,14 @@
     "runtime": "92 minutes",
     "description": "Set in 1896 New York, the film follows Yankel, who reinvents himself as the Americanized 'Jake,' complete with a new girlfriend. His plans are disrupted when his traditional wife arrives from the shtetl. Carol Kane received an Oscar nomination for her performance.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "FROWNLAND",
     "Date": "Friday, February 13",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/frownland",
     "Datetime": "2026-02-13T20:30:00",
     "country": "U.S.",
     "year": "2007",
@@ -342,13 +363,14 @@
     "runtime": "106 minutes",
     "description": "A dread-inducing vision of misfit alienation at its unhinged extreme. The protagonist Keith is a disturbingly maladjusted social outcast whose life spirals downward. DIY cinema at its most fearless, uncompromising, and unforgettable.",
     "film_url": "https://filmforum.org/film/frownland-tenement-stories",
-    "poster_url": "/posters/frownland.png"
+    "poster_url": "/posters/frownland.png",
+    "film_slug": "frownland",
+    "ticket_url": "https://my.filmforum.org/events/frownland"
   },
   {
     "Movie": "RAFTER ROMANCE",
     "Date": "Saturday, February 14",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/rafter-romance",
     "Datetime": "2026-02-14T12:30:00",
     "country": "U.S.",
     "year": "1932",
@@ -357,13 +379,14 @@
     "runtime": "72 minutes",
     "description": "Two struggling neighbors sharing an attic apartment - an artist/night watchman and a telemarketer - face an ultimatum to either timeshare their space or vacate. As tension builds through escalating notes left around the apartment, their initial conflict evolves into something more meaningful.",
     "film_url": "https://filmforum.org/film/rafter-romance-tenement-stories",
-    "poster_url": "/posters/rafter-romance.png"
+    "poster_url": "/posters/rafter-romance.png",
+    "film_slug": "rafter-romance",
+    "ticket_url": "https://my.filmforum.org/events/rafter-romance"
   },
   {
     "Movie": "ME AND MY GAL",
     "Date": "Saturday, February 14",
     "Time": "2:10",
-    "Tickets": "https://my.filmforum.org/events/me-and-my-gal",
     "Datetime": "2026-02-14T14:10:00",
     "country": "U.S.",
     "year": "1932",
@@ -372,13 +395,14 @@
     "runtime": "79 minutes",
     "description": "A comedic romance between a cop and a hash-slinger featuring witty banter and a parody of O'Neill's Strange Interlude, interrupted when the director's brother commits a bank robbery.",
     "film_url": "https://filmforum.org/film/me-and-my-gal-tenement-stories",
-    "poster_url": "/posters/me-and-my-gal.png"
+    "poster_url": "/posters/me-and-my-gal.png",
+    "film_slug": "me-and-my-gal",
+    "ticket_url": "https://my.filmforum.org/events/me-and-my-gal"
   },
   {
     "Movie": "THE CAMERAMAN",
     "Date": "Saturday, February 14",
     "Time": "4:15",
-    "Tickets": "https://my.filmforum.org/events/the-cameraman-tene",
     "Datetime": "2026-02-14T16:15:00",
     "country": "U.S.",
     "year": "1928",
@@ -387,13 +411,14 @@
     "runtime": "76 minutes",
     "description": "A novice newsreel cameraman named Buster experiences comedic mishaps at Coney Island, where he loses his swimsuit, while also pursuing romance on New York's streets. He attempts to film the Mott Street Tong Wars but is humorously upstaged by a monkey named Jocko.",
     "film_url": "https://filmforum.org/film/the-cameraman-tenement-stories",
-    "poster_url": "/posters/the-cameraman.png"
+    "poster_url": "/posters/the-cameraman.png",
+    "film_slug": "the-cameraman",
+    "ticket_url": "https://my.filmforum.org/events/the-cameraman-tene"
   },
   {
     "Movie": "CHRISTMAS IN JULY",
     "Date": "Saturday, February 14",
     "Time": "6:15",
-    "Tickets": "https://my.filmforum.org/events/christmas-in-july-tene",
     "Datetime": "2026-02-14T18:15:00",
     "country": "United States",
     "year": "1940",
@@ -402,13 +427,14 @@
     "runtime": "67 minutes",
     "description": "The film follows a man who mistakenly believes he has won $25,000 in a radio slogan contest and begins acting as though he's already wealthy. A riotous comedy-satire about capitalism that delicately satirizes the American Dream.",
     "film_url": "https://filmforum.org/film/christmas-in-july-tenement-stories",
-    "poster_url": "/posters/christmas-in-july.png"
+    "poster_url": "/posters/christmas-in-july.png",
+    "film_slug": "christmas-in-july",
+    "ticket_url": "https://my.filmforum.org/events/christmas-in-july-tene"
   },
   {
     "Movie": "WEST SIDE STORY",
     "Date": "Saturday, February 14",
     "Time": "7:40",
-    "Tickets": "https://my.filmforum.org/events/west-side-story-tene",
     "Datetime": "2026-02-14T19:40:00",
     "country": "U.S.",
     "year": "1961",
@@ -417,13 +443,14 @@
     "runtime": "155 minutes",
     "description": "The film chronicles a rivalry between the Nativist Jets and Puerto Rican Sharks gangs in Manhattan's slums. Despite the conflict, Tony and Maria find love. The production earned ten Academy Awards, including Best Picture and Best Director.",
     "film_url": "https://filmforum.org/film/west-side-story-tenement-stories",
-    "poster_url": "/posters/west-side-story.png"
+    "poster_url": "/posters/west-side-story.png",
+    "film_slug": "west-side-story",
+    "ticket_url": "https://my.filmforum.org/events/west-side-story-tene"
   },
   {
     "Movie": "THE CAMERAMAN",
     "Date": "Sunday, February 15",
     "Time": "11:00 – FF Jr.",
-    "Tickets": "https://my.filmforum.org/events/the-cameraman-tene",
     "Datetime": "2026-02-15T11:00:00",
     "country": "U.S.",
     "year": "1928",
@@ -432,13 +459,14 @@
     "runtime": "76 minutes",
     "description": "A novice newsreel cameraman named Buster experiences comedic mishaps at Coney Island, where he loses his swimsuit, while also pursuing romance on New York's streets. He attempts to film the Mott Street Tong Wars but is humorously upstaged by a monkey named Jocko.",
     "film_url": "https://filmforum.org/film/the-cameraman-tenement-stories",
-    "poster_url": "/posters/the-cameraman.png"
+    "poster_url": "/posters/the-cameraman.png",
+    "film_slug": "the-cameraman",
+    "ticket_url": "https://my.filmforum.org/events/the-cameraman-tene"
   },
   {
     "Movie": "SPEEDY",
     "Date": "Sunday, February 15",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/speedy-tene",
     "Datetime": "2026-02-15T13:00:00",
     "country": "U.S.",
     "year": "1928",
@@ -447,13 +475,14 @@
     "runtime": "85 minutes",
     "description": "A soda jerk and taxi driver obsessed with baseball, played by Harold Lloyd, picks up passenger Babe Ruth and drives frantically to the old Yankee Stadium. The film features extensive New York City location filming, culminating in an action-packed sequence where Harold races the city's final horse-drawn trolley through Washington Square Arch.",
     "film_url": "https://filmforum.org/film/speedy-tenement-stories",
-    "poster_url": "/posters/speedy.png"
+    "poster_url": "/posters/speedy.png",
+    "film_slug": "speedy",
+    "ticket_url": "https://my.filmforum.org/events/speedy-tene"
   },
   {
     "Movie": "THE CROWD",
     "Date": "Sunday, February 15",
     "Time": "2:55",
-    "Tickets": "https://my.filmforum.org/events/the-crowd-tene",
     "Datetime": "2026-02-15T14:55:00",
     "country": "U.S.",
     "year": "1928",
@@ -462,13 +491,14 @@
     "runtime": "98 minutes",
     "description": "A married couple navigates life's challenges after a romantic start at Coney Island. The film follows them through parenthood, unemployment, and marital difficulties. Director Vidor presents this as a landmark paean to real people - showcasing what he called the average man struggling through life's adversities. The narrative emphasizes individual struggle against vast, defining environments, utilizing innovative camera work to capture the couple's experience amid urban spaces.",
     "film_url": "https://filmforum.org/film/the-crowd-tenement-stories",
-    "poster_url": "/posters/the-crowd.png"
+    "poster_url": "/posters/the-crowd.png",
+    "film_slug": "the-crowd",
+    "ticket_url": "https://my.filmforum.org/events/the-crowd-tene"
   },
   {
     "Movie": "ONE THIRD OF A NATION",
     "Date": "Sunday, February 15",
     "Time": "5:10",
-    "Tickets": "https://my.filmforum.org/events/one-third-of-a-nation",
     "Datetime": "2026-02-15T17:10:00",
     "country": "U.S.",
     "year": "1939",
@@ -477,13 +507,14 @@
     "runtime": "79 minutes",
     "description": "When Sylvia Sidney's character helps her young nephew Sidney Lumet to the hospital after he's injured in their deteriorating tenement building, she discovers her boyfriend (Leif Erickson) is actually the building's landlord. Based on Arthur Arent's 1937 play.",
     "film_url": "https://filmforum.org/film/one-third-of-a-nation-tenement-stories",
-    "poster_url": "/posters/one-third-of-a-nation.png"
+    "poster_url": "/posters/one-third-of-a-nation.png",
+    "film_slug": "one-third-of-a-nation",
+    "ticket_url": "https://my.filmforum.org/events/one-third-of-a-nation"
   },
   {
     "Movie": "ONCE UPON A TIME IN AMERICA",
     "Date": "Sunday, February 15",
     "Time": "7:00",
-    "Tickets": "https://my.filmforum.org/events/once-upon-a-time-in-america",
     "Datetime": "2026-02-15T19:00:00",
     "country": "Italy/U.S.",
     "year": "1984",
@@ -492,13 +523,14 @@
     "runtime": "229 minutes",
     "description": "The film follows Jewish gangsters De Niro and Woods from their youth in the 1920s through bootlegging in the 1930s. De Niro's character returns decades later, heavy with regret, with scenes presented through flashbacks and flash-forwards. The narrative structure leaves ambiguity about whether events represent reality or stem from De Niro's 1933 opium dream.",
     "film_url": "https://filmforum.org/film/once-upon-a-time-in-america-tenement-stories",
-    "poster_url": "/posters/once-upon-a-time-in-america.png"
+    "poster_url": "/posters/once-upon-a-time-in-america.png",
+    "film_slug": "once-upon-a-time-in-america",
+    "ticket_url": "https://my.filmforum.org/events/once-upon-a-time-in-america"
   },
   {
     "Movie": "EAST SIDE, WEST SIDE",
     "Date": "Monday, February 16",
     "Time": "7:30",
-    "Tickets": "https://my.filmforum.org/events/east-side-west-side",
     "Datetime": "2026-02-16T19:30:00",
     "country": "U.S.",
     "year": "1927",
@@ -507,13 +539,14 @@
     "runtime": "90 minutes",
     "description": "Allan Dwan's love letter to New York explores street thugs, scrappy immigrants, uptown swells, and a keen Irish bargeman who wants a better life for himself, capturing all the color and verve of 1920s Manhattan.",
     "film_url": "https://filmforum.org/film/east-side-west-side-tenement-stories",
-    "poster_url": "/posters/east-side-west-side.png"
+    "poster_url": "/posters/east-side-west-side.png",
+    "film_slug": "east-side-west-side",
+    "ticket_url": "https://my.filmforum.org/events/east-side-west-side"
   },
   {
     "Movie": "RAISING VICTOR VARGAS",
     "Date": "Tuesday, February 17",
     "Time": "8:00",
-    "Tickets": "https://my.filmforum.org/events/raising-victor-vargas",
     "Datetime": "2026-02-17T20:00:00",
     "country": "U.S.",
     "year": "2002",
@@ -522,13 +555,14 @@
     "runtime": "88 minutes",
     "description": "Victor Vargas faces a reputation crisis on Avenue C after an embarrassing incident. He pursues the neighborhood's most popular girl to salvage his image, but encounters obstacles from his strict Catholic grandmother. Peter Sollett's directorial debut featuring first-time actors and vibrant portraits of the Lower East Side community.",
     "film_url": "https://filmforum.org/film/raising-victor-vargas-tenement-stories",
-    "poster_url": "/posters/raising-victor-vargas.png"
+    "poster_url": "/posters/raising-victor-vargas.png",
+    "film_slug": "raising-victor-vargas",
+    "ticket_url": "https://my.filmforum.org/events/raising-victor-vargas"
   },
   {
     "Movie": "TAKE OUT",
     "Date": "Wednesday, February 18",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/take-out",
     "Datetime": "2026-02-18T18:10:00",
     "country": "U.S.",
     "year": "2004",
@@ -537,13 +571,14 @@
     "runtime": "90 minutes",
     "description": "This raw, verite film immerses viewers in the life of an undocumented Chinese immigrant navigating post-9/11 New York City. Ming Ding, a restaurant deliveryman, faces pressure from a loan shark and must earn enough in tips by nightfall to repay his debt. Throughout a frenetic day, he encounters setbacks and moments of human kindness as he races against time - a neorealist survival thriller highlighting the too often overlooked lives and labor that keep New York running.",
     "film_url": "https://filmforum.org/film/take-out-tenement-stories",
-    "poster_url": "/posters/take-out.png"
+    "poster_url": "/posters/take-out.png",
+    "film_slug": "take-out",
+    "ticket_url": "https://my.filmforum.org/events/take-out"
   },
   {
     "Movie": "THE NAKED CITY",
     "Date": "Wednesday, February 18",
     "Time": "8:10",
-    "Tickets": "https://my.filmforum.org/events/the-naked-city-tene",
     "Datetime": "2026-02-18T20:10:00",
     "country": "U.S.",
     "year": "1948",
@@ -552,13 +587,14 @@
     "runtime": "96 minutes",
     "description": "A police procedural following a murder investigation on W. 83rd Street. Inspector Fitzgerald and Detective Taylor pursue leads across 107 NYC locations, including Stillman's Gym, Essex Market, and the Williamsburg Bridge, ultimately solving a case based on an actual 1920s incident.",
     "film_url": "https://filmforum.org/film/the-naked-city-tenement-stories",
-    "poster_url": "/posters/the-naked-city.png"
+    "poster_url": "/posters/the-naked-city.png",
+    "film_slug": "the-naked-city",
+    "ticket_url": "https://my.filmforum.org/events/the-naked-city-tene"
   },
   {
     "Movie": "LOS SURES",
     "Date": "Thursday, February 19",
     "Time": "6:40",
-    "Tickets": "https://my.filmforum.org/events/los-sures-tene",
     "Datetime": "2026-02-19T18:40:00",
     "country": "U.S.",
     "year": "1984",
@@ -567,13 +603,14 @@
     "runtime": "57 minutes",
     "description": "A documentary film that portrays the challenges faced by Southside residents, including poverty, drugs, gang violence, and inadequate resources. The film also highlights the strength of their culture, their creativity, and their determination to overcome a desperate situation in this largely Puerto Rican and Dominican community. The work was restored for its 30th anniversary premiere at the New York Film Festival and is described as an invaluable piece of New York City history.",
     "film_url": "https://filmforum.org/film/los-sures-tenement-stories",
-    "poster_url": "/posters/los-sures.png"
+    "poster_url": "/posters/los-sures.png",
+    "film_slug": "los-sures",
+    "ticket_url": "https://my.filmforum.org/events/los-sures-tene"
   },
   {
     "Movie": "HEAVY TRAFFIC",
     "Date": "Thursday, February 19",
     "Time": "9:10",
-    "Tickets": "https://my.filmforum.org/events/heavy-traffic",
     "Datetime": "2026-02-19T21:10:00",
     "country": "U.S.",
     "year": "1973",
@@ -582,13 +619,14 @@
     "runtime": "79 minutes",
     "description": "The film follows Michael, an inexperienced protagonist living with his aggressive Jewish mother and unemployed Italian father. Director Bakshi blends live-action with distinctive animation to explore themes of urban life. A love note to a city kept alive by its freaks.",
     "film_url": "https://filmforum.org/film/heavy-traffic-tenement-stories",
-    "poster_url": "/posters/heavy-traffic.png"
+    "poster_url": "/posters/heavy-traffic.png",
+    "film_slug": "heavy-traffic",
+    "ticket_url": "https://my.filmforum.org/events/heavy-traffic"
   },
   {
     "Movie": "SWEET LOVE, BITTER",
     "Date": "Friday, February 20",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/sweet-love-bitter",
     "Datetime": "2026-02-20T18:00:00",
     "country": "U.S.",
     "year": "1967",
@@ -597,13 +635,14 @@
     "runtime": "92 minutes",
     "description": "A verite predecessor to BIRD in which a struggling professor befriends an impoverished saxophonist character inspired by Charlie Parker. The musician struggles with drug addiction. The film features a score by Mal Waldron that includes contributions from pianist Chick Corea.",
     "film_url": "https://filmforum.org/film/sweet-love-bitter-tenement-stories",
-    "poster_url": "/posters/sweet-love-bitter.png"
+    "poster_url": "/posters/sweet-love-bitter.png",
+    "film_slug": "sweet-love-bitter",
+    "ticket_url": "https://my.filmforum.org/events/sweet-love-bitter"
   },
   {
     "Movie": "THE CONNECTION",
     "Date": "Friday, February 20",
     "Time": "8:00",
-    "Tickets": "https://my.filmforum.org/events/the-connection-tene",
     "Datetime": "2026-02-20T20:00:00",
     "country": "U.S.",
     "year": "1961",
@@ -612,13 +651,14 @@
     "runtime": "103 minutes",
     "description": "Clarke's film captures a group of junkies and jazz musicians in a rundown East Village tenement, featuring original jazz music by Freddie Redd and fellow musicians performing on camera. The work explores the creative and bohemian culture of early 1960s New York through an experimental, self-aware cinematic approach that challenged filmmaking conventions of its era.",
     "film_url": "https://filmforum.org/film/the-connection-tenement-stories",
-    "poster_url": "/posters/the-connection.png"
+    "poster_url": "/posters/the-connection.png",
+    "film_slug": "the-connection",
+    "ticket_url": "https://my.filmforum.org/events/the-connection-tene"
   },
   {
     "Movie": "LOS SURES",
     "Date": "Saturday, February 21",
     "Time": "12:15",
-    "Tickets": "https://my.filmforum.org/events/los-sures-tene",
     "Datetime": "2026-02-21T12:15:00",
     "country": "U.S.",
     "year": "1984",
@@ -627,13 +667,14 @@
     "runtime": "57 minutes",
     "description": "A documentary film that portrays the challenges faced by Southside residents, including poverty, drugs, gang violence, and inadequate resources. The film also highlights the strength of their culture, their creativity, and their determination to overcome a desperate situation in this largely Puerto Rican and Dominican community. The work was restored for its 30th anniversary premiere at the New York Film Festival and is described as an invaluable piece of New York City history.",
     "film_url": "https://filmforum.org/film/los-sures-tenement-stories",
-    "poster_url": "/posters/los-sures.png"
+    "poster_url": "/posters/los-sures.png",
+    "film_slug": "los-sures",
+    "ticket_url": "https://my.filmforum.org/events/los-sures-tene"
   },
   {
     "Movie": "SWEET LOVE, BITTER",
     "Date": "Saturday, February 21",
     "Time": "1:45",
-    "Tickets": "https://my.filmforum.org/events/sweet-love-bitter",
     "Datetime": "2026-02-21T13:45:00",
     "country": "U.S.",
     "year": "1967",
@@ -642,13 +683,14 @@
     "runtime": "92 minutes",
     "description": "A verite predecessor to BIRD in which a struggling professor befriends an impoverished saxophonist character inspired by Charlie Parker. The musician struggles with drug addiction. The film features a score by Mal Waldron that includes contributions from pianist Chick Corea.",
     "film_url": "https://filmforum.org/film/sweet-love-bitter-tenement-stories",
-    "poster_url": "/posters/sweet-love-bitter.png"
+    "poster_url": "/posters/sweet-love-bitter.png",
+    "film_slug": "sweet-love-bitter",
+    "ticket_url": "https://my.filmforum.org/events/sweet-love-bitter"
   },
   {
     "Movie": "THE ASPHALT JUNGLE",
     "Date": "Saturday, February 21",
     "Time": "3:45",
-    "Tickets": "https://my.filmforum.org/events/the-asphalt-jungle-tene",
     "Datetime": "2026-02-21T15:45:00",
     "country": "U.S.",
     "year": "1950",
@@ -657,13 +699,14 @@
     "runtime": "112 minutes",
     "description": "A recently released criminal mastermind assembles a specialized team - including a strong-arm man, driver, and safecracker - to execute a major heist. Backed by a lawyer-fence and his connections, the crew pursues their ambitious theft. However, internal conflicts and betrayals among the thieves threaten to unravel their plans. Adapted from W.R. Burnett's classic novel, this pioneering heist film explores the workaday lives and dreams of its criminal ensemble against an urban backdrop of moral compromise.",
     "film_url": "https://filmforum.org/film/the-asphalt-jungle-tenement-stories",
-    "poster_url": "/posters/the-asphalt-jungle.png"
+    "poster_url": "/posters/the-asphalt-jungle.png",
+    "film_slug": "the-asphalt-jungle",
+    "ticket_url": "https://my.filmforum.org/events/the-asphalt-jungle-tene"
   },
   {
     "Movie": "THE LANDLORD",
     "Date": "Saturday, February 21",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/the-landlord-tene",
     "Datetime": "2026-02-21T18:10:00",
     "country": "U.S.",
     "year": "1970",
@@ -672,13 +715,14 @@
     "runtime": "110 minutes",
     "description": "A wealthy, naive young man in his twenties purchases a tenement building in pre-gentrification Park Slope with the intention of converting it into his personal residence. The film explores his misguided attempts to remove the African-American tenants and navigate the complexities of race relations in 1970s America.",
     "film_url": "https://filmforum.org/film/the-landlord-tenement-stories",
-    "poster_url": "/posters/the-landlord.png"
+    "poster_url": "/posters/the-landlord.png",
+    "film_slug": "the-landlord",
+    "ticket_url": "https://my.filmforum.org/events/the-landlord-tene"
   },
   {
     "Movie": "TAXI DRIVER",
     "Date": "Saturday, February 21",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/taxi-driver-tene",
     "Datetime": "2026-02-21T20:30:00",
     "country": "U.S.",
     "year": "1976",
@@ -687,13 +731,14 @@
     "runtime": "113 minutes",
     "description": "An insomniac New York cab driver named Travis Bickle undergoes a dramatic transformation into a vigilante figure. The narrative follows his descent as he becomes increasingly armed and unstable, ultimately confronting a child prostitute and her pimp during a sweltering summer marked by a garbage strike. The film explores themes of urban decay, isolation, and moral conflict through this character's violent journey.",
     "film_url": "https://filmforum.org/film/taxi-driver-tenement-stories",
-    "poster_url": "/posters/taxi-driver.png"
+    "poster_url": "/posters/taxi-driver.png",
+    "film_slug": "taxi-driver",
+    "ticket_url": "https://my.filmforum.org/events/taxi-driver-tene"
   },
   {
     "Movie": "LITTLE ANNIE ROONEY",
     "Date": "Sunday, February 22",
     "Time": "11:00 – FF Jr.",
-    "Tickets": "https://my.filmforum.org/little-annie-rooney-ffjr",
     "Datetime": "2026-02-22T11:00:00",
     "country": "U.S.",
     "year": "1925",
@@ -702,13 +747,14 @@
     "runtime": "95 minutes",
     "description": "The film follows a 12-year-old girl living on the Lower East Side as the child of an Irish police officer. What begins as comedy takes a darker turn when her brother becomes involved with a gang that intimidates Jewish shopkeepers. This was Mary Pickford's final child role at age 33.",
     "film_url": "https://filmforum.org/film/little-annie-rooney-tenement-stories",
-    "poster_url": "/posters/little-annie-rooney.png"
+    "poster_url": "/posters/little-annie-rooney.png",
+    "film_slug": "little-annie-rooney",
+    "ticket_url": "https://my.filmforum.org/little-annie-rooney-ffjr"
   },
   {
     "Movie": "UNCLE MOSES",
     "Date": "Sunday, February 22",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/uncle-moses-tene",
     "Datetime": "2026-02-22T13:00:00",
     "country": "U.S.",
     "year": "1932",
@@ -717,13 +763,14 @@
     "runtime": "87 minutes",
     "description": "A Polish immigrant factory owner on the Lower East Side welcomes fellow countrymen from his shtetl to work in his clothing factory. When a young woman named Masha arrives seeking employment for her father, the wealthy Uncle Moses becomes enamored with her and proposes marriage. She accepts to improve her family's circumstances, though her heart belongs to a labor activist organizing workers to unionize the sweatshop.",
     "film_url": "https://filmforum.org/film/uncle-moses-tenement-stories",
-    "poster_url": "/posters/uncle-moses.png"
+    "poster_url": "/posters/uncle-moses.png",
+    "film_slug": "uncle-moses",
+    "ticket_url": "https://my.filmforum.org/events/uncle-moses-tene"
   },
   {
     "Movie": "HIS PEOPLE",
     "Date": "Sunday, February 22",
     "Time": "3:20",
-    "Tickets": "https://my.filmforum.org/events/his-people",
     "Datetime": "2026-02-22T15:20:00",
     "country": "U.S.",
     "year": "1925",
@@ -732,13 +779,14 @@
     "runtime": "91 minutes",
     "description": "The Cominskys and the Shannons on the Lower East Side in perhaps the most extraordinary portrait of American ghetto life ever produced by Hollywood.",
     "film_url": "https://filmforum.org/film/his-people-tenement-stories",
-    "poster_url": "/posters/his-people.png"
+    "poster_url": "/posters/his-people.png",
+    "film_slug": "his-people",
+    "ticket_url": "https://my.filmforum.org/events/his-people"
   },
   {
     "Movie": "A TREE GROWS IN BROOKLYN",
     "Date": "Sunday, February 22",
     "Time": "5:40",
-    "Tickets": "https://my.filmforum.org/events/a-tree-grows-in-brooklyn",
     "Datetime": "2026-02-22T17:40:00",
     "country": "U.S.",
     "year": "1945",
@@ -747,13 +795,14 @@
     "runtime": "128 minutes",
     "description": "An adaptation of Betty Smith's semi-autobiographical novel following an impoverished but hopeful Irish-American family navigating life in a turn-of-the-century Williamsburg tenement.",
     "film_url": "https://filmforum.org/film/a-tree-grows-in-brooklyn-tenement-stories",
-    "poster_url": "/posters/a-tree-grows-in-brooklyn.png"
+    "poster_url": "/posters/a-tree-grows-in-brooklyn.png",
+    "film_slug": "a-tree-grows-in-brooklyn",
+    "ticket_url": "https://my.filmforum.org/events/a-tree-grows-in-brooklyn"
   },
   {
     "Movie": "A RAISIN IN THE SUN",
     "Date": "Sunday, February 22",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/a-raisin-in-the-sun-tene",
     "Datetime": "2026-02-22T20:30:00",
     "country": "United States",
     "year": "1961",
@@ -762,13 +811,14 @@
     "runtime": "128 minutes",
     "description": "A windfall gives hope to the Youngers, a Black family living on Chicago's South Side, but conflict arises over how to spend the money. Based on Lorraine Hansberry's landmark 1959 play—the first Broadway play by a Black woman.",
     "film_url": "https://filmforum.org/film/a-raisin-in-the-sun-tenement-stories",
-    "poster_url": "/posters/a-raisin-in-the-sun.png"
+    "poster_url": "/posters/a-raisin-in-the-sun.png",
+    "film_slug": "a-raisin-in-the-sun",
+    "ticket_url": "https://my.filmforum.org/events/a-raisin-in-the-sun-tene"
   },
   {
     "Movie": "LONESOME",
     "Date": "Monday, February 23",
     "Time": "5:35",
-    "Tickets": "https://my.filmforum.org/events/lonesome",
     "Datetime": "2026-02-23T17:35:00",
     "country": "U.S.",
     "year": "1928",
@@ -777,13 +827,14 @@
     "runtime": "70 minutes",
     "description": "Two single New York residents meet and become separated during a Coney Island outing, then later reconnect. Fejos' acclaimed film was part of a movement away from nightclubs, newspaper offices, and marble halls towards the ordinary Joes in the audience. The film features silent sequences with dialogue and synchronized music, marking Universal studio's first film with audible dialogue.",
     "film_url": "https://filmforum.org/film/lonesome-tenement-stories",
-    "poster_url": "/posters/lonesome.png"
+    "poster_url": "/posters/lonesome.png",
+    "film_slug": "lonesome",
+    "ticket_url": "https://my.filmforum.org/events/lonesome"
   },
   {
     "Movie": "SHOES",
     "Date": "Monday, February 23",
     "Time": "7:15",
-    "Tickets": "https://my.filmforum.org/events/shoes",
     "Datetime": "2026-02-23T19:15:00",
     "country": "U.S.",
     "year": "1916",
@@ -792,13 +843,14 @@
     "runtime": "60 minutes",
     "description": "A shopgirl unable to afford decent shoes on her meager salary faces temptation from a disreputable man, leading to consequences. Weber drew inspiration from her work as a missionary among young girls in NYC slums.",
     "film_url": "https://filmforum.org/film/shoes-tenement-stories",
-    "poster_url": "/posters/shoes.png"
+    "poster_url": "/posters/shoes.png",
+    "film_slug": "shoes",
+    "ticket_url": "https://my.filmforum.org/events/shoes"
   },
   {
     "Movie": "MANHATTAN BY NUMBERS",
     "Date": "Tuesday, February 24",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/manhattan-by-numbers-tene",
     "Datetime": "2026-02-24T18:00:00",
     "country": "U.S.",
     "year": "1993",
@@ -807,13 +859,14 @@
     "runtime": "110 minutes",
     "description": "A jobless man deeply in debt travels from Washington Heights to the Lower East Side searching for an acquaintance who might help him raise $1,200 for rent. The film manages to become a mesmerizing quest for meaning simply by projecting Manhattan into the foreground and its narrative in the background.",
     "film_url": "https://filmforum.org/film/manhattan-by-numbers-tenement-stories",
-    "poster_url": "/posters/manhattan-by-numbers.png"
+    "poster_url": "/posters/manhattan-by-numbers.png",
+    "film_slug": "manhattan-by-numbers",
+    "ticket_url": "https://my.filmforum.org/events/manhattan-by-numbers-tene"
   },
   {
     "Movie": "TAXI DRIVER",
     "Date": "Tuesday, February 24",
     "Time": "8:20",
-    "Tickets": "https://my.filmforum.org/events/taxi-driver-tene",
     "Datetime": "2026-02-24T20:20:00",
     "country": "U.S.",
     "year": "1976",
@@ -822,13 +875,14 @@
     "runtime": "113 minutes",
     "description": "An insomniac New York cab driver named Travis Bickle undergoes a dramatic transformation into a vigilante figure. The narrative follows his descent as he becomes increasingly armed and unstable, ultimately confronting a child prostitute and her pimp during a sweltering summer marked by a garbage strike. The film explores themes of urban decay, isolation, and moral conflict through this character's violent journey.",
     "film_url": "https://filmforum.org/film/taxi-driver-tenement-stories",
-    "poster_url": "/posters/taxi-driver.png"
+    "poster_url": "/posters/taxi-driver.png",
+    "film_slug": "taxi-driver",
+    "ticket_url": "https://my.filmforum.org/events/taxi-driver-tene"
   },
   {
     "Movie": "REGENERATION",
     "Date": "Wednesday, February 25",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/regeneration-tene",
     "Datetime": "2026-02-25T18:10:00",
     "country": "U.S.",
     "year": "1915",
@@ -837,13 +891,14 @@
     "runtime": "72 minutes",
     "description": "Shot on the Bowery with actual street denizens as extras and featuring a dramatic cruise ship fire sequence, this film is described as 'the most authentic-looking gangster film surviving from the entire silent period.'",
     "film_url": "https://filmforum.org/film/regeneration-tenement-stories",
-    "poster_url": "/posters/regeneration.png"
+    "poster_url": "/posters/regeneration.png",
+    "film_slug": "regeneration",
+    "ticket_url": "https://my.filmforum.org/events/regeneration-tene"
   },
   {
     "Movie": "THE GODFATHER PART II",
     "Date": "Thursday, February 26",
     "Time": "7:10",
-    "Tickets": "https://my.filmforum.org/events/the-godfather-part-2-tene",
     "Datetime": "2026-02-26T19:10:00",
     "country": "U.S.",
     "year": "1974",
@@ -852,6 +907,8 @@
     "runtime": "202 minutes",
     "description": "The film functions as both prequel and sequel, following Michael (Pacino) as he consolidates his criminal empire while investigating family loyalty, alongside young Vito Corleone (De Niro) navigating early 20th-century organized crime in Little Italy.",
     "film_url": "https://filmforum.org/film/the-godfather-part-ii-tenement-stories",
-    "poster_url": "/posters/the-godfather-part-ii.png"
+    "poster_url": "/posters/the-godfather-part-ii.png",
+    "film_slug": "the-godfather-part-ii",
+    "ticket_url": "https://my.filmforum.org/events/the-godfather-part-2-tene"
   }
 ]

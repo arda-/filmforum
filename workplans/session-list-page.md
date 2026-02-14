@@ -8,7 +8,7 @@ The FilmForum project is an Astro + webcoreui application (no React) built aroun
 
 - **Layout & styling**: `src/layouts/Layout.astro`, `src/styles/global.css` with dark/light mode CSS variables
 - **Components**: `Button.astro`, `Toggle.astro`, `ToggleGroup.astro`, `Switch.astro`, `Dialog.astro`, `DialogRoot.astro`, `MovieModal.astro`, `Header.astro`, `MovieTile/index.ts`
-- **Data**: Movie JSON at `public/tenement-stories-full.json` with fields: Movie, Date, Time, Tickets, Datetime, country, year, director, actors, runtime, description, film_url, poster_url
+- **Data**: Movie JSON at `public/tenement-stories-full.json` with fields: Movie, Date, Time, ticket_url, Datetime, film_slug, country, year, director, actors, runtime, description, film_url, poster_url
 - **Utilities**: `src/utils/movieUtils.ts` (Movie interface, formatting helpers)
 - **Blur demos**: `src/pages/demo/blur-simple.astro` and `blur-progressive.astro` with backdrop-filter blur + mask-image techniques
 - **Tile demo**: `src/pages/demo/tile.astro` with poster background tiles and gradient overlays

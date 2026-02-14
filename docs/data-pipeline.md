@@ -64,8 +64,9 @@ filmforum/
   "Movie": "STREET SCENE",
   "Date": "Friday, February 6",
   "Time": "6:10",
-  "Tickets": "https://my.filmforum.org/events/street-scene",
+  "ticket_url": "https://my.filmforum.org/events/street-scene",
   "Datetime": "2026-02-06T18:10:00",
+  "film_slug": "street-scene",
   "country": "U.S.",
   "year": "1931",
   "director": "King Vidor",
@@ -84,7 +85,8 @@ filmforum/
 | `Movie` | Series page | Uppercase title | `"STREET SCENE"` |
 | `Date` | Series page | `{Day}, {Month} {Date}` | `"Friday, February 6"` |
 | `Time` | Series page | 12-hour, no AM/PM | `"6:10"` or `"11:00 – FF Jr."` |
-| `Tickets` | Series page | Full URL | `"https://my.filmforum.org/..."` |
+| `ticket_url` | Series page | Full URL | `"https://my.filmforum.org/..."` |
+| `film_slug` | Derived from `film_url` | Kebab-case slug | `"street-scene"` |
 | `Datetime` | Computed | ISO 8601 | `"2026-02-06T18:10:00"` |
 | `year` | Film page | 4-digit year | `"1931"` |
 | `director` | Film page | Name(s) | `"King Vidor"` |
@@ -271,9 +273,9 @@ qsv table tenement-stories-evenings.csv
 jq -rs 'sort_by(.Datetime) | to_entries | reduce .[] as $e (
   {last: "", out: []};
   if .last == $e.value.Date then
-    .out += ["  " + $e.value.Time[0:15] + "  " + $e.value.Movie + "  " + $e.value.Tickets]
+    .out += ["  " + $e.value.Time[0:15] + "  " + $e.value.Movie + "  " + $e.value.ticket_url]
   else
-    .out += ["", $e.value.Date, "  " + $e.value.Time[0:15] + "  " + $e.value.Movie + "  " + $e.value.Tickets]
+    .out += ["", $e.value.Date, "  " + $e.value.Time[0:15] + "  " + $e.value.Movie + "  " + $e.value.ticket_url]
     | .last = $e.value.Date
   end
 ) | .out | join("\n")' tenement-stories-evenings.json
