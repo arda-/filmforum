@@ -123,7 +123,7 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
         </div>
         <div class="popover-section">
           <div class="popover-row">
-            <span class="popover-label">Past showtimes</span>
+            <span class="popover-label popover-label-past">Past showtimes</span>
             <SegmentedToggle size="sm" role="radiogroup" aria-label="Past showtimes display mode">
               <button
                 class="seg-btn"
@@ -585,8 +585,11 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
     letter-spacing: -0.01em;
   }
 
-
-
+  .popover-label-past {
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    text-transform: none;
+    letter-spacing: normal;
+  }
 
   /* Hidden helper switches are truly hidden */
   [style*="display:none"] {
