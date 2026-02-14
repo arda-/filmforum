@@ -336,7 +336,8 @@ const containerStyle = sizeStyles.join('; ');
     z-index: 1;
   }
 
-  /* Dark gradient scrim layered on top of blur for extra text contrast */
+  /* Dark gradient scrim layered on top of blur for extra text contrast.
+     Stop positions are set as CSS custom properties by JS (text-relative). */
   .drawer-hero-blur::after {
     content: '';
     position: absolute;
@@ -344,8 +345,8 @@ const containerStyle = sizeStyles.join('; ');
     background: linear-gradient(
       to top,
       rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0.35) 40%,
-      transparent 100%
+      rgba(0, 0, 0, 0.35) var(--scrim-full, 8%),
+      transparent var(--scrim-end, 15%)
     );
     pointer-events: none;
   }
@@ -573,6 +574,12 @@ const containerStyle = sizeStyles.join('; ');
       const mask = `linear-gradient(to top, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
       blur.style.maskImage = mask;
       (blur.style as any).webkitMaskImage = mask;
+
+      // Scrim: full darkness at 0.5× text height, fades out at 1× text height
+      const scrimFullPct = (textHeight * 0.5 / heroHeight) * 100;
+      const scrimEndPct = blurEndPct;
+      blur.style.setProperty('--scrim-full', `${scrimFullPct}%`);
+      blur.style.setProperty('--scrim-end', `${scrimEndPct}%`);
     }
 
     const ro = new ResizeObserver(() => updateHeroBlur());
