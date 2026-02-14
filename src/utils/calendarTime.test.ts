@@ -2,21 +2,13 @@
  * Test suite for calendar time utility functions.
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { isDatetimeInPast } from './calendarTime';
 
 describe('calendarTime', () => {
   describe('isDatetimeInPast', () => {
-    let originalDate: typeof Date;
-
-    beforeEach(() => {
-      // Save original Date
-      originalDate = global.Date;
-    });
-
     afterEach(() => {
-      // Restore original Date
-      global.Date = originalDate;
+      vi.useRealTimers();
     });
 
     it('should return true for datetimes before current time', () => {
@@ -29,8 +21,6 @@ describe('calendarTime', () => {
       expect(isDatetimeInPast('2026-02-15T12:00:00')).toBe(true);
       expect(isDatetimeInPast('2026-02-14T19:00:00')).toBe(true);
       expect(isDatetimeInPast('2026-02-01T10:00:00')).toBe(true);
-
-      vi.useRealTimers();
     });
 
     it('should return false for current time', () => {
@@ -39,8 +29,6 @@ describe('calendarTime', () => {
       vi.setSystemTime(mockDate);
 
       expect(isDatetimeInPast('2026-02-15T14:00:00')).toBe(false);
-
-      vi.useRealTimers();
     });
 
     it('should return false for datetimes after current time', () => {
@@ -53,8 +41,6 @@ describe('calendarTime', () => {
       expect(isDatetimeInPast('2026-02-15T19:00:00')).toBe(false);
       expect(isDatetimeInPast('2026-02-16T10:00:00')).toBe(false);
       expect(isDatetimeInPast('2026-03-01T12:00:00')).toBe(false);
-
-      vi.useRealTimers();
     });
 
     it('should work with different time zones in ISO format', () => {
@@ -65,8 +51,6 @@ describe('calendarTime', () => {
       // Past times in different formats
       expect(isDatetimeInPast('2026-02-15T13:00:00Z')).toBe(true);
       expect(isDatetimeInPast('2026-02-15T13:00:00')).toBe(true);
-
-      vi.useRealTimers();
     });
 
     it('should handle edge cases at second boundaries', () => {
@@ -80,8 +64,6 @@ describe('calendarTime', () => {
       expect(isDatetimeInPast('2026-02-15T14:30:00')).toBe(false);
       // One second after should not be past
       expect(isDatetimeInPast('2026-02-15T14:30:01')).toBe(false);
-
-      vi.useRealTimers();
     });
   });
 });
