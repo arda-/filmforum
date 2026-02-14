@@ -2,13 +2,13 @@
 
 /**
  * Test suite for MovieTile component logic.
- * Tests createMovieElement DOM output, processFFJr, and toTitleCase.
+ * Tests createMovieElement DOM output and processFFJr.
  * Uses Vitest's built-in jsdom environment for DOM support.
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import type { Movie } from '../../types/movie';
-import { createMovieElement, processFFJr, toTitleCase, updateTextHeights } from './index';
+import { createMovieElement, processFFJr, updateTextHeights } from './index';
 
 function makeMovie(overrides: Partial<Movie> = {}): Movie {
   return {
@@ -39,22 +39,6 @@ describe('processFFJr', () => {
     const result = processFFJr('10:00 - FF Jr', 'test film');
     expect(result.displayTime).toBe('10:00');
     expect(result.displayTitle).toBe('Test Film (FF Jr.)');
-  });
-});
-
-// --- toTitleCase (re-exported) ---
-
-describe('toTitleCase (MovieTile)', () => {
-  it('should title-case basic strings', () => {
-    expect(toTitleCase('hello world')).toBe('Hello World');
-  });
-
-  it('should handle single word', () => {
-    expect(toTitleCase('hello')).toBe('Hello');
-  });
-
-  it('should handle empty string', () => {
-    expect(toTitleCase('')).toBe('');
   });
 });
 

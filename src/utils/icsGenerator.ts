@@ -4,16 +4,10 @@
  */
 
 import type { Movie } from '../types/movie';
+import { capitalCase as toTitleCase } from 'change-case';
 
 // Re-export for backwards compatibility
 export type { Movie };
-
-/**
- * Converts a string to title case
- */
-function toTitleCase(str: string): string {
-  return str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-}
 
 /**
  * Formats a Date object to ICS date format (YYYYMMDDTHHMMSSZ)
