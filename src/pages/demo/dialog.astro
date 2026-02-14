@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '../../components/Dialog/index';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '../../components/popovers/Dialog/index';
 import Button from '../../components/Button.astro';
 ---
 
@@ -116,10 +116,10 @@ import Button from '../../components/Button.astro';
   </DialogRoot>
 
   <!-- No Close Button -->
-  <DialogRoot id="dialog-no-close" size="sm" showCloseButton={false}>
+  <DialogRoot id="dialog-no-close" size="sm" showCloseButton={false} dismissable={false}>
     <DialogHeader>
       <DialogTitle>No Close Button</DialogTitle>
-      <DialogDescription>Use showCloseButton={false} to hide the close button. Users must use the action buttons.</DialogDescription>
+      <DialogDescription>Use showCloseButton={false} and dismissable={false} to require user action. Backdrop click and Escape key are disabled.</DialogDescription>
     </DialogHeader>
     <DialogFooter align="center">
       <Button variant="secondary" onclick="closeDialog('dialog-no-close')">Cancel</Button>
@@ -205,7 +205,7 @@ import Button from '../../components/Button.astro';
   </DialogRoot>
 
   <!-- Confirmation -->
-  <DialogRoot id="dialog-confirm" size="sm" showCloseButton={false}>
+  <DialogRoot id="dialog-confirm" size="sm" showCloseButton={false} dismissable={false}>
     <DialogHeader>
       <DialogTitle>Delete this item?</DialogTitle>
       <DialogDescription>This action cannot be undone. This will permanently delete the item from your collection.</DialogDescription>
@@ -242,7 +242,7 @@ import Button from '../../components/Button.astro';
   </DialogRoot>
 
   <!-- Alert -->
-  <DialogRoot id="dialog-alert" size="sm" showCloseButton={false}>
+  <DialogRoot id="dialog-alert" size="sm" showCloseButton={false} dismissable={false}>
     <DialogHeader>
       <DialogTitle>Session Expired</DialogTitle>
       <DialogDescription>Your session has expired. Please log in again to continue.</DialogDescription>
