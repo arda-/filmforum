@@ -121,19 +121,3 @@ export const Saved_yes_maybe: Story = {
     unmarked: false,
   },
 };
-
-/**
- * Highly filtered view: only day and weekend showtimes with "Yes" movies.
- * Maximum filtering for a specific search scenario.
- */
-export const Showings_day_weekend_Saved_yes: Story = {
-  args: {
-    day: true,
-    nite: false,
-    weekend: true,
-    yes: true,
-    maybe: false,
-    no: false,
-    unmarked: false,
-  },
-};
