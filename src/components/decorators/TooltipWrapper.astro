@@ -4,7 +4,7 @@
  *
  * This wrapper exists because Astrobook doesn't support passing slot content
  * directly to components. It accepts 'triggerText' as a prop and passes it
- * as slot content to the actual Tooltip component (typically inside a button).
+ * as slot content to the actual Tooltip component (as simple text).
  *
  * Usage in stories:
  *   args: { text: 'Tooltip text', triggerText: 'Hover me' }
@@ -21,22 +21,7 @@ const { triggerText = 'Hover me', ...tooltipProps } = Astro.props;
 ---
 
 <Tooltip {...tooltipProps}>
-  <button style="padding: 8px 12px; cursor: pointer;">
+  <span>
     {triggerText}
-  </button>
+  </span>
 </Tooltip>
-
-<style>
-  button {
-    background: var(--bg-button, #333);
-    color: var(--text-primary, #fff);
-    border: 1px solid var(--border-color, #555);
-    border-radius: 4px;
-    font-size: 14px;
-    transition: background 0.2s ease;
-  }
-
-  button:hover {
-    background: var(--bg-button-hover, #444);
-  }
-</style>
