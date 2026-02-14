@@ -9,120 +9,22 @@
  * See: decorators/MovieCardWrapper.astro
  */
 import MovieCardWrapper from '../decorators/MovieCardWrapper.astro';
-
-const sampleMovie = {
-  id: 'movie-1',
-  movie: {
-    Movie: 'THE GODFATHER',
-    Time: '7:00 PM',
-    Tickets: 'https://tickets.example.com',
-    Datetime: '2024-02-15T19:00:00',
-    year: '1972',
-    director: 'Francis Ford Coppola',
-    runtime: '175',
-    actors: 'Marlon Brando, Al Pacino, James Caan',
-    description: 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.',
-    country: 'USA',
-  },
-  showtimes: [
-    { datetime: '2024-02-15T19:00:00', time: '7:00 PM', tickets: 'https://tickets.example.com' },
-    { datetime: '2024-02-15T21:30:00', time: '9:30 PM', tickets: 'https://tickets.example.com' },
-  ],
-};
-
-const movieWithoutPoster = {
-  id: 'movie-2',
-  movie: {
-    Movie: 'BREATHLESS',
-    Time: '8:00 PM',
-    Tickets: 'https://tickets.example.com',
-    Datetime: '2024-02-16T20:00:00',
-    year: '1960',
-    director: 'Jean-Luc Godard',
-    runtime: '90',
-    actors: 'Jean-Paul Belmondo, Jean Seberg',
-    description: 'A small-time thief steals a car and impulsively murders a motorcycle policeman.',
-    country: 'France',
-  },
-  showtimes: [
-    { datetime: '2024-02-16T20:00:00', time: '8:00 PM', tickets: 'https://tickets.example.com' },
-  ],
-};
-
-const shortMovie = {
-  id: 'movie-3',
-  movie: {
-    Movie: 'MESHES OF THE AFTERNOON',
-    Time: '6:00 PM',
-    Tickets: 'https://tickets.example.com',
-    Datetime: '2024-02-17T18:00:00',
-    year: '1943',
-    director: 'Maya Deren',
-    runtime: '14',
-    country: 'USA',
-  },
-  showtimes: [
-    { datetime: '2024-02-17T18:00:00', time: '6:00 PM', tickets: 'https://tickets.example.com' },
-  ],
-};
+import {
+  uniqueMovieWithPoster,
+  uniqueMovieWithoutPoster,
+  uniqueMovieMinimal,
+} from '../../stories/fixtures';
 
 export default {
   component: MovieCardWrapper,
 };
 
+/**
+ * Basic state: Shows title, year, director, runtime, and poster image
+ */
 export const Default = {
   args: {
-    uniqueMovie: sampleMovie,
-    reaction: 'none',
-    showActors: true,
-    showBlurb: false,
-    showImage: true,
-  },
-};
-
-export const WithBlurb = {
-  args: {
-    uniqueMovie: sampleMovie,
-    reaction: 'none',
-    showActors: true,
-    showBlurb: true,
-    showImage: true,
-  },
-};
-
-export const ReactionYes = {
-  args: {
-    uniqueMovie: sampleMovie,
-    reaction: 'yes',
-    showActors: true,
-    showBlurb: false,
-    showImage: true,
-  },
-};
-
-export const ReactionMaybe = {
-  args: {
-    uniqueMovie: sampleMovie,
-    reaction: 'maybe',
-    showActors: true,
-    showBlurb: false,
-    showImage: true,
-  },
-};
-
-export const ReactionNo = {
-  args: {
-    uniqueMovie: sampleMovie,
-    reaction: 'no',
-    showActors: true,
-    showBlurb: false,
-    showImage: true,
-  },
-};
-
-export const WithoutActors = {
-  args: {
-    uniqueMovie: sampleMovie,
+    uniqueMovie: uniqueMovieWithPoster,
     reaction: 'none',
     showActors: false,
     showBlurb: false,
@@ -130,19 +32,38 @@ export const WithoutActors = {
   },
 };
 
-export const WithoutImage = {
+/**
+ * Demonstrates the actors field when enabled
+ */
+export const WithActors = {
   args: {
-    uniqueMovie: sampleMovie,
+    uniqueMovie: uniqueMovieWithPoster,
     reaction: 'none',
     showActors: true,
     showBlurb: false,
-    showImage: false,
+    showImage: true,
   },
 };
 
-export const NoPoster = {
+/**
+ * Demonstrates the description/blurb when enabled
+ */
+export const WithBlurb = {
   args: {
-    uniqueMovie: movieWithoutPoster,
+    uniqueMovie: uniqueMovieWithPoster,
+    reaction: 'none',
+    showActors: false,
+    showBlurb: true,
+    showImage: true,
+  },
+};
+
+/**
+ * Demonstrates poster image display with all features enabled
+ */
+export const WithAllFeatures = {
+  args: {
+    uniqueMovie: uniqueMovieWithPoster,
     reaction: 'none',
     showActors: true,
     showBlurb: true,
@@ -150,10 +71,65 @@ export const NoPoster = {
   },
 };
 
-export const MinimalInfo = {
+/**
+ * Shows card when movie data lacks a poster image
+ */
+export const WithoutPoster = {
   args: {
-    uniqueMovie: shortMovie,
+    uniqueMovie: uniqueMovieWithoutPoster,
     reaction: 'none',
+    showActors: true,
+    showBlurb: true,
+    showImage: true,
+  },
+};
+
+/**
+ * Shows card with minimal movie information (no actors or description in data)
+ */
+export const MinimalData = {
+  args: {
+    uniqueMovie: uniqueMovieMinimal,
+    reaction: 'none',
+    showActors: true,
+    showBlurb: false,
+    showImage: true,
+  },
+};
+
+/**
+ * Shows positive user reaction state
+ */
+export const ReactionYes = {
+  args: {
+    uniqueMovie: uniqueMovieWithPoster,
+    reaction: 'yes',
+    showActors: true,
+    showBlurb: false,
+    showImage: true,
+  },
+};
+
+/**
+ * Shows neutral/uncertain user reaction state
+ */
+export const ReactionMaybe = {
+  args: {
+    uniqueMovie: uniqueMovieWithPoster,
+    reaction: 'maybe',
+    showActors: true,
+    showBlurb: false,
+    showImage: true,
+  },
+};
+
+/**
+ * Shows negative user reaction state
+ */
+export const ReactionNo = {
+  args: {
+    uniqueMovie: uniqueMovieWithPoster,
+    reaction: 'no',
     showActors: true,
     showBlurb: false,
     showImage: true,
