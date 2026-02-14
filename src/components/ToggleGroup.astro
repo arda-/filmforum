@@ -1,8 +1,11 @@
 ---
+import Icon from './Icon.astro';
+
 interface ToggleOption {
   label: string;
   value: string;
   checked?: boolean;
+  icon?: string;
 }
 
 interface Props {
@@ -21,6 +24,7 @@ const { label, name, options, statusId } = Astro.props;
     {options.map(option => (
       <label class="toggle-item">
         <input type="radio" name={name} value={option.value} {...(option.checked && { checked: true })} />
+        {option.icon && <Icon name={option.icon} size={16} />}
         <span>{option.label}</span>
       </label>
     ))}
@@ -94,6 +98,10 @@ const { label, name, options, statusId } = Astro.props;
 
   .toggle-item span {
     white-space: nowrap;
+  }
+
+  .toggle-item :global(svg) {
+    margin-right: 6px;
   }
 
   .toggle-status {

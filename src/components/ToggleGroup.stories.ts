@@ -109,8 +109,8 @@ export const Icon = {
     label: 'Icons only',
     name: 'icons',
     options: [
-      { label: '◀', value: 'prev', checked: true },
-      { label: '▶', value: 'next' },
+      { label: '', value: 'prev', checked: true, icon: 'chevron-left' },
+      { label: '', value: 'next', icon: 'chevron-right' },
     ],
   },
 };
@@ -121,9 +121,9 @@ export const IconAndText = {
     label: 'With icons',
     name: 'icon-text',
     options: [
-      { label: '☰ Menu', value: 'menu', checked: true },
-      { label: '⚙ Settings', value: 'settings' },
-      { label: '✓ Done', value: 'done' },
+      { label: 'Menu', value: 'menu', checked: true, icon: 'menu' },
+      { label: 'Settings', value: 'settings', icon: 'settings' },
+      { label: 'Done', value: 'done', icon: 'check' },
     ],
   },
 };
