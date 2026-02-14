@@ -8,7 +8,7 @@ export const Primary = {
   args: { variant: 'primary' },
   render: (args: any) => ({
     ...args,
-    default: 'Primary Button',
+    default: 'Click Me',
   }),
 };
 
@@ -16,7 +16,7 @@ export const Secondary = {
   args: { variant: 'secondary' },
   render: (args: any) => ({
     ...args,
-    default: 'Secondary Button',
+    default: 'Click Me',
   }),
 };
 
@@ -24,7 +24,7 @@ export const Danger = {
   args: { variant: 'danger' },
   render: (args: any) => ({
     ...args,
-    default: 'Danger Button',
+    default: 'Delete',
   }),
 };
 
@@ -32,7 +32,7 @@ export const Outline = {
   args: { variant: 'outline' },
   render: (args: any) => ({
     ...args,
-    default: 'Outline Button',
+    default: 'Click Me',
   }),
 };
 
@@ -40,7 +40,7 @@ export const Ghost = {
   args: { variant: 'ghost' },
   render: (args: any) => ({
     ...args,
-    default: 'Ghost Button',
+    default: 'Click Me',
   }),
 };
 
@@ -48,7 +48,7 @@ export const Link = {
   args: { variant: 'link' },
   render: (args: any) => ({
     ...args,
-    default: 'Link Button',
+    default: 'Learn More',
   }),
 };
 
@@ -56,7 +56,7 @@ export const Small = {
   args: { size: 'sm' },
   render: (args: any) => ({
     ...args,
-    default: 'Small Button',
+    default: 'Click Me',
   }),
 };
 
@@ -64,7 +64,7 @@ export const Default = {
   args: { size: 'default' },
   render: (args: any) => ({
     ...args,
-    default: 'Default Button',
+    default: 'Click Me',
   }),
 };
 
@@ -72,7 +72,7 @@ export const Large = {
   args: { size: 'lg' },
   render: (args: any) => ({
     ...args,
-    default: 'Large Button',
+    default: 'Click Me',
   }),
 };
 
@@ -88,7 +88,7 @@ export const Disabled = {
   args: { disabled: true },
   render: (args: any) => ({
     ...args,
-    default: 'Disabled Button',
+    default: 'Click Me',
   }),
 };
 
