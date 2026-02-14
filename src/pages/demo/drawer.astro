@@ -292,34 +292,19 @@ import Button from '../../components/Button.astro';
   <Drawer id="drawer-full-bleed" height="85dvh" fullBleed>
     <img
       class="full-bleed-hero"
-      src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80"
-      alt="Movie theater with red seats"
+      src="/posters/mean-streets.png"
+      alt="Mean Streets"
       loading="lazy"
     />
     <div class="full-bleed-content">
-      <h2 class="movie-title">The Grand Cinema</h2>
-      <p class="movie-meta">2024 · Sofia Moretti · 128 min</p>
-      <p class="movie-actors">Isabella Rossetti, Marco Bianchi, Elena Varga</p>
+      <h2 class="movie-title">Mean Streets</h2>
+      <p class="movie-meta">1973 · Martin Scorsese · 112 min</p>
+      <p class="movie-actors">Robert De Niro, Harvey Keitel, David Proval, Amy Robinson</p>
 
       <p class="movie-description">
-        "A love letter to the golden age of cinema, following a projectionist who discovers that the films she screens hold secrets about the theater's storied past."
+        "Guilt-ridden hood Harvey Keitel keeps a low profile, but out-of-his friggin'-mind cousin Robert De Niro doesn't give a flyin' pasta fazool about those gambling debts."
       </p>
       <p class="movie-citation">— Film Forum</p>
-
-      <div class="movie-scores">
-        <div class="score-item">
-          <span class="score-label">IMDB</span>
-          <span class="score-value">8.1</span>
-        </div>
-        <div class="score-item">
-          <span class="score-label">RT</span>
-          <span class="score-value">94%</span>
-        </div>
-        <div class="score-item">
-          <span class="score-label">Meta</span>
-          <span class="score-value">82</span>
-        </div>
-      </div>
     </div>
 
     <Fragment slot="footer">
@@ -329,37 +314,21 @@ import Button from '../../components/Button.astro';
   </Drawer>
 
   <!-- Full-Bleed with Image Title -->
-  <Drawer id="drawer-image-title" height="85dvh" fullBleed imageTitle="The Grand Cinema" imageSubtitle="2024 · Sofia Moretti · 128 min">
+  <Drawer id="drawer-image-title" height="85dvh" fullBleed imageTitle="Taxi Driver" imageSubtitle="1976 · Martin Scorsese · 113 min">
     <img
       slot="hero"
       class="full-bleed-hero"
-      src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80"
-      alt="Movie theater with red seats"
+      src="/posters/taxi-driver.png"
+      alt="Taxi Driver"
       loading="lazy"
     />
     <div class="full-bleed-content">
-      <p class="movie-meta">2024 · Sofia Moretti · 128 min</p>
-      <p class="movie-actors">Isabella Rossetti, Marco Bianchi, Elena Varga</p>
+      <p class="movie-actors">Robert De Niro, Jodie Foster, Albert Brooks, Harvey Keitel</p>
 
       <p class="movie-description">
-        "A love letter to the golden age of cinema, following a projectionist who discovers that the films she screens hold secrets about the theater's storied past."
+        "Robert De Niro's insomniac cabbie Travis Bickle transforms himself into a mohawked, armed-to-the-teeth avenging angel, meeting his own judgment day in the form of child hooker Jodie Foster and her pimp Harvey Keitel. Shot during a sweltering NYC summer-cum-garbage strike."
       </p>
       <p class="movie-citation">— Film Forum</p>
-
-      <div class="movie-scores">
-        <div class="score-item">
-          <span class="score-label">IMDB</span>
-          <span class="score-value">8.1</span>
-        </div>
-        <div class="score-item">
-          <span class="score-label">RT</span>
-          <span class="score-value">94%</span>
-        </div>
-        <div class="score-item">
-          <span class="score-label">Meta</span>
-          <span class="score-value">82</span>
-        </div>
-      </div>
     </div>
 
     <Fragment slot="footer">
@@ -373,35 +342,20 @@ import Button from '../../components/Button.astro';
     <div class="movie-detail">
       <div class="movie-poster">
         <img
-          src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80"
-          alt="Movie poster"
+          src="/posters/street-scene.png"
+          alt="Street Scene"
           loading="lazy"
         />
       </div>
 
       <h2 class="movie-title">Street Scene</h2>
       <p class="movie-meta">1931 · King Vidor · 80 min</p>
-      <p class="movie-actors">Sylvia Sidney, William Collier Jr., Estelle Taylor</p>
+      <p class="movie-actors">Sylvia Sidney, William Collier Jr., Beulah Bondi, David Landau, Estelle Taylor</p>
 
       <p class="movie-description">
-        "A slice-of-life drama set on a single New York City block during a sweltering summer day. The film captures the rhythms and tensions of tenement life with remarkable authenticity."
+        "The film depicts life at a working-class New York apartment building where residents face multiple crises. A jealous stagehand suspects his wife of infidelity, a secretary experiences unwanted advances from her married boss, and an abandoned woman faces eviction. Director Vidor employs dynamic cinematography with deep-focus imagery to capture sexual violence, relentless poverty, crude emotions, and stifled dreams."
       </p>
       <p class="movie-citation">— Film Forum</p>
-
-      <div class="movie-scores">
-        <div class="score-item">
-          <span class="score-label">IMDB</span>
-          <span class="score-value">7.2</span>
-        </div>
-        <div class="score-item">
-          <span class="score-label">RT</span>
-          <span class="score-value">88%</span>
-        </div>
-        <div class="score-item">
-          <span class="score-label">Meta</span>
-          <span class="score-value">70</span>
-        </div>
-      </div>
     </div>
 
     <Fragment slot="footer">
@@ -631,35 +585,6 @@ import Button from '../../components/Button.astro';
     text-align: right;
     margin: 0 0 12px 0;
     font-style: italic;
-  }
-
-  .movie-scores {
-    display: flex;
-    gap: 16px;
-    padding: 12px 0;
-    margin: 8px 0;
-    border-top: 1px solid var(--bg-movie-hover);
-    border-bottom: 1px solid var(--bg-movie-hover);
-  }
-
-  .score-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .score-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-tertiary);
-  }
-
-  .score-value {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--accent);
   }
 
   /* Full-bleed image demo */
