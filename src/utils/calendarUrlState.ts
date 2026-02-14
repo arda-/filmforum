@@ -57,6 +57,12 @@ export function updateUrlParams(): void {
   const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
   if (highlightUniqueToggle) params.set('highlight-unique', highlightUniqueToggle.checked ? '1' : '0');
 
+  // Past showtimes mode: only persist if 'hide' (default is 'dim')
+  const activePastModeBtn = document.querySelector('[data-past-mode].active') as HTMLElement;
+  if (activePastModeBtn?.dataset.pastMode === 'hide') {
+    params.set('showpast', '0');
+  }
+
   // Saved filter: encode checked values as comma-separated string
   const savedChecked = document.querySelectorAll<HTMLInputElement>('input[name="saved-filter"]:checked');
   const savedValues = Array.from(savedChecked).map(cb => cb.value);
@@ -157,5 +163,24 @@ export function restoreFromUrl(): void {
     if (highlightUnique) {
       highlightUnique.checked = params.get('highlight-unique') === '1';
     }
+  }
+
+  // --- Past showtimes mode (radio group) ---
+
+  if (params.has('showpast')) {
+    const showPast = params.get('showpast') === '1';
+    const targetMode = showPast ? 'dim' : 'hide';
+    const pastModeButtons = document.querySelectorAll('[data-past-mode]');
+
+    pastModeButtons.forEach(btn => {
+      const btnMode = (btn as HTMLElement).dataset.pastMode;
+      if (btnMode === targetMode) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
+      } else {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-checked', 'false');
+      }
+    });
   }
 }
