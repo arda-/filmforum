@@ -210,21 +210,21 @@ const movieDataJson = JSON.stringify(uniqueMovies);
         const title = escapeHtml(toTitleCase(um.movie.Movie));
         const meta = escapeHtml([um.movie.director, um.movie.year].filter(Boolean).join(', '));
         return `
-          <div class="cart-item" data-movie-id="${escapeAttr(um.id)}">
+          <div class="cart-item" data-film-slug="${escapeAttr(um.id)}">
             <div class="cart-item-info">
               <p class="cart-item-title">${title}</p>
               <p class="cart-item-meta">${meta}</p>
             </div>
             <div class="cart-item-reactions">
-              <button class="cart-reaction-btn cart-reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-movie-id="${escapeAttr(um.id)}" title="Yes" aria-label="Mark as Yes">
+              <button class="cart-reaction-btn cart-reaction-btn--yes ${reaction === 'yes' ? 'active' : ''}" data-reaction="yes" data-film-slug="${escapeAttr(um.id)}" title="Yes" aria-label="Mark as Yes">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="btn-label">Yes</span>
               </button>
-              <button class="cart-reaction-btn cart-reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-movie-id="${escapeAttr(um.id)}" title="Maybe" aria-label="Mark as Maybe">
+              <button class="cart-reaction-btn cart-reaction-btn--maybe ${reaction === 'maybe' ? 'active' : ''}" data-reaction="maybe" data-film-slug="${escapeAttr(um.id)}" title="Maybe" aria-label="Mark as Maybe">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="11.5" r="1" fill="currentColor"/><path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                 <span class="btn-label">Maybe</span>
               </button>
-              <button class="cart-reaction-btn cart-reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-movie-id="${escapeAttr(um.id)}" title="No" aria-label="Mark as No">
+              <button class="cart-reaction-btn cart-reaction-btn--no ${reaction === 'no' ? 'active' : ''}" data-reaction="no" data-film-slug="${escapeAttr(um.id)}" title="No" aria-label="Mark as No">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 <span class="btn-label">No</span>
               </button>
@@ -296,14 +296,14 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     // Handle reaction button clicks
     const btn = target.closest('.cart-reaction-btn') as HTMLElement | null;
     if (btn) {
-      const movieId = btn.dataset.movieId;
+      const filmSlug = btn.dataset.filmSlug;
       const reaction = btn.dataset.reaction as MovieReaction;
-      if (!movieId || !reaction) return;
+      if (!filmSlug || !reaction) return;
 
       const reactions = getReactions(sessionId);
-      const current = reactions[movieId] || 'none';
+      const current = reactions[filmSlug] || 'none';
       const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
-      setReaction(sessionId, movieId, newReaction);
+      setReaction(sessionId, filmSlug, newReaction);
 
       renderCart();
       return;
@@ -312,15 +312,15 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     // Handle cart item clicks (open movie detail)
     const item = target.closest('.cart-item') as HTMLElement | null;
     if (item && !target.closest('button, a')) {
-      const movieId = item.dataset.movieId;
-      if (movieId) {
-        openMovieDetail(movieId);
+      const filmSlug = item.dataset.filmSlug;
+      if (filmSlug) {
+        openMovieDetail(filmSlug);
       }
     }
   });
 
-  function openMovieDetail(movieId: string) {
-    const idx = allMovies.findIndex(m => m.id === movieId);
+  function openMovieDetail(filmSlug: string) {
+    const idx = allMovies.findIndex(m => m.id === filmSlug);
     if (idx === -1) return;
     showMovieDetail(idx);
     (window as any).openDrawer('movie-detail-drawer');
@@ -369,7 +369,7 @@ const movieDataJson = JSON.stringify(uniqueMovies);
 
     // Update detail drawer reaction buttons
     document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(btn => {
-      (btn as HTMLElement).dataset.movieId = id;
+      (btn as HTMLElement).dataset.filmSlug = id;
       const btnReaction = (btn as HTMLElement).dataset.reaction;
       btn.classList.toggle('active', btnReaction === reaction);
       (btn as HTMLElement).setAttribute('aria-pressed', String(btnReaction === reaction));
@@ -381,14 +381,14 @@ const movieDataJson = JSON.stringify(uniqueMovies);
     const btn = (e.target as HTMLElement).closest('.detail-rbtn') as HTMLElement | null;
     if (!btn) return;
 
-    const movieId = btn.dataset.movieId;
+    const filmSlug = btn.dataset.filmSlug;
     const reaction = btn.dataset.reaction as MovieReaction;
-    if (!movieId || !reaction) return;
+    if (!filmSlug || !reaction) return;
 
     const reactions = getReactions(sessionId);
-    const current = reactions[movieId] || 'none';
+    const current = reactions[filmSlug] || 'none';
     const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
-    setReaction(sessionId, movieId, newReaction);
+    setReaction(sessionId, filmSlug, newReaction);
 
     // Update detail drawer buttons
     document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(b => {

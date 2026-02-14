@@ -51,7 +51,7 @@ const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
 
 <div
   class:list={['card', { 'card--has-poster': hasPoster && showImage, [`card--${reaction}`]: reaction !== 'none' }]}
-  data-movie-id={id}
+  data-film-slug={id}
   data-reaction={reaction}
   data-title={movie.Movie.toLowerCase()}
   data-director={movie.director?.toLowerCase() || ''}
@@ -74,11 +74,11 @@ const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
       {movie.description && <p class="card-blurb">{movie.description}</p>}
     </div>
 
-    <div class="card-reactions" data-movie-id={id}>
+    <div class="card-reactions" data-film-slug={id}>
     <button
       class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
       data-reaction="yes"
-      data-movie-id={id}
+      data-film-slug={id}
       aria-pressed={reaction === 'yes'}
       aria-label="Yes"
       title="Yes"
@@ -86,7 +86,7 @@ const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
     <button
       class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
       data-reaction="maybe"
-      data-movie-id={id}
+      data-film-slug={id}
       aria-pressed={reaction === 'maybe'}
       aria-label="Maybe"
       title="Maybe"
@@ -94,7 +94,7 @@ const posterImage = hasPoster ? getPosterImage(movie.poster_url) : null;
     <button
       class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
       data-reaction="no"
-      data-movie-id={id}
+      data-film-slug={id}
       aria-pressed={reaction === 'no'}
       aria-label="No"
       title="No"

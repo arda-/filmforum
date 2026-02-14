@@ -167,7 +167,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
         this.reactions[movie.id] = newReaction;
 
         const event = new CustomEvent('single-card-reaction', {
-          detail: { movieId: movie.id, reaction: newReaction }
+          detail: { filmSlug: movie.id, reaction: newReaction }
         });
         document.dispatchEvent(event);
         this.updateReactionButtons(newReaction);
@@ -364,7 +364,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
 
       // Find the source card for reverse animation
       const movie = this.movies[this.currentIndex];
-      const sourceEl = this.sourceElement || (movie ? document.querySelector(`[data-movie-id="${movie.id}"].card`) : null);
+      const sourceEl = this.sourceElement || (movie ? document.querySelector(`[data-film-slug="${movie.id}"].card`) : null);
 
       // Reset background
       const bgWrapper = document.querySelector('[data-drawer-wrapper]');
@@ -505,7 +505,7 @@ const { movies = [], reactions = {}, hidden = true } = Astro.props;
       // Reaction buttons
       const btns = this.drawer.querySelectorAll('.rbtn');
       btns.forEach(btn => {
-        btn.dataset.movieId = movie.id;
+        btn.dataset.filmSlug = movie.id;
         const btnReaction = btn.dataset.reaction;
         btn.classList.toggle('active', btnReaction === reaction);
         btn.setAttribute('aria-pressed', String(btnReaction === reaction));

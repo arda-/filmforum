@@ -6,19 +6,19 @@
 import type { MovieReaction } from '../../types/session';
 
 interface Props {
-  movieId: string;
+  filmSlug: string;
   reaction?: MovieReaction;
   size?: 'sm' | 'md';
 }
 
-const { movieId, reaction = 'none', size = 'md' } = Astro.props;
+const { filmSlug, reaction = 'none', size = 'md' } = Astro.props;
 ---
 
-<div class:list={['reactions', `reactions--${size}`]} data-movie-id={movieId}>
+<div class:list={['reactions', `reactions--${size}`]} data-film-slug={filmSlug}>
   <button
     class:list={['rbtn', 'rbtn--yes', { active: reaction === 'yes' }]}
     data-reaction="yes"
-    data-movie-id={movieId}
+    data-film-slug={filmSlug}
     aria-pressed={reaction === 'yes'}
     aria-label="Yes"
   >
@@ -30,7 +30,7 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
   <button
     class:list={['rbtn', 'rbtn--maybe', { active: reaction === 'maybe' }]}
     data-reaction="maybe"
-    data-movie-id={movieId}
+    data-film-slug={filmSlug}
     aria-pressed={reaction === 'maybe'}
     aria-label="Maybe"
   >
@@ -43,7 +43,7 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
   <button
     class:list={['rbtn', 'rbtn--no', { active: reaction === 'no' }]}
     data-reaction="no"
-    data-movie-id={movieId}
+    data-film-slug={filmSlug}
     aria-pressed={reaction === 'no'}
     aria-label="No"
   >
