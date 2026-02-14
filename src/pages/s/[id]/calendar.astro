@@ -463,12 +463,12 @@ const ogImage = movieData[0]?.poster_url || null;
 
   /** Update saved filter button labels with counts */
   function updateSavedFilterCounts() {
-    // Get unique movies
-    const uniqueMovies = new Set(allMovies.map(m => m.Movie));
+    // Get unique movies by film_slug
+    const uniqueSlugs = new Set(allMovies.map(m => m.film_slug));
     const counts = { yes: 0, maybe: 0, no: 0, unmarked: 0 };
 
-    uniqueMovies.forEach(movieTitle => {
-      const reaction = currentReactions[movieTitle] || 'none';
+    uniqueSlugs.forEach(slug => {
+      const reaction = currentReactions[slug] || 'none';
       if (reaction === 'yes') counts.yes++;
       else if (reaction === 'maybe') counts.maybe++;
       else if (reaction === 'no') counts.no++;
