@@ -110,9 +110,11 @@ test.describe('ReactionButtons', () => {
     test('should have smaller SVG in small size', async ({ page }) => {
       const smallSvg = page.locator('[data-testid="sm-unmarked"] svg').first();
 
-      const width = await smallSvg.getAttribute('width');
-      // SVG in small should be 14px
-      expect(width).toBe('14');
+      const width = await smallSvg.evaluate(el =>
+        window.getComputedStyle(el).width
+      );
+      // SVG in small should be computed to 14px
+      expect(width).toBe('14px');
     });
   });
 
@@ -133,20 +135,21 @@ test.describe('ReactionButtons', () => {
       expect(activeColor).not.toBe(inactiveColor);
     });
 
-    test('Yes, Maybe, and No active buttons should have different colors', async ({ page }) => {
-      const yesColor = await page.locator('[data-testid="md-yes"] button[data-reaction="yes"]').evaluate(el =>
-        window.getComputedStyle(el).color
+    test('Yes, Maybe, and No active buttons should have different background colors', async ({ page }) => {
+      const yesBg = await page.locator('[data-testid="md-yes"] button[data-reaction="yes"]').evaluate(el =>
+        window.getComputedStyle(el).backgroundColor
       );
-      const maybeColor = await page.locator('[data-testid="md-maybe"] button[data-reaction="maybe"]').evaluate(el =>
-        window.getComputedStyle(el).color
+      const maybeBg = await page.locator('[data-testid="md-maybe"] button[data-reaction="maybe"]').evaluate(el =>
+        window.getComputedStyle(el).backgroundColor
       );
-      const noColor = await page.locator('[data-testid="md-no"] button[data-reaction="no"]').evaluate(el =>
-        window.getComputedStyle(el).color
+      const noBg = await page.locator('[data-testid="md-no"] button[data-reaction="no"]').evaluate(el =>
+        window.getComputedStyle(el).backgroundColor
       );
 
-      // Each reaction type should have its own distinct color
-      expect(yesColor).not.toBe(noColor);
-      expect(yesColor).not.toBe(maybeColor);
+      // Each reaction type should have its own distinct background color
+      expect(yesBg).not.toBe(noBg);
+      expect(yesBg).not.toBe(maybeBg);
+      expect(maybeBg).not.toBe(noBg);
     });
   });
 
