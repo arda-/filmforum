@@ -7,7 +7,6 @@ import type { Movie } from '@types/movie';
 import { WORK_START, WORK_END, TIME_CATEGORY_COUNT, type TimeCategory, type SavedFilter, SAVED_FILTER_COUNT } from '@utils/calendarConstants';
 import { parseTimeToMins } from '@utils/movieUtils';
 import type { ReactionMap } from '@types/session';
-import { movieId } from '@utils/sessionUtils';
 
 /**
  * Classify a movie into a time category: weekdays, weeknights, or weekends.
@@ -59,8 +58,7 @@ export function filterBySavedStatus(
   if (filterSet.size === 0) return [];
 
   return movies.filter(movie => {
-    const id = movieId(movie.Movie);
-    const reaction = reactions[id] || 'none';
+    const reaction = reactions[movie.film_slug] || 'none';
     if (reaction === 'none') return filterSet.has('unmarked');
     // Safe cast: 'none' is handled above, so reaction is 'yes' | 'maybe' | 'no'
     return filterSet.has(reaction as SavedFilter);
@@ -83,8 +81,7 @@ export function updateSavedFilterStatus(
   }
 
   const hiddenMovies = allMovies.filter(movie => {
-    const id = movieId(movie.Movie);
-    const reaction = reactions[id] || 'none';
+    const reaction = reactions[movie.film_slug] || 'none';
     const category: SavedFilter = reaction === 'none' ? 'unmarked' : reaction as SavedFilter;
     return !filterSet.has(category);
   });

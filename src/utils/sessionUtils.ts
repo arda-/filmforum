@@ -17,32 +17,21 @@ export interface FilterOptions {
 }
 
 /**
- * Generate a stable ID from a movie title.
- * Normalizes to lowercase, replaces non-alphanumeric with hyphens.
- */
-export function movieId(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-/**
  * Deduplicate movies from showtime entries.
- * Groups by movie title, keeps unique films with all their showtimes.
+ * Groups by film_slug (extracted during scraping), keeps unique films with all their showtimes.
  */
 export function deduplicateMovies(movies: Movie[]): UniqueMovie[] {
   const map = new Map<string, UniqueMovie>();
 
   for (const m of movies) {
-    const id = movieId(m.Movie);
+    const id = m.film_slug;
     const existing = map.get(id);
 
     if (existing) {
       existing.showtimes.push({
         datetime: m.Datetime,
         time: m.Time,
-        tickets: m.Tickets,
+        tickets: m.ticket_url,
       });
     } else {
       map.set(id, {
@@ -52,7 +41,7 @@ export function deduplicateMovies(movies: Movie[]): UniqueMovie[] {
           {
             datetime: m.Datetime,
             time: m.Time,
-            tickets: m.Tickets,
+            tickets: m.ticket_url,
           },
         ],
       });
