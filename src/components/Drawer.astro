@@ -558,7 +558,7 @@ const containerStyle = sizeStyles.join('; ');
   // --- Text-relative blur for hero image-title sections ---
   // Measures the title overlay height and sets the blur mask proportionally,
   // matching the blur-simple demo's text-relative approach.
-  // Uses 0.5× text height for full-blur zone, 1× for blur fade-out end.
+  // Uses 0.4× text height for full-blur zone, 1.1× for blur fade-out end.
   document.querySelectorAll('.drawer-hero').forEach(hero => {
     const blur = hero.querySelector('.drawer-hero-blur') as HTMLElement;
     const overlay = hero.querySelector('.drawer-hero-overlay') as HTMLElement;
@@ -569,8 +569,8 @@ const containerStyle = sizeStyles.join('; ');
       const textHeight = overlay.offsetHeight;
       if (heroHeight === 0 || textHeight === 0) return;
 
-      const fullBlurPct = (textHeight * 0.5 / heroHeight) * 100;
-      const blurEndPct = Math.min((textHeight / heroHeight) * 100, 100);
+      const fullBlurPct = (textHeight * 0.4 / heroHeight) * 100;
+      const blurEndPct = Math.min((textHeight * 1.1 / heroHeight) * 100, 100);
       const mask = `linear-gradient(to top, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
       blur.style.maskImage = mask;
       (blur.style as any).webkitMaskImage = mask;
