@@ -156,8 +156,16 @@ export function getWeekTimeRange(
 }
 
 /**
- * Returns true if the given date is in the past (before today).
- * @param dateStr - Date string in YYYY-MM-DD format
+ * Check if a calendar date is in the past (before today).
+ *
+ * Compares the given date against today at midnight. Today's date returns false.
+ * Useful for filtering or styling past calendar days.
+ *
+ * @param dateStr - Date string in YYYY-MM-DD format (e.g., "2026-02-15")
+ * @returns true if the date is before today, false if today or future
+ * @example
+ * isDateInPast('2026-02-10') // true if current date is after Feb 10, 2026
+ * isDateInPast('2026-02-15') // false if current date is Feb 15, 2026
  */
 export function isDateInPast(dateStr: string): boolean {
   const date = new Date(dateStr + 'T00:00:00');
@@ -167,8 +175,16 @@ export function isDateInPast(dateStr: string): boolean {
 }
 
 /**
- * Returns true if the given datetime is in the past (before current time).
- * @param datetimeStr - ISO 8601 datetime string
+ * Check if a datetime is in the past (before current time).
+ *
+ * Compares the given datetime against the current time with second precision.
+ * The exact current time returns false. Useful for filtering or dimming past showtimes.
+ *
+ * @param datetimeStr - ISO 8601 datetime string (e.g., "2026-02-15T19:30:00")
+ * @returns true if the datetime is before now, false if now or future
+ * @example
+ * isDatetimeInPast('2026-02-15T14:00:00') // true if current time is after 2:00 PM
+ * isDatetimeInPast('2026-02-15T19:30:00') // false if current time is before 7:30 PM
  */
 export function isDatetimeInPast(datetimeStr: string): boolean {
   const showtime = new Date(datetimeStr);
