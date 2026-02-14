@@ -1,0 +1,64 @@
+---
+/**
+ * DialogWrapper - Astrobook adapter for Dialog component
+ *
+ * This wrapper exists because Dialog components need an opening trigger button
+ * to be interactive in Astrobook stories. It renders both a trigger button
+ * and the dialog component, with client-side JavaScript to wire them together.
+ *
+ * The wrapper calls window.openDialog() when the button is clicked.
+ *
+ * Usage in stories:
+ *   args: { id: 'dialog-sm', title: 'My Dialog', triggerText: 'Open Dialog' }
+ */
+import Dialog from '../Dialog.astro';
+
+interface Props {
+  id: string;
+  title: string;
+  description?: string;
+  size?: 'sm' | 'md' | 'lg';
+  showCloseButton?: boolean;
+  triggerText?: string;
+}
+
+const {
+  triggerText = 'Open Dialog',
+  ...dialogProps
+} = Astro.props;
+---
+
+<div style="padding: 40px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+  <button
+    class="dialog-trigger"
+    onclick={`window.openDialog('${dialogProps.id}')`}
+  >
+    {triggerText}
+  </button>
+</div>
+
+<Dialog {...dialogProps}>
+  <p>This is example dialog content. You can add more content here using slots or the dialog-body class.</p>
+</Dialog>
+
+<style>
+  .dialog-trigger {
+    padding: 10px 20px;
+    background-color: var(--bg-accent, #3b82f6);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .dialog-trigger:hover {
+    background-color: var(--bg-accent-hover, #2563eb);
+  }
+
+  .dialog-trigger:active {
+    opacity: 0.9;
+  }
+</style>
