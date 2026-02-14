@@ -15,6 +15,7 @@ export const Default = {
   args: {
     label: 'Select option',
     name: 'default',
+    size: 'default',
     options: [
       { label: 'Option 1', value: 'option1', checked: true },
       { label: 'Option 2', value: 'option2' },
@@ -23,30 +24,30 @@ export const Default = {
   },
 };
 
-/** Small toggle group with fewer options */
+/** Small toggle group with size variant */
 export const Small = {
   args: {
     label: 'Size',
     name: 'small',
+    size: 'sm',
     options: [
       { label: 'A', value: 'a', checked: true },
       { label: 'B', value: 'b' },
+      { label: 'C', value: 'c' },
     ],
   },
 };
 
-/** Large toggle group with many options */
+/** Large toggle group with size variant */
 export const Large = {
   args: {
     label: 'Select option',
     name: 'large',
+    size: 'lg',
     options: [
       { label: 'Option 1', value: 'option1', checked: true },
       { label: 'Option 2', value: 'option2' },
       { label: 'Option 3', value: 'option3' },
-      { label: 'Option 4', value: 'option4' },
-      { label: 'Option 5', value: 'option5' },
-      { label: 'Option 6', value: 'option6' },
     ],
   },
 };

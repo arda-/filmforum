@@ -13,16 +13,17 @@ interface Props {
   name: string;
   options: ToggleOption[];
   statusId?: string;
+  size?: 'sm' | 'default' | 'lg';
 }
 
-const { label, name, options, statusId } = Astro.props;
+const { label, name, options, statusId, size = 'default' } = Astro.props;
 ---
 
 <div class="toggle-group-container">
   <span class="toggle-group-label">{label}</span>
   <div class="toggle-group">
     {options.map(option => (
-      <label class="toggle-item">
+      <label class:list={['toggle-item', `toggle-item--${size}`]}>
         <input type="radio" name={name} value={option.value} {...(option.checked && { checked: true })} />
         {option.icon && <Icon name={option.icon} size={16} />}
         <span>{option.label}</span>
@@ -120,5 +121,21 @@ const { label, name, options, statusId } = Astro.props;
 
   .toggle-status:hover {
     color: var(--accent);
+  }
+
+  /* Size variants */
+  .toggle-item--sm {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .toggle-item--default {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .toggle-item--lg {
+    padding: 8px 16px;
+    font-size: 14px;
   }
 </style>
