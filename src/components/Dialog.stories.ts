@@ -92,7 +92,8 @@ export const NoCloseButton = {
     title: 'Required Action',
     description: 'This action requires confirmation.',
     showCloseButton: false,
+    dismissable: false,
     triggerText: 'Open Required Dialog',
-    body: 'You must choose one of the options below to continue.',
+    body: 'You must choose one of the options below to continue. Backdrop click and Escape key are disabled.',
   },
 };

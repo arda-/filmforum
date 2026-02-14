@@ -3,16 +3,18 @@ interface Props {
   id: string;
   size?: 'sm' | 'md' | 'lg';
   showCloseButton?: boolean;
+  dismissable?: boolean;
 }
 
 const {
   id,
   size = 'sm',
-  showCloseButton = true
+  showCloseButton = true,
+  dismissable = true
 } = Astro.props;
 ---
 
-<div id={id} class="dialog" data-open="false" role="dialog" aria-modal="true" data-size={size} data-show-close={showCloseButton}>
+<div id={id} class="dialog" data-open="false" role="dialog" aria-modal="true" data-size={size} data-show-close={showCloseButton} data-dismissable={dismissable}>
   <div class="dialog-backdrop" data-dialog-close></div>
   <div class:list={['dialog-content', `dialog-content--${size}`]}>
     <slot />
@@ -30,23 +32,24 @@ const {
   // Initialize all dialogs
   document.querySelectorAll('.dialog').forEach(dialog => {
     const closeElements = dialog.querySelectorAll('[data-dialog-close]');
+    const isDismissable = dialog.dataset.dismissable !== 'false';
 
     // Close on backdrop/button click
     closeElements.forEach(el => {
       el.addEventListener('click', (e) => {
-        // For backdrop, only close if clicking directly on it (not dialog content)
+        // For backdrop, only close if clicking directly on it (not dialog content) AND dialog is dismissable
         // For close button, always close regardless of which child element was clicked
         const isBackdrop = el.classList.contains('dialog-backdrop');
-        if (!isBackdrop || e.target === el) {
+        if ((!isBackdrop || e.target === el) && (!isBackdrop || isDismissable)) {
           (dialog as HTMLElement).dataset.open = 'false';
           document.body.style.overflow = '';
         }
       });
     });
 
-    // Close on Escape
+    // Close on Escape (only if dismissable)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && (dialog as HTMLElement).dataset.open === 'true') {
+      if (e.key === 'Escape' && (dialog as HTMLElement).dataset.open === 'true' && isDismissable) {
         (dialog as HTMLElement).dataset.open = 'false';
         document.body.style.overflow = '';
       }
