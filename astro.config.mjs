@@ -87,7 +87,7 @@ export default defineConfig({
     astrobook({
       subpath: '/astrobook',
       directory: 'src/components',
-      css: ['./src/styles/global.css'],
+      css: ['./src/styles/global.css', './src/styles/astrobook.css'],
       title: 'FilmForum Components',
     }),
     sitemap({
