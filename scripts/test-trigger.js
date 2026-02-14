@@ -32,7 +32,15 @@ function getChangedFiles() {
       .trim()
       .split('\n')
       .filter(Boolean)
-      .map(line => line.slice(3).trim()) // Strip status prefix (e.g. " M ", "?? ", "A  ")
+      .flatMap(line => {
+        // Strip 2-char status + space prefix (e.g. " M ", "?? ", "A  ")
+        const path = line.slice(3);
+        // Renames/copies show "old -> new"; return both paths
+        if (path.includes(' -> ')) {
+          return path.split(' -> ').map(p => p.trim());
+        }
+        return [path.trim()];
+      })
       .filter(Boolean);
   } catch (e) {
     console.warn('Could not get git status, running all tests');
