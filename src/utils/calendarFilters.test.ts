@@ -1,13 +1,16 @@
+// @vitest-environment jsdom
 /**
  * Test suite for calendar filter logic.
- * Tests time category classification and saved-status filtering.
+ * Tests time category classification, saved-status filtering,
+ * and the DOM-based status text updater.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   classifyTimeCategory,
   filterByTimeCategories,
   filterBySavedStatus,
+  updateSavedFilterStatus,
 } from './calendarFilters';
 import type { Movie } from '../types/movie';
 import type { ReactionMap } from '../types/session';
@@ -191,5 +194,73 @@ describe('filterBySavedStatus', () => {
     const unmarkedOnly = new Set<SavedFilter>(['unmarked']);
     const result = filterBySavedStatus(movies, emptyReactions, unmarkedOnly);
     expect(result).toHaveLength(4);
+  });
+});
+
+// --- updateSavedFilterStatus ---
+
+describe('updateSavedFilterStatus', () => {
+  const movies: Movie[] = [
+    makeMovie({ Movie: 'Film A' }),
+    makeMovie({ Movie: 'Film B' }),
+    makeMovie({ Movie: 'Film C' }),
+    makeMovie({ Movie: 'Film D' }),
+  ];
+
+  const reactions: ReactionMap = {
+    'film-a': 'yes',
+    'film-b': 'maybe',
+    'film-c': 'no',
+  };
+
+  let statusEl: HTMLElement;
+
+  beforeEach(() => {
+    statusEl = document.createElement('span');
+    statusEl.id = 'saved-filter-status';
+    document.body.appendChild(statusEl);
+
+    return () => {
+      statusEl.remove();
+    };
+  });
+
+  it('should hide status when all filters are enabled', () => {
+    const allFilters = new Set<SavedFilter>(['yes', 'maybe', 'no', 'unmarked']);
+    updateSavedFilterStatus(allFilters, movies, reactions);
+    expect(statusEl.textContent).toBe('');
+    expect(statusEl.style.display).toBe('none');
+  });
+
+  it('should show hidden count when some filters are disabled', () => {
+    // Only show "yes" — hides Film B (maybe), Film C (no), Film D (unmarked)
+    const yesOnly = new Set<SavedFilter>(['yes']);
+    updateSavedFilterStatus(yesOnly, movies, reactions);
+    expect(statusEl.textContent).toContain('3 showtimes');
+    expect(statusEl.textContent).toContain('3 films hidden');
+    expect(statusEl.style.display).toBe('inline');
+  });
+
+  it('should count unique titles separately from showtimes', () => {
+    // Two showtimes of the same film
+    const moviesWithDupe: Movie[] = [
+      makeMovie({ Movie: 'Film A', Datetime: '2026-02-11T14:00:00' }),
+      makeMovie({ Movie: 'Film A', Datetime: '2026-02-11T19:00:00' }),
+      makeMovie({ Movie: 'Film B' }),
+    ];
+    const rxn: ReactionMap = { 'film-a': 'yes', 'film-b': 'no' };
+
+    // Only show "yes" — hides Film B (1 showtime, 1 film)
+    const yesOnly = new Set<SavedFilter>(['yes']);
+    updateSavedFilterStatus(yesOnly, moviesWithDupe, rxn);
+    expect(statusEl.textContent).toContain('1 showtimes');
+    expect(statusEl.textContent).toContain('1 films hidden');
+  });
+
+  it('should do nothing when status element is missing', () => {
+    statusEl.remove();
+    const yesOnly = new Set<SavedFilter>(['yes']);
+    // Should not throw
+    updateSavedFilterStatus(yesOnly, movies, reactions);
   });
 });
