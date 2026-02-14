@@ -28,9 +28,11 @@ interface Props {
   /** Title text overlaid at the bottom of the hero image, using blur + scrim
    *  treatment inspired by MovieCard. Requires `fullBleed` and the `hero` slot. */
   imageTitle?: string;
+  /** Subtitle line below the imageTitle (e.g. "2024 · Sofia Moretti · 128 min"). */
+  imageSubtitle?: string;
 }
 
-const { id, title, height, minHeight, maxHeight, fullBleed, imageTitle } = Astro.props;
+const { id, title, height, minHeight, maxHeight, fullBleed, imageTitle, imageSubtitle } = Astro.props;
 const hasFooter = Astro.slots.has('footer');
 const hasHero = Astro.slots.has('hero');
 
@@ -64,6 +66,7 @@ const containerStyle = sizeStyles.join('; ');
             <div class="drawer-hero-blur"></div>
             <div class="drawer-hero-overlay">
               <h2 class="drawer-hero-title">{imageTitle}</h2>
+              {imageSubtitle && <p class="drawer-hero-subtitle">{imageSubtitle}</p>}
             </div>
           </>
         )}
@@ -365,6 +368,15 @@ const containerStyle = sizeStyles.join('; ');
     margin: 0;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     line-height: 1.2;
+  }
+
+  .drawer-hero-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    font-weight: 400;
+    margin: 4px 0 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.3;
   }
 
   @media (prefers-reduced-motion: reduce) {
