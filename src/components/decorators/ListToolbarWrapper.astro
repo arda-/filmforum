@@ -1,0 +1,55 @@
+---
+/**
+ * ListToolbarWrapper - Astrobook adapter for ListToolbar component
+ *
+ * This wrapper exists to:
+ * 1. Open the filter panel by default for stories that demo filter configurations
+ * 2. Ensure filter state is visible when showing specific filter combinations
+ *
+ * Usage in stories with filters open:
+ *   component: ListToolbarWrapper,
+ *   args: { openFilters: true, viewMode: 'card', ... }
+ */
+import ListToolbar from '../session/ListToolbar.astro';
+
+interface Props {
+  viewMode?: 'list' | 'card' | 'single';
+  sortBy?: string;
+  directors?: string[];
+  actors?: string[];
+  decades?: string[];
+  openFilters?: boolean;
+}
+
+const { openFilters = false, ...toolbarProps } = Astro.props;
+---
+
+<div id="list-toolbar-wrapper" data-open-filters={openFilters}>
+  <ListToolbar {...toolbarProps} />
+</div>
+
+<script define:vars={{ openFilters }}>
+  // Ensure filter panel opens on mount if openFilters is true
+  if (openFilters) {
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', openFilterPanel);
+    } else {
+      openFilterPanel();
+    }
+  }
+
+  function openFilterPanel() {
+    const filterToggleBtn = document.getElementById('filter-toggle-btn');
+    const filterDisclosure = document.getElementById('filter-disclosure');
+
+    if (filterToggleBtn && filterDisclosure) {
+      // Only open if not already open
+      if (!filterDisclosure.classList.contains('open')) {
+        filterDisclosure.classList.add('open');
+        filterToggleBtn.classList.add('active');
+        filterToggleBtn.setAttribute('aria-expanded', 'true');
+      }
+    }
+  }
+</script>

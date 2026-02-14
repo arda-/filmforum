@@ -1,13 +1,16 @@
-import ListToolbar from './ListToolbar.astro';
+import ListToolbarWrapper from '../decorators/ListToolbarWrapper.astro';
 
 /**
  * NOTE: JavaScript function decorators are not supported in Astrobook.
  * Decorators must be Astro components. Client-side behaviors like opening
  * panels can be tested manually in the Astrobook story.
+ *
+ * The ListToolbarWrapper decorator enables opening the filter panel on mount
+ * for stories that demonstrate filter configurations.
  */
 
 export default {
-  component: ListToolbar,
+  component: ListToolbarWrapper,
 };
 
 export const DefaultCardView = {
@@ -77,36 +80,7 @@ export const MinimalFilters = {
     directors: ['Christopher Nolan'],
     actors: ['Timothée Chalamet'],
     decades: ['2010s', '2020s'],
-  },
-};
-
-export const ExtensiveFilters = {
-  args: {
-    viewMode: 'card',
-    sortBy: 'alpha',
-    directors: [
-      'Alfred Hitchcock',
-      'Stanley Kubrick',
-      'Christopher Nolan',
-      'Denis Villeneuve',
-      'Greta Gerwig',
-      'Wes Anderson',
-      'Martin Scorsese',
-      'Quentin Tarantino',
-      'Paul Thomas Anderson',
-      'David Fincher',
-    ],
-    actors: [
-      'Timothée Chalamet',
-      'Florence Pugh',
-      'Oscar Isaac',
-      'Saoirse Ronan',
-      'Adam Driver',
-      'Zendaya',
-      'Meryl Streep',
-      'Cate Blanchett',
-    ],
-    decades: ['1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
@@ -127,6 +101,7 @@ export const ClassicDecades = {
     directors: ['Alfred Hitchcock', 'Orson Welles', 'Billy Wilder'],
     actors: ['Cary Grant', 'James Stewart', 'Grace Kelly'],
     decades: ['1940s', '1950s', '1960s'],
+    openFilters: true,
   },
 };
 
@@ -137,5 +112,6 @@ export const ModernFilmmakers = {
     directors: ['Denis Villeneuve', 'Greta Gerwig', 'Ari Aster', 'Jordan Peele'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Zendaya'],
     decades: ['2010s', '2020s'],
+    openFilters: true,
   },
 };
