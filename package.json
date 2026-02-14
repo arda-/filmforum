@@ -15,9 +15,7 @@
     "test:integration": "playwright test tests/integration",
     "test:seo": "node scripts/validate-seo.js",
     "test:python": "cd data-processing && pytest -v",
-    "test:all": "vitest run && playwright test && pnpm test:python",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "test:all": "vitest run && playwright test && pnpm test:python"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
@@ -29,18 +27,12 @@
   "devDependencies": {
     "@mozilla/readability": "^0.6.0",
     "@playwright/test": "^1.58.1",
-    "@storybook/addon-essentials": "^8.6.14",
-    "@storybook/addon-interactions": "^8.6.14",
-    "@storybook/html": "^8.6.14",
-    "@storybook/html-vite": "^8.6.14",
-    "@storybook/test": "^8.6.14",
     "change-case": "^5.4.4",
     "cheerio": "^1.2.0",
     "jsdom": "^28.0.0",
     "playwright": "^1.58.1",
     "sass-embedded": "^1.97.3",
     "sharp": "^0.34.5",
-    "storybook": "^8.6.14",
     "vitest": "^4.0.18"
   }
 }
