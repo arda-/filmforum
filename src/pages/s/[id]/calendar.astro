@@ -290,9 +290,58 @@ const ogImage = movieData[0]?.poster_url || null;
       });
     }
 
+    // Track which dates belong to empty weeks (all days have no movies after filtering)
+    const hiddenWeekDates = new Set<string>();
+
+    if (hidePastShowtimes) {
+      const mondayStart = getWeekStartPreference();
+      const dates = cachedDates && cachedMondayStart === mondayStart
+        ? cachedDates
+        : generateDateRange(allMovieDates, mondayStart);
+      const weeks = groupDatesIntoWeeks(dates);
+
+      weeks.forEach((weekDates) => {
+        // Check if entire week has no movies after filtering
+        const hasAnyMovies = weekDates.some(date => {
+          const dayMovies = moviesByDate[date] || [];
+          const filtered = applyFilterPipeline(
+            date,
+            dayMovies,
+            {
+              timeCategories,
+              savedFilterSet,
+              reactions: currentReactions,
+              filteredShowtimeCounts,
+              hidePastShowtimes
+            }
+          );
+          return filtered.length > 0;
+        });
+
+        // If week is completely empty, mark all dates in it as hidden
+        if (!hasAnyMovies) {
+          weekDates.forEach(date => hiddenWeekDates.add(date));
+        }
+      });
+    }
+
+    // Hide/show day cells based on whether they're in empty weeks
+    const allDayCells = document.querySelectorAll('[data-date]');
+    allDayCells.forEach(cell => {
+      const date = (cell as HTMLElement).dataset.date!;
+      if (hiddenWeekDates.has(date)) {
+        (cell as HTMLElement).style.display = 'none';
+      } else {
+        (cell as HTMLElement).style.display = '';
+      }
+    });
+
     // Render all days using cached filtered results (if available in timeline mode) or fresh calculations
     // Note: In non-timeline mode, filteredMoviesByDate is empty, so all dates hit the fallback path and recalculate
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      // Skip rendering if this date is in a hidden week
+      if (hiddenWeekDates.has(date)) return;
+
       // Use cached results if available (from timeline pre-calculation), otherwise recalculate
       const filteredMovies = filteredMoviesByDate.get(date) ?? applyFilterPipeline(
         date,
