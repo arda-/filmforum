@@ -6,9 +6,9 @@
  * Uses Vitest's built-in jsdom environment for DOM support.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import type { Movie } from '../../types/movie';
-import { createMovieElement, processFFJr, toTitleCase } from './index';
+import { createMovieElement, processFFJr, toTitleCase, updateTextHeights } from './index';
 
 function makeMovie(overrides: Partial<Movie> = {}): Movie {
   return {
@@ -198,5 +198,133 @@ describe('createMovieElement', () => {
     expect(img).not.toBeNull();
     expect(img?.getAttribute('src')).toBe('/poster.jpg');
     expect(img?.getAttribute('loading')).toBe('lazy');
+  });
+});
+
+// --- updateTextHeights ---
+
+describe('updateTextHeights', () => {
+  /** Collect rAF callbacks so we can flush them synchronously. */
+  let rafCallbacks: FrameRequestCallback[];
+
+  function flushRAF() {
+    rafCallbacks.forEach(cb => cb(0));
+    rafCallbacks = [];
+  }
+
+  /** Build a .movie.has-poster tile with .movie-clickable > .movie-text. */
+  function createPosterTile(mockTextHeight: number): HTMLElement {
+    const tile = document.createElement('div');
+    tile.classList.add('movie', 'has-poster');
+
+    const clickable = document.createElement('div');
+    clickable.classList.add('movie-clickable');
+
+    const text = document.createElement('div');
+    text.classList.add('movie-text');
+    Object.defineProperty(text, 'offsetHeight', { value: mockTextHeight, configurable: true });
+
+    clickable.appendChild(text);
+    tile.appendChild(clickable);
+    document.body.appendChild(tile);
+    return tile;
+  }
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    vi.restoreAllMocks();
+  });
+
+  it('should set --text-height on poster tiles after rAF', () => {
+    rafCallbacks = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return 0;
+    });
+
+    const tile = createPosterTile(42);
+    updateTextHeights();
+
+    // Before rAF fires, no variable set
+    const clickable = tile.querySelector('.movie-clickable') as HTMLElement;
+    expect(clickable.style.getPropertyValue('--text-height')).toBe('');
+
+    flushRAF();
+    // 42 + 8 (CLICKABLE_VERTICAL_PADDING) = 50
+    expect(clickable.style.getPropertyValue('--text-height')).toBe('50px');
+  });
+
+  it('should handle multiple poster tiles', () => {
+    rafCallbacks = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return 0;
+    });
+
+    const tile1 = createPosterTile(20);
+    const tile2 = createPosterTile(60);
+
+    updateTextHeights();
+    flushRAF();
+
+    expect(
+      (tile1.querySelector('.movie-clickable') as HTMLElement).style.getPropertyValue('--text-height'),
+    ).toBe('28px'); // 20 + 8
+    expect(
+      (tile2.querySelector('.movie-clickable') as HTMLElement).style.getPropertyValue('--text-height'),
+    ).toBe('68px'); // 60 + 8
+  });
+
+  it('should skip tiles without has-poster class', () => {
+    rafCallbacks = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return 0;
+    });
+
+    // Create a .movie tile WITHOUT .has-poster
+    const tile = document.createElement('div');
+    tile.classList.add('movie');
+    const clickable = document.createElement('div');
+    clickable.classList.add('movie-clickable');
+    const text = document.createElement('div');
+    text.classList.add('movie-text');
+    clickable.appendChild(text);
+    tile.appendChild(clickable);
+    document.body.appendChild(tile);
+
+    updateTextHeights();
+    flushRAF();
+
+    expect(clickable.style.getPropertyValue('--text-height')).toBe('');
+  });
+
+  it('should skip tiles missing .movie-clickable', () => {
+    rafCallbacks = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return 0;
+    });
+
+    const tile = document.createElement('div');
+    tile.classList.add('movie', 'has-poster');
+    // No .movie-clickable child
+    document.body.appendChild(tile);
+
+    updateTextHeights();
+    flushRAF();
+    // Should not throw — no assertions on missing elements
+  });
+
+  it('should do nothing when no poster tiles exist', () => {
+    rafCallbacks = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return 0;
+    });
+
+    updateTextHeights();
+    flushRAF();
+    // Should not throw
   });
 });
