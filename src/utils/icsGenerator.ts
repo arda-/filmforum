@@ -63,7 +63,7 @@ export function generateICS(movie: Movie): string {
     `SUMMARY:${escapeICS(title)}`,
     `LOCATION:${escapeICS(location)}`,
     `DESCRIPTION:${escapeICS(description)}`,
-    movie.Tickets ? `URL:${movie.Tickets}` : '',
+    movie.ticket_url ? `URL:${movie.ticket_url}` : '',
     'END:VEVENT',
     'END:VCALENDAR'
   ].filter(Boolean).join('\r\n');

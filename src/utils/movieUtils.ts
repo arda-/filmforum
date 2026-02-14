@@ -57,11 +57,11 @@ export function aggregateMoviesForDate(
     if (!m.poster_url) continue;
     const existing = movieMap.get(m.Movie);
     if (existing) {
-      existing.showtimes.push({ time: m.Time, tickets: m.Tickets });
+      existing.showtimes.push({ time: m.Time, tickets: m.ticket_url });
     } else {
       movieMap.set(m.Movie, {
         film: m,
-        showtimes: [{ time: m.Time, tickets: m.Tickets }],
+        showtimes: [{ time: m.Time, tickets: m.ticket_url }],
       });
     }
   }
