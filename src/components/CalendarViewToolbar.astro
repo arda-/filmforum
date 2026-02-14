@@ -132,7 +132,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
                 aria-checked="false"
                 aria-label="Hide past showtimes"
                 id="past-mode-hide"
-              >Hide</button>
+              >
+                <Icon name="eye-off" size={16} />
+                <span class="seg-btn-label">Hide</span>
+              </button>
               <button
                 class="seg-btn active"
                 data-past-mode="dim"
@@ -140,7 +143,10 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
                 aria-checked="true"
                 aria-label="Dim past showtimes"
                 id="past-mode-dim"
-              >Dim</button>
+              >
+                <Icon name="square-dashed" size={16} />
+                <span class="seg-btn-label">Dim</span>
+              </button>
             </SegmentedToggle>
           </div>
         </div>
