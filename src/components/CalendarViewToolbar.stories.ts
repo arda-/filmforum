@@ -171,7 +171,7 @@ export const GearMenuOpen = {
   },
 };
 
-export const HighlightUniqueOnly = {
+export const HighlightUnique = {
   args: {
     gearOpen: true,
     highlightUnique: true,
@@ -186,7 +186,7 @@ export const HighlightUniqueOnly = {
   },
 };
 
-export const HighlightAlternateOnly = {
+export const HighlightAlternate = {
   args: {
     gearOpen: true,
     highlightUnique: false,
