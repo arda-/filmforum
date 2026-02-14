@@ -9,12 +9,16 @@
  *   so the built-in close handler fires.
  * @slot footer - Optional sticky footer (e.g. action buttons). When present,
  *   safe-area inset padding shifts from the body to the footer.
+ *
+ * When `fullBleedImage` is provided, the drawer renders a full-bleed hero image
+ * with `title`/`subtitle` overlaid using blur + scrim treatment.
  */
 import Icon from './Icon.astro';
 
 interface Props {
   id: string;
   title?: string;
+  subtitle?: string;
   /** Fixed height — drawer is always exactly this tall. */
   height?: string;
   /** Minimum height — drawer is at least this tall (content can push it taller). */
@@ -22,13 +26,16 @@ interface Props {
   /** Maximum height — drawer grows with content up to this limit, then scrolls.
    *  Defaults to 85dvh when neither `height` nor `maxHeight` is set. */
   maxHeight?: string;
-  /** Full-bleed mode — removes body padding and floats the handle/close button
-   *  over the content. Use for hero images that extend to the edges. */
-  fullBleed?: boolean;
+  /** Full-bleed hero image src. Enables full-bleed mode, renders the image,
+   *  and overlays `title`/`subtitle` with blur + scrim treatment. */
+  fullBleedImage?: string;
+  /** Alt text for the full-bleed hero image. */
+  fullBleedImageAlt?: string;
 }
 
-const { id, title, height, minHeight, maxHeight, fullBleed } = Astro.props;
+const { id, title, subtitle, height, minHeight, maxHeight, fullBleedImage, fullBleedImageAlt } = Astro.props;
 const hasFooter = Astro.slots.has('footer');
+const isFullBleed = !!fullBleedImage;
 
 // Build sizing inline styles from props
 const sizeStyles: string[] = [];
@@ -43,7 +50,7 @@ const containerStyle = sizeStyles.join('; ');
 
 <div id={id} class="drawer" data-open="false" role="dialog" aria-modal="true" aria-labelledby={title ? `${id}-title` : undefined}>
   <div class="drawer-backdrop" data-drawer-close></div>
-  <div class:list={['drawer-container', { 'full-bleed': fullBleed }]} style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
+  <div class:list={['drawer-container', { 'full-bleed': isFullBleed }]} style={containerStyle} data-has-footer={hasFooter ? '' : undefined}>
     <div class="drawer-handle-area" data-drawer-handle>
       <div class="drawer-handle"></div>
     </div>
@@ -52,9 +59,23 @@ const containerStyle = sizeStyles.join('; ');
         <Icon name="x" size={18} />
       </button>
     </slot>
-    {title && (
+    {fullBleedImage ? (
+      <div class="drawer-hero">
+        <img src={fullBleedImage} alt={fullBleedImageAlt ?? ''} loading="lazy" />
+        {title && (
+          <>
+            <div class="drawer-hero-blur"></div>
+            <div class="drawer-hero-overlay">
+              <h2 class="drawer-hero-title" id={`${id}-title`}>{title}</h2>
+              {subtitle && <p class="drawer-hero-subtitle">{subtitle}</p>}
+            </div>
+          </>
+        )}
+      </div>
+    ) : title && (
       <div class="drawer-header">
         <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
+        {subtitle && <p class="drawer-subtitle">{subtitle}</p>}
       </div>
     )}
     <div class="drawer-body">
@@ -203,6 +224,12 @@ const containerStyle = sizeStyles.join('; ');
     margin: 0;
   }
 
+  .drawer-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0 0;
+  }
+
   .drawer-body {
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -283,6 +310,81 @@ const containerStyle = sizeStyles.join('; ');
 
   .drawer-container.full-bleed:not([data-has-footer]) .drawer-body {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ── Hero image-title variant ────────────────────────────────────────
+     Full-bleed image with blur + scrim + title text overlaid at the
+     bottom edge (the "fold" before scrollable body content begins).
+     Inspired by the MovieCard text-over-image treatment. */
+  .drawer-hero {
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .drawer-hero img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Blur layer — backdrop-filter with mask-image fade from clear (top) to
+     fully blurred (bottom), so the title text sits on a readable surface.
+     CSS provides a reasonable fallback; JS overrides with text-relative
+     mask calculated from the actual overlay height (like blur-simple demo). */
+  .drawer-hero-blur {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to top, black 0%, black 10%, transparent 15%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 10%, transparent 15%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Dark gradient scrim layered on top of blur for extra text contrast.
+     Stop positions are set as CSS custom properties by JS (text-relative). */
+  .drawer-hero-blur::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.35) var(--scrim-full, 8%),
+      transparent var(--scrim-end, 15%)
+    );
+    pointer-events: none;
+  }
+
+  /* Title text overlay — absolute-positioned at bottom of the hero image */
+  .drawer-hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1rem 20px;
+    pointer-events: none;
+  }
+
+  .drawer-hero-title {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
+  }
+
+  .drawer-hero-subtitle {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    font-weight: 400;
+    margin: 4px 0 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    line-height: 1.3;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -458,6 +560,38 @@ const containerStyle = sizeStyles.join('; ');
         onMouseDragStart(e, 'body');
       });
     }
+  });
+
+  // --- Text-relative blur for hero image-title sections ---
+  // Measures the title overlay height and sets the blur mask proportionally,
+  // matching the blur-simple demo's text-relative approach.
+  // Uses 0.4× text height for full-blur zone, 1.1× for blur fade-out end.
+  document.querySelectorAll('.drawer-hero').forEach(hero => {
+    const blur = hero.querySelector('.drawer-hero-blur') as HTMLElement;
+    const overlay = hero.querySelector('.drawer-hero-overlay') as HTMLElement;
+    if (!blur || !overlay) return;
+
+    function updateHeroBlur() {
+      const heroHeight = (hero as HTMLElement).offsetHeight;
+      const textHeight = overlay.offsetHeight;
+      if (heroHeight === 0 || textHeight === 0) return;
+
+      const fullBlurPct = (textHeight * 0.4 / heroHeight) * 100;
+      const blurEndPct = Math.min((textHeight * 1.1 / heroHeight) * 100, 100);
+      const mask = `linear-gradient(to top, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+      blur.style.maskImage = mask;
+      (blur.style as any).webkitMaskImage = mask; // `as any`: webkitMaskImage not in TS CSSStyleDeclaration (Safari compat)
+
+      // Scrim: full darkness at 0.5× text height, fades out at 1.1× text height
+      const scrimFullPct = (textHeight * 0.5 / heroHeight) * 100;
+      const scrimEndPct = blurEndPct;
+      blur.style.setProperty('--scrim-full', `${scrimFullPct}%`);
+      blur.style.setProperty('--scrim-end', `${scrimEndPct}%`);
+    }
+
+    const ro = new ResizeObserver(() => updateHeroBlur());
+    ro.observe(hero as HTMLElement);
+    ro.observe(overlay);
   });
 
   // Delegated keyboard handler — single listener for Escape + focus trap
