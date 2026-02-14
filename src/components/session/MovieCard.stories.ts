@@ -100,7 +100,7 @@ export const MinimalData = {
 /**
  * Shows positive user reaction state
  */
-export const ReactionYes = {
+export const Reaction_yes = {
   args: {
     uniqueMovie: uniqueMovieWithPoster,
     reaction: 'yes',
@@ -113,7 +113,7 @@ export const ReactionYes = {
 /**
  * Shows neutral/uncertain user reaction state
  */
-export const ReactionMaybe = {
+export const Reaction_maybe = {
   args: {
     uniqueMovie: uniqueMovieWithPoster,
     reaction: 'maybe',
@@ -126,7 +126,7 @@ export const ReactionMaybe = {
 /**
  * Shows negative user reaction state
  */
-export const ReactionNo = {
+export const Reaction_no = {
   args: {
     uniqueMovie: uniqueMovieWithPoster,
     reaction: 'no',
