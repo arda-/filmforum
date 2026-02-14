@@ -48,16 +48,26 @@ export function aggregateMoviesForDate(
 }
 
 /**
- * Formats runtime string for display (e.g., "120 minutes" -> "120min" or "120" -> "120min")
+ * Formats runtime string for display (e.g., "120 minutes" -> "120min", "120 min" -> "120min", or "120" -> "120min")
  */
 export function formatRuntime(runtime: string | undefined): string {
   if (!runtime) return '';
-  // Handle "120 minutes" format
-  if (runtime.includes('minutes')) {
-    return runtime.replace(' minutes', 'min').replace(' ', '');
+
+  // Trim whitespace
+  const trimmed = runtime.trim();
+
+  // If it already ends with "min", return as-is
+  if (trimmed.endsWith('min')) {
+    return trimmed.replace(/\s+min/, 'min');
   }
+
+  // Handle "120 minutes" format
+  if (trimmed.includes('minutes')) {
+    return trimmed.replace(/\s*minutes/, 'min');
+  }
+
   // Handle plain number format like "120"
-  return runtime + 'min';
+  return trimmed + 'min';
 }
 
 // --- Time parsing and work hours ---
