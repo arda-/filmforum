@@ -150,23 +150,30 @@ const ogImage = movieData[0]?.poster_url || null;
 
   /**
    * Apply the complete filter pipeline to movies for a given date.
-   * This includes time category filter, saved status filter, and past showtimes filter.
+   * Filters are ordered by cost/selectivity for optimal performance:
+   * 1. Saved status (cheapest, potentially very selective)
+   * 2. Past showtimes (medium cost, high selectivity)
+   * 3. Time categories (medium cost, medium selectivity)
    */
   function applyFilterPipeline(
     date: string,
     rawMovies: Movie[],
     options: FilterOptions
   ): Movie[] {
-    let filtered = filterByTimeCategories(rawMovies, date, options.timeCategories);
+    let filtered = rawMovies;
 
+    // 1. Saved status filter (cheapest operation, Set.has() lookup)
     if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
       filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
     }
 
-    // Filter out past showtimes if enabled
+    // 2. Past showtimes filter (medium cost, high selectivity)
     if (options.hidePastShowtimes) {
       filtered = filtered.filter(movie => !isDatetimeInPast(movie.Datetime));
     }
+
+    // 3. Time category filter (medium cost, medium selectivity)
+    filtered = filterByTimeCategories(filtered, date, options.timeCategories);
 
     return filtered;
   }
