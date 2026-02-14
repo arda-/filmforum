@@ -1,0 +1,498 @@
+---
+/**
+ * Shared layout for session list views (/cards and /list).
+ * Renders the page header, toolbar, bottom toolbar, drawers,
+ * JSON data scripts, and shared client-side logic.
+ *
+ * Pages provide view-specific content via the default <slot />.
+ * Uses Astro View Transitions (<ClientRouter />) for instant
+ * navigation between /cards and /list routes.
+ */
+import Layout from './Layout.astro';
+import ListToolbar from '@components/session/ListToolbar.astro';
+import BottomToolbar from '@components/session/BottomToolbar.astro';
+import MovieDetailDrawer from '@components/session/MovieDetailDrawer.astro';
+import SingleCardView from '@components/session/SingleCardView.astro';
+import type { UniqueMovie } from '@types/session';
+import type { SeriesConfig } from '@config/series';
+import { safeJsonForScript } from '@utils/htmlEscape';
+
+interface Props {
+  config: SeriesConfig;
+  sessionId: string;
+  uniqueMovies: UniqueMovie[];
+  directors: string[];
+  actors: string[];
+  decades: string[];
+  currentView: 'list' | 'cards';
+  seo: {
+    title: string;
+    description: string;
+    canonical: string;
+    ogImage: string | null;
+    structuredData: object;
+  };
+}
+
+const {
+  config,
+  sessionId,
+  uniqueMovies,
+  directors,
+  actors,
+  decades,
+  currentView,
+  seo,
+} = Astro.props;
+---
+
+<Layout
+  title={seo.title}
+  description={seo.description}
+  canonical={seo.canonical}
+  ogImage={seo.ogImage}
+  ogImageAlt={`${config.name} movie list`}
+  structuredData={seo.structuredData}
+  fullWidth
+  viewTransitions
+>
+  <div data-session-id={sessionId} data-drawer-wrapper>
+    <div class="page-content">
+      <header class="page-header">
+        <a href={`/s/${sessionId}`} class="back-link">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back
+        </a>
+        <h1 class="page-title">{config.name}</h1>
+        {config.subtitle && <p class="page-subtitle">{config.subtitle}</p>}
+        <p class="page-movie-count" id="page-movie-count">{uniqueMovies.length} films</p>
+      </header>
+    </div>
+
+    <ListToolbar
+      sessionId={sessionId}
+      currentView={currentView}
+      directors={directors}
+      actors={actors}
+      decades={decades}
+    />
+
+    <div class="page-content">
+      <div transition:name="movie-content">
+        <slot />
+      </div>
+
+      <!-- Single card view (Apple-style drawer) -->
+      <SingleCardView movies={uniqueMovies} hidden={true} />
+
+      <!-- Spacer for bottom toolbar -->
+      <div class="bottom-spacer"></div>
+    </div>
+
+    <BottomToolbar sessionId={sessionId} />
+    <MovieDetailDrawer />
+  </div>
+</Layout>
+
+<script type="application/json" id="movie-data" set:html={safeJsonForScript(uniqueMovies)} />
+<script type="application/json" id="session-id" set:html={safeJsonForScript(sessionId)} />
+
+<script>
+  import { getReactions, setReaction, getReactionCounts } from '@utils/storageManager';
+  import { toTitleCase, formatRuntime } from '@utils/movieUtils';
+  import { sortMovies, matchesFilter } from '@utils/sessionUtils';
+  import type { MovieReaction, UniqueMovie } from '@types/session';
+
+  // --- State (module-scoped, persists across view transitions) ---
+  let sessionId = '';
+  let allMovies: UniqueMovie[] = [];
+  let currentSort = 'alpha';
+
+  // --- Initialization ---
+  function readPageData() {
+    const sidEl = document.getElementById('session-id');
+    const dataEl = document.getElementById('movie-data');
+    if (sidEl) sessionId = JSON.parse(sidEl.textContent!);
+    if (dataEl) allMovies = JSON.parse(dataEl.textContent!);
+  }
+
+  // Expose reaction getter for SingleCardView controller
+  (window as any).__ffReactions = () => getReactions(sessionId);
+
+  // --- Reactions ---
+  function loadReactions() {
+    const reactions = getReactions(sessionId);
+
+    // Update all reaction buttons on the page
+    document.querySelectorAll('[data-movie-id][data-reaction]').forEach(btn => {
+      const movieId = (btn as HTMLElement).dataset.movieId!;
+      const btnReaction = (btn as HTMLElement).dataset.reaction!;
+      const currentReaction = reactions[movieId] || 'none';
+      const isActive = btnReaction === currentReaction;
+      btn.classList.toggle('active', isActive);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(isActive));
+    });
+
+    // Update card/list item states
+    document.querySelectorAll('.card[data-movie-id], .list-item[data-movie-id]').forEach(el => {
+      const movieId = (el as HTMLElement).dataset.movieId!;
+      const reaction = reactions[movieId] || 'none';
+      (el as HTMLElement).dataset.reaction = reaction;
+      el.classList.remove('card--yes', 'card--maybe', 'card--no', 'list-item--yes', 'list-item--maybe', 'list-item--no');
+      if (reaction !== 'none') {
+        const prefix = el.classList.contains('card') ? 'card' : 'list-item';
+        el.classList.add(`${prefix}--${reaction}`);
+      }
+    });
+
+    updateBadge();
+  }
+
+  function updateBadge() {
+    const counts = getReactionCounts(sessionId);
+    const total = counts.yes + counts.maybe + counts.no;
+    const badge = document.querySelector('.saved-badge') as HTMLElement;
+    if (badge) {
+      badge.textContent = String(total);
+      badge.dataset.count = String(total);
+      badge.classList.remove('bump');
+      void badge.offsetWidth;
+      badge.classList.add('bump');
+    }
+  }
+
+  // --- Reaction button handling (event delegation — persistent) ---
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.reaction-btn, .rbtn, .detail-rbtn') as HTMLElement | null;
+    if (!btn) return;
+
+    const movieId = btn.dataset.movieId;
+    const reaction = btn.dataset.reaction as MovieReaction;
+    if (!movieId || !reaction) return;
+
+    const reactions = getReactions(sessionId);
+    const current = reactions[movieId] || 'none';
+    const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
+    setReaction(sessionId, movieId, newReaction);
+
+    // Immediate visual feedback
+    const card = document.querySelector(`.card[data-movie-id="${movieId}"]`) as HTMLElement;
+    if (card) {
+      card.classList.remove('card--yes', 'card--maybe', 'card--no');
+      if (newReaction !== 'none') card.classList.add(`card--${newReaction}`);
+    }
+
+    document.querySelectorAll(`#detail-reactions .detail-rbtn[data-movie-id="${movieId}"]`).forEach(b => {
+      const r = (b as HTMLElement).dataset.reaction;
+      b.classList.toggle('active', r === newReaction);
+    });
+
+    loadReactions();
+  });
+
+  // Handle reactions from SingleCardView drawer
+  document.addEventListener('single-card-reaction', ((e: CustomEvent) => {
+    const { movieId, reaction } = e.detail;
+    if (movieId) {
+      setReaction(sessionId, movieId, reaction as MovieReaction);
+      loadReactions();
+    }
+  }) as EventListener);
+
+  // --- Sort ---
+  document.getElementById('sort-select')?.addEventListener('change', (e) => {
+    currentSort = (e.target as HTMLSelectElement).value;
+    const reactions = getReactions(sessionId);
+    const sorted = sortMovies([...allMovies], currentSort, reactions);
+    reorderMovies(sorted);
+  });
+
+  function reorderMovies(sorted: UniqueMovie[]) {
+    const listView = document.getElementById('list-view');
+    const cardView = document.getElementById('card-view');
+
+    // Reorder list view (if present on current page)
+    if (listView) {
+      const listItems = listView.querySelectorAll('.list-item');
+      const listMap = new Map<string, HTMLElement>();
+      listItems.forEach(el => {
+        const id = (el as HTMLElement).dataset.movieId!;
+        listMap.set(id, el as HTMLElement);
+      });
+      sorted.forEach(m => {
+        const el = listMap.get(m.id);
+        if (el) listView.appendChild(el);
+      });
+    }
+
+    // Reorder card view (if present on current page)
+    if (cardView) {
+      const cards = cardView.querySelectorAll('.card');
+      const cardMap = new Map<string, HTMLElement>();
+      cards.forEach(el => {
+        const id = (el as HTMLElement).dataset.movieId!;
+        cardMap.set(id, el as HTMLElement);
+      });
+      sorted.forEach(m => {
+        const el = cardMap.get(m.id);
+        if (el) cardView.appendChild(el);
+      });
+    }
+  }
+
+  // --- Search & Filter ---
+  function applyFilters() {
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const searchClear = document.getElementById('search-clear') as HTMLElement;
+    const filterDirector = document.getElementById('filter-director') as HTMLSelectElement;
+    const filterActor = document.getElementById('filter-actor') as HTMLSelectElement;
+    const decadeToggles = document.getElementById('decade-toggles');
+    const filterResults = document.getElementById('filter-results') as HTMLElement;
+    const filterResultsText = document.getElementById('filter-results-text') as HTMLElement;
+    const movieCount = document.getElementById('page-movie-count') as HTMLElement;
+    const totalCount = allMovies.length;
+
+    const query = searchInput?.value.toLowerCase().trim() || '';
+    const director = filterDirector?.value || '';
+    const actor = filterActor?.value || '';
+    const decades = Array.from(
+      decadeToggles?.querySelectorAll('.decade-btn[aria-pressed="true"]') ?? []
+    ).map(btn => (btn as HTMLElement).dataset.decade!);
+
+    const hasFilters = query || director || actor || decades.length > 0;
+    const filters = { query, director, actor, decades };
+
+    if (searchClear) {
+      searchClear.style.display = query ? '' : 'none';
+    }
+
+    filterDirector?.classList.toggle('active-filter', !!director);
+    filterActor?.classList.toggle('active-filter', !!actor);
+
+    let visibleCount = 0;
+
+    const selectors = '.card[data-movie-id], .list-item[data-movie-id]';
+    document.querySelectorAll(selectors).forEach(el => {
+      const htmlEl = el as HTMLElement;
+      const movieData = {
+        title: htmlEl.dataset.title || '',
+        director: htmlEl.dataset.director || '',
+        actors: htmlEl.dataset.actors || '',
+        year: htmlEl.dataset.year || '',
+      };
+
+      const visible = matchesFilter(movieData, filters);
+      htmlEl.style.display = visible ? '' : 'none';
+
+      if (visible) {
+        visibleCount++;
+      }
+    });
+
+    if (movieCount) {
+      if (hasFilters) {
+        movieCount.textContent = `${visibleCount} of ${totalCount} films`;
+      } else {
+        movieCount.textContent = `${totalCount} films`;
+      }
+    }
+
+    if (filterResults) {
+      if (hasFilters) {
+        filterResults.style.display = '';
+        if (filterResultsText) filterResultsText.textContent = `${visibleCount} of ${totalCount}`;
+      } else {
+        filterResults.style.display = 'none';
+      }
+    }
+  }
+
+  function clearAllFilters() {
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    const filterDirector = document.getElementById('filter-director') as HTMLSelectElement;
+    const filterActor = document.getElementById('filter-actor') as HTMLSelectElement;
+    const decadeToggles = document.getElementById('decade-toggles');
+
+    if (searchInput) searchInput.value = '';
+    if (filterDirector) filterDirector.value = '';
+    if (filterActor) filterActor.value = '';
+    decadeToggles?.querySelectorAll('.decade-btn').forEach(btn => {
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('active');
+    });
+    applyFilters();
+  }
+
+  // Search input (debounced)
+  let searchTimeout: ReturnType<typeof setTimeout>;
+  document.getElementById('search-input')?.addEventListener('input', () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(applyFilters, 150);
+  });
+
+  document.getElementById('search-clear')?.addEventListener('click', () => {
+    const searchInput = document.getElementById('search-input') as HTMLInputElement;
+    if (searchInput) searchInput.value = '';
+    applyFilters();
+  });
+
+  document.getElementById('filter-director')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-actor')?.addEventListener('change', applyFilters);
+  document.getElementById('decade-toggles')?.addEventListener('change', applyFilters);
+  document.getElementById('filter-clear-all')?.addEventListener('click', clearAllFilters);
+
+  // --- More Info Drawer ---
+  function openMovieDetail(movieId: string, sourceEl?: HTMLElement) {
+    const idx = allMovies.findIndex(m => m.id === movieId);
+    if (idx === -1) return;
+
+    const ctrl = (window as any).singleCardController;
+    if (ctrl) {
+      ctrl.reactions = getReactions(sessionId);
+      ctrl.open(idx, sourceEl);
+    } else {
+      showMovieDetail(idx);
+      (window as any).openDrawer('movie-detail-drawer');
+    }
+  }
+
+  function showMovieDetail(index: number) {
+    const um = allMovies[index];
+    if (!um) return;
+
+    const { movie, id } = um;
+    const reactions = getReactions(sessionId);
+    const reaction = reactions[id] || 'none';
+
+    const img = document.getElementById('detail-poster-img') as HTMLImageElement;
+    if (img) {
+      img.src = movie.poster_url || '';
+      img.alt = movie.Movie;
+    }
+
+    const titleEl = document.getElementById('detail-title');
+    if (titleEl) titleEl.textContent = toTitleCase(movie.Movie);
+
+    const metaEl = document.getElementById('detail-meta');
+    if (metaEl) metaEl.textContent = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(Boolean).join(' · ');
+
+    const actorsEl = document.getElementById('detail-actors');
+    if (actorsEl) actorsEl.textContent = movie.actors || '';
+
+    const descEl = document.getElementById('detail-description');
+    if (descEl) descEl.textContent = movie.description || '';
+
+    const filmUrl = document.getElementById('detail-film-url') as HTMLAnchorElement;
+    if (filmUrl) {
+      filmUrl.href = movie.film_url || '#';
+      filmUrl.style.display = movie.film_url ? '' : 'none';
+    }
+
+    const ticketsUrl = document.getElementById('detail-tickets-url') as HTMLAnchorElement;
+    if (ticketsUrl) {
+      ticketsUrl.href = um.showtimes[0]?.tickets || '#';
+      ticketsUrl.style.display = um.showtimes[0]?.tickets ? '' : 'none';
+    }
+
+    document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(btn => {
+      (btn as HTMLElement).dataset.movieId = id;
+      const btnReaction = (btn as HTMLElement).dataset.reaction;
+      btn.classList.toggle('active', btnReaction === reaction);
+      (btn as HTMLElement).setAttribute('aria-pressed', String(btnReaction === reaction));
+    });
+  }
+
+  // Card/list item click → detail drawer (event delegation — persistent)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    if (target.closest('.reaction-btn')) return;
+
+    const infoBtn = target.closest('[data-action="more-info"]') as HTMLElement | null;
+    if (infoBtn) {
+      const movieId = infoBtn.dataset.movieId;
+      if (movieId) openMovieDetail(movieId);
+      return;
+    }
+
+    const item = target.closest('.card, .list-item') as HTMLElement | null;
+    if (item && !target.closest('button, a')) {
+      const movieId = item.dataset.movieId;
+      const sourceCard = item.classList.contains('card') ? item : undefined;
+      if (movieId) openMovieDetail(movieId, sourceCard);
+    }
+  });
+
+  // --- Page lifecycle ---
+  // Read data and apply state on every navigation (initial + view transitions)
+  function onPageLoad() {
+    readPageData();
+
+    // Re-apply current sort if not default
+    if (currentSort !== 'alpha') {
+      const reactions = getReactions(sessionId);
+      const sorted = sortMovies([...allMovies], currentSort, reactions);
+      reorderMovies(sorted);
+    }
+
+    // Re-apply filters to new view content
+    applyFilters();
+    loadReactions();
+  }
+
+  document.addEventListener('astro:page-load', onPageLoad);
+</script>
+
+<style>
+  .page-content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  .page-header {
+    padding: 20px 0 12px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 8px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+
+  .page-movie-count {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 4px 0 0 0;
+  }
+
+  .bottom-spacer {
+    height: 80px;
+  }
+</style>

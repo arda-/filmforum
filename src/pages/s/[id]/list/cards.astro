@@ -1,0 +1,47 @@
+---
+import SessionListLayout from '@layouts/SessionListLayout.astro';
+import MovieCard from '@components/session/MovieCard.astro';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
+import { loadSessionListData } from '@utils/sessionData';
+
+export function getStaticPaths() {
+  return getAllSeriesIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const config = getSeriesConfig(id!);
+if (!config) return Astro.redirect('/');
+
+const { uniqueMovies, filters, seo } = await loadSessionListData(id!, config);
+---
+
+<SessionListLayout
+  config={config}
+  sessionId={id!}
+  uniqueMovies={uniqueMovies}
+  directors={filters.directors}
+  actors={filters.actors}
+  decades={filters.decades}
+  currentView="cards"
+  seo={seo}
+>
+  <div class="movie-card-grid" id="card-view">
+    {uniqueMovies.map(um => (
+      <MovieCard uniqueMovie={um} />
+    ))}
+  </div>
+</SessionListLayout>
+
+<style>
+  .movie-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .movie-card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

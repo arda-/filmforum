@@ -1,0 +1,41 @@
+---
+import SessionListLayout from '@layouts/SessionListLayout.astro';
+import MovieListItem from '@components/session/MovieListItem.astro';
+import { getAllSeriesIds, getSeriesConfig } from '@config/series';
+import { loadSessionListData } from '@utils/sessionData';
+
+export function getStaticPaths() {
+  return getAllSeriesIds().map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const config = getSeriesConfig(id!);
+if (!config) return Astro.redirect('/');
+
+const { uniqueMovies, filters, seo } = await loadSessionListData(id!, config);
+---
+
+<SessionListLayout
+  config={config}
+  sessionId={id!}
+  uniqueMovies={uniqueMovies}
+  directors={filters.directors}
+  actors={filters.actors}
+  decades={filters.decades}
+  currentView="list"
+  seo={seo}
+>
+  <div class="movie-list-view" id="list-view">
+    {uniqueMovies.map(um => (
+      <MovieListItem uniqueMovie={um} />
+    ))}
+  </div>
+</SessionListLayout>
+
+<style>
+  .movie-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+</style>
