@@ -130,7 +130,9 @@ export const AllDetailsEnabled = {
 };
 
 export const WeekStartMonday = {
-  args: {},
+  args: {
+    gearOpen: true,
+  },
   parameters: {
     docs: {
       description: {
@@ -143,6 +145,7 @@ export const WeekStartMonday = {
 export const WeekStartSunday = {
   args: {
     weekStart: 'sun',
+    gearOpen: true,
   },
   parameters: {
     docs: {
