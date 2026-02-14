@@ -156,25 +156,6 @@ export function getWeekTimeRange(
 }
 
 /**
- * Check if a calendar date is in the past (before today).
- *
- * Compares the given date against today at midnight. Today's date returns false.
- * Useful for filtering or styling past calendar days.
- *
- * @param dateStr - Date string in YYYY-MM-DD format (e.g., "2026-02-15")
- * @returns true if the date is before today, false if today or future
- * @example
- * isDateInPast('2026-02-10') // true if current date is after Feb 10, 2026
- * isDateInPast('2026-02-15') // false if current date is Feb 15, 2026
- */
-export function isDateInPast(dateStr: string): boolean {
-  const date = new Date(dateStr + 'T00:00:00');
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return date < today;
-}
-
-/**
  * Check if a datetime is in the past (before current time).
  *
  * Compares the given datetime against the current time with second precision.
