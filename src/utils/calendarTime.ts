@@ -154,3 +154,24 @@ export function getWeekTimeRange(
 
   return { start: minStart, end: maxEnd, range: maxEnd - minStart };
 }
+
+/**
+ * Check if a datetime is in the past (before current time).
+ *
+ * Compares the given datetime against the current time with second precision.
+ * The exact current time returns false. Useful for filtering or dimming past showtimes.
+ *
+ * @param datetimeStr - ISO 8601 datetime string (e.g., "2026-02-15T19:30:00")
+ * @param now - Optional Date object representing current time. If not provided, creates a new Date().
+ *              Pass this to avoid creating multiple Date objects when checking many showtimes.
+ * @returns true if the datetime is before now, false if now or future
+ * @example
+ * isDatetimeInPast('2026-02-15T14:00:00') // true if current time is after 2:00 PM
+ * const now = new Date();
+ * isDatetimeInPast('2026-02-15T19:30:00', now) // reuse same 'now' for efficiency
+ */
+export function isDatetimeInPast(datetimeStr: string, now?: Date): boolean {
+  const showtime = new Date(datetimeStr);
+  const currentTime = now ?? new Date();
+  return showtime < currentTime;
+}

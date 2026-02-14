@@ -113,3 +113,8 @@ body.minimum-width .calendar {
 /* Hide spacer cells based on week start mode */
 body.sunday-start .spacer-mon { display: none; }
 body.monday-start .spacer-sun { display: none; }
+
+/* Dim past showtimes */
+.movie.past-showtime {
+  opacity: 0.45;
+}

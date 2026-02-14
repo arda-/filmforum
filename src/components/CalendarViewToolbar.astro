@@ -116,10 +116,45 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
           </div>
         </div>
         <div class="popover-section">
-          <Switch id="highlight-unique-toggle" label="Highlight unique showings (★)" checked small />
+          <div class="popover-row">
+            <span class="popover-label">Highlight unique showings (★)</span>
+            <Switch id="highlight-unique-toggle" label="" checked small />
+          </div>
         </div>
         <div class="popover-section desktop-only">
-          <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" checked small />
+          <div class="popover-row">
+            <span class="popover-label">Highlight alternate showtimes on hover</span>
+            <Switch id="highlight-alternate-toggle" label="" checked small />
+          </div>
+        </div>
+        <div class="popover-section">
+          <div class="popover-row">
+            <span class="popover-label">Past showtimes</span>
+            <SegmentedToggle size="sm" role="radiogroup" aria-label="Past showtimes display mode">
+              <button
+                class="seg-btn"
+                data-past-mode="hide"
+                role="radio"
+                aria-checked="false"
+                aria-label="Hide past showtimes"
+                id="past-mode-hide"
+              >
+                <Icon name="eye-off" size={16} />
+                <span class="seg-btn-label">Hide</span>
+              </button>
+              <button
+                class="seg-btn active"
+                data-past-mode="dim"
+                role="radio"
+                aria-checked="true"
+                aria-label="Dim past showtimes"
+                id="past-mode-dim"
+              >
+                <Icon name="square-dashed" size={16} />
+                <span class="seg-btn-label">Dim</span>
+              </button>
+            </SegmentedToggle>
+          </div>
         </div>
       </div>
     </div>
@@ -377,6 +412,28 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
     }
   });
 
+  // --- Past showtimes mode toggle (radio group - always one active) ---
+  const pastModeButtons = document.querySelectorAll('[data-past-mode]');
+
+  pastModeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const mode = (button as HTMLElement).dataset.pastMode!;
+
+      // Deactivate all buttons
+      pastModeButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-checked', 'false');
+      });
+
+      // Activate clicked button
+      button.classList.add('active');
+      button.setAttribute('aria-checked', 'true');
+
+      // Dispatch custom event for calendar to handle
+      document.dispatchEvent(new CustomEvent('past-mode-change', { detail: { mode } }));
+    });
+  });
+
   // --- Init: sync button visuals from restored URL state ---
   document.addEventListener('url-state-restored', () => applyState());
 </script>
@@ -522,20 +579,17 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
   .popover-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   .popover-label {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 400;
     color: var(--text-secondary);
-    font-family: 'Barlow Semi Condensed', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    flex: 1;
   }
-
-
-
 
   /* Hidden helper switches are truly hidden */
   [style*="display:none"] {

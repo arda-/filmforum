@@ -101,7 +101,7 @@ const ogImage = movieData[0]?.poster_url || null;
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins } from '@utils/movieUtils';
-  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange } from '@utils/calendarTime';
+  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange, isDatetimeInPast } from '@utils/calendarTime';
   import { filterByTimeCategories, classifyTimeCategory, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
   import { openMovieModal } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
@@ -145,22 +145,36 @@ const ogImage = movieData[0]?.poster_url || null;
     savedFilterSet: Set<SavedFilter>;
     reactions: ReactionMap;
     filteredShowtimeCounts: Record<string, number>;
+    hidePastShowtimes?: boolean;
+    now?: Date;
   }
 
   /**
    * Apply the complete filter pipeline to movies for a given date.
-   * This includes time category filter and saved status filter.
+   * Filters are ordered by cost/selectivity for optimal performance:
+   * 1. Saved status (cheapest, potentially very selective)
+   * 2. Past showtimes (medium cost, high selectivity)
+   * 3. Time categories (medium cost, medium selectivity)
    */
   function applyFilterPipeline(
     date: string,
     rawMovies: Movie[],
     options: FilterOptions
   ): Movie[] {
-    let filtered = filterByTimeCategories(rawMovies, date, options.timeCategories);
+    let filtered = rawMovies;
 
+    // 1. Saved status filter (cheapest operation, Set.has() lookup)
     if (options.savedFilterSet.size < SAVED_FILTER_COUNT) {
       filtered = filterBySavedStatus(filtered, options.reactions, options.savedFilterSet);
     }
+
+    // 2. Past showtimes filter (medium cost, high selectivity)
+    if (options.hidePastShowtimes) {
+      filtered = filtered.filter(movie => !isDatetimeInPast(movie.Datetime, options.now));
+    }
+
+    // 3. Time category filter (medium cost, medium selectivity)
+    filtered = filterByTimeCategories(filtered, date, options.timeCategories);
 
     return filtered;
   }
@@ -199,6 +213,9 @@ const ogImage = movieData[0]?.poster_url || null;
     currentReactions = getReactions(sessionId);
     updateSavedFilterCounts();
 
+    // Create 'now' once for consistent time checks across all filter operations
+    const now = new Date();
+
     const timelineToggle = document.getElementById('timeline-mode-toggle');
     const timelineInput = timelineToggle?.tagName === 'INPUT' ? timelineToggle : timelineToggle?.querySelector('input');
     const timelineMode = (timelineInput as HTMLInputElement)?.checked ?? false;
@@ -210,6 +227,12 @@ const ogImage = movieData[0]?.poster_url || null;
     // Highlight unique showings (★) from gear menu toggle
     const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
     const singleShowtimesMode = (highlightUniqueToggle?.checked ?? false) ? 'highlight' : 'none';
+
+    // Past showtimes mode - read from active toggle button (always one active)
+    const activePastModeBtn = document.querySelector('[data-past-mode].active') as HTMLElement;
+    const pastMode = activePastModeBtn?.dataset.pastMode ?? 'dim'; // Default to 'dim' if not found
+    const hidePastShowtimes = pastMode === 'hide';
+    const dimPastShowtimes = pastMode === 'dim';
 
     const activeSavedFilters = getActiveSavedFilters();
     const savedFilterSet = new Set(activeSavedFilters);
@@ -259,7 +282,9 @@ const ogImage = movieData[0]?.poster_url || null;
               timeCategories,
               savedFilterSet,
               reactions: currentReactions,
-              filteredShowtimeCounts
+              filteredShowtimeCounts,
+              hidePastShowtimes,
+              now
             }
           );
           filteredMoviesByDate.set(date, filtered);
@@ -277,9 +302,59 @@ const ogImage = movieData[0]?.poster_url || null;
       });
     }
 
+    // Track which dates belong to empty weeks (all days have no movies after filtering)
+    const hiddenWeekDates = new Set<string>();
+
+    if (hidePastShowtimes) {
+      const mondayStart = getWeekStartPreference();
+      const dates = cachedDates && cachedMondayStart === mondayStart
+        ? cachedDates
+        : generateDateRange(allMovieDates, mondayStart);
+      const weeks = groupDatesIntoWeeks(dates);
+
+      weeks.forEach((weekDates) => {
+        // Check if entire week has no movies after filtering
+        const hasAnyMovies = weekDates.some(date => {
+          const dayMovies = moviesByDate[date] || [];
+          const filtered = applyFilterPipeline(
+            date,
+            dayMovies,
+            {
+              timeCategories,
+              savedFilterSet,
+              reactions: currentReactions,
+              filteredShowtimeCounts,
+              hidePastShowtimes,
+              now
+            }
+          );
+          return filtered.length > 0;
+        });
+
+        // If week is completely empty, mark all dates in it as hidden
+        if (!hasAnyMovies) {
+          weekDates.forEach(date => hiddenWeekDates.add(date));
+        }
+      });
+    }
+
+    // Hide/show day cells based on whether they're in empty weeks
+    const allDayCells = document.querySelectorAll('[data-date]');
+    allDayCells.forEach(cell => {
+      const date = (cell as HTMLElement).dataset.date!;
+      if (hiddenWeekDates.has(date)) {
+        (cell as HTMLElement).style.display = 'none';
+      } else {
+        (cell as HTMLElement).style.display = '';
+      }
+    });
+
     // Render all days using cached filtered results (if available in timeline mode) or fresh calculations
     // Note: In non-timeline mode, filteredMoviesByDate is empty, so all dates hit the fallback path and recalculate
     Object.entries(moviesByDate).forEach(([date, dayMovies]) => {
+      // Skip rendering if this date is in a hidden week
+      if (hiddenWeekDates.has(date)) return;
+
       // Use cached results if available (from timeline pre-calculation), otherwise recalculate
       const filteredMovies = filteredMoviesByDate.get(date) ?? applyFilterPipeline(
         date,
@@ -288,7 +363,9 @@ const ogImage = movieData[0]?.poster_url || null;
           timeCategories,
           savedFilterSet,
           reactions: currentReactions,
-          filteredShowtimeCounts
+          filteredShowtimeCounts,
+          hidePastShowtimes,
+          now
         }
       );
 
@@ -336,19 +413,29 @@ const ogImage = movieData[0]?.poster_url || null;
           const runtime = parseInt(movie.runtime || '90');
           const topPx = (start - dayStartTime) * PX_PER_MIN;
           const heightPx = Math.max(runtime * PX_PER_MIN, 24);
-          dayCell.appendChild(createMovieElement(movie, {
+          const movieEl = createMovieElement(movie, {
             isTimeline: true, topPx, heightPx,
             filteredCounts: filteredShowtimeCounts,
             singleShowtimeMode: singleShowtimesMode
-          }));
+          });
+          // Apply dimming class if enabled and showtime is in the past
+          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime, now)) {
+            movieEl.classList.add('past-showtime');
+          }
+          dayCell.appendChild(movieEl);
         });
       } else {
         filteredMovies.forEach(movie => {
-          dayCell.appendChild(createMovieElement(movie, {
+          const movieEl = createMovieElement(movie, {
             isTimeline: false,
             filteredCounts: filteredShowtimeCounts,
             singleShowtimeMode: singleShowtimesMode
-          }));
+          });
+          // Apply dimming class if enabled and showtime is in the past
+          if (dimPastShowtimes && isDatetimeInPast(movie.Datetime, now)) {
+            movieEl.classList.add('past-showtime');
+          }
+          dayCell.appendChild(movieEl);
         });
       }
     });
@@ -437,6 +524,13 @@ const ogImage = movieData[0]?.poster_url || null;
 
   // Highlight unique toggle
   document.querySelector('#highlight-unique-toggle input')?.addEventListener('change', () => {
+    renderAllDays();
+    updateUrlParams();
+    setTimeout(updateTextHeights, 10);
+  });
+
+  // Past showtimes mode toggle
+  document.addEventListener('past-mode-change', () => {
     renderAllDays();
     updateUrlParams();
     setTimeout(updateTextHeights, 10);
