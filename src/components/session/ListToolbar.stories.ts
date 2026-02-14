@@ -1,5 +1,24 @@
 import ListToolbar from './ListToolbar.astro';
 
+const openFilterPanelDecorator = (story) => {
+  const rendered = story();
+  return {
+    ...rendered,
+    setup: () => {
+      // After rendering, open the filter disclosure panel
+      setTimeout(() => {
+        const filterDisclosure = document.getElementById('filter-disclosure');
+        const filterToggleBtn = document.getElementById('filter-toggle-btn');
+        if (filterDisclosure && filterToggleBtn) {
+          filterDisclosure.classList.add('open');
+          filterToggleBtn.classList.add('active');
+          filterToggleBtn.setAttribute('aria-expanded', 'true');
+        }
+      }, 0);
+    },
+  };
+};
+
 export default {
   component: ListToolbar,
 };
@@ -12,6 +31,7 @@ export const DefaultCardView = {
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const ListView = {
@@ -22,6 +42,7 @@ export const ListView = {
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const SingleView = {
@@ -42,6 +63,7 @@ export const SortByYear = {
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const SortByDirector = {
@@ -52,6 +74,7 @@ export const SortByDirector = {
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const SortByMarked = {
@@ -62,6 +85,7 @@ export const SortByMarked = {
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const MinimalFilters = {
@@ -72,6 +96,7 @@ export const MinimalFilters = {
     actors: ['Timothée Chalamet'],
     decades: ['2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const ExtensiveFilters = {
@@ -102,6 +127,7 @@ export const ExtensiveFilters = {
     ],
     decades: ['1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const NoFilters = {
@@ -112,6 +138,7 @@ export const NoFilters = {
     actors: [],
     decades: [],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const ClassicDecades = {
@@ -122,6 +149,7 @@ export const ClassicDecades = {
     actors: ['Cary Grant', 'James Stewart', 'Grace Kelly'],
     decades: ['1940s', '1950s', '1960s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
 
 export const ModernFilmmakers = {
@@ -132,4 +160,5 @@ export const ModernFilmmakers = {
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Zendaya'],
     decades: ['2010s', '2020s'],
   },
+  decorators: [openFilterPanelDecorator],
 };
