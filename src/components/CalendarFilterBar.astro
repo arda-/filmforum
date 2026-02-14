@@ -6,6 +6,28 @@
  */
 import Icon from './Icon.astro';
 import SegmentedToggle from './SegmentedToggle.astro';
+
+interface Props {
+  /** Times filters */
+  day?: boolean;
+  nite?: boolean;
+  weekend?: boolean;
+  /** Saved filters */
+  yes?: boolean;
+  maybe?: boolean;
+  no?: boolean;
+  unmarked?: boolean;
+}
+
+const {
+  day = true,
+  nite = true,
+  weekend = true,
+  yes = true,
+  maybe = true,
+  no = true,
+  unmarked = true,
+} = Astro.props;
 ---
 
 <div class="calendar-filter-bar">
@@ -13,30 +35,30 @@ import SegmentedToggle from './SegmentedToggle.astro';
     <span class="filter-label">Times</span>
     <SegmentedToggle aria-label="Filter by time of day">
       <button
-        class="seg-btn active"
+        class={`seg-btn ${day ? 'active' : ''}`}
         data-time="weekdays"
-        aria-pressed="true"
+        aria-pressed={String(day)}
         aria-label="Show weekday daytime showtimes"
       >
-        <input type="checkbox" name="time-filter" value="weekdays" checked style="display: none;" />
+        <input type="checkbox" name="time-filter" value="weekdays" checked={day} style="display: none;" />
         <Icon name="sun" size={16} /> <span class="btn-label">Day <span class="filter-count" data-count-for="weekdays"></span></span>
       </button>
       <button
-        class="seg-btn active"
+        class={`seg-btn ${nite ? 'active' : ''}`}
         data-time="weeknights"
-        aria-pressed="true"
+        aria-pressed={String(nite)}
         aria-label="Show weeknight showtimes"
       >
-        <input type="checkbox" name="time-filter" value="weeknights" checked style="display: none;" />
+        <input type="checkbox" name="time-filter" value="weeknights" checked={nite} style="display: none;" />
         <Icon name="moon-star" size={16} /> <span class="btn-label">Nite <span class="filter-count" data-count-for="weeknights"></span></span>
       </button>
       <button
-        class="seg-btn active"
+        class={`seg-btn ${weekend ? 'active' : ''}`}
         data-time="weekends"
-        aria-pressed="true"
+        aria-pressed={String(weekend)}
         aria-label="Show weekend showtimes"
       >
-        <input type="checkbox" name="time-filter" value="weekends" checked style="display: none;" />
+        <input type="checkbox" name="time-filter" value="weekends" checked={weekend} style="display: none;" />
         <Icon name="briefcase-off" size={16} /> <span class="btn-label">Weekend <span class="filter-count" data-count-for="weekends"></span></span>
       </button>
     </SegmentedToggle>
@@ -45,42 +67,42 @@ import SegmentedToggle from './SegmentedToggle.astro';
     <span class="filter-label">Saved</span>
     <SegmentedToggle aria-label="Filter saved movies">
       <button
-        class="seg-btn active"
+        class={`seg-btn ${yes ? 'active' : ''}`}
         data-filter="yes"
-        aria-pressed="true"
+        aria-pressed={String(yes)}
         aria-label="Show movies marked Yes"
         style="--btn-color: var(--reaction-yes)"
       >
-        <input type="checkbox" name="saved-filter" value="yes" checked style="display: none;" />
+        <input type="checkbox" name="saved-filter" value="yes" checked={yes} style="display: none;" />
         <Icon name="thumbs-up" size={16} /> <span class="btn-label">Yes</span>
       </button>
       <button
-        class="seg-btn active"
+        class={`seg-btn ${maybe ? 'active' : ''}`}
         data-filter="maybe"
-        aria-pressed="true"
+        aria-pressed={String(maybe)}
         aria-label="Show movies marked Maybe"
         style="--btn-color: var(--reaction-maybe)"
       >
-        <input type="checkbox" name="saved-filter" value="maybe" checked style="display: none;" />
+        <input type="checkbox" name="saved-filter" value="maybe" checked={maybe} style="display: none;" />
         <Icon name="question-mark" size={16} /> <span class="btn-label">Maybe</span>
       </button>
       <button
-        class="seg-btn"
+        class={`seg-btn ${no ? 'active' : ''}`}
         data-filter="no"
-        aria-pressed="false"
+        aria-pressed={String(no)}
         aria-label="Show movies marked No"
         style="--btn-color: var(--reaction-no)"
       >
-        <input type="checkbox" name="saved-filter" value="no" style="display: none;" />
+        <input type="checkbox" name="saved-filter" value="no" checked={no} style="display: none;" />
         <Icon name="thumbs-down" size={16} /> <span class="btn-label">No</span>
       </button>
       <button
-        class="seg-btn"
+        class={`seg-btn ${unmarked ? 'active' : ''}`}
         data-filter="unmarked"
-        aria-pressed="false"
+        aria-pressed={String(unmarked)}
         aria-label="Show unmarked movies"
       >
-        <input type="checkbox" name="saved-filter" value="unmarked" style="display: none;" />
+        <input type="checkbox" name="saved-filter" value="unmarked" checked={unmarked} style="display: none;" />
         <Icon name="circle-ellipsis" size={16} /> <span class="btn-label">Unmarked</span>
       </button>
     </SegmentedToggle>
