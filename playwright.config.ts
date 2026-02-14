@@ -9,9 +9,9 @@ export default defineConfig({
   testDir: './tests',
   testMatch: '**/*.spec.ts',
 
-  /* Run tests serially to avoid test interference */
+  /* Component tests run in parallel (isolated demo pages).
+     Integration tests run serially (shared calendar page). */
   fullyParallel: false,
-  workers: 1,
 
   /* Retry failed tests once */
   retries: 1,
@@ -31,14 +31,30 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects: components parallel, integration serial */
   projects: [
     {
-      name: 'chromium',
+      name: 'components-chromium',
+      testDir: './tests/components',
+      fullyParallel: true,
       use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'firefox',
+      name: 'components-firefox',
+      testDir: './tests/components',
+      fullyParallel: true,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'integration-chromium',
+      testDir: './tests/integration',
+      fullyParallel: false,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'integration-firefox',
+      testDir: './tests/integration',
+      fullyParallel: false,
       use: { ...devices['Desktop Firefox'] },
     },
   ],
