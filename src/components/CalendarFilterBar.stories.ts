@@ -94,7 +94,7 @@ export const Saved_yes: Story = {
  * Day and weekend showtimes combined.
  * Filters out nighttime screenings but includes all saved states.
  */
-export const Showings_dayWeekend: Story = {
+export const Showings_day_weekend: Story = {
   args: {
     day: true,
     nite: false,
@@ -110,7 +110,7 @@ export const Showings_dayWeekend: Story = {
  * Show "Yes" and "Maybe" saved movies across all times.
  * Useful for seeing your top consideration movies regardless of showtime.
  */
-export const Saved_yesMaybe: Story = {
+export const Saved_yes_maybe: Story = {
   args: {
     day: true,
     nite: true,
@@ -126,7 +126,7 @@ export const Saved_yesMaybe: Story = {
  * Highly filtered view: only day and weekend showtimes with "Yes" movies.
  * Maximum filtering for a specific search scenario.
  */
-export const Showings_dayWeekend_Saved_yes: Story = {
+export const Showings_day_weekend_Saved_yes: Story = {
   args: {
     day: true,
     nite: false,
