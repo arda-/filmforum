@@ -79,7 +79,14 @@
       "Bash(GIT_EDITOR=true git rebase:*)",
       "Bash(git branch:*)",
       "Bash(pnpm run test:run:*)",
-      "WebFetch(domain:docs.astro.build)"
+      "WebFetch(domain:docs.astro.build)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(pnpm info:*)",
+      "Bash(pnpm astrobook dev:*)",
+      "Bash(pnpm exec astrobook dev:*)",
+      "Bash(done)",
+      "WebFetch(domain:localhost)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

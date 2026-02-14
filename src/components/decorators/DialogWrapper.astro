@@ -1,0 +1,64 @@
+---
+/**
+ * DialogWrapper - Astrobook adapter for Dialog component
+ *
+ * This wrapper exists because:
+ * 1. Astrobook doesn't support passing slot content directly to components
+ * 2. Dialog requires a trigger button to open (via window.openDialog API)
+ * 3. Story needs to demonstrate actual user interaction patterns
+ *
+ * It accepts 'body' and 'title' as props and constructs the dialog content,
+ * plus provides a trigger button that opens the dialog.
+ *
+ * Usage in stories:
+ *   args: { id: 'dialog-default', title: 'My Dialog', body: 'Dialog content here' }
+ */
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '../Dialog/index';
+import Button from '../Button.astro';
+
+interface Props {
+  id: string;
+  title: string;
+  description?: string;
+  body?: string;
+  size?: 'sm' | 'md' | 'lg';
+  showCloseButton?: boolean;
+  dismissable?: boolean;
+  triggerText?: string;
+}
+
+const {
+  id,
+  title,
+  description,
+  body = 'Dialog content here',
+  triggerText = 'Open Dialog',
+  ...dialogProps
+} = Astro.props;
+---
+
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+  <Button onclick={`window.openDialog('${id}')`}>
+    {triggerText}
+  </Button>
+
+  <DialogRoot id={id} {...dialogProps}>
+    <DialogHeader>
+      <DialogTitle>{title}</DialogTitle>
+      {description && <DialogDescription>{description}</DialogDescription>}
+    </DialogHeader>
+    {body && <DialogBody>{body}</DialogBody>}
+    <DialogSeparator />
+    <DialogFooter>
+      <Button variant="secondary" onclick={`closeDialog('${id}')`}>Close</Button>
+      <Button variant="primary" onclick={`closeDialog('${id}')`}>Confirm</Button>
+    </DialogFooter>
+  </DialogRoot>
+</div>
+
+<script>
+  // Ensure the dialog API is available
+  if (typeof (window as any).openDialog === 'undefined') {
+    console.warn('Dialog API not available. Make sure DialogRoot.astro script is loaded.');
+  }
+</script>

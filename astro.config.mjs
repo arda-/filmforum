@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import { webcore } from 'webcoreui/integration';
 import sitemap from '@astrojs/sitemap';
+import astrobook from 'astrobook';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -83,11 +84,18 @@ export default defineConfig({
   integrations: [
     webcore(),
     validatePosterImages,
+    astrobook({
+      subpath: '/astrobook',
+      directory: 'src/components',
+      css: ['./src/styles/global.css'],
+      title: 'FilmForum Components',
+    }),
     sitemap({
       filter: (page) =>
         !page.includes('/demo/') &&
         !page.includes('/list/saved') &&
-        !page.includes('/compare/'),
+        !page.includes('/compare/') &&
+        !page.includes('/astrobook'),
     })
   ]
 });

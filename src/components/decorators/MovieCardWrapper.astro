@@ -1,0 +1,29 @@
+---
+/**
+ * MovieCardWrapper - Astrobook adapter for MovieCard component
+ *
+ * This wrapper adds padding around the MovieCard to prevent the card's outline
+ * and shadow from being clipped at the container edges. The MovieCard has
+ * box-shadow styling that needs breathing room to display properly in stories.
+ *
+ * Usage in stories:
+ *   args: { uniqueMovie: movieData, reaction: 'none' }
+ *   (no need to pass padding, it defaults to 20px)
+ */
+import MovieCard from '../session/MovieCard.astro';
+
+interface Props {
+  uniqueMovie: any;
+  reaction?: 'none' | 'yes' | 'maybe' | 'no';
+  showActors?: boolean;
+  showBlurb?: boolean;
+  showImage?: boolean;
+  padding?: string;
+}
+
+const { padding = '20px', ...movieCardProps } = Astro.props;
+---
+
+<div style={`padding: ${padding};`}>
+  <MovieCard {...movieCardProps} />
+</div>
