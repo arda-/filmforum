@@ -145,19 +145,19 @@ const structuredData = {
   function loadReactions() {
     const reactions = getReactions(sessionId);
     // Update all reaction buttons on the page
-    document.querySelectorAll('[data-movie-id][data-reaction]').forEach(btn => {
-      const movieId = (btn as HTMLElement).dataset.movieId!;
+    document.querySelectorAll('[data-film-slug][data-reaction]').forEach(btn => {
+      const filmSlug = (btn as HTMLElement).dataset.filmSlug!;
       const btnReaction = (btn as HTMLElement).dataset.reaction!;
-      const currentReaction = reactions[movieId] || 'none';
+      const currentReaction = reactions[filmSlug] || 'none';
       const isActive = btnReaction === currentReaction;
       btn.classList.toggle('active', isActive);
       (btn as HTMLElement).setAttribute('aria-pressed', String(isActive));
     });
 
     // Update card/list item states
-    document.querySelectorAll('.card[data-movie-id], .list-item[data-movie-id]').forEach(el => {
-      const movieId = (el as HTMLElement).dataset.movieId!;
-      const reaction = reactions[movieId] || 'none';
+    document.querySelectorAll('.card[data-film-slug], .list-item[data-film-slug]').forEach(el => {
+      const filmSlug = (el as HTMLElement).dataset.filmSlug!;
+      const reaction = reactions[filmSlug] || 'none';
       (el as HTMLElement).dataset.reaction = reaction;
       // Remove old reaction classes
       el.classList.remove('card--yes', 'card--maybe', 'card--no', 'list-item--yes', 'list-item--maybe', 'list-item--no');
@@ -188,26 +188,26 @@ const structuredData = {
     const btn = (e.target as HTMLElement).closest('.reaction-btn, .rbtn, .detail-rbtn') as HTMLElement | null;
     if (!btn) return;
 
-    const movieId = btn.dataset.movieId;
+    const filmSlug = btn.dataset.filmSlug;
     const reaction = btn.dataset.reaction as MovieReaction;
-    if (!movieId || !reaction) return;
+    if (!filmSlug || !reaction) return;
 
     const reactions = getReactions(sessionId);
-    const current = reactions[movieId] || 'none';
+    const current = reactions[filmSlug] || 'none';
 
     // Toggle: if same reaction, clear it; otherwise set new
     const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
-    setReaction(sessionId, movieId, newReaction);
+    setReaction(sessionId, filmSlug, newReaction);
 
     // Immediate visual feedback before full DOM sync
-    const card = document.querySelector(`.card[data-movie-id="${movieId}"]`) as HTMLElement;
+    const card = document.querySelector(`.card[data-film-slug="${filmSlug}"]`) as HTMLElement;
     if (card) {
       card.classList.remove('card--yes', 'card--maybe', 'card--no');
       if (newReaction !== 'none') card.classList.add(`card--${newReaction}`);
     }
 
     // Update detail drawer buttons immediately
-    document.querySelectorAll(`#detail-reactions .detail-rbtn[data-movie-id="${movieId}"]`).forEach(b => {
+    document.querySelectorAll(`#detail-reactions .detail-rbtn[data-film-slug="${filmSlug}"]`).forEach(b => {
       const r = (b as HTMLElement).dataset.reaction;
       b.classList.toggle('active', r === newReaction);
     });
@@ -217,9 +217,9 @@ const structuredData = {
 
   // Handle reactions from SingleCardView drawer
   document.addEventListener('single-card-reaction', ((e: CustomEvent) => {
-    const { movieId, reaction } = e.detail;
-    if (movieId) {
-      setReaction(sessionId, movieId, reaction as MovieReaction);
+    const { filmSlug, reaction } = e.detail;
+    if (filmSlug) {
+      setReaction(sessionId, filmSlug, reaction as MovieReaction);
       loadReactions();
     }
   }) as EventListener);
@@ -262,7 +262,7 @@ const structuredData = {
     const listItems = listView.querySelectorAll('.list-item');
     const listMap = new Map<string, HTMLElement>();
     listItems.forEach(el => {
-      const id = (el as HTMLElement).dataset.movieId!;
+      const id = (el as HTMLElement).dataset.filmSlug!;
       listMap.set(id, el as HTMLElement);
     });
     sorted.forEach(m => {
@@ -274,7 +274,7 @@ const structuredData = {
     const cards = cardView.querySelectorAll('.card');
     const cardMap = new Map<string, HTMLElement>();
     cards.forEach(el => {
-      const id = (el as HTMLElement).dataset.movieId!;
+      const id = (el as HTMLElement).dataset.filmSlug!;
       cardMap.set(id, el as HTMLElement);
     });
     sorted.forEach(m => {
@@ -318,7 +318,7 @@ const structuredData = {
     let visibleCount = 0;
 
     // Filter cards and list items using shared matching logic
-    const selectors = '.card[data-movie-id], .list-item[data-movie-id]';
+    const selectors = '.card[data-film-slug], .list-item[data-film-slug]';
     document.querySelectorAll(selectors).forEach(el => {
       const htmlEl = el as HTMLElement;
       const movieData = {
@@ -386,8 +386,8 @@ const structuredData = {
   filterClearAll?.addEventListener('click', clearAllFilters);
 
   // --- More Info Drawer ---
-  function openMovieDetail(movieId: string, sourceEl?: HTMLElement) {
-    const idx = allMovies.findIndex(m => m.id === movieId);
+  function openMovieDetail(filmSlug: string, sourceEl?: HTMLElement) {
+    const idx = allMovies.findIndex(m => m.id === filmSlug);
     if (idx === -1) return;
 
     // Use Apple-style drawer for card taps
@@ -446,7 +446,7 @@ const structuredData = {
 
     // Update detail drawer reaction buttons
     document.querySelectorAll('#detail-reactions .detail-rbtn').forEach(btn => {
-      (btn as HTMLElement).dataset.movieId = id;
+      (btn as HTMLElement).dataset.filmSlug = id;
       const btnReaction = (btn as HTMLElement).dataset.reaction;
       btn.classList.toggle('active', btnReaction === reaction);
       (btn as HTMLElement).setAttribute('aria-pressed', String(btnReaction === reaction));
@@ -463,17 +463,17 @@ const structuredData = {
     // Info button click
     const infoBtn = target.closest('[data-action="more-info"]') as HTMLElement | null;
     if (infoBtn) {
-      const movieId = infoBtn.dataset.movieId;
-      if (movieId) openMovieDetail(movieId);
+      const filmSlug = infoBtn.dataset.filmSlug;
+      if (filmSlug) openMovieDetail(filmSlug);
       return;
     }
 
     // Click on a card or list item body (not on buttons)
     const item = target.closest('.card, .list-item') as HTMLElement | null;
     if (item && !target.closest('button, a')) {
-      const movieId = item.dataset.movieId;
+      const filmSlug = item.dataset.filmSlug;
       const sourceCard = item.classList.contains('card') ? item : undefined;
-      if (movieId) openMovieDetail(movieId, sourceCard);
+      if (filmSlug) openMovieDetail(filmSlug, sourceCard);
     }
   });
 

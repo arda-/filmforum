@@ -17,7 +17,7 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
 
 <div
   class:list={['list-item', { [`list-item--${reaction}`]: reaction !== 'none' }]}
-  data-movie-id={id}
+  data-film-slug={id}
   data-reaction={reaction}
   data-title={movie.Movie.toLowerCase()}
   data-director={movie.director?.toLowerCase() || ''}
@@ -27,7 +27,7 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
   <div class="list-item-content">
     <div class="list-item-header">
       <h3 class="list-item-title">{title}</h3>
-      <button class="list-item-info-btn" data-action="more-info" data-movie-id={id} aria-label={`More info about ${title}`}>
+      <button class="list-item-info-btn" data-action="more-info" data-film-slug={id} aria-label={`More info about ${title}`}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
           <path d="M8 7v4M8 5.5v-.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -39,11 +39,11 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
     {movie.description && <p class="list-item-blurb" style={showBlurb ? undefined : 'display:none'}>{movie.description}</p>}
   </div>
 
-  <div class="list-item-reactions" data-movie-id={id}>
+  <div class="list-item-reactions" data-film-slug={id}>
     <button
       class:list={['reaction-btn', 'reaction-btn--yes', { active: reaction === 'yes' }]}
       data-reaction="yes"
-      data-movie-id={id}
+      data-film-slug={id}
       aria-pressed={reaction === 'yes'}
       aria-label="Yes"
       title="Yes"
@@ -51,7 +51,7 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
     <button
       class:list={['reaction-btn', 'reaction-btn--maybe', { active: reaction === 'maybe' }]}
       data-reaction="maybe"
-      data-movie-id={id}
+      data-film-slug={id}
       aria-pressed={reaction === 'maybe'}
       aria-label="Maybe"
       title="Maybe"
@@ -59,7 +59,7 @@ const meta = [movie.director, movie.year, formatRuntime(movie.runtime)].filter(B
     <button
       class:list={['reaction-btn', 'reaction-btn--no', { active: reaction === 'no' }]}
       data-reaction="no"
-      data-movie-id={id}
+      data-film-slug={id}
       aria-pressed={reaction === 'no'}
       aria-label="No"
       title="No"

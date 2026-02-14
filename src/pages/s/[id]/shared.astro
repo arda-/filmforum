@@ -155,7 +155,7 @@ const canonical = `/s/${id}/shared`;
       const myReaction = myReactions[um.id] || 'none';
 
       return `
-        <div class="shared-item" data-movie-id="${escapeAttr(um.id)}">
+        <div class="shared-item" data-film-slug="${escapeAttr(um.id)}">
           <div class="shared-item-info">
             <p class="shared-item-title">${title}</p>
             <p class="shared-item-meta">${meta}</p>
@@ -164,7 +164,7 @@ const canonical = `/s/${id}/shared`;
             ${['yes', 'maybe', 'no'].map(r => {
               const labels: Record<string, string> = { yes: 'Yes', maybe: 'Maybe', no: 'No' };
               const active = r === myReaction ? 'active' : '';
-              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-movie-id="${escapeAttr(um.id)}">${labels[r]}</button>`;
+              return `<button class="shared-reaction-btn shared-reaction-btn--${r} ${active}" data-reaction="${r}" data-film-slug="${escapeAttr(um.id)}">${labels[r]}</button>`;
             }).join('')}
           </div>
         </div>
@@ -180,14 +180,14 @@ const canonical = `/s/${id}/shared`;
     const btn = (e.target as HTMLElement).closest('.shared-reaction-btn') as HTMLElement | null;
     if (!btn) return;
 
-    const movieId = btn.dataset.movieId;
+    const filmSlug = btn.dataset.filmSlug;
     const reaction = btn.dataset.reaction as MovieReaction;
-    if (!movieId || !reaction) return;
+    if (!filmSlug || !reaction) return;
 
     const reactions = getReactions(sessionId);
-    const current = reactions[movieId] || 'none';
+    const current = reactions[filmSlug] || 'none';
     const newReaction: MovieReaction = current === reaction ? 'none' : reaction;
-    setReaction(sessionId, movieId, newReaction);
+    setReaction(sessionId, filmSlug, newReaction);
 
     // Update buttons for this movie
     const item = btn.closest('.shared-item');

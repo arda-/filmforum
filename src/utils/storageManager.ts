@@ -46,14 +46,14 @@ export function getReactions(sessionId: string): ReactionMap {
  */
 export function setReaction(
   sessionId: string,
-  movieId: string,
+  filmSlug: string,
   reaction: MovieReaction
 ): ReactionMap {
   const reactions = getReactions(sessionId);
   if (reaction === 'none') {
-    delete reactions[movieId];
+    delete reactions[filmSlug];
   } else {
-    reactions[movieId] = reaction;
+    reactions[filmSlug] = reaction;
   }
   localStorage.setItem(STORAGE_PREFIX + sessionId, JSON.stringify(reactions));
   return reactions;
@@ -82,7 +82,7 @@ export function getReactionCounts(sessionId: string): { yes: number; maybe: numb
 
 /**
  * Encode reactions into a compact URL-safe string.
- * Format: movieId1:y,movieId2:m,movieId3:n
+ * Format: filmSlug1:y,filmSlug2:m,filmSlug3:n
  */
 export function encodeReactions(reactions: ReactionMap): string {
   const codes: Record<string, string> = { yes: 'y', maybe: 'm', no: 'n' };
