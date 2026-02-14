@@ -70,6 +70,14 @@ import Button from '../../components/Button.astro';
     </div>
 
     <div class="demo-section">
+      <h2>Full-Bleed with Image Title</h2>
+      <p class="section-desc">Hero image with title overlaid at the bottom using blur + scrim treatment. Title sits at the "fold" between the image and scrollable body content.</p>
+      <div class="button-row">
+        <button class="demo-btn" onclick="openDrawer('drawer-image-title')">Image Title Drawer</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
       <h2>Gesture Interactions</h2>
       <p class="section-desc">Try these interactions on any drawer:</p>
       <ul class="feature-list">
@@ -324,6 +332,46 @@ import Button from '../../components/Button.astro';
     <Fragment slot="footer">
       <Button variant="secondary" onclick="closeDrawer('drawer-full-bleed')">Close</Button>
       <Button variant="primary" onclick="closeDrawer('drawer-full-bleed')">Buy Tickets</Button>
+    </Fragment>
+  </Drawer>
+
+  <!-- Full-Bleed with Image Title -->
+  <Drawer id="drawer-image-title" height="85dvh" fullBleed imageTitle="The Grand Cinema">
+    <img
+      slot="hero"
+      class="full-bleed-hero"
+      src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&q=80"
+      alt="Movie theater with red seats"
+      loading="lazy"
+    />
+    <div class="full-bleed-content">
+      <p class="movie-meta">2024 · Sofia Moretti · 128 min</p>
+      <p class="movie-actors">Isabella Rossetti, Marco Bianchi, Elena Varga</p>
+
+      <p class="movie-description">
+        "A love letter to the golden age of cinema, following a projectionist who discovers that the films she screens hold secrets about the theater's storied past."
+      </p>
+      <p class="movie-citation">— Film Forum</p>
+
+      <div class="movie-scores">
+        <div class="score-item">
+          <span class="score-label">IMDB</span>
+          <span class="score-value">8.1</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">RT</span>
+          <span class="score-value">94%</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">Meta</span>
+          <span class="score-value">82</span>
+        </div>
+      </div>
+    </div>
+
+    <Fragment slot="footer">
+      <Button variant="secondary" onclick="closeDrawer('drawer-image-title')">Close</Button>
+      <Button variant="primary" onclick="closeDrawer('drawer-image-title')">Buy Tickets</Button>
     </Fragment>
   </Drawer>
 

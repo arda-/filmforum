@@ -25,10 +25,14 @@ interface Props {
   /** Full-bleed mode — removes body padding and floats the handle/close button
    *  over the content. Use for hero images that extend to the edges. */
   fullBleed?: boolean;
+  /** Title text overlaid at the bottom of the hero image, using blur + scrim
+   *  treatment inspired by MovieCard. Requires `fullBleed` and the `hero` slot. */
+  imageTitle?: string;
 }
 
-const { id, title, height, minHeight, maxHeight, fullBleed } = Astro.props;
+const { id, title, height, minHeight, maxHeight, fullBleed, imageTitle } = Astro.props;
 const hasFooter = Astro.slots.has('footer');
+const hasHero = Astro.slots.has('hero');
 
 // Build sizing inline styles from props
 const sizeStyles: string[] = [];
@@ -52,6 +56,17 @@ const containerStyle = sizeStyles.join('; ');
         <Icon name="x" size={18} />
       </button>
     </slot>
+    {hasHero && fullBleed && (
+      <div class="drawer-hero">
+        <slot name="hero" />
+        <div class="drawer-hero-blur"></div>
+        {imageTitle && (
+          <div class="drawer-hero-overlay">
+            <h2 class="drawer-hero-title">{imageTitle}</h2>
+          </div>
+        )}
+      </div>
+    )}
     {title && (
       <div class="drawer-header">
         <h2 id={`${id}-title`} class="drawer-title">{title}</h2>
@@ -283,6 +298,69 @@ const containerStyle = sizeStyles.join('; ');
 
   .drawer-container.full-bleed:not([data-has-footer]) .drawer-body {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* ── Hero image-title variant ────────────────────────────────────────
+     Full-bleed image with blur + scrim + title text overlaid at the
+     bottom edge (the "fold" before scrollable body content begins).
+     Inspired by the MovieCard text-over-image treatment. */
+  .drawer-hero {
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .drawer-hero :global(img) {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* Blur layer — backdrop-filter with mask-image fade from clear (top) to
+     fully blurred (bottom), so the title text sits on a readable surface. */
+  .drawer-hero-blur {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Dark gradient scrim layered on top of blur for extra text contrast */
+  .drawer-hero-blur::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.35) 40%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Title text overlay — absolute-positioned at bottom of the hero image */
+  .drawer-hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1rem 20px;
+    pointer-events: none;
+  }
+
+  .drawer-hero-title {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
   }
 
   @media (prefers-reduced-motion: reduce) {
