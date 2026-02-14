@@ -89,11 +89,24 @@ See **[Image Optimization Guide](./docs/image-optimization.md)** for detailed in
 
 ## 🛠️ Commands
 
+### Development
+
 | Command | Purpose |
 |---------|---------|
 | `pnpm dev` | Start development server |
 | `pnpm build` | Build optimized production site (includes image validation) |
 | `pnpm preview` | Preview production build locally |
+
+### Testing
+
+| Command | Purpose |
+|---------|---------|
+| `pnpm test:run` | Run unit tests (vitest) |
+| `pnpm test:unit` | Run unit tests only (alias for test:run) |
+| `pnpm test:component` | Run component tests (Playwright) |
+| `pnpm test:integration` | Run integration tests (Playwright) |
+| `pnpm test:all` | Run all tests: unit, component, integration, and Python |
+| `pnpm test` | Watch mode for unit tests |
 
 ## 🔍 Data Management
 

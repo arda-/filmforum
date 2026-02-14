@@ -77,10 +77,21 @@ Use `pnpm` (not npm) for all package management commands.
 
 ## Commands
 
+### Development
 ```bash
 pnpm dev            # Start dev server
 pnpm build          # Production build
 pnpm preview        # Preview production build
+```
+
+### Testing
+```bash
+pnpm test:run       # Run all unit tests
+pnpm test:unit      # Run unit tests only
+pnpm test:component # Run component tests (Playwright)
+pnpm test:integration # Run integration tests (Playwright)
+pnpm test:all       # Run unit + component + integration + Python tests
+pnpm test           # Watch mode for unit tests
 ```
 
 ### Pre-Push Checklist
@@ -88,6 +99,7 @@ pnpm preview        # Preview production build
 **NEVER push broken builds.** Before every push:
 ```bash
 pnpm build          # Must pass with zero errors
+pnpm test:all       # Run full test suite
 ```
 
 ## Demo Pages

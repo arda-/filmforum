@@ -1,0 +1,27 @@
+---
+/**
+ * TooltipWrapper - Astrobook adapter for Tooltip component
+ *
+ * This wrapper exists because Astrobook doesn't support passing slot content
+ * directly to components. It accepts 'triggerText' as a prop and passes it
+ * as slot content to the actual Tooltip component (as simple text).
+ *
+ * Usage in stories:
+ *   args: { text: 'Tooltip text', triggerText: 'Hover me' }
+ */
+import Tooltip from '../Tooltip.astro';
+
+interface Props {
+  text: string;
+  triggerText?: string;
+  disabled?: boolean;
+}
+
+const { triggerText = 'Hover me', ...tooltipProps } = Astro.props;
+---
+
+<Tooltip {...tooltipProps}>
+  <span>
+    {triggerText}
+  </span>
+</Tooltip>
