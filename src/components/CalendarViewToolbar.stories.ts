@@ -171,7 +171,7 @@ export const GearMenuOpen = {
   },
 };
 
-export const HighlightUnique = {
+export const Highlights_unique = {
   args: {
     gearOpen: true,
     highlightUnique: true,
@@ -186,7 +186,7 @@ export const HighlightUnique = {
   },
 };
 
-export const HighlightAlternate = {
+export const Highlights_alternate = {
   args: {
     gearOpen: true,
     highlightUnique: false,
@@ -201,7 +201,7 @@ export const HighlightAlternate = {
   },
 };
 
-export const AllHighlightsEnabled = {
+export const Highlights_all = {
   args: {
     gearOpen: true,
     highlightUnique: true,
@@ -216,7 +216,7 @@ export const AllHighlightsEnabled = {
   },
 };
 
-export const NoHighlights = {
+export const Highlights_none = {
   args: {
     gearOpen: true,
     highlightUnique: false,
