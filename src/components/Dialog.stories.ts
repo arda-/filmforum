@@ -1,8 +1,12 @@
 /**
- * Dialog Story
+ * Dialog Stories
  *
- * Stories show all visual states and sizes of the Dialog component.
- * Each story includes an "Open Dialog" button to trigger the dialog display.
+ * Stories show all visual states and sizes of the Dialog component using composable components:
+ * - DialogRoot: Container and state management
+ * - DialogHeader/DialogTitle/DialogDescription: Header section
+ * - DialogBody: Scrollable content area
+ * - DialogSeparator: Visual divider
+ * - DialogFooter: Action buttons
  *
  * INTERACTION TESTING:
  * Automated interaction tests are NOT run in Astrobook stories.
@@ -43,6 +47,7 @@ export const Small = {
     description: 'Are you sure?',
     size: 'sm',
     triggerText: 'Open Small Dialog',
+    body: 'This is a small dialog with a max-width of 400px.',
   },
 };
 
@@ -54,6 +59,7 @@ export const Medium = {
     description: 'Film information and showtimes',
     size: 'md',
     triggerText: 'Open Medium Dialog',
+    body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
   },
 };
 
@@ -62,8 +68,10 @@ export const Large = {
   args: {
     id: 'dialog-lg',
     title: 'Schedule Overview',
+    description: 'Complete overview of all scheduled films and timings',
     size: 'lg',
     triggerText: 'Open Large Dialog',
+    body: 'Item 1 - Some content here. Item 2 - More content. Item 3 - Even more content.',
   },
 };
 
@@ -73,6 +81,7 @@ export const NoDescription = {
     id: 'dialog-no-desc',
     title: 'Simple Dialog',
     triggerText: 'Open Simple Dialog',
+    body: 'This dialog has no description subtitle.',
   },
 };
 
@@ -81,7 +90,9 @@ export const NoCloseButton = {
   args: {
     id: 'dialog-no-close',
     title: 'Required Action',
+    description: 'This action requires confirmation.',
     showCloseButton: false,
     triggerText: 'Open Required Dialog',
+    body: 'You must choose one of the options below to continue.',
   },
 };

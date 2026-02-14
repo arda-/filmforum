@@ -2,44 +2,73 @@
 /**
  * DialogWrapper - Astrobook adapter for Dialog component
  *
- * This wrapper exists because Dialog components need an opening trigger button
- * to be interactive in Astrobook stories. It renders both a trigger button
- * and the dialog component, with client-side JavaScript to wire them together.
+ * This wrapper exists because:
+ * 1. Astrobook doesn't support passing slot content directly to components
+ * 2. Dialog requires a trigger button to open (via window.openDialog API)
+ * 3. Story needs to demonstrate actual user interaction patterns
  *
- * The wrapper calls window.openDialog() when the button is clicked.
+ * It uses the composable Dialog components (DialogRoot, DialogHeader, etc.)
+ * to create a fully-featured dialog with proper structure.
  *
  * Usage in stories:
- *   args: { id: 'dialog-sm', title: 'My Dialog', triggerText: 'Open Dialog' }
+ *   args: {
+ *     id: 'dialog-sm',
+ *     title: 'Confirm Action',
+ *     description: 'Are you sure?',
+ *     body: 'Dialog content here',
+ *     showCloseButton: true,
+ *     size: 'sm'
+ *   }
  */
-import Dialog from '../Dialog.astro';
+import { DialogRoot, DialogHeader, DialogTitle, DialogDescription, DialogBody, DialogFooter, DialogSeparator } from '../Dialog/index';
+import Button from '../Button.astro';
 
 interface Props {
   id: string;
   title: string;
   description?: string;
-  size?: 'sm' | 'md' | 'lg';
+  body?: string;
   showCloseButton?: boolean;
+  size?: 'sm' | 'md' | 'lg';
   triggerText?: string;
 }
 
 const {
+  id,
+  title,
+  description,
+  body = 'Dialog content',
+  showCloseButton = true,
+  size = 'md',
   triggerText = 'Open Dialog',
-  ...dialogProps
 } = Astro.props;
 ---
 
 <div style="padding: 40px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
   <button
     class="dialog-trigger"
-    onclick={`window.openDialog('${dialogProps.id}')`}
+    onclick={`window.openDialog('${id}')`}
   >
     {triggerText}
   </button>
 </div>
 
-<Dialog {...dialogProps}>
-  <p>This is example dialog content. You can add more content here using slots or the dialog-body class.</p>
-</Dialog>
+<DialogRoot id={id} size={size} showCloseButton={showCloseButton}>
+  <DialogHeader>
+    <DialogTitle>{title}</DialogTitle>
+    {description && <DialogDescription>{description}</DialogDescription>}
+  </DialogHeader>
+  {body && (
+    <>
+      <DialogBody>{body}</DialogBody>
+      <DialogSeparator />
+    </>
+  )}
+  <DialogFooter>
+    <Button variant="secondary" onclick={`window.closeDialog('${id}')`}>Cancel</Button>
+    <Button variant="primary" onclick={`window.closeDialog('${id}')`}>Confirm</Button>
+  </DialogFooter>
+</DialogRoot>
 
 <style>
   .dialog-trigger {
