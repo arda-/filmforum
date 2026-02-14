@@ -20,7 +20,9 @@ export const TimelineView = {
 };
 
 export const GridView = {
-  args: {},
+  args: {
+    viewMode: 'grid',
+  },
   parameters: {
     docs: {
       description: {
@@ -42,7 +44,9 @@ export const FitWidth = {
 };
 
 export const ContentWidth = {
-  args: {},
+  args: {
+    widthMode: 'content',
+  },
   parameters: {
     docs: {
       description: {
@@ -53,7 +57,10 @@ export const ContentWidth = {
 };
 
 export const WithYearDirector = {
-  args: {},
+  args: {
+    widthMode: 'content',
+    showYearDirector: true,
+  },
   parameters: {
     docs: {
       description: {
@@ -64,7 +71,10 @@ export const WithYearDirector = {
 };
 
 export const WithRuntime = {
-  args: {},
+  args: {
+    widthMode: 'content',
+    showRuntime: true,
+  },
   parameters: {
     docs: {
       description: {
@@ -75,7 +85,10 @@ export const WithRuntime = {
 };
 
 export const WithCast = {
-  args: {},
+  args: {
+    widthMode: 'content',
+    showCast: true,
+  },
   parameters: {
     docs: {
       description: {
@@ -86,7 +99,10 @@ export const WithCast = {
 };
 
 export const WithImage = {
-  args: {},
+  args: {
+    widthMode: 'content',
+    showImage: true,
+  },
   parameters: {
     docs: {
       description: {
@@ -97,7 +113,13 @@ export const WithImage = {
 };
 
 export const AllDetailsEnabled = {
-  args: {},
+  args: {
+    widthMode: 'content',
+    showYearDirector: true,
+    showRuntime: true,
+    showCast: true,
+    showImage: true,
+  },
   parameters: {
     docs: {
       description: {
@@ -119,7 +141,9 @@ export const WeekStartMonday = {
 };
 
 export const WeekStartSunday = {
-  args: {},
+  args: {
+    weekStart: 'sun',
+  },
   parameters: {
     docs: {
       description: {
@@ -130,7 +154,9 @@ export const WeekStartSunday = {
 };
 
 export const GearMenuOpen = {
-  args: {},
+  args: {
+    gearOpen: true,
+  },
   parameters: {
     docs: {
       description: {
