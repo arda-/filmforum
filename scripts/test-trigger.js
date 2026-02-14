@@ -5,9 +5,11 @@
  * Runs appropriate tests based on which files changed.
  *
  * Usage:
- *   node scripts/test-trigger.js                  # Auto-detect changed files
- *   node scripts/test-trigger.js --all            # Run all tests
- *   node scripts/test-trigger.js --tier=1         # Run Tier 1 only
+ *   node scripts/test-trigger.js                       # Auto-detect changed files
+ *   node scripts/test-trigger.js --all                 # Run all tests
+ *   node scripts/test-trigger.js --scope=unit          # Run unit tests only
+ *   node scripts/test-trigger.js --scope=component     # Run component tests only
+ *   node scripts/test-trigger.js --scope=integration   # Run integration tests only
  */
 
 const { execSync, spawnSync } = require('child_process');
@@ -20,6 +22,8 @@ const flags = new Map(args
     return [key, value || true];
   })
 );
+
+const VALID_SCOPES = ['unit', 'component', 'integration'];
 
 /**
  * Get changed files from git (unstaged, staged, and untracked).
@@ -49,44 +53,43 @@ function getChangedFiles() {
 }
 
 /**
- * Map file patterns to test tiers
+ * Map file patterns to test scopes
  */
-function getTestTiers(files) {
-  const tiers = new Set();
+function getTestScopes(files) {
+  const scopes = new Set();
 
   files.forEach(file => {
-    // Tier 1: Unit tests (utilities, pure functions)
+    // Unit: utilities, pure functions
     if (file.match(/^src\/(utils|config)\//)) {
-      // Core utilities that have unit tests
       if (file.match(/(calendarFilters|calendarUrlState|calendarTime|movieUtils|storageManager)\.ts$/)) {
-        tiers.add('tier1');
+        scopes.add('unit');
       }
     }
     if (file.match(/src\/components\/MovieTile\/index\.ts$/)) {
-      tiers.add('tier1');
+      scopes.add('unit');
     }
 
-    // Tier 2: Component tests (demo pages, component logic)
+    // Component: demo pages, component logic
     if (file.match(/^src\/components\/(CalendarFilterBar|CalendarViewToolbar|Dialog|MovieModal|SegmentedToggle|session\/ReactionButtons)/)) {
-      tiers.add('tier2');
+      scopes.add('component');
     }
     if (file.match(/^src\/pages\/demo\//)) {
-      tiers.add('tier2');
+      scopes.add('component');
     }
 
-    // Tier 3: Integration tests (full page, render pipeline, state wiring)
+    // Integration: full page, render pipeline, state wiring
     if (file.match(/^src\/pages\/s\/\[id\]\/calendar\.astro/)) {
-      tiers.add('tier3');
+      scopes.add('integration');
     }
     if (file.match(/^src\/(utils|components)\/(calendarFilters|calendarTime|calendarUrlState)/) && !file.endsWith('.test.ts')) {
-      tiers.add('tier3');
+      scopes.add('integration');
     }
     if (file.match(/^src\/utils\/(movieUtils|storageManager)\.ts$/) && !file.endsWith('.test.ts')) {
-      tiers.add('tier3');
+      scopes.add('integration');
     }
   });
 
-  return Array.from(tiers).sort();
+  return Array.from(scopes).sort();
 }
 
 /**
@@ -101,27 +104,27 @@ function runCommand(cmd, args) {
   return result.status === 0;
 }
 
-/** Run vitest for Tier 1 unit tests */
-function runTier1() {
-  console.log('\n📋 Running Tier 1: Unit tests...\n');
+/** Run vitest unit tests */
+function runUnit() {
+  console.log('\n📋 Running unit tests...\n');
   const passed = runCommand('pnpm', ['vitest', 'run']);
-  console.log(passed ? '\n✅ Tier 1 tests passed\n' : '\n❌ Tier 1 tests failed\n');
+  console.log(passed ? '\n✅ Unit tests passed\n' : '\n❌ Unit tests failed\n');
   return passed;
 }
 
-/** Run Playwright component tests for Tier 2 */
-function runTier2() {
-  console.log('\n🎨 Running Tier 2: Component tests...\n');
+/** Run Playwright component tests */
+function runComponent() {
+  console.log('\n🎨 Running component tests...\n');
   const passed = runCommand('pnpm', ['playwright', 'test', 'tests/components']);
-  console.log(passed ? '\n✅ Tier 2 tests passed\n' : '\n❌ Tier 2 tests failed\n');
+  console.log(passed ? '\n✅ Component tests passed\n' : '\n❌ Component tests failed\n');
   return passed;
 }
 
-/** Run Playwright integration tests for Tier 3 */
-function runTier3() {
-  console.log('\n🔗 Running Tier 3: Integration tests...\n');
+/** Run Playwright integration tests */
+function runIntegration() {
+  console.log('\n🔗 Running integration tests...\n');
   const passed = runCommand('pnpm', ['playwright', 'test', 'tests/integration']);
-  console.log(passed ? '\n✅ Tier 3 tests passed\n' : '\n❌ Tier 3 tests failed\n');
+  console.log(passed ? '\n✅ Integration tests passed\n' : '\n❌ Integration tests failed\n');
   return passed;
 }
 
@@ -129,27 +132,27 @@ function runTier3() {
  * Main entry point
  */
 function main() {
-  const tier = flags.get('tier');
+  const scope = flags.get('scope');
   const runAll = flags.get('all');
 
-  let tiersToRun = [];
+  let scopesToRun = [];
 
   if (runAll) {
-    tiersToRun = ['tier1', 'tier2', 'tier3'];
-  } else if (tier) {
-    if (!['1', '2', '3'].includes(tier)) {
-      console.error(`Invalid tier: ${tier}. Valid values: 1, 2, 3`);
+    scopesToRun = VALID_SCOPES;
+  } else if (scope) {
+    if (!VALID_SCOPES.includes(scope)) {
+      console.error(`Invalid scope: ${scope}. Valid values: ${VALID_SCOPES.join(', ')}`);
       process.exit(1);
     }
-    tiersToRun = [`tier${tier}`];
+    scopesToRun = [scope];
   } else {
     const changedFiles = getChangedFiles();
     if (changedFiles.length === 0) {
-      console.log('No changed files detected. Running Tier 1 only.\n');
-      tiersToRun = ['tier1'];
+      console.log('No changed files detected. Running unit tests only.\n');
+      scopesToRun = ['unit'];
     } else {
-      tiersToRun = getTestTiers(changedFiles);
-      if (tiersToRun.length === 0) {
+      scopesToRun = getTestScopes(changedFiles);
+      if (scopesToRun.length === 0) {
         console.log('No test-relevant files changed. Skipping tests.\n');
         process.exit(0);
       }
@@ -157,29 +160,29 @@ function main() {
   }
 
   console.log(`\n🧪 FilmForum Test Trigger\n`);
-  console.log(`Running: ${tiersToRun.join(', ')}\n`);
+  console.log(`Running: ${scopesToRun.join(', ')}\n`);
   console.log(`${'─'.repeat(50)}\n`);
 
   const results = [];
 
-  if (tiersToRun.includes('tier1')) {
-    results.push({ tier: 'Tier 1 (Unit)', passed: runTier1() });
+  if (scopesToRun.includes('unit')) {
+    results.push({ scope: 'Unit', passed: runUnit() });
   }
 
-  if (tiersToRun.includes('tier2')) {
-    results.push({ tier: 'Tier 2 (Component)', passed: runTier2() });
+  if (scopesToRun.includes('component')) {
+    results.push({ scope: 'Component', passed: runComponent() });
   }
 
-  if (tiersToRun.includes('tier3')) {
-    results.push({ tier: 'Tier 3 (Integration)', passed: runTier3() });
+  if (scopesToRun.includes('integration')) {
+    results.push({ scope: 'Integration', passed: runIntegration() });
   }
 
   // Summary
   console.log(`${'─'.repeat(50)}\n`);
   console.log('📊 Test Summary:\n');
-  results.forEach(({ tier, passed }) => {
+  results.forEach(({ scope, passed }) => {
     const status = passed ? '✅' : '⚠️ ';
-    console.log(`  ${status} ${tier}`);
+    console.log(`  ${status} ${scope}`);
   });
 
   const allPassed = results.every(r => r.passed);

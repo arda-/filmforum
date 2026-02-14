@@ -11,9 +11,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:smart": "node scripts/test-trigger.js",
-    "test:tier1": "node scripts/test-trigger.js --tier=1",
-    "test:tier2": "node scripts/test-trigger.js --tier=2",
-    "test:tier3": "node scripts/test-trigger.js --tier=3",
+    "test:unit": "node scripts/test-trigger.js --scope=unit",
+    "test:component": "node scripts/test-trigger.js --scope=component",
+    "test:integration": "node scripts/test-trigger.js --scope=integration",
     "test:seo": "node scripts/validate-seo.js",
     "test:python": "cd data-processing && pytest -v",
     "test:all": "node scripts/test-trigger.js --all && pnpm test:python"
