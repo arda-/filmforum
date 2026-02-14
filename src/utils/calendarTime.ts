@@ -154,3 +154,24 @@ export function getWeekTimeRange(
 
   return { start: minStart, end: maxEnd, range: maxEnd - minStart };
 }
+
+/**
+ * Returns true if the given date is in the past (before today).
+ * @param dateStr - Date string in YYYY-MM-DD format
+ */
+export function isDateInPast(dateStr: string): boolean {
+  const date = new Date(dateStr + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date < today;
+}
+
+/**
+ * Returns true if the given datetime is in the past (before current time).
+ * @param datetimeStr - ISO 8601 datetime string
+ */
+export function isDatetimeInPast(datetimeStr: string): boolean {
+  const showtime = new Date(datetimeStr);
+  const now = new Date();
+  return showtime < now;
+}
