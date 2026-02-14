@@ -10,13 +10,13 @@
     "astro": "astro",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:smart": "node scripts/test-trigger.js",
-    "test:unit": "node scripts/test-trigger.js --scope=unit",
-    "test:component": "node scripts/test-trigger.js --scope=component",
-    "test:integration": "node scripts/test-trigger.js --scope=integration",
+    "test:smart": "node scripts/test-runner.js",
+    "test:unit": "node scripts/test-runner.js --scope=unit",
+    "test:component": "node scripts/test-runner.js --scope=component",
+    "test:integration": "node scripts/test-runner.js --scope=integration",
     "test:seo": "node scripts/validate-seo.js",
     "test:python": "cd data-processing && pytest -v",
-    "test:all": "node scripts/test-trigger.js --all && pnpm test:python"
+    "test:all": "node scripts/test-runner.js --all && pnpm test:python"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.0",
