@@ -20,7 +20,7 @@ export default {
 };
 
 /**
- * Basic state: Shows title, year, director, runtime, and poster image
+ * Basic state: Shows title, year, director, runtime with poster image
  */
 export const Default = {
   args: {
@@ -59,24 +59,11 @@ export const WithBlurb = {
 };
 
 /**
- * Demonstrates poster image display with all features enabled
+ * Demonstrates all features enabled together
  */
 export const WithAllFeatures = {
   args: {
     uniqueMovie: uniqueMovieWithPoster,
-    reaction: 'none',
-    showActors: true,
-    showBlurb: true,
-    showImage: true,
-  },
-};
-
-/**
- * Shows card when movie data lacks a poster image
- */
-export const WithoutPoster = {
-  args: {
-    uniqueMovie: uniqueMovieWithoutPoster,
     reaction: 'none',
     showActors: true,
     showBlurb: true,
@@ -91,7 +78,7 @@ export const MinimalData = {
   args: {
     uniqueMovie: uniqueMovieMinimal,
     reaction: 'none',
-    showActors: true,
+    showActors: false,
     showBlurb: false,
     showImage: true,
   },

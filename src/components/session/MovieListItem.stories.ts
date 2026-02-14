@@ -16,13 +16,13 @@ export default {
 };
 
 /**
- * Basic state: Shows title, director, year, runtime, and actors
+ * Basic state: Shows title, director, year, runtime (minimal display without actors)
  */
 export const Default = {
   args: {
-    uniqueMovie: uniqueMovieWithPoster,
+    uniqueMovie: uniqueMovieMinimal,
     reaction: 'none',
-    showActors: true,
+    showActors: false,
     showBlurb: false,
   },
 };
@@ -46,7 +46,7 @@ export const WithBlurb = {
   args: {
     uniqueMovie: uniqueMovieWithPoster,
     reaction: 'none',
-    showActors: true,
+    showActors: false,
     showBlurb: true,
   },
 };
@@ -60,42 +60,6 @@ export const WithAllFeatures = {
     reaction: 'none',
     showActors: true,
     showBlurb: true,
-  },
-};
-
-/**
- * Shows list item when movie data lacks actors
- */
-export const WithoutActors = {
-  args: {
-    uniqueMovie: uniqueMovieMinimal,
-    reaction: 'none',
-    showActors: true,
-    showBlurb: false,
-  },
-};
-
-/**
- * Shows list item with movie data that has all fields
- */
-export const WithAllData = {
-  args: {
-    uniqueMovie: uniqueMovieWithPoster,
-    reaction: 'none',
-    showActors: true,
-    showBlurb: true,
-  },
-};
-
-/**
- * Shows list item with minimal movie information
- */
-export const MinimalData = {
-  args: {
-    uniqueMovie: uniqueMovieMinimal,
-    reaction: 'none',
-    showActors: true,
-    showBlurb: false,
   },
 };
 
