@@ -101,7 +101,7 @@ const ogImage = movieData[0]?.poster_url || null;
   import type { Movie } from '@utils/icsGenerator';
   import { createMovieElement, updateTextHeights } from '@components/MovieTile';
   import { parseTimeToMins } from '@utils/movieUtils';
-  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange, isDateInPast, isDatetimeInPast } from '@utils/calendarTime';
+  import { getDayTimeRange, assignOverlapColumns, formatDayLabel, generateDateRange, groupDatesIntoWeeks, getWeekTimeRange, isDatetimeInPast } from '@utils/calendarTime';
   import { filterByTimeCategories, classifyTimeCategory, filterBySavedStatus, updateSavedFilterStatus } from '@utils/calendarFilters';
   import { openMovieModal } from '@utils/calendarModal';
   import { updateUrlParams, restoreFromUrl, isTogglePressed, setToggleState, getToggleInput } from '@utils/calendarUrlState';
