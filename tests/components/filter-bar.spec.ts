@@ -159,7 +159,7 @@ test.describe('CalendarFilterBar', () => {
       expect(position).toBe('sticky');
     });
 
-    test('should have proper ARIA labels on time filter buttons', async ({ page }) => {
+    test('time filter buttons should have aria-pressed state', async ({ page }) => {
       const timeButtons = page.locator('button[data-time]');
       const count = await timeButtons.count();
       expect(count).toBeGreaterThan(0);
@@ -170,7 +170,19 @@ test.describe('CalendarFilterBar', () => {
       }
     });
 
-    test('should have proper ARIA labels on saved filter buttons', async ({ page }) => {
+    test('time filter buttons should have descriptive aria-labels', async ({ page }) => {
+      const timeButtons = page.locator('button[data-time]');
+      const count = await timeButtons.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const label = await timeButtons.nth(i).getAttribute('aria-label');
+        expect(label).toBeTruthy();
+        expect(label!.length).toBeGreaterThan(5);
+      }
+    });
+
+    test('saved filter buttons should have aria-pressed state', async ({ page }) => {
       const savedButtons = page.locator('button[data-filter]');
       const count = await savedButtons.count();
       expect(count).toBeGreaterThan(0);
@@ -178,6 +190,29 @@ test.describe('CalendarFilterBar', () => {
       for (let i = 0; i < count; i++) {
         const ariaPressed = await savedButtons.nth(i).getAttribute('aria-pressed');
         expect(['true', 'false']).toContain(ariaPressed);
+      }
+    });
+
+    test('saved filter buttons should have descriptive aria-labels', async ({ page }) => {
+      const savedButtons = page.locator('button[data-filter]');
+      const count = await savedButtons.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const label = await savedButtons.nth(i).getAttribute('aria-label');
+        expect(label).toBeTruthy();
+        expect(label!.length).toBeGreaterThan(5);
+      }
+    });
+
+    test('toggle groups should have aria-label', async ({ page }) => {
+      const groups = page.locator('[role="group"]');
+      const count = await groups.count();
+      expect(count).toBeGreaterThan(0);
+
+      for (let i = 0; i < count; i++) {
+        const label = await groups.nth(i).getAttribute('aria-label');
+        expect(label).toBeTruthy();
       }
     });
   });
