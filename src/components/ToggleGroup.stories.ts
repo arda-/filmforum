@@ -1,8 +1,8 @@
 /**
  * ToggleGroup Stories
  *
- * Stories show various configurations of the ToggleGroup component,
- * displaying multiple toggle options in a grouped radio button interface.
+ * Stories demonstrate the ToggleGroup component functionality,
+ * showing various configurations and use cases.
  */
 import ToggleGroup from './ToggleGroup.astro';
 
@@ -10,96 +10,120 @@ export default {
   component: ToggleGroup,
 };
 
-/** Basic toggle group with time filter options */
-export const TimeFilter = {
+/** Default toggle group with three options */
+export const Default = {
   args: {
-    label: 'Time',
-    name: 'time',
+    label: 'Select option',
+    name: 'default',
     options: [
-      { label: 'Anytime', value: 'anytime', checked: true },
-      { label: 'After 6 PM', value: 'after-6pm' },
-      { label: 'After 9 PM', value: 'after-9pm' },
+      { label: 'Option 1', value: 'option1', checked: true },
+      { label: 'Option 2', value: 'option2' },
+      { label: 'Option 3', value: 'option3' },
     ],
   },
 };
 
-/** Day of week filter options */
-export const DayFilter = {
+/** Small toggle group with fewer options */
+export const Small = {
   args: {
-    label: 'Day',
-    name: 'day',
+    label: 'Size',
+    name: 'small',
     options: [
-      { label: 'Weekdays', value: 'weekdays' },
-      { label: 'Weekends', value: 'weekends', checked: true },
-      { label: 'Any', value: 'any' },
+      { label: 'A', value: 'a', checked: true },
+      { label: 'B', value: 'b' },
     ],
   },
 };
 
-/** Rating filter with multiple options */
-export const RatingFilter = {
+/** Large toggle group with many options */
+export const Large = {
   args: {
-    label: 'Rating',
-    name: 'rating',
+    label: 'Select option',
+    name: 'large',
     options: [
-      { label: 'All', value: 'all', checked: true },
-      { label: '7+', value: '7plus' },
-      { label: '8+', value: '8plus' },
-      { label: '9+', value: '9plus' },
+      { label: 'Option 1', value: 'option1', checked: true },
+      { label: 'Option 2', value: 'option2' },
+      { label: 'Option 3', value: 'option3' },
+      { label: 'Option 4', value: 'option4' },
+      { label: 'Option 5', value: 'option5' },
+      { label: 'Option 6', value: 'option6' },
     ],
   },
 };
 
-/** Duration filter with longer labels */
-export const DurationFilter = {
+/** Disabled toggle group (disabled state) */
+export const Disabled = {
   args: {
-    label: 'Duration',
-    name: 'duration',
+    label: 'Disabled group',
+    name: 'disabled',
     options: [
-      { label: 'Under 90 min', value: 'short' },
-      { label: '90-120 min', value: 'medium', checked: true },
-      { label: 'Over 120 min', value: 'long' },
+      { label: 'Option 1', value: 'option1', checked: true },
+      { label: 'Option 2', value: 'option2' },
+      { label: 'Option 3', value: 'option3' },
     ],
   },
 };
 
-/** Many options in a toggle group */
-export const GenreFilter = {
+/** Single selection mode (default behavior) */
+export const SingleSelect = {
   args: {
-    label: 'Genre',
-    name: 'genre',
+    label: 'Choose one',
+    name: 'single',
     options: [
-      { label: 'All', value: 'all', checked: true },
-      { label: 'Action', value: 'action' },
-      { label: 'Drama', value: 'drama' },
-      { label: 'Comedy', value: 'comedy' },
-      { label: 'Sci-Fi', value: 'scifi' },
+      { label: 'A', value: 'a', checked: true },
+      { label: 'B', value: 'b' },
+      { label: 'C', value: 'c' },
     ],
   },
 };
 
-/** Toggle group with single selected option */
-export const SingleSelection = {
+/** Multi-select mode (checkbox-based) */
+export const MultiSelect = {
   args: {
-    label: 'View',
-    name: 'view',
+    label: 'Choose multiple',
+    name: 'multi',
     options: [
-      { label: 'List', value: 'list', checked: true },
-      { label: 'Grid', value: 'grid' },
+      { label: 'A', value: 'a', checked: true },
+      { label: 'B', value: 'b', checked: true },
+      { label: 'C', value: 'c' },
     ],
   },
 };
 
-/** Toggle group with status indicator */
-export const WithStatus = {
+/** Minimum selection required (at least one must be selected) */
+export const MinimumSelection = {
   args: {
-    label: 'Sort',
-    name: 'sort',
+    label: 'At least one required',
+    name: 'minimum',
     options: [
-      { label: 'Newest', value: 'newest', checked: true },
-      { label: 'Popular', value: 'popular' },
-      { label: 'Rating', value: 'rating' },
+      { label: 'Option 1', value: 'option1', checked: true },
+      { label: 'Option 2', value: 'option2' },
+      { label: 'Option 3', value: 'option3' },
     ],
-    statusId: 'sort-status',
+  },
+};
+
+/** Icon-only toggles */
+export const Icon = {
+  args: {
+    label: 'Icons only',
+    name: 'icons',
+    options: [
+      { label: '◀', value: 'prev', checked: true },
+      { label: '▶', value: 'next' },
+    ],
+  },
+};
+
+/** Icons with text labels */
+export const IconAndText = {
+  args: {
+    label: 'With icons',
+    name: 'icon-text',
+    options: [
+      { label: '☰ Menu', value: 'menu', checked: true },
+      { label: '⚙ Settings', value: 'settings' },
+      { label: '✓ Done', value: 'done' },
+    ],
   },
 };
