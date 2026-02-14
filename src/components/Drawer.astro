@@ -59,11 +59,13 @@ const containerStyle = sizeStyles.join('; ');
     {hasHero && fullBleed && (
       <div class="drawer-hero">
         <slot name="hero" />
-        <div class="drawer-hero-blur"></div>
         {imageTitle && (
-          <div class="drawer-hero-overlay">
-            <h2 class="drawer-hero-title">{imageTitle}</h2>
-          </div>
+          <>
+            <div class="drawer-hero-blur"></div>
+            <div class="drawer-hero-overlay">
+              <h2 class="drawer-hero-title">{imageTitle}</h2>
+            </div>
+          </>
         )}
       </div>
     )}
@@ -317,14 +319,16 @@ const containerStyle = sizeStyles.join('; ');
   }
 
   /* Blur layer — backdrop-filter with mask-image fade from clear (top) to
-     fully blurred (bottom), so the title text sits on a readable surface. */
+     fully blurred (bottom), so the title text sits on a readable surface.
+     CSS provides a reasonable fallback; JS overrides with text-relative
+     mask calculated from the actual overlay height (like blur-simple demo). */
   .drawer-hero-blur {
     position: absolute;
     inset: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
-    -webkit-mask-image: linear-gradient(to top, black 0%, black 25%, transparent 60%);
+    mask-image: linear-gradient(to top, black 0%, black 20%, transparent 40%);
+    -webkit-mask-image: linear-gradient(to top, black 0%, black 20%, transparent 40%);
     pointer-events: none;
     z-index: 1;
   }
@@ -536,6 +540,32 @@ const containerStyle = sizeStyles.join('; ');
         onMouseDragStart(e, 'body');
       });
     }
+  });
+
+  // --- Text-relative blur for hero image-title sections ---
+  // Measures the title overlay height and sets the blur mask proportionally,
+  // matching the blur-simple demo's text-relative approach.
+  // Uses 1× text height for full-blur zone, 1.5× for blur fade-out end.
+  document.querySelectorAll('.drawer-hero').forEach(hero => {
+    const blur = hero.querySelector('.drawer-hero-blur') as HTMLElement;
+    const overlay = hero.querySelector('.drawer-hero-overlay') as HTMLElement;
+    if (!blur || !overlay) return;
+
+    function updateHeroBlur() {
+      const heroHeight = (hero as HTMLElement).offsetHeight;
+      const textHeight = overlay.offsetHeight;
+      if (heroHeight === 0 || textHeight === 0) return;
+
+      const fullBlurPct = (textHeight / heroHeight) * 100;
+      const blurEndPct = Math.min((textHeight * 1.5 / heroHeight) * 100, 100);
+      const mask = `linear-gradient(to top, black 0%, black ${fullBlurPct}%, transparent ${blurEndPct}%)`;
+      blur.style.maskImage = mask;
+      (blur.style as any).webkitMaskImage = mask;
+    }
+
+    const ro = new ResizeObserver(() => updateHeroBlur());
+    ro.observe(hero as HTMLElement);
+    ro.observe(overlay);
   });
 
   // Delegated keyboard handler — single listener for Escape + focus trap
