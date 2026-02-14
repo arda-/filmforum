@@ -1,0 +1,17 @@
+---
+/**
+ * Story decorator that constrains component width.
+ * Useful for testing components at specific viewport widths.
+ */
+interface Props {
+  width?: string;
+  centered?: boolean;
+}
+
+const { width = '400px', centered = true } = Astro.props;
+const margin = centered ? '0 auto' : '0';
+---
+
+<div style={`max-width: ${width}; margin: ${margin};`}>
+  <slot />
+</div>
