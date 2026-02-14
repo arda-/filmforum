@@ -21,14 +21,14 @@ export const TimelineView = {
   },
 };
 
-export const GridView = {
+export const RowsView = {
   args: {
     viewMode: 'grid',
   },
   parameters: {
     docs: {
       description: {
-        story: 'Grid/Rows view mode',
+        story: 'Rows view mode',
       },
     },
   },
@@ -166,6 +166,66 @@ export const GearMenuOpen = {
     docs: {
       description: {
         story: 'Settings popover open, showing week start and highlighting options',
+      },
+    },
+  },
+};
+
+export const HighlightUniqueOnly = {
+  args: {
+    gearOpen: true,
+    highlightUnique: true,
+    highlightAlternate: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Highlight unique showings enabled, alternate showtimes on hover disabled (gear menu open)',
+      },
+    },
+  },
+};
+
+export const HighlightAlternateOnly = {
+  args: {
+    gearOpen: true,
+    highlightUnique: false,
+    highlightAlternate: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Highlight alternate showtimes on hover enabled, unique showings disabled (gear menu open)',
+      },
+    },
+  },
+};
+
+export const AllHighlightsEnabled = {
+  args: {
+    gearOpen: true,
+    highlightUnique: true,
+    highlightAlternate: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Both highlight options enabled (gear menu open)',
+      },
+    },
+  },
+};
+
+export const NoHighlights = {
+  args: {
+    gearOpen: true,
+    highlightUnique: false,
+    highlightAlternate: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Both highlight options disabled (gear menu open)',
       },
     },
   },
