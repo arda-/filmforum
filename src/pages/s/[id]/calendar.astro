@@ -217,12 +217,11 @@ const ogImage = movieData[0]?.poster_url || null;
     const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
     const singleShowtimesMode = (highlightUniqueToggle?.checked ?? false) ? 'highlight' : 'none';
 
-    // Past showtimes toggles
-    const hidePastToggle = document.querySelector('#hide-past-showtimes-toggle input') as HTMLInputElement;
-    const hidePastShowtimes = hidePastToggle?.checked ?? false;
-
-    const dimPastToggle = document.querySelector('#dim-past-showtimes-toggle input') as HTMLInputElement;
-    const dimPastShowtimes = dimPastToggle?.checked ?? false;
+    // Past showtimes mode - read from active toggle button
+    const activePastModeBtn = document.querySelector('[data-past-mode].active');
+    const pastMode = activePastModeBtn ? (activePastModeBtn as HTMLElement).dataset.pastMode : null;
+    const hidePastShowtimes = pastMode === 'hide';
+    const dimPastShowtimes = pastMode === 'dim';
 
     const activeSavedFilters = getActiveSavedFilters();
     const savedFilterSet = new Set(activeSavedFilters);
@@ -467,15 +466,8 @@ const ogImage = movieData[0]?.poster_url || null;
     setTimeout(updateTextHeights, 10);
   });
 
-  // Hide past showtimes toggle
-  document.querySelector('#hide-past-showtimes-toggle input')?.addEventListener('change', () => {
-    renderAllDays();
-    updateUrlParams();
-    setTimeout(updateTextHeights, 10);
-  });
-
-  // Dim past showtimes toggle
-  document.querySelector('#dim-past-showtimes-toggle input')?.addEventListener('change', () => {
+  // Past showtimes mode toggle
+  document.addEventListener('past-mode-change', () => {
     renderAllDays();
     updateUrlParams();
     setTimeout(updateTextHeights, 10);

@@ -122,10 +122,25 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
           <Switch id="highlight-alternate-toggle" label="Highlight alternate showtimes on hover" checked small />
         </div>
         <div class="popover-section">
-          <Switch id="hide-past-showtimes-toggle" label="Hide past showtimes" small />
-        </div>
-        <div class="popover-section">
-          <Switch id="dim-past-showtimes-toggle" label="Dim past showtimes" small />
+          <div class="popover-row">
+            <span class="popover-label">Past showtimes</span>
+            <SegmentedToggle size="sm">
+              <button
+                class="seg-btn"
+                data-past-mode="hide"
+                aria-pressed="false"
+                aria-label="Hide past showtimes"
+                id="past-mode-hide"
+              >Hide</button>
+              <button
+                class="seg-btn"
+                data-past-mode="dim"
+                aria-pressed="false"
+                aria-label="Dim past showtimes"
+                id="past-mode-dim"
+              >Dim</button>
+            </SegmentedToggle>
+          </div>
         </div>
       </div>
     </div>
@@ -381,6 +396,37 @@ import SegmentedToggle from '@components/SegmentedToggle.astro';
       gearBtn?.setAttribute('aria-expanded', 'false');
       gearBtn?.focus();
     }
+  });
+
+  // --- Past showtimes mode toggle ---
+  const pastModeButtons = document.querySelectorAll('[data-past-mode]');
+  let activePastMode: string | null = null;
+
+  pastModeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const mode = (button as HTMLElement).dataset.pastMode!;
+
+      // Toggle off if clicking the active button, otherwise activate
+      if (activePastMode === mode) {
+        activePastMode = null;
+        button.classList.remove('active');
+        button.setAttribute('aria-pressed', 'false');
+      } else {
+        // Deactivate all buttons
+        pastModeButtons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+
+        // Activate clicked button
+        activePastMode = mode;
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+      }
+
+      // Dispatch custom event for calendar to handle
+      document.dispatchEvent(new CustomEvent('past-mode-change', { detail: { mode: activePastMode } }));
+    });
   });
 
   // --- Init: sync button visuals from restored URL state ---
