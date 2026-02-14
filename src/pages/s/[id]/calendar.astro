@@ -217,9 +217,9 @@ const ogImage = movieData[0]?.poster_url || null;
     const highlightUniqueToggle = document.querySelector('#highlight-unique-toggle input') as HTMLInputElement;
     const singleShowtimesMode = (highlightUniqueToggle?.checked ?? false) ? 'highlight' : 'none';
 
-    // Past showtimes mode - read from active toggle button
-    const activePastModeBtn = document.querySelector('[data-past-mode].active');
-    const pastMode = activePastModeBtn ? (activePastModeBtn as HTMLElement).dataset.pastMode : null;
+    // Past showtimes mode - read from active toggle button (always one active)
+    const activePastModeBtn = document.querySelector('[data-past-mode].active') as HTMLElement;
+    const pastMode = activePastModeBtn?.dataset.pastMode ?? 'dim'; // Default to 'dim' if not found
     const hidePastShowtimes = pastMode === 'hide';
     const dimPastShowtimes = pastMode === 'dim';
 
