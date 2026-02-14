@@ -24,7 +24,7 @@
  * - Backdrop click closes drawer
  * - Focus management and accessibility
  */
-import DrawerWrapper from './decorators/DrawerWrapper.astro';
+import DrawerWrapper from '../decorators/DrawerWrapper.astro';
 
 export default {
   component: DrawerWrapper,

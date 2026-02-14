@@ -33,7 +33,7 @@
  * - window.openDialog(id) - Opens the dialog
  * - window.closeDialog(id) - Closes the dialog
  */
-import DialogWrapper from './decorators/DialogWrapper.astro';
+import DialogWrapper from '../decorators/DialogWrapper.astro';
 
 export default {
   component: DialogWrapper,

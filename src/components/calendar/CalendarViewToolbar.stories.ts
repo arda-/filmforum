@@ -1,4 +1,4 @@
-import CalendarViewToolbar from './CalendarViewToolbar.astro';
+import CalendarViewToolbar from '../CalendarViewToolbar.astro';
 
 export default {
   component: CalendarViewToolbar,

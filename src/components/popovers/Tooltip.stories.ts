@@ -15,7 +15,7 @@
  *
  * See: TooltipWrapper.astro
  */
-import TooltipWrapper from './decorators/TooltipWrapper.astro';
+import TooltipWrapper from '../decorators/TooltipWrapper.astro';
 
 export default {
   component: TooltipWrapper,

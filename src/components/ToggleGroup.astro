@@ -25,7 +25,7 @@ const { label, name, options, statusId, size = 'default', disabled = false } = A
   <div class:list={['toggle-group', { 'toggle-group--disabled': disabled }]}>
     {options.map(option => (
       <label class:list={['toggle-item', `toggle-item--${size}`]}>
-        <input type="radio" name={name} value={option.value} {...(option.checked && { checked: true })} {...(disabled && { disabled: true })} />
+        <input type="radio" name={name} value={option.value} {...(option.checked ? { checked: true } : {})} {...(disabled ? { disabled: true } : {})} />
         {option.icon && <Icon name={option.icon} size={16} />}
         <span>{option.label}</span>
       </label>
