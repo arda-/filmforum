@@ -1,7 +1,8 @@
 ---
 /**
  * Standalone reaction button group.
- * Used in drawers and modals where buttons need to be separate from card/list item.
+ * Uses radio inputs for proper semantics and browser-native behavior.
+ * Labels are styled to look like buttons.
  */
 import type { MovieReaction } from '../../types/session';
 
@@ -12,71 +13,96 @@ interface Props {
 }
 
 const { movieId, reaction = 'none', size = 'md' } = Astro.props;
+const groupName = `reaction-${movieId}`;
+const noneId = `none-${movieId}`;
+const yesId = `yes-${movieId}`;
+const maybeId = `maybe-${movieId}`;
+const noId = `no-${movieId}`;
 ---
 
 <div class:list={['reactions', `reactions--${size}`]} data-movie-id={movieId} data-reaction-group>
-  <button
-    class:list={['rbtn', 'rbtn--yes', { active: reaction === 'yes' }]}
+  <!-- Hidden "none" radio for deselection support -->
+  <input
+    type="radio"
+    name={groupName}
+    value=""
+    id={noneId}
+    checked={reaction === 'none'}
+    data-reaction="none"
+  >
+
+  <!-- Yes -->
+  <input
+    type="radio"
+    name={groupName}
+    value="yes"
+    id={yesId}
+    checked={reaction === 'yes'}
     data-reaction="yes"
     data-movie-id={movieId}
-    aria-pressed={reaction === 'yes'}
-    aria-label="Yes"
   >
+  <label for={yesId} class="rbtn rbtn--yes" aria-label="Yes">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path d="M13.5 4.5l-7 7L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <span>Yes</span>
-  </button>
-  <button
-    class:list={['rbtn', 'rbtn--maybe', { active: reaction === 'maybe' }]}
+  </label>
+
+  <!-- Maybe -->
+  <input
+    type="radio"
+    name={groupName}
+    value="maybe"
+    id={maybeId}
+    checked={reaction === 'maybe'}
     data-reaction="maybe"
     data-movie-id={movieId}
-    aria-pressed={reaction === 'maybe'}
-    aria-label="Maybe"
   >
+  <label for={maybeId} class="rbtn rbtn--maybe" aria-label="Maybe">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <circle cx="8" cy="11.5" r="1" fill="currentColor"/>
       <path d="M6 6a2 2 0 114 0c0 1-1.5 1.5-2 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
     </svg>
     <span>Maybe</span>
-  </button>
-  <button
-    class:list={['rbtn', 'rbtn--no', { active: reaction === 'no' }]}
+  </label>
+
+  <!-- No -->
+  <input
+    type="radio"
+    name={groupName}
+    value="no"
+    id={noId}
+    checked={reaction === 'no'}
     data-reaction="no"
     data-movie-id={movieId}
-    aria-pressed={reaction === 'no'}
-    aria-label="No"
   >
+  <label for={noId} class="rbtn rbtn--no" aria-label="No">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
       <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
     </svg>
     <span>No</span>
-  </button>
+  </label>
 </div>
 
 <script>
   /**
-   * Handle reaction button interactions.
-   * Implements radio-like single selection with deselection support.
-   * Browsers automatically convert Space/Enter keypresses to click events.
+   * Deselection support: clicking an active button deselects it.
+   * Browser handles mutual exclusivity and keyboard navigation automatically.
    */
   document.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-reaction-group] .rbtn');
-    if (!btn) return;
+    const label = e.target.closest('[data-reaction-group] .rbtn');
+    if (!label) return;
 
-    const wasActive = btn.classList.contains('active');
+    const inputId = label.getAttribute('for');
+    const input = document.getElementById(inputId) as HTMLInputElement;
 
-    // Deactivate all sibling buttons in this group
-    const group = btn.closest('[data-reaction-group]');
-    group.querySelectorAll('.rbtn').forEach(sibling => {
-      sibling.classList.remove('active');
-      sibling.setAttribute('aria-pressed', 'false');
-    });
-
-    // If button wasn't active, activate it (allows deselection)
-    if (!wasActive) {
-      btn.classList.add('active');
-      btn.setAttribute('aria-pressed', 'true');
+    // If clicking already-checked radio, select the hidden "none" radio instead
+    if (input?.checked) {
+      const group = label.closest('[data-reaction-group]');
+      const noneRadio = group?.querySelector('input[value=""]') as HTMLInputElement;
+      if (noneRadio) {
+        noneRadio.checked = true;
+      }
     }
   });
 </script>
@@ -87,6 +113,14 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
     gap: 6px;
   }
 
+  /* Hide radio inputs visually but keep them accessible */
+  .reactions input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Style labels as buttons (same visual appearance as before) */
   .rbtn {
     flex: 1;
     display: inline-flex;
@@ -107,7 +141,8 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
     transform: scale(0.95);
   }
 
-  .rbtn:focus-visible {
+  /* Focus visible on the label when radio is focused */
+  .reactions input[type="radio"]:focus-visible + .rbtn {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -128,36 +163,43 @@ const { movieId, reaction = 'none', size = 'md' } = Astro.props;
     height: 14px;
   }
 
-  /* Yes */
+  /* Yes - default state */
   .rbtn--yes {
     color: var(--reaction-yes, #22c55e);
     border-color: var(--reaction-yes, #22c55e);
   }
-  .rbtn--yes.active {
+
+  /* Yes - checked state */
+  input[type="radio"]:checked + .rbtn--yes {
     background: var(--reaction-yes, #22c55e);
     color: #fff;
   }
 
-  /* Maybe */
+  /* Maybe - default state */
   .rbtn--maybe {
     color: var(--reaction-maybe, #f59e0b);
     border-color: var(--reaction-maybe, #f59e0b);
   }
-  .rbtn--maybe.active {
+
+  /* Maybe - checked state */
+  input[type="radio"]:checked + .rbtn--maybe {
     background: var(--reaction-maybe, #f59e0b);
     color: #fff;
   }
 
-  /* No */
+  /* No - default state */
   .rbtn--no {
     color: var(--reaction-no, #ef4444);
     border-color: var(--reaction-no, #ef4444);
   }
-  .rbtn--no.active {
+
+  /* No - checked state */
+  input[type="radio"]:checked + .rbtn--no {
     background: var(--reaction-no, #ef4444);
     color: #fff;
   }
 
+  /* Hover states */
   @media (hover: hover) {
     .rbtn--yes:hover {
       background: rgba(34, 197, 94, 0.1);
