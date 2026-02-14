@@ -20,6 +20,7 @@ export const DefaultCardView = {
     directors: ['Christopher Nolan', 'Denis Villeneuve', 'Greta Gerwig'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
@@ -30,6 +31,7 @@ export const ListView = {
     directors: ['Christopher Nolan', 'Denis Villeneuve', 'Greta Gerwig'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
@@ -40,6 +42,7 @@ export const SingleView = {
     directors: ['Christopher Nolan', 'Denis Villeneuve', 'Greta Gerwig'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
@@ -50,6 +53,7 @@ export const SortByYear = {
     directors: ['Christopher Nolan', 'Denis Villeneuve', 'Greta Gerwig'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
@@ -60,6 +64,7 @@ export const SortByDirector = {
     directors: ['Christopher Nolan', 'Denis Villeneuve', 'Greta Gerwig'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
@@ -70,6 +75,7 @@ export const SortByMarked = {
     directors: ['Christopher Nolan', 'Denis Villeneuve', 'Greta Gerwig'],
     actors: ['Timothée Chalamet', 'Florence Pugh', 'Oscar Isaac'],
     decades: ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s'],
+    openFilters: true,
   },
 };
 
