@@ -57,6 +57,7 @@ export const Disabled = {
   args: {
     label: 'Disabled group',
     name: 'disabled',
+    disabled: true,
     options: [
       { label: 'Option 1', value: 'option1', checked: true },
       { label: 'Option 2', value: 'option2' },

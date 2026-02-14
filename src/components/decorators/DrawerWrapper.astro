@@ -10,8 +10,15 @@
  * It accepts 'content' as a prop and passes it as slot content to the Drawer,
  * plus provides a trigger button that opens the drawer.
  *
+ * Supports:
+ * - Simple string content
+ * - Footer slot content for sticky action buttons
+ * - Complex HTML content
+ *
  * Usage in stories:
  *   args: { id: 'drawer-default', title: 'My Drawer', content: 'Drawer content here' }
+ *   or with footer:
+ *   args: { id: 'drawer-with-footer', title: 'My Drawer', content: '...', footer: '...' }
  */
 import Drawer from '../Drawer.astro';
 import Button from '../Button.astro';
@@ -20,11 +27,12 @@ interface Props {
   id: string;
   title?: string;
   maxHeight?: string;
-  content?: string;
+  content?: string | any;
+  footer?: string | any;
   triggerText?: string;
 }
 
-const { id, content = 'No content provided', triggerText = 'Open Drawer', ...drawerProps } = Astro.props;
+const { id, content = 'No content provided', triggerText = 'Open Drawer', footer, ...drawerProps } = Astro.props;
 ---
 
 <div style="display: flex; flex-direction: column; gap: 1rem;">
@@ -33,7 +41,14 @@ const { id, content = 'No content provided', triggerText = 'Open Drawer', ...dra
   </Button>
 
   <Drawer id={id} {...drawerProps}>
-    {content}
+    <Fragment set:html={typeof content === 'string' ? content : undefined}>
+      {typeof content !== 'string' ? content : undefined}
+    </Fragment>
+    {footer && (
+      <Fragment slot="footer" set:html={typeof footer === 'string' ? footer : undefined}>
+        {typeof footer !== 'string' ? footer : undefined}
+      </Fragment>
+    )}
   </Drawer>
 </div>
 
