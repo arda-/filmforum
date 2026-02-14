@@ -4,7 +4,7 @@
 
 ### What Exists
 
-Movie data lives in `public/tenement-stories-full.json` with fields: Movie, Date, Time, Tickets, Datetime, country, year, director, actors, runtime, description, film_url, poster_url. There are no critic scores, audience ratings, or external plot summaries.
+Movie data lives in `public/tenement-stories-full.json` with fields: Movie, Date, Time, ticket_url, Datetime, film_slug, country, year, director, actors, runtime, description, film_url, poster_url. There are no critic scores, audience ratings, or external plot summaries.
 
 The data-processing pipeline is in `data-processing/` with `parse_showtimes.py` and poster processing scripts. Python is already established for data work.
 

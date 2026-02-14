@@ -74,14 +74,16 @@ describe('movieUtils', () => {
         {
           Movie: 'Test Film',
           Time: '19:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-1',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T19:00:00',
           poster_url: '/poster.png',
         },
         {
           Movie: 'Test Film',
           Time: '21:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-2',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T21:00:00',
           poster_url: '/poster.png',
         },
@@ -98,21 +100,24 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '19:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-3',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T19:00:00',
           poster_url: '/poster-a.png',
         },
         {
           Movie: 'Film B',
           Time: '20:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-4',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T20:00:00',
           poster_url: '/poster-b.png',
         },
         {
           Movie: 'Film A',
           Time: '21:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-5',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T21:00:00',
           poster_url: '/poster-a.png',
         },
@@ -131,14 +136,16 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '19:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-6',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T19:00:00',
           poster_url: '/poster.png',
         },
         {
           Movie: 'Film B',
           Time: '20:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-7',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-11T20:00:00',
         },
       ];
@@ -153,7 +160,8 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '19:00',
-          Tickets: 'https://example.com',
+          film_slug: 'test-8',
+          ticket_url: 'https://example.com',
           Datetime: '2026-02-01T19:00:00',
           poster_url: '/poster.png',
         },
@@ -209,14 +217,16 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '1:00',
-          Tickets: '',
+          film_slug: 'test-9',
+          ticket_url: '',
           Datetime: '2026-02-11T13:00:00',
           runtime: '90',
         },
         {
           Movie: 'Film B',
           Time: '5:00',
-          Tickets: '',
+          film_slug: 'test-10',
+          ticket_url: '',
           Datetime: '2026-02-11T17:00:00',
           runtime: '90',
         },
@@ -234,14 +244,16 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '1:00',
-          Tickets: '',
+          film_slug: 'test-11',
+          ticket_url: '',
           Datetime: '2026-02-11T13:00:00',
           runtime: '120',
         },
         {
           Movie: 'Film B',
           Time: '2:00',
-          Tickets: '',
+          film_slug: 'test-12',
+          ticket_url: '',
           Datetime: '2026-02-11T14:00:00',
           runtime: '90',
         },
@@ -294,19 +306,22 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '12:00',
-          Tickets: '',
+          film_slug: 'test-13',
+          ticket_url: '',
           Datetime: '2026-02-11T12:00:00',
         },
         {
           Movie: 'Film B',
           Time: '7:00',
-          Tickets: '',
+          film_slug: 'test-14',
+          ticket_url: '',
           Datetime: '2026-02-11T19:00:00',
         },
         {
           Movie: 'Film C',
           Time: '2:00',
-          Tickets: '',
+          film_slug: 'test-15',
+          ticket_url: '',
           Datetime: '2026-02-14T14:00:00', // Saturday
         },
       ];
@@ -323,13 +338,15 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '7:00',
-          Tickets: '',
+          film_slug: 'test-16',
+          ticket_url: '',
           Datetime: '2026-02-11T19:00:00', // Wednesday
         },
         {
           Movie: 'Film B',
           Time: '7:00',
-          Tickets: '',
+          film_slug: 'test-17',
+          ticket_url: '',
           Datetime: '2026-02-14T19:00:00', // Saturday
         },
       ];
@@ -346,13 +363,15 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '12:00',
-          Tickets: '',
+          film_slug: 'test-18',
+          ticket_url: '',
           Datetime: '2026-02-14T12:00:00',
         },
         {
           Movie: 'Film B',
           Time: '7:00',
-          Tickets: '',
+          film_slug: 'test-19',
+          ticket_url: '',
           Datetime: '2026-02-14T19:00:00',
         },
       ];
@@ -366,13 +385,15 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '12:00',
-          Tickets: '',
+          film_slug: 'test-20',
+          ticket_url: '',
           Datetime: '2026-02-11T12:00:00',
         },
         {
           Movie: 'Film B',
           Time: '7:00',
-          Tickets: '',
+          film_slug: 'test-21',
+          ticket_url: '',
           Datetime: '2026-02-11T19:00:00',
         },
       ];
@@ -389,14 +410,16 @@ describe('movieUtils', () => {
         {
           Movie: 'Film A',
           Time: '1:00',
-          Tickets: '',
+          film_slug: 'test-22',
+          ticket_url: '',
           Datetime: '2026-02-11T13:00:00',
           runtime: '90',
         },
         {
           Movie: 'Film B',
           Time: '7:00',
-          Tickets: '',
+          film_slug: 'test-23',
+          ticket_url: '',
           Datetime: '2026-02-11T19:00:00',
           runtime: '120',
         },

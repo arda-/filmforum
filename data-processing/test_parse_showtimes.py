@@ -200,7 +200,7 @@ class TestCSVOutput:
             with open(temp_path, 'r', newline='') as f:
                 reader = csv.reader(f)
                 headers = next(reader)
-                assert headers == ['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt']
+                assert headers == ['Movie', 'Date', 'Time', 'ticket_url', 'ScrapedAt']
         finally:
             os.unlink(temp_path)
 
@@ -369,6 +369,6 @@ class TestIntegration:
                 headers = next(reader)
                 data_rows = list(reader)
                 assert len(data_rows) == 2
-                assert headers == ['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt']
+                assert headers == ['Movie', 'Date', 'Time', 'ticket_url', 'ScrapedAt']
         finally:
             os.unlink(temp_path)

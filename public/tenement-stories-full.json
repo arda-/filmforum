@@ -3,7 +3,6 @@
     "Movie": "LONESOME",
     "Date": "Friday, February 6",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/lonesome",
     "Datetime": "2026-02-06T12:30:00",
     "country": "U.S.",
     "year": "1928",
@@ -12,13 +11,14 @@
     "runtime": "70 min",
     "description": "Glenn Tryon and Barbara Kent, two singleroomed Gotham dwellers, meet and lose each other at a Coney Island excursion, but then discover... Fejos’ tour de force was “part of a movement away from nightclubs, newspaper offices, and marble halls towards the ordinary Joes in the audience” (David Shipman). Silent, with talking sequences and synchronized musical score, as Universal studio’s first film with audible dialogue.\n\nRestoration courtesy George Eastman Museum",
     "film_url": "https://filmforum.org/film/lonesome-tenement-stories",
-    "poster_url": "/posters/lonesome.png"
+    "poster_url": "/posters/lonesome.png",
+    "film_slug": "lonesome",
+    "ticket_url": "https://my.filmforum.org/events/lonesome"
   },
   {
     "Movie": "TAXI!",
     "Date": "Friday, February 6",
     "Time": "2:10",
-    "Tickets": "https://my.filmforum.org/events/taxi",
     "Datetime": "2026-02-06T14:10:00",
     "country": "U.S.",
     "year": "1932",
@@ -27,13 +27,14 @@
     "runtime": "69 min",
     "description": "“Come out and take it, you dirty yellow-bellied rat, or I'll give it to you through the door!” Amid city sounds in lieu of music, cocky Yiddish redndiker cabby Jimmy Cagney can’t keep his hands off bride Loretta Young at their wedding supper, then bucks a rival taxi outfit in a two-fisted union war. Manhattan native Cagney learned to drive for the role.\n\n35mm print courtesy Library of Congress.",
     "film_url": "https://filmforum.org/film/taxi-tenement-stories",
-    "poster_url": "/posters/taxi.png"
+    "poster_url": "/posters/taxi.png",
+    "film_slug": "taxi",
+    "ticket_url": "https://my.filmforum.org/events/taxi"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Friday, February 6",
     "Time": "4:10",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-06T16:10:00",
     "country": "U.S.",
     "year": "1975",
@@ -42,13 +43,14 @@
     "runtime": "92 min",
     "description": "1896 New York, and Steven Keats’ Yankel transforms himself into the all-American, beardless “Jake,” acquiring a home-grown girlfriend along the way—and then his sheitel-wearing wife Carol Kane (Oscar® nomination) shows up on his doorstep, straight from the shtetl... and cultures collide, even as Doris Roberts offers salty advice, and non-pro Mel Howard timidly yearns from the sidelines. Despite its shoestring budget, a strikingly authentic look at late 19th century LES life.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "STREET SCENE",
     "Date": "Friday, February 6",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/street-scene",
     "Datetime": "2026-02-06T18:10:00",
     "country": "U.S.",
     "year": "1931",
@@ -57,13 +59,14 @@
     "runtime": "80 min",
     "description": "The film depicts life at a working-class New York apartment building where residents face multiple crises. A jealous stagehand suspects his wife of infidelity, a secretary experiences unwanted advances from her married boss, and an abandoned woman faces eviction. Neighbors gossip while expressing political views and ethnic prejudices. Director Vidor employs dynamic cinematography with deep-focus imagery to capture sexual violence, relentless poverty, crude emotions, and stifled dreams.",
     "film_url": "https://filmforum.org/film/street-scene-tenement-stories",
-    "poster_url": "/posters/street-scene.png"
+    "poster_url": "/posters/street-scene.png",
+    "film_slug": "street-scene",
+    "ticket_url": "https://my.filmforum.org/events/street-scene"
   },
   {
     "Movie": "THE WINDOW",
     "Date": "Friday, February 6",
     "Time": "8:00",
-    "Tickets": "https://my.filmforum.org/events/the-window-tene",
     "Datetime": "2026-02-06T20:00:00",
     "country": "U.S.",
     "year": "1949",
@@ -72,13 +75,14 @@
     "runtime": "73 min",
     "description": "A young tenement resident who frequently tells tall tales claims to witness a sailor's murder, but nobody believes his account—except for the actual killers. Based on a Cornell Woolrich story, the film received a special Academy Award for child star Bobby Driscoll.",
     "film_url": "https://filmforum.org/film/the-window-tenement-stories",
-    "poster_url": "/posters/the-window.png"
+    "poster_url": "/posters/the-window.png",
+    "film_slug": "the-window",
+    "ticket_url": "https://my.filmforum.org/events/the-window-tene"
   },
   {
     "Movie": "THREE ON A MATCH",
     "Date": "Saturday, February 7",
     "Time": "12:40",
-    "Tickets": "https://my.filmforum.org/events/three-on-a-match",
     "Datetime": "2026-02-07T12:40:00",
     "country": "U.S.",
     "year": "1932",
@@ -87,13 +91,14 @@
     "runtime": "63 min",
     "description": "An early version of the gangster-movie myth about childhood friends who wind up on opposite sides of the class divide. Three schoolgirls follow different paths—to finishing school, secretarial school, and reform school—with their lives intersecting around themes of addiction and class struggle.",
     "film_url": "https://filmforum.org/film/three-on-a-match-tenement-stories",
-    "poster_url": "/posters/three-on-a-match.png"
+    "poster_url": "/posters/three-on-a-match.png",
+    "film_slug": "three-on-a-match",
+    "ticket_url": "https://my.filmforum.org/events/three-on-a-match"
   },
   {
     "Movie": "STREET SCENE",
     "Date": "Saturday, February 7",
     "Time": "2:10",
-    "Tickets": "https://my.filmforum.org/events/street-scene",
     "Datetime": "2026-02-07T14:10:00",
     "country": "U.S.",
     "year": "1931",
@@ -102,13 +107,14 @@
     "runtime": "80 min",
     "description": "The film depicts life at a working-class New York apartment building where residents face multiple crises. A jealous stagehand suspects his wife of infidelity, a secretary experiences unwanted advances from her married boss, and an abandoned woman faces eviction. Neighbors gossip while expressing political views and ethnic prejudices. Director Vidor employs dynamic cinematography with deep-focus imagery to capture sexual violence, relentless poverty, crude emotions, and stifled dreams.",
     "film_url": "https://filmforum.org/film/street-scene-tenement-stories",
-    "poster_url": "/posters/street-scene.png"
+    "poster_url": "/posters/street-scene.png",
+    "film_slug": "street-scene",
+    "ticket_url": "https://my.filmforum.org/events/street-scene"
   },
   {
     "Movie": "THE WINDOW",
     "Date": "Saturday, February 7",
     "Time": "4:00",
-    "Tickets": "https://my.filmforum.org/events/the-window-tene",
     "Datetime": "2026-02-07T16:00:00",
     "country": "U.S.",
     "year": "1949",
@@ -117,13 +123,14 @@
     "runtime": "73 min",
     "description": "A young tenement resident who frequently tells tall tales claims to witness a sailor's murder, but nobody believes his account—except for the actual killers. Based on a Cornell Woolrich story, the film received a special Academy Award for child star Bobby Driscoll.",
     "film_url": "https://filmforum.org/film/the-window-tenement-stories",
-    "poster_url": "/posters/the-window.png"
+    "poster_url": "/posters/the-window.png",
+    "film_slug": "the-window",
+    "ticket_url": "https://my.filmforum.org/events/the-window-tene"
   },
   {
     "Movie": "ITALIANAMERICAN",
     "Date": "Saturday, February 7",
     "Time": "5:40",
-    "Tickets": "https://my.filmforum.org/events/italianamerican-tene",
     "Datetime": "2026-02-07T17:40:00",
     "country": "U.S.",
     "year": "1974",
@@ -132,13 +139,14 @@
     "runtime": "49 min",
     "description": "“The best film I ever made; it really freed me in style.” The director conducts a freewheeling interview with his parents, the late Catherine and Charles (née Luciano) Scorsese, in their walk-up on Elizabeth Street (now the trendiest block in “NoLita,” then the “mean streets” of his early films), reflecting on 40 years of marriage, everything from courtship to whose mother was the better cook. The impressible Mrs. Scorsese (who later got a SAG card after popping up frequently in her son’s films—most memorably as Joe Pesci’s mother in GOODFELLAS) shows off snapshots from a recent trip to Italy (mostly of family dinners), argues with her husband about home wine-making techniques, and interrupts her son repeatedly to nurse her later-anthologized spaghetti sauce, revealed at breakneck speed in the end credits. Scorsese purposely left the hyphen out of the title, explaining that his parents “are neither Italian nor American. They are one.”",
     "film_url": "https://filmforum.org/film/italianamerican-tenement-stories",
-    "poster_url": "/posters/italianamerican.png"
+    "poster_url": "/posters/italianamerican.png",
+    "film_slug": "italianamerican",
+    "ticket_url": "https://my.filmforum.org/events/italianamerican-tene"
   },
   {
     "Movie": "MEAN STREETS",
     "Date": "Saturday, February 7",
     "Time": "7:10",
-    "Tickets": "https://my.filmforum.org/events/mean-streets-tene",
     "Datetime": "2026-02-07T19:10:00",
     "country": "U.S.",
     "year": "1973",
@@ -147,13 +155,14 @@
     "runtime": "112 min",
     "description": "Guilt-ridden hood Harvey Keitel keeps a low profile, but out-of-his friggin’-mind cousin Robert De Niro doesn’t give a flyin’ pasta fazool about those gambling debts.\n\nShown with Les Rues de Mean Streets (2010, Bruce Goldstein), a tour of Marty’s old nabe (made for French distributor Carlotta Films). Approx. 6 min.",
     "film_url": "https://filmforum.org/film/mean-streets-tenement-stories",
-    "poster_url": "/posters/mean-streets.png"
+    "poster_url": "/posters/mean-streets.png",
+    "film_slug": "mean-streets",
+    "ticket_url": "https://my.filmforum.org/events/mean-streets-tene"
   },
   {
     "Movie": "HEAVY TRAFFIC",
     "Date": "Saturday, February 7",
     "Time": "9:40",
-    "Tickets": "https://my.filmforum.org/events/heavy-traffic",
     "Datetime": "2026-02-07T21:40:00",
     "country": "U.S.",
     "year": "1973",
@@ -162,13 +171,14 @@
     "runtime": "79 min",
     "description": "Virgin loser Michael Corleone (no, not that one) lives with his axe-wielding Jewish mother and his deadbeat Italian father while the weirdos in his neighborhood give him inspiration for his underground cartoons. Bakshi’s most praised and personal work mixes reality and fantasy as it does live-action and Bakshi’s trademark animation.",
     "film_url": "https://filmforum.org/film/heavy-traffic-tenement-stories",
-    "poster_url": "/posters/heavy-traffic.png"
+    "poster_url": "/posters/heavy-traffic.png",
+    "film_slug": "heavy-traffic",
+    "ticket_url": "https://my.filmforum.org/events/heavy-traffic"
   },
   {
     "Movie": "THE KID",
     "Date": "Sunday, February 8",
     "Time": "11:00 – FF Jr.",
-    "Tickets": "https://my.filmforum.org/the-kid-ffjr",
     "Datetime": "2026-02-08T11:00:00",
     "country": "U.S.",
     "year": "1921",
@@ -177,13 +187,14 @@
     "runtime": "58 min",
     "description": "A streetwise 6-year-old ragamuffin becomes the companion of the Little Tramp character in the first true Chaplin feature. The film combines physical comedy with emotionally resonant moments, exploring human needs and ideals through the relationship between the two characters.",
     "film_url": "https://filmforum.org/film/the-kid-tenement-stories",
-    "poster_url": "/posters/the-kid.jpg"
+    "poster_url": "/posters/the-kid.jpg",
+    "film_slug": "the-kid",
+    "ticket_url": "https://my.filmforum.org/the-kid-ffjr"
   },
   {
     "Movie": "APPLAUSE",
     "Date": "Sunday, February 8",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/applause-tene",
     "Datetime": "2026-02-08T13:00:00",
     "country": "U.S.",
     "year": "1929",
@@ -192,13 +203,14 @@
     "runtime": "80 min",
     "description": "A young woman raised in a Wisconsin convent moves to New York to join her mother, only to discover she is a struggling burlesque performer. Director Mamoulian's directorial debut pioneered innovative sound film techniques.",
     "film_url": "https://filmforum.org/film/applause-tenement-stories",
-    "poster_url": "/posters/applause.png"
+    "poster_url": "/posters/applause.png",
+    "film_slug": "applause",
+    "ticket_url": "https://my.filmforum.org/events/applause-tene"
   },
   {
     "Movie": "TAXI!",
     "Date": "Sunday, February 8",
     "Time": "2:50",
-    "Tickets": "https://my.filmforum.org/events/taxi",
     "Datetime": "2026-02-08T14:50:00",
     "country": "U.S.",
     "year": "1932",
@@ -207,13 +219,14 @@
     "runtime": "69 min",
     "description": "“Come out and take it, you dirty yellow-bellied rat, or I'll give it to you through the door!” Amid city sounds in lieu of music, cocky Yiddish redndiker cabby Jimmy Cagney can’t keep his hands off bride Loretta Young at their wedding supper, then bucks a rival taxi outfit in a two-fisted union war. Manhattan native Cagney learned to drive for the role.\n\n35mm print courtesy Library of Congress.",
     "film_url": "https://filmforum.org/film/taxi-tenement-stories",
-    "poster_url": "/posters/taxi.png"
+    "poster_url": "/posters/taxi.png",
+    "film_slug": "taxi",
+    "ticket_url": "https://my.filmforum.org/events/taxi"
   },
   {
     "Movie": "THREE ON A MATCH",
     "Date": "Sunday, February 8",
     "Time": "4:30",
-    "Tickets": "https://my.filmforum.org/events/three-on-a-match",
     "Datetime": "2026-02-08T16:30:00",
     "country": "U.S.",
     "year": "1932",
@@ -222,13 +235,14 @@
     "runtime": "63 min",
     "description": "An early version of the gangster-movie myth about childhood friends who wind up on opposite sides of the class divide. Three schoolgirls follow different paths—to finishing school, secretarial school, and reform school—with their lives intersecting around themes of addiction and class struggle.",
     "film_url": "https://filmforum.org/film/three-on-a-match-tenement-stories",
-    "poster_url": "/posters/three-on-a-match.png"
+    "poster_url": "/posters/three-on-a-match.png",
+    "film_slug": "three-on-a-match",
+    "ticket_url": "https://my.filmforum.org/events/three-on-a-match"
   },
   {
     "Movie": "DEAD END",
     "Date": "Sunday, February 8",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/dead-end",
     "Datetime": "2026-02-08T18:00:00",
     "country": "U.S.",
     "year": "1937",
@@ -237,13 +251,14 @@
     "runtime": "93 min",
     "description": "Along the East River, ritzy apartments bump up against crummy tenements, as unemployed architect Joel McCrea yearns for stuck-up socialite Wendy Barrie while slum-raised Sylvia Sidney yearns for him and the Dead End Kids idolize hood Humphrey Bogart, returning to Mom and old flame Claire Trevor.\n\n35mm print courtesy UCLA Film & Television Archive.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/dead-end-tenement-stories",
-    "poster_url": "/posters/dead-end.png"
+    "poster_url": "/posters/dead-end.png",
+    "film_slug": "dead-end",
+    "ticket_url": "https://my.filmforum.org/events/dead-end"
   },
   {
     "Movie": "MIXED BLOOD",
     "Date": "Sunday, February 8",
     "Time": "8:40",
-    "Tickets": "https://my.filmforum.org/events/mixed-blood",
     "Datetime": "2026-02-08T20:40:00",
     "country": "U.S.",
     "year": "1984",
@@ -252,13 +267,14 @@
     "runtime": "98 min",
     "description": "Rita La Punta and her son Thiago recruit local teenagers for a gang selling cocaine from abandoned tenements in pre-gentrification Alphabet City. Described as 'a frantic, highly enjoyable romp,' the film combines comedic and brutal elements.",
     "film_url": "https://filmforum.org/film/mixed-blood-tenement-stories",
-    "poster_url": "/posters/mixed-blood.png"
+    "poster_url": "/posters/mixed-blood.png",
+    "film_slug": "mixed-blood",
+    "ticket_url": "https://my.filmforum.org/events/mixed-blood"
   },
   {
     "Movie": "THREE ON A MATCH",
     "Date": "Monday, February 9",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/three-on-a-match",
     "Datetime": "2026-02-09T12:30:00",
     "country": "U.S.",
     "year": "1932",
@@ -267,13 +283,14 @@
     "runtime": "63 min",
     "description": "An early version of the gangster-movie myth about childhood friends who wind up on opposite sides of the class divide. Three schoolgirls follow different paths—to finishing school, secretarial school, and reform school—with their lives intersecting around themes of addiction and class struggle.",
     "film_url": "https://filmforum.org/film/three-on-a-match-tenement-stories",
-    "poster_url": "/posters/three-on-a-match.png"
+    "poster_url": "/posters/three-on-a-match.png",
+    "film_slug": "three-on-a-match",
+    "ticket_url": "https://my.filmforum.org/events/three-on-a-match"
   },
   {
     "Movie": "MEAN STREETS",
     "Date": "Monday, February 9",
     "Time": "2:00",
-    "Tickets": "https://my.filmforum.org/events/mean-streets-tene",
     "Datetime": "2026-02-09T14:00:00",
     "country": "U.S.",
     "year": "1973",
@@ -282,13 +299,14 @@
     "runtime": "112 min",
     "description": "Guilt-ridden hood Harvey Keitel keeps a low profile, but out-of-his friggin’-mind cousin Robert De Niro doesn’t give a flyin’ pasta fazool about those gambling debts.\n\nShown with Les Rues de Mean Streets (2010, Bruce Goldstein), a tour of Marty’s old nabe (made for French distributor Carlotta Films). Approx. 6 min.",
     "film_url": "https://filmforum.org/film/mean-streets-tenement-stories",
-    "poster_url": "/posters/mean-streets.png"
+    "poster_url": "/posters/mean-streets.png",
+    "film_slug": "mean-streets",
+    "ticket_url": "https://my.filmforum.org/events/mean-streets-tene"
   },
   {
     "Movie": "THE WINDOW",
     "Date": "Monday, February 9",
     "Time": "4:30",
-    "Tickets": "https://my.filmforum.org/events/the-window-tene",
     "Datetime": "2026-02-09T16:30:00",
     "country": "U.S.",
     "year": "1949",
@@ -297,13 +315,14 @@
     "runtime": "73 min",
     "description": "A young tenement resident who frequently tells tall tales claims to witness a sailor's murder, but nobody believes his account—except for the actual killers. Based on a Cornell Woolrich story, the film received a special Academy Award for child star Bobby Driscoll.",
     "film_url": "https://filmforum.org/film/the-window-tenement-stories",
-    "poster_url": "/posters/the-window.png"
+    "poster_url": "/posters/the-window.png",
+    "film_slug": "the-window",
+    "ticket_url": "https://my.filmforum.org/events/the-window-tene"
   },
   {
     "Movie": "TWO SECONDS",
     "Date": "Monday, February 9",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/two-seconds",
     "Datetime": "2026-02-09T18:10:00",
     "country": "U.S.",
     "year": "1932",
@@ -312,13 +331,14 @@
     "runtime": "68 min",
     "description": "The film depicts the final moments of a man facing execution, exploring two seconds of his death by electric chair while revealing his troubled past through flashbacks, including a troubled marriage, railroad work, and a murder.",
     "film_url": "https://filmforum.org/film/two-seconds-tenement-stories",
-    "poster_url": "/posters/two-seconds.png"
+    "poster_url": "/posters/two-seconds.png",
+    "film_slug": "two-seconds",
+    "ticket_url": "https://my.filmforum.org/events/two-seconds"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Monday, February 9",
     "Time": "7:50",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-09T19:50:00",
     "country": "U.S.",
     "year": "1975",
@@ -327,13 +347,14 @@
     "runtime": "92 min",
     "description": "1896 New York, and Steven Keats’ Yankel transforms himself into the all-American, beardless “Jake,” acquiring a home-grown girlfriend along the way—and then his sheitel-wearing wife Carol Kane (Oscar® nomination) shows up on his doorstep, straight from the shtetl... and cultures collide, even as Doris Roberts offers salty advice, and non-pro Mel Howard timidly yearns from the sidelines. Despite its shoestring budget, a strikingly authentic look at late 19th century LES life.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "EL SUPER",
     "Date": "Tuesday, February 10",
     "Time": "12:20",
-    "Tickets": "https://my.filmforum.org/events/el-super-tene",
     "Datetime": "2026-02-10T12:20:00",
     "country": "U.S.",
     "year": "1979",
@@ -342,13 +363,14 @@
     "runtime": "90 min",
     "description": "Shot entirely in NYC on the streets and in real apartments, with its characters largely speaking Spanish (a first for an American independent film), EL SUPER is the story of 42-year-old Cuban exile Roberto, superintendent of a large Washington Heights apartment building. In his New York Times review, Vincent Canby wrote, “Roberto not only suffers the life of an outsider, he embraces it, as well as the isolation, the humiliation and the homesickness that go with it... From this beginning you might think that EL SUPER would be grim, but you’d be wrong. It’s a funny, even-tempered, unsentimental drama... much less about politics than it is about the disorientation of exiles who become living metaphors for the human condition. Such a person is Roberto, played with infinite good humor and common sense by Raymundo Hidalgo-Gato. The role, like the screenplay by Manuel Arce and Mr. Ichaso, is extremely well written as it avoids the usual impulse to state in large speeches what it intends to be about... The film was obviously produced with care, intelligence, and a cast of marvelous Cuban and Puerto Rican actors.”",
     "film_url": "https://filmforum.org/film/el-super-tenement-stories",
-    "poster_url": "/posters/el-super.png"
+    "poster_url": "/posters/el-super.png",
+    "film_slug": "el-super",
+    "ticket_url": "https://my.filmforum.org/events/el-super-tene"
   },
   {
     "Movie": "TWO SECONDS",
     "Date": "Tuesday, February 10",
     "Time": "2:20",
-    "Tickets": "https://my.filmforum.org/events/two-seconds",
     "Datetime": "2026-02-10T14:20:00",
     "country": "U.S.",
     "year": "1932",
@@ -357,13 +379,14 @@
     "runtime": "68 min",
     "description": "The film depicts the final moments of a man facing execution, exploring two seconds of his death by electric chair while revealing his troubled past through flashbacks, including a troubled marriage, railroad work, and a murder.",
     "film_url": "https://filmforum.org/film/two-seconds-tenement-stories",
-    "poster_url": "/posters/two-seconds.png"
+    "poster_url": "/posters/two-seconds.png",
+    "film_slug": "two-seconds",
+    "ticket_url": "https://my.filmforum.org/events/two-seconds"
   },
   {
     "Movie": "DEAD END",
     "Date": "Tuesday, February 10",
     "Time": "4:00",
-    "Tickets": "https://my.filmforum.org/events/dead-end",
     "Datetime": "2026-02-10T16:00:00",
     "country": "U.S.",
     "year": "1937",
@@ -372,13 +395,14 @@
     "runtime": "93 min",
     "description": "Along the East River, ritzy apartments bump up against crummy tenements, as unemployed architect Joel McCrea yearns for stuck-up socialite Wendy Barrie while slum-raised Sylvia Sidney yearns for him and the Dead End Kids idolize hood Humphrey Bogart, returning to Mom and old flame Claire Trevor.\n\n35mm print courtesy UCLA Film & Television Archive.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/dead-end-tenement-stories",
-    "poster_url": "/posters/dead-end.png"
+    "poster_url": "/posters/dead-end.png",
+    "film_slug": "dead-end",
+    "ticket_url": "https://my.filmforum.org/events/dead-end"
   },
   {
     "Movie": "THE HEART OF NEW YORK",
     "Date": "Tuesday, February 10",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/the-heart-of-new-york",
     "Datetime": "2026-02-10T18:00:00",
     "country": "U.S.",
     "year": "1932",
@@ -387,13 +411,14 @@
     "runtime": "73 min",
     "description": "“Goldstein’s Chop Suey” reads a Hester Street store sign in this comedy about a lower East Side plumber who strikes it rich when he invents the dishwasher. Doubletalking vaudevillians Smith and Dale recreate their stage roles as quarrelling partners “Schnaps and Shtrudel”.",
     "film_url": "https://filmforum.org/film/the-heart-of-new-york-tenement-stories",
-    "poster_url": "/posters/the-heart-of-new-york.png"
+    "poster_url": "/posters/the-heart-of-new-york.png",
+    "film_slug": "the-heart-of-new-york",
+    "ticket_url": "https://my.filmforum.org/events/the-heart-of-new-york"
   },
   {
     "Movie": "HUMORESQUE",
     "Date": "Tuesday, February 10",
     "Time": "7:40",
-    "Tickets": "https://my.filmforum.org/events/humoresque-tene",
     "Datetime": "2026-02-10T19:40:00",
     "country": "U.S.",
     "year": "1920",
@@ -402,13 +427,14 @@
     "runtime": "60 min",
     "description": "Borzage's adaptation of Fannie Hurst's 1919 story follows a devoted mother who encourages her son to become an accomplished violinist. The film has been described as the quintessential ghetto film... the Lower East Side as an exalted state of mind, exploring themes of ambition, family devotion, and immigrant success in America.",
     "film_url": "https://filmforum.org/film/humoresque-tenement-stories",
-    "poster_url": "/posters/humoresque.png"
+    "poster_url": "/posters/humoresque.png",
+    "film_slug": "humoresque",
+    "ticket_url": "https://my.filmforum.org/events/humoresque-tene"
   },
   {
     "Movie": "APPLAUSE",
     "Date": "Wednesday, February 11",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/applause-tene",
     "Datetime": "2026-02-11T12:30:00",
     "country": "U.S.",
     "year": "1929",
@@ -417,13 +443,14 @@
     "runtime": "80 min",
     "description": "A young woman raised in a Wisconsin convent moves to New York to join her mother, only to discover she is a struggling burlesque performer. Director Mamoulian's directorial debut pioneered innovative sound film techniques.",
     "film_url": "https://filmforum.org/film/applause-tenement-stories",
-    "poster_url": "/posters/applause.png"
+    "poster_url": "/posters/applause.png",
+    "film_slug": "applause",
+    "ticket_url": "https://my.filmforum.org/events/applause-tene"
   },
   {
     "Movie": "TWO SECONDS",
     "Date": "Wednesday, February 11",
     "Time": "2:20",
-    "Tickets": "https://my.filmforum.org/events/two-seconds",
     "Datetime": "2026-02-11T14:20:00",
     "country": "U.S.",
     "year": "1932",
@@ -432,13 +459,14 @@
     "runtime": "68 min",
     "description": "The film depicts the final moments of a man facing execution, exploring two seconds of his death by electric chair while revealing his troubled past through flashbacks, including a troubled marriage, railroad work, and a murder.",
     "film_url": "https://filmforum.org/film/two-seconds-tenement-stories",
-    "poster_url": "/posters/two-seconds.png"
+    "poster_url": "/posters/two-seconds.png",
+    "film_slug": "two-seconds",
+    "ticket_url": "https://my.filmforum.org/events/two-seconds"
   },
   {
     "Movie": "THE HEART OF NEW YORK",
     "Date": "Wednesday, February 11",
     "Time": "4:00",
-    "Tickets": "https://my.filmforum.org/events/the-heart-of-new-york",
     "Datetime": "2026-02-11T16:00:00",
     "country": "U.S.",
     "year": "1932",
@@ -447,13 +475,14 @@
     "runtime": "73 min",
     "description": "“Goldstein’s Chop Suey” reads a Hester Street store sign in this comedy about a lower East Side plumber who strikes it rich when he invents the dishwasher. Doubletalking vaudevillians Smith and Dale recreate their stage roles as quarrelling partners “Schnaps and Shtrudel”.",
     "film_url": "https://filmforum.org/film/the-heart-of-new-york-tenement-stories",
-    "poster_url": "/posters/the-heart-of-new-york.png"
+    "poster_url": "/posters/the-heart-of-new-york.png",
+    "film_slug": "the-heart-of-new-york",
+    "ticket_url": "https://my.filmforum.org/events/the-heart-of-new-york"
   },
   {
     "Movie": "EL SUPER",
     "Date": "Wednesday, February 11",
     "Time": "5:50",
-    "Tickets": "https://my.filmforum.org/events/el-super-tene",
     "Datetime": "2026-02-11T17:50:00",
     "country": "U.S.",
     "year": "1979",
@@ -462,13 +491,14 @@
     "runtime": "90 min",
     "description": "Shot entirely in NYC on the streets and in real apartments, with its characters largely speaking Spanish (a first for an American independent film), EL SUPER is the story of 42-year-old Cuban exile Roberto, superintendent of a large Washington Heights apartment building. In his New York Times review, Vincent Canby wrote, “Roberto not only suffers the life of an outsider, he embraces it, as well as the isolation, the humiliation and the homesickness that go with it... From this beginning you might think that EL SUPER would be grim, but you’d be wrong. It’s a funny, even-tempered, unsentimental drama... much less about politics than it is about the disorientation of exiles who become living metaphors for the human condition. Such a person is Roberto, played with infinite good humor and common sense by Raymundo Hidalgo-Gato. The role, like the screenplay by Manuel Arce and Mr. Ichaso, is extremely well written as it avoids the usual impulse to state in large speeches what it intends to be about... The film was obviously produced with care, intelligence, and a cast of marvelous Cuban and Puerto Rican actors.”",
     "film_url": "https://filmforum.org/film/el-super-tenement-stories",
-    "poster_url": "/posters/el-super.png"
+    "poster_url": "/posters/el-super.png",
+    "film_slug": "el-super",
+    "ticket_url": "https://my.filmforum.org/events/el-super-tene"
   },
   {
     "Movie": "SOMETHING WILD",
     "Date": "Wednesday, February 11",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/something-wild",
     "Datetime": "2026-02-11T20:30:00",
     "country": "U.S.",
     "year": "1961",
@@ -477,13 +507,14 @@
     "runtime": "112 min",
     "description": "College girl Carroll Baker bails out from under domineering mom Mildred Dunnock to the Lower East Side, but still can’t handle the trauma of her brutal rape in a park. Will similarly lost-soul/garage mechanic Ralph Meeker (KISS ME DEADLY) prove savior or...? Second and last film by Baker’s then husband Garfein, with score by no less than Aaron Copland, and moody photography of a sizzling NYC summer by the great Eugene Schüfttan (METROPOLIS, THE HUSTLER).",
     "film_url": "https://filmforum.org/film/something-wild-tenement-stories",
-    "poster_url": "/posters/something-wild.png"
+    "poster_url": "/posters/something-wild.png",
+    "film_slug": "something-wild",
+    "ticket_url": "https://my.filmforum.org/events/something-wild"
   },
   {
     "Movie": "THE NAKED CITY",
     "Date": "Thursday, February 12",
     "Time": "12:50",
-    "Tickets": "https://my.filmforum.org/events/the-naked-city-tene",
     "Datetime": "2026-02-12T12:50:00",
     "country": "U.S.",
     "year": "1948",
@@ -492,13 +523,14 @@
     "runtime": "96 min",
     "description": "Following a beautiful young model’s murder on W. 83rd St., inspector Barry Fitzgerald and detective Don Taylor track down leads to Stillman’s Gym, the old Essex Market (Essex Street, just north of Delancey), a corner candy store at Norfolk and Rivington, and ultimately to the City Morgue and Roosevelt Hospital—among the picture’s 107 different locations—with final showdown on the Williamsburg Bridge. Based on an actual 1920s case, once covered by producer, narrator, and erstwhile newspaperman Mark Hellinger. Oscar®-winning camerawork by former Garbo lenser William Daniels.\n\nShown with Uncovering The Naked City\n\nU.S, 2020\n\nDirected by Bruce Goldstein\n\nApprox. 23 min.\n\nIn this original short documentary and personal essay, Bruce Goldstein, Film Forum's founding Repertory Artistic Director, tracks down many of the 100+ New York City locations—from the Bronx to the Lower East Side—used in his friend Jules Dassin’s classic police procedural THE NAKED CITY, while also spotlighting the contributions of producer Mark Hellinger and cinematographer William Daniels (best known as Greta Garbo's favorite DP).",
     "film_url": "https://filmforum.org/film/the-naked-city-tenement-stories",
-    "poster_url": "/posters/the-naked-city.png"
+    "poster_url": "/posters/the-naked-city.png",
+    "film_slug": "the-naked-city",
+    "ticket_url": "https://my.filmforum.org/events/the-naked-city-tene"
   },
   {
     "Movie": "SOMETHING WILD",
     "Date": "Thursday, February 12",
     "Time": "3:30",
-    "Tickets": "https://my.filmforum.org/events/something-wild",
     "Datetime": "2026-02-12T15:30:00",
     "country": "U.S.",
     "year": "1961",
@@ -507,13 +539,14 @@
     "runtime": "112 min",
     "description": "College girl Carroll Baker bails out from under domineering mom Mildred Dunnock to the Lower East Side, but still can’t handle the trauma of her brutal rape in a park. Will similarly lost-soul/garage mechanic Ralph Meeker (KISS ME DEADLY) prove savior or...? Second and last film by Baker’s then husband Garfein, with score by no less than Aaron Copland, and moody photography of a sizzling NYC summer by the great Eugene Schüfttan (METROPOLIS, THE HUSTLER).",
     "film_url": "https://filmforum.org/film/something-wild-tenement-stories",
-    "poster_url": "/posters/something-wild.png"
+    "poster_url": "/posters/something-wild.png",
+    "film_slug": "something-wild",
+    "ticket_url": "https://my.filmforum.org/events/something-wild"
   },
   {
     "Movie": "HUNGRY HEARTS",
     "Date": "Thursday, February 12",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/hungry-hearts",
     "Datetime": "2026-02-12T18:00:00",
     "country": "U.S.",
     "year": "1922",
@@ -522,13 +555,14 @@
     "runtime": "70 min",
     "description": "“Based on the short stories of Anzia Yezierska, the first writer to bring stories of American Jewish women to a mainstream audience, HUNGRY HEARTS focuses on the members of the Levin family who emigrate from Eastern Europe to New York City's Lower East Side. Abraham, the pious father learned in religion but uninterested in business, has difficulty making a living and adjusting to life in America. The daughter Sara scrubs floors in the tenement in order to earn money and ‘become a somebody.’ The mother Hannah, a noble matriarch, scrimps and saves to paint her dingy kitchen white only to have her landlord raise the rent because of the improvements. This early silent film was produced in a Hollywood studio but the street scenes were shot on location on the Lower East Side in New York City. This bittersweet classic captures the hopes and hardships of Jewish immigrants in the New World.” – National Center for Jewish Film\n\n16mm print courtesy National Center for Jewish Film.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/hungry-hearts-tenement-stories",
-    "poster_url": "/posters/hungry-hearts.png"
+    "poster_url": "/posters/hungry-hearts.png",
+    "film_slug": "hungry-hearts",
+    "ticket_url": "https://my.filmforum.org/events/hungry-hearts"
   },
   {
     "Movie": "SOMETHING WILD",
     "Date": "Friday, February 13",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/something-wild",
     "Datetime": "2026-02-13T13:00:00",
     "country": "U.S.",
     "year": "1961",
@@ -537,13 +571,14 @@
     "runtime": "112 min",
     "description": "College girl Carroll Baker bails out from under domineering mom Mildred Dunnock to the Lower East Side, but still can’t handle the trauma of her brutal rape in a park. Will similarly lost-soul/garage mechanic Ralph Meeker (KISS ME DEADLY) prove savior or...? Second and last film by Baker’s then husband Garfein, with score by no less than Aaron Copland, and moody photography of a sizzling NYC summer by the great Eugene Schüfttan (METROPOLIS, THE HUSTLER).",
     "film_url": "https://filmforum.org/film/something-wild-tenement-stories",
-    "poster_url": "/posters/something-wild.png"
+    "poster_url": "/posters/something-wild.png",
+    "film_slug": "something-wild",
+    "ticket_url": "https://my.filmforum.org/events/something-wild"
   },
   {
     "Movie": "MEAN STREETS",
     "Date": "Friday, February 13",
     "Time": "3:20",
-    "Tickets": "https://my.filmforum.org/events/mean-streets-tene",
     "Datetime": "2026-02-13T15:20:00",
     "country": "U.S.",
     "year": "1973",
@@ -552,13 +587,14 @@
     "runtime": "112 min",
     "description": "Guilt-ridden hood Harvey Keitel keeps a low profile, but out-of-his friggin’-mind cousin Robert De Niro doesn’t give a flyin’ pasta fazool about those gambling debts.\n\nShown with Les Rues de Mean Streets (2010, Bruce Goldstein), a tour of Marty’s old nabe (made for French distributor Carlotta Films). Approx. 6 min.",
     "film_url": "https://filmforum.org/film/mean-streets-tenement-stories",
-    "poster_url": "/posters/mean-streets.png"
+    "poster_url": "/posters/mean-streets.png",
+    "film_slug": "mean-streets",
+    "ticket_url": "https://my.filmforum.org/events/mean-streets-tene"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Friday, February 13",
     "Time": "5:50",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-13T17:50:00",
     "country": "U.S.",
     "year": "1975",
@@ -567,13 +603,14 @@
     "runtime": "92 min",
     "description": "1896 New York, and Steven Keats’ Yankel transforms himself into the all-American, beardless “Jake,” acquiring a home-grown girlfriend along the way—and then his sheitel-wearing wife Carol Kane (Oscar® nomination) shows up on his doorstep, straight from the shtetl... and cultures collide, even as Doris Roberts offers salty advice, and non-pro Mel Howard timidly yearns from the sidelines. Despite its shoestring budget, a strikingly authentic look at late 19th century LES life.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "FROWNLAND",
     "Date": "Friday, February 13",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/frownland",
     "Datetime": "2026-02-13T20:30:00",
     "country": "U.S.",
     "year": "2007",
@@ -582,13 +619,14 @@
     "runtime": "106 min",
     "description": "A nightmare transmission from the grungiest depths of the New York indie underground, the visceral, darkly funny, and totally sui generis debut feature from Ronald Bronstein is a dread-inducing vision of misfit alienation at its unhinged extreme. In a maniacal performance of almost frightening commitment, Dore Mann plays Keith, a disturbingly maladjusted social outcast and self-described “troll” whose neuroses plunge him into an unstoppable spiral of self-obliteration as his crummy coupon-selling job, pitiful living situation (featuring the roommate from hipster Brooklyn hell), and last remaining human relationships disintegrate around him. As captured in the grimy expressionist grain of Sean Price Williams’s claustrophobic camera work, FROWNLAND is DIY cinema at its most fearless, uncompromising, and unforgettable.\n\n35mm print courtesy Ronald Bronstein.",
     "film_url": "https://filmforum.org/film/frownland-tenement-stories",
-    "poster_url": "/posters/frownland.png"
+    "poster_url": "/posters/frownland.png",
+    "film_slug": "frownland",
+    "ticket_url": "https://my.filmforum.org/events/frownland"
   },
   {
     "Movie": "RAFTER ROMANCE",
     "Date": "Saturday, February 14",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/rafter-romance",
     "Datetime": "2026-02-14T12:30:00",
     "country": "U.S.",
     "year": "1932",
@@ -597,13 +635,14 @@
     "runtime": "72 min",
     "description": "Their rent late again, artist/night watchman Norman Foster (then Mr. Claudette Colbert, and later director of the Wellesian JOURNEY INTO FEAR) and telemarketer [sic] Ginger Rogers get an ultimatum: timeshare the attic or out. But as the war of notes on the fridge escalates between the strangers, guess who meets cute outside the building, even as each suffers from admirer overload?\n\n35mm print courtesy Turner Classic Movies and the Library of Congress.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/rafter-romance-tenement-stories",
-    "poster_url": "/posters/rafter-romance.png"
+    "poster_url": "/posters/rafter-romance.png",
+    "film_slug": "rafter-romance",
+    "ticket_url": "https://my.filmforum.org/events/rafter-romance"
   },
   {
     "Movie": "ME AND MY GAL",
     "Date": "Saturday, February 14",
     "Time": "2:10",
-    "Tickets": "https://my.filmforum.org/events/me-and-my-gal",
     "Datetime": "2026-02-14T14:10:00",
     "country": "U.S.",
     "year": "1932",
@@ -612,13 +651,14 @@
     "runtime": "79 min",
     "description": "Cop Spencer Tracy’s slanging matches with hash-slinger Joan Bennett, spiced with a hilarious parody of O’Neill’s Strange Interlude, are interrupted when director Walsh’s brother blasts his way into a bank.",
     "film_url": "https://filmforum.org/film/me-and-my-gal-tenement-stories",
-    "poster_url": "/posters/me-and-my-gal.png"
+    "poster_url": "/posters/me-and-my-gal.png",
+    "film_slug": "me-and-my-gal",
+    "ticket_url": "https://my.filmforum.org/events/me-and-my-gal"
   },
   {
     "Movie": "THE CAMERAMAN",
     "Date": "Saturday, February 14",
     "Time": "4:15",
-    "Tickets": "https://my.filmforum.org/events/the-cameraman-tene",
     "Datetime": "2026-02-14T16:15:00",
     "country": "U.S.",
     "year": "1928",
@@ -627,13 +667,14 @@
     "runtime": "76 min",
     "description": "Neophyte newsreel cameraman Buster loses his swimsuit at Coney Island and his heart on the sidewalks of New York, lensing Mott Street Tong Wars while being upstaged by monkey great Jocko.\n\nShown with Neighbors\n\nU.S., 1920\n\nDirected and Written by Edward F. Cline, Buster Keaton\n\nStarring Buster Keaton, Joe Keaton, Virginia Fox\n\nApprox. 18 min.\n\nKeaton Sr. & Jr. re-create part of their original, knockabout vaudeville act!",
     "film_url": "https://filmforum.org/film/the-cameraman-tenement-stories",
-    "poster_url": "/posters/the-cameraman.png"
+    "poster_url": "/posters/the-cameraman.png",
+    "film_slug": "the-cameraman",
+    "ticket_url": "https://my.filmforum.org/events/the-cameraman-tene"
   },
   {
     "Movie": "CHRISTMAS IN JULY",
     "Date": "Saturday, February 14",
     "Time": "6:15",
-    "Tickets": "https://my.filmforum.org/events/christmas-in-july-tene",
     "Datetime": "2026-02-14T18:15:00",
     "country": "U.S.",
     "year": "1940",
@@ -642,13 +683,14 @@
     "runtime": "67 min",
     "description": "Where's Ed McMahon when you need him? Dick Powell thinks he “already has won” $25,000 in a radio slogan contest (his entry: “If you can't sleep, it isn't the coffee, it's the bunk”) and acts accordingly—until he realizes... “Delicately satirizes the American Dream with respect for the ambitions and values of the ‘little’ people.” – Jim Hillier",
     "film_url": "https://filmforum.org/film/christmas-in-july-tenement-stories",
-    "poster_url": "/posters/christmas-in-july.png"
+    "poster_url": "/posters/christmas-in-july.png",
+    "film_slug": "christmas-in-july",
+    "ticket_url": "https://my.filmforum.org/events/christmas-in-july-tene"
   },
   {
     "Movie": "WEST SIDE STORY",
     "Date": "Saturday, February 14",
     "Time": "7:40",
-    "Tickets": "https://my.filmforum.org/events/west-side-story-tene",
     "Datetime": "2026-02-14T19:40:00",
     "country": "U.S.",
     "year": "1961",
@@ -657,13 +699,14 @@
     "runtime": "155 min",
     "description": "Ten Oscars® for the dazzling screen adaptation of the Bernstein/Sondheim musical stage smash, including Best Picture, Director(s), Supporting Actor (George Chakiris) and Actress (Rita Moreno—she won a Tony and Grammy the same year!); as the Nativist Jets and the Puerto Rican Sharks square off in the slums of Manhattan. But Tony (Richard Beymer) and Maria (Natalie Wood, with singing voice of Marni Nixon) find love anyway.\n\nPresented with support from The Roy Lichtenstein Foundation Fund",
     "film_url": "https://filmforum.org/film/west-side-story-tenement-stories",
-    "poster_url": "/posters/west-side-story.png"
+    "poster_url": "/posters/west-side-story.png",
+    "film_slug": "west-side-story",
+    "ticket_url": "https://my.filmforum.org/events/west-side-story-tene"
   },
   {
     "Movie": "THE CAMERAMAN",
     "Date": "Sunday, February 15",
     "Time": "11:00 – FF Jr.",
-    "Tickets": "https://my.filmforum.org/events/the-cameraman-tene",
     "Datetime": "2026-02-15T11:00:00",
     "country": "U.S.",
     "year": "1928",
@@ -672,13 +715,14 @@
     "runtime": "76 min",
     "description": "Neophyte newsreel cameraman Buster loses his swimsuit at Coney Island and his heart on the sidewalks of New York, lensing Mott Street Tong Wars while being upstaged by monkey great Jocko.\n\nShown with Neighbors\n\nU.S., 1920\n\nDirected and Written by Edward F. Cline, Buster Keaton\n\nStarring Buster Keaton, Joe Keaton, Virginia Fox\n\nApprox. 18 min.\n\nKeaton Sr. & Jr. re-create part of their original, knockabout vaudeville act!",
     "film_url": "https://filmforum.org/film/the-cameraman-tenement-stories",
-    "poster_url": "/posters/the-cameraman.png"
+    "poster_url": "/posters/the-cameraman.png",
+    "film_slug": "the-cameraman",
+    "ticket_url": "https://my.filmforum.org/events/the-cameraman-tene"
   },
   {
     "Movie": "SPEEDY",
     "Date": "Sunday, February 15",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/speedy-tene",
     "Datetime": "2026-02-15T13:00:00",
     "country": "U.S.",
     "year": "1928",
@@ -687,13 +731,14 @@
     "runtime": "85 min",
     "description": "Jazz Age Idols meet, as baseball-crazed soda jerk/cabbie Harold Lloyd and passenger Babe Ruth hurtle to old Yankee Stadium. Extensive NYC location work is highlighted during a frenzied finale, as Harold races Gotham’s last horse-drawn trolley right through Washington Square Arch!",
     "film_url": "https://filmforum.org/film/speedy-tenement-stories",
-    "poster_url": "/posters/speedy.png"
+    "poster_url": "/posters/speedy.png",
+    "film_slug": "speedy",
+    "ticket_url": "https://my.filmforum.org/events/speedy-tene"
   },
   {
     "Movie": "THE CROWD",
     "Date": "Sunday, February 15",
     "Time": "2:55",
-    "Tickets": "https://my.filmforum.org/events/the-crowd-tene",
     "Datetime": "2026-02-15T14:55:00",
     "country": "U.S.",
     "year": "1928",
@@ -702,13 +747,14 @@
     "runtime": "98 min",
     "description": "“You gotta be good to beat that crowd.” James Murray and Eleanor Boardman (real-life wife of the director) marry after a thrill-packed date at Coney, then weather kids, job loss, and marital troubles, in Vidor’s landmark paean to “real people”—the most celebrated silent drama of NYC.",
     "film_url": "https://filmforum.org/film/the-crowd-tenement-stories",
-    "poster_url": "/posters/the-crowd.png"
+    "poster_url": "/posters/the-crowd.png",
+    "film_slug": "the-crowd",
+    "ticket_url": "https://my.filmforum.org/events/the-crowd-tene"
   },
   {
     "Movie": "ONE THIRD OF A NATION",
     "Date": "Sunday, February 15",
     "Time": "5:10",
-    "Tickets": "https://my.filmforum.org/events/one-third-of-a-nation",
     "Datetime": "2026-02-15T17:10:00",
     "country": "U.S.",
     "year": "1939",
@@ -717,13 +763,14 @@
     "runtime": "79 min",
     "description": "After helping Sylvia Sidney take her young nephew Sidney Lumet to the hospital when he’s injured in their dilapidated tenement, boyfriend Leif Erickson finds out he’s the landlord himself. 15-year-old Sidney (in his only film appearance) repeats his stage role, with dad Baruch as Mr. Rosen.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/one-third-of-a-nation-tenement-stories",
-    "poster_url": "/posters/one-third-of-a-nation.png"
+    "poster_url": "/posters/one-third-of-a-nation.png",
+    "film_slug": "one-third-of-a-nation",
+    "ticket_url": "https://my.filmforum.org/events/one-third-of-a-nation"
   },
   {
     "Movie": "ONCE UPON A TIME IN AMERICA",
     "Date": "Sunday, February 15",
     "Time": "7:00",
-    "Tickets": "https://my.filmforum.org/events/once-upon-a-time-in-america",
     "Datetime": "2026-02-15T19:00:00",
     "country": "Italy/U.S.",
     "year": "1984",
@@ -732,13 +779,14 @@
     "runtime": "229 min",
     "description": "Jewish gangsters Robert De Niro and James Woods—growing up in the ’20s, bootlegging in the ’30s, with only De Niro returning, decades later, heavy with regret, all intercut via flashbacks and flash-forwards—or is it all just De Niro’s 1933 opium dream? The director’s dream for over a decade—shot in incredible locations from Brooklyn (Dumbo) to Quebec to Venice. We are showing the fully-restored, Leone-sanctioned version.",
     "film_url": "https://filmforum.org/film/once-upon-a-time-in-america-tenement-stories",
-    "poster_url": "/posters/once-upon-a-time-in-america.png"
+    "poster_url": "/posters/once-upon-a-time-in-america.png",
+    "film_slug": "once-upon-a-time-in-america",
+    "ticket_url": "https://my.filmforum.org/events/once-upon-a-time-in-america"
   },
   {
     "Movie": "TAXI!",
     "Date": "Monday, February 16",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/taxi",
     "Datetime": "2026-02-16T12:30:00",
     "country": "U.S.",
     "year": "1932",
@@ -747,13 +795,14 @@
     "runtime": "69 min",
     "description": "“Come out and take it, you dirty yellow-bellied rat, or I'll give it to you through the door!” Amid city sounds in lieu of music, cocky Yiddish redndiker cabby Jimmy Cagney can’t keep his hands off bride Loretta Young at their wedding supper, then bucks a rival taxi outfit in a two-fisted union war. Manhattan native Cagney learned to drive for the role.\n\n35mm print courtesy Library of Congress.",
     "film_url": "https://filmforum.org/film/taxi-tenement-stories",
-    "poster_url": "/posters/taxi.png"
+    "poster_url": "/posters/taxi.png",
+    "film_slug": "taxi",
+    "ticket_url": "https://my.filmforum.org/events/taxi"
   },
   {
     "Movie": "LONESOME",
     "Date": "Monday, February 16",
     "Time": "2:10",
-    "Tickets": "https://my.filmforum.org/events/lonesome",
     "Datetime": "2026-02-16T14:10:00",
     "country": "U.S.",
     "year": "1928",
@@ -762,13 +811,14 @@
     "runtime": "70 min",
     "description": "Glenn Tryon and Barbara Kent, two singleroomed Gotham dwellers, meet and lose each other at a Coney Island excursion, but then discover... Fejos’ tour de force was “part of a movement away from nightclubs, newspaper offices, and marble halls towards the ordinary Joes in the audience” (David Shipman). Silent, with talking sequences and synchronized musical score, as Universal studio’s first film with audible dialogue.\n\nRestoration courtesy George Eastman Museum",
     "film_url": "https://filmforum.org/film/lonesome-tenement-stories",
-    "poster_url": "/posters/lonesome.png"
+    "poster_url": "/posters/lonesome.png",
+    "film_slug": "lonesome",
+    "ticket_url": "https://my.filmforum.org/events/lonesome"
   },
   {
     "Movie": "CHRISTMAS IN JULY",
     "Date": "Monday, February 16",
     "Time": "3:50",
-    "Tickets": "https://my.filmforum.org/events/christmas-in-july-tene",
     "Datetime": "2026-02-16T15:50:00",
     "country": "U.S.",
     "year": "1940",
@@ -777,13 +827,14 @@
     "runtime": "67 min",
     "description": "Where's Ed McMahon when you need him? Dick Powell thinks he “already has won” $25,000 in a radio slogan contest (his entry: “If you can't sleep, it isn't the coffee, it's the bunk”) and acts accordingly—until he realizes... “Delicately satirizes the American Dream with respect for the ambitions and values of the ‘little’ people.” – Jim Hillier",
     "film_url": "https://filmforum.org/film/christmas-in-july-tenement-stories",
-    "poster_url": "/posters/christmas-in-july.png"
+    "poster_url": "/posters/christmas-in-july.png",
+    "film_slug": "christmas-in-july",
+    "ticket_url": "https://my.filmforum.org/events/christmas-in-july-tene"
   },
   {
     "Movie": "EAST SIDE, WEST SIDE",
     "Date": "Monday, February 16",
     "Time": "7:30",
-    "Tickets": "https://my.filmforum.org/events/east-side-west-side",
     "Datetime": "2026-02-16T19:30:00",
     "country": "U.S.",
     "year": "1927",
@@ -792,13 +843,14 @@
     "runtime": "90 min",
     "description": "“Street thugs, scrappy immigrants, uptown swells, and a keen Irish bargeman who wants a better life for himself. Allan Dwan’s love letter to New York makes stops at the city’s storied spots, packing in all the color and verve of the place that by the ‘20s had already burnished its own mythology as somewhere anyone with a lot of grit and a bit of luck could rise from its bustling slums to its spacious drawing rooms.” – San Francisco Silent Film Festival",
     "film_url": "https://filmforum.org/film/east-side-west-side-tenement-stories",
-    "poster_url": "/posters/east-side-west-side.png"
+    "poster_url": "/posters/east-side-west-side.png",
+    "film_slug": "east-side-west-side",
+    "ticket_url": "https://my.filmforum.org/events/east-side-west-side"
   },
   {
     "Movie": "ONE THIRD OF A NATION",
     "Date": "Tuesday, February 17",
     "Time": "12:50",
-    "Tickets": "https://my.filmforum.org/events/one-third-of-a-nation",
     "Datetime": "2026-02-17T12:50:00",
     "country": "U.S.",
     "year": "1939",
@@ -807,13 +859,14 @@
     "runtime": "79 min",
     "description": "After helping Sylvia Sidney take her young nephew Sidney Lumet to the hospital when he’s injured in their dilapidated tenement, boyfriend Leif Erickson finds out he’s the landlord himself. 15-year-old Sidney (in his only film appearance) repeats his stage role, with dad Baruch as Mr. Rosen.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/one-third-of-a-nation-tenement-stories",
-    "poster_url": "/posters/one-third-of-a-nation.png"
+    "poster_url": "/posters/one-third-of-a-nation.png",
+    "film_slug": "one-third-of-a-nation",
+    "ticket_url": "https://my.filmforum.org/events/one-third-of-a-nation"
   },
   {
     "Movie": "RAFTER ROMANCE",
     "Date": "Tuesday, February 17",
     "Time": "2:40",
-    "Tickets": "https://my.filmforum.org/events/rafter-romance",
     "Datetime": "2026-02-17T14:40:00",
     "country": "U.S.",
     "year": "1932",
@@ -822,13 +875,14 @@
     "runtime": "72 min",
     "description": "Their rent late again, artist/night watchman Norman Foster (then Mr. Claudette Colbert, and later director of the Wellesian JOURNEY INTO FEAR) and telemarketer [sic] Ginger Rogers get an ultimatum: timeshare the attic or out. But as the war of notes on the fridge escalates between the strangers, guess who meets cute outside the building, even as each suffers from admirer overload?\n\n35mm print courtesy Turner Classic Movies and the Library of Congress.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/rafter-romance-tenement-stories",
-    "poster_url": "/posters/rafter-romance.png"
+    "poster_url": "/posters/rafter-romance.png",
+    "film_slug": "rafter-romance",
+    "ticket_url": "https://my.filmforum.org/events/rafter-romance"
   },
   {
     "Movie": "CHRISTMAS IN JULY",
     "Date": "Tuesday, February 17",
     "Time": "4:20",
-    "Tickets": "https://my.filmforum.org/events/christmas-in-july-tene",
     "Datetime": "2026-02-17T16:20:00",
     "country": "U.S.",
     "year": "1940",
@@ -837,13 +891,14 @@
     "runtime": "67 min",
     "description": "Where's Ed McMahon when you need him? Dick Powell thinks he “already has won” $25,000 in a radio slogan contest (his entry: “If you can't sleep, it isn't the coffee, it's the bunk”) and acts accordingly—until he realizes... “Delicately satirizes the American Dream with respect for the ambitions and values of the ‘little’ people.” – Jim Hillier",
     "film_url": "https://filmforum.org/film/christmas-in-july-tenement-stories",
-    "poster_url": "/posters/christmas-in-july.png"
+    "poster_url": "/posters/christmas-in-july.png",
+    "film_slug": "christmas-in-july",
+    "ticket_url": "https://my.filmforum.org/events/christmas-in-july-tene"
   },
   {
     "Movie": "RAISING VICTOR VARGAS",
     "Date": "Tuesday, February 17",
     "Time": "8:00",
-    "Tickets": "https://my.filmforum.org/events/raising-victor-vargas",
     "Datetime": "2026-02-17T20:00:00",
     "country": "U.S",
     "year": "2002",
@@ -852,13 +907,14 @@
     "runtime": "88 min",
     "description": "When word gets out to the kids on Avenue C that Victor Vargas made out with Fat Donna, Victor has to change the story fast—and starts pursuing the most popular girl in the neighborhood. But it’s not so easy when your strict Catholic grandmother threatens to change the locks if you keep chasing girls—and tainting the morals of your younger brother. Directorial debut by Sollett and cast of first time actors created one of the most vibrant portraits of the Loisaida ever put to film.\n\n35mm print courtesy of the Sundance Collection at the UCLA Film & Television Archive.",
     "film_url": "https://filmforum.org/film/raising-victor-vargas-tenement-stories",
-    "poster_url": "/posters/raising-victor-vargas.png"
+    "poster_url": "/posters/raising-victor-vargas.png",
+    "film_slug": "raising-victor-vargas",
+    "ticket_url": "https://my.filmforum.org/events/raising-victor-vargas"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Wednesday, February 18",
     "Time": "12:20",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-18T12:20:00",
     "country": "U.S.",
     "year": "1975",
@@ -867,13 +923,14 @@
     "runtime": "92 min",
     "description": "1896 New York, and Steven Keats’ Yankel transforms himself into the all-American, beardless “Jake,” acquiring a home-grown girlfriend along the way—and then his sheitel-wearing wife Carol Kane (Oscar® nomination) shows up on his doorstep, straight from the shtetl... and cultures collide, even as Doris Roberts offers salty advice, and non-pro Mel Howard timidly yearns from the sidelines. Despite its shoestring budget, a strikingly authentic look at late 19th century LES life.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "ONE THIRD OF A NATION",
     "Date": "Wednesday, February 18",
     "Time": "2:15",
-    "Tickets": "https://my.filmforum.org/events/one-third-of-a-nation",
     "Datetime": "2026-02-18T14:15:00",
     "country": "U.S.",
     "year": "1939",
@@ -882,13 +939,14 @@
     "runtime": "79 min",
     "description": "After helping Sylvia Sidney take her young nephew Sidney Lumet to the hospital when he’s injured in their dilapidated tenement, boyfriend Leif Erickson finds out he’s the landlord himself. 15-year-old Sidney (in his only film appearance) repeats his stage role, with dad Baruch as Mr. Rosen.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/one-third-of-a-nation-tenement-stories",
-    "poster_url": "/posters/one-third-of-a-nation.png"
+    "poster_url": "/posters/one-third-of-a-nation.png",
+    "film_slug": "one-third-of-a-nation",
+    "ticket_url": "https://my.filmforum.org/events/one-third-of-a-nation"
   },
   {
     "Movie": "RAISING VICTOR VARGAS",
     "Date": "Wednesday, February 18",
     "Time": "4:10",
-    "Tickets": "https://my.filmforum.org/events/raising-victor-vargas",
     "Datetime": "2026-02-18T16:10:00",
     "country": "U.S",
     "year": "2002",
@@ -897,13 +955,14 @@
     "runtime": "88 min",
     "description": "When word gets out to the kids on Avenue C that Victor Vargas made out with Fat Donna, Victor has to change the story fast—and starts pursuing the most popular girl in the neighborhood. But it’s not so easy when your strict Catholic grandmother threatens to change the locks if you keep chasing girls—and tainting the morals of your younger brother. Directorial debut by Sollett and cast of first time actors created one of the most vibrant portraits of the Loisaida ever put to film.\n\n35mm print courtesy of the Sundance Collection at the UCLA Film & Television Archive.",
     "film_url": "https://filmforum.org/film/raising-victor-vargas-tenement-stories",
-    "poster_url": "/posters/raising-victor-vargas.png"
+    "poster_url": "/posters/raising-victor-vargas.png",
+    "film_slug": "raising-victor-vargas",
+    "ticket_url": "https://my.filmforum.org/events/raising-victor-vargas"
   },
   {
     "Movie": "TAKE OUT",
     "Date": "Wednesday, February 18",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/take-out",
     "Datetime": "2026-02-18T18:10:00",
     "country": "U.S.",
     "year": "2004",
@@ -912,13 +971,14 @@
     "runtime": "90 min",
     "description": "The American dream has rarely seemed so far away as in Sean Baker and Shih-Ching Tsou’s raw, vérité TAKE OUT, an immersion in the life of an undocumented Chinese immigrant struggling to get by on the margins of post-9/11 New York City. Facing violent retaliation from a loan shark, restaurant deliveryman Ming Ding has until nightfall to pay back the money he owes, and he encounters both crushing setbacks and moments of unexpected humanity as he races against time to earn enough in tips over the course of a frantic day. From this simple setup, Baker and Tsou fashion a kind of neorealist survival thriller of the everyday, shedding compassionate light on the too often overlooked lives and labor that keep New York running.",
     "film_url": "https://filmforum.org/film/take-out-tenement-stories",
-    "poster_url": "/posters/take-out.png"
+    "poster_url": "/posters/take-out.png",
+    "film_slug": "take-out",
+    "ticket_url": "https://my.filmforum.org/events/take-out"
   },
   {
     "Movie": "THE NAKED CITY",
     "Date": "Wednesday, February 18",
     "Time": "8:10",
-    "Tickets": "https://my.filmforum.org/events/the-naked-city-tene",
     "Datetime": "2026-02-18T20:10:00",
     "country": "U.S.",
     "year": "1948",
@@ -927,13 +987,14 @@
     "runtime": "96 min",
     "description": "Following a beautiful young model’s murder on W. 83rd St., inspector Barry Fitzgerald and detective Don Taylor track down leads to Stillman’s Gym, the old Essex Market (Essex Street, just north of Delancey), a corner candy store at Norfolk and Rivington, and ultimately to the City Morgue and Roosevelt Hospital—among the picture’s 107 different locations—with final showdown on the Williamsburg Bridge. Based on an actual 1920s case, once covered by producer, narrator, and erstwhile newspaperman Mark Hellinger. Oscar®-winning camerawork by former Garbo lenser William Daniels.\n\nShown with Uncovering The Naked City\n\nU.S, 2020\n\nDirected by Bruce Goldstein\n\nApprox. 23 min.\n\nIn this original short documentary and personal essay, Bruce Goldstein, Film Forum's founding Repertory Artistic Director, tracks down many of the 100+ New York City locations—from the Bronx to the Lower East Side—used in his friend Jules Dassin’s classic police procedural THE NAKED CITY, while also spotlighting the contributions of producer Mark Hellinger and cinematographer William Daniels (best known as Greta Garbo's favorite DP).",
     "film_url": "https://filmforum.org/film/the-naked-city-tenement-stories",
-    "poster_url": "/posters/the-naked-city.png"
+    "poster_url": "/posters/the-naked-city.png",
+    "film_slug": "the-naked-city",
+    "ticket_url": "https://my.filmforum.org/events/the-naked-city-tene"
   },
   {
     "Movie": "TAKE OUT",
     "Date": "Thursday, February 19",
     "Time": "12:15",
-    "Tickets": "https://my.filmforum.org/events/take-out",
     "Datetime": "2026-02-19T12:15:00",
     "country": "U.S.",
     "year": "2004",
@@ -942,13 +1003,14 @@
     "runtime": "90 min",
     "description": "The American dream has rarely seemed so far away as in Sean Baker and Shih-Ching Tsou’s raw, vérité TAKE OUT, an immersion in the life of an undocumented Chinese immigrant struggling to get by on the margins of post-9/11 New York City. Facing violent retaliation from a loan shark, restaurant deliveryman Ming Ding has until nightfall to pay back the money he owes, and he encounters both crushing setbacks and moments of unexpected humanity as he races against time to earn enough in tips over the course of a frantic day. From this simple setup, Baker and Tsou fashion a kind of neorealist survival thriller of the everyday, shedding compassionate light on the too often overlooked lives and labor that keep New York running.",
     "film_url": "https://filmforum.org/film/take-out-tenement-stories",
-    "poster_url": "/posters/take-out.png"
+    "poster_url": "/posters/take-out.png",
+    "film_slug": "take-out",
+    "ticket_url": "https://my.filmforum.org/events/take-out"
   },
   {
     "Movie": "HESTER STREET",
     "Date": "Thursday, February 19",
     "Time": "2:20",
-    "Tickets": "https://my.filmforum.org/events/hester-street-tene",
     "Datetime": "2026-02-19T14:20:00",
     "country": "U.S.",
     "year": "1975",
@@ -957,13 +1019,14 @@
     "runtime": "92 min",
     "description": "1896 New York, and Steven Keats’ Yankel transforms himself into the all-American, beardless “Jake,” acquiring a home-grown girlfriend along the way—and then his sheitel-wearing wife Carol Kane (Oscar® nomination) shows up on his doorstep, straight from the shtetl... and cultures collide, even as Doris Roberts offers salty advice, and non-pro Mel Howard timidly yearns from the sidelines. Despite its shoestring budget, a strikingly authentic look at late 19th century LES life.",
     "film_url": "https://filmforum.org/film/hester-street-tenement-stories",
-    "poster_url": "/posters/hester-street.png"
+    "poster_url": "/posters/hester-street.png",
+    "film_slug": "hester-street",
+    "ticket_url": "https://my.filmforum.org/events/hester-street-tene"
   },
   {
     "Movie": "THE CONNECTION",
     "Date": "Thursday, February 19",
     "Time": "4:20",
-    "Tickets": "https://my.filmforum.org/events/the-connection-tene",
     "Datetime": "2026-02-19T16:20:00",
     "country": "U.S.",
     "year": "1961",
@@ -972,13 +1035,14 @@
     "runtime": "103 min",
     "description": "Clarke’s American New Wave classic is the essence of cool, fixing on a group of junkies and jazz musicians hanging out in a decrepit East Village tenement. Music by Freddie Redd with Jackie McLean, Michael Mattos, Larry Ritchie, and Redd performing throughout on camera.\n\n35mm restored print courtesy of the UCLA Film & Television Archive; restoration funding provided by The Film Foundation.",
     "film_url": "https://filmforum.org/film/the-connection-tenement-stories",
-    "poster_url": "/posters/the-connection.png"
+    "poster_url": "/posters/the-connection.png",
+    "film_slug": "the-connection",
+    "ticket_url": "https://my.filmforum.org/events/the-connection-tene"
   },
   {
     "Movie": "LOS SURES",
     "Date": "Thursday, February 19",
     "Time": "6:40",
-    "Tickets": "https://my.filmforum.org/events/los-sures-tene",
     "Datetime": "2026-02-19T18:40:00",
     "country": "U.S.",
     "year": "1984",
@@ -987,13 +1051,14 @@
     "runtime": "57 min",
     "description": "Diego Echeverria’s film skillfully represents the challenges residents of the Southside faced: poverty, drugs, gang violence, crime, abandoned real estate, racial tension, single-parent homes, and inadequate local resources. The complex portrait also celebrates the vitality of this largely Puerto Rican and Dominican community, showing the strength of their culture, their creativity, and their determination to overcome a desperate situation. Beautifully restored for the 30th anniversary premiere at the New York Film Festival, this documentary is an invaluable piece of New York City history.\n\nShown with Heat\n\nU.S., 2025\n\nDirected by Aicha Cherif\n\nApprox. 22 min.\n\nHeat presented with support from The Endowed Fund for Emerging Filmmakers",
     "film_url": "https://filmforum.org/film/los-sures-tenement-stories",
-    "poster_url": "/posters/los-sures.png"
+    "poster_url": "/posters/los-sures.png",
+    "film_slug": "los-sures",
+    "ticket_url": "https://my.filmforum.org/events/los-sures-tene"
   },
   {
     "Movie": "HEAVY TRAFFIC",
     "Date": "Thursday, February 19",
     "Time": "9:10",
-    "Tickets": "https://my.filmforum.org/events/heavy-traffic",
     "Datetime": "2026-02-19T21:10:00",
     "country": "U.S.",
     "year": "1973",
@@ -1002,13 +1067,14 @@
     "runtime": "79 min",
     "description": "Virgin loser Michael Corleone (no, not that one) lives with his axe-wielding Jewish mother and his deadbeat Italian father while the weirdos in his neighborhood give him inspiration for his underground cartoons. Bakshi’s most praised and personal work mixes reality and fantasy as it does live-action and Bakshi’s trademark animation.",
     "film_url": "https://filmforum.org/film/heavy-traffic-tenement-stories",
-    "poster_url": "/posters/heavy-traffic.png"
+    "poster_url": "/posters/heavy-traffic.png",
+    "film_slug": "heavy-traffic",
+    "ticket_url": "https://my.filmforum.org/events/heavy-traffic"
   },
   {
     "Movie": "ITALIANAMERICAN",
     "Date": "Friday, February 20",
     "Time": "12:30",
-    "Tickets": "https://my.filmforum.org/events/italianamerican-tene",
     "Datetime": "2026-02-20T12:30:00",
     "country": "U.S.",
     "year": "1974",
@@ -1017,13 +1083,14 @@
     "runtime": "49 min",
     "description": "“The best film I ever made; it really freed me in style.” The director conducts a freewheeling interview with his parents, the late Catherine and Charles (née Luciano) Scorsese, in their walk-up on Elizabeth Street (now the trendiest block in “NoLita,” then the “mean streets” of his early films), reflecting on 40 years of marriage, everything from courtship to whose mother was the better cook. The impressible Mrs. Scorsese (who later got a SAG card after popping up frequently in her son’s films—most memorably as Joe Pesci’s mother in GOODFELLAS) shows off snapshots from a recent trip to Italy (mostly of family dinners), argues with her husband about home wine-making techniques, and interrupts her son repeatedly to nurse her later-anthologized spaghetti sauce, revealed at breakneck speed in the end credits. Scorsese purposely left the hyphen out of the title, explaining that his parents “are neither Italian nor American. They are one.”",
     "film_url": "https://filmforum.org/film/italianamerican-tenement-stories",
-    "poster_url": "/posters/italianamerican.png"
+    "poster_url": "/posters/italianamerican.png",
+    "film_slug": "italianamerican",
+    "ticket_url": "https://my.filmforum.org/events/italianamerican-tene"
   },
   {
     "Movie": "ME AND MY GAL",
     "Date": "Friday, February 20",
     "Time": "1:50",
-    "Tickets": "https://my.filmforum.org/events/me-and-my-gal",
     "Datetime": "2026-02-20T13:50:00",
     "country": "U.S.",
     "year": "1932",
@@ -1032,13 +1099,14 @@
     "runtime": "79 min",
     "description": "Cop Spencer Tracy’s slanging matches with hash-slinger Joan Bennett, spiced with a hilarious parody of O’Neill’s Strange Interlude, are interrupted when director Walsh’s brother blasts his way into a bank.",
     "film_url": "https://filmforum.org/film/me-and-my-gal-tenement-stories",
-    "poster_url": "/posters/me-and-my-gal.png"
+    "poster_url": "/posters/me-and-my-gal.png",
+    "film_slug": "me-and-my-gal",
+    "ticket_url": "https://my.filmforum.org/events/me-and-my-gal"
   },
   {
     "Movie": "THE LANDLORD",
     "Date": "Friday, February 20",
     "Time": "3:40",
-    "Tickets": "https://my.filmforum.org/events/the-landlord-tene",
     "Datetime": "2026-02-20T15:40:00",
     "country": "U.S.",
     "year": "1970",
@@ -1047,13 +1115,14 @@
     "runtime": "110 min",
     "description": "“You know what NAACP means, don’t you?” Whiter than white, richer then rich, callower than callow (“I’m 29!”) Beau Bridges tells the camera, on the impeccable lawn of his family compound as the Black butler delivers him a drink, that he needs a home of his own—except his dream house is a tenement in the way-before-gentrification Park Slope! Think he’ll get the African-American tenants to move out? Think he can even get them to start paying rent? And bring back those hubcaps! First feature by Hal Ashby (HAROLD AND MAUDE, SHAMPOO, BEING THERE, COMING HOME) is both a time capsule of ’70s cinema—direct-to-the-camera dialogue, jagged editing, jarring bursts of music on the soundtrack, echoey on-location sound...and those bellbottoms!—as well as an edgy (before the term was coined), rope-dancing-on-the-razor’s-edge dramedy on race in America, with Bridges’ mom, Oscar®-nominated Lee Grant, taking a break from nurse-maiding the Spinal Meningitis Ball to get down on a pot likker with Pearl Bailey; Diana Sands’ painfully making a shocking admission to “Sioux Indian” hubbie Lou Gossett; Robert Klein’s turn in blackface; and the ‘N’ word, but not said by whom, and to whom, you might think. With camera work by the great Gordon Willis (KLUTE, ALL THE PRESIDENT’S MEN, ANNIE HALL, and all three GODFATHERS); screenplay by Black actor/writer Bill Gunn (GANJA AND HESS); and as the good-natured jerk rich boy (“I’m a bastard”), a could-pass-for-18 Beau Bridges, who surprisingly was 29 at the time.",
     "film_url": "https://filmforum.org/film/the-landlord-tenement-stories",
-    "poster_url": "/posters/the-landlord.png"
+    "poster_url": "/posters/the-landlord.png",
+    "film_slug": "the-landlord",
+    "ticket_url": "https://my.filmforum.org/events/the-landlord-tene"
   },
   {
     "Movie": "SWEET LOVE, BITTER",
     "Date": "Friday, February 20",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/sweet-love-bitter",
     "Datetime": "2026-02-20T18:00:00",
     "country": "U.S.",
     "year": "1967",
@@ -1062,13 +1131,14 @@
     "runtime": "92 min",
     "description": "Vérité predecessor to BIRD, as down-and-out prof Don Murray befriends legendary comic Dick Gregory’s “Eagle,” a drugged-out sax player based on Charlie Parker. With Mal Waldron score featuring Chick Corea.\n\n16mm print courtesy Anthology Film Archives.",
     "film_url": "https://filmforum.org/film/sweet-love-bitter-tenement-stories",
-    "poster_url": "/posters/sweet-love-bitter.png"
+    "poster_url": "/posters/sweet-love-bitter.png",
+    "film_slug": "sweet-love-bitter",
+    "ticket_url": "https://my.filmforum.org/events/sweet-love-bitter"
   },
   {
     "Movie": "THE CONNECTION",
     "Date": "Friday, February 20",
     "Time": "8:00",
-    "Tickets": "https://my.filmforum.org/events/the-connection-tene",
     "Datetime": "2026-02-20T20:00:00",
     "country": "U.S.",
     "year": "1961",
@@ -1077,13 +1147,14 @@
     "runtime": "103 min",
     "description": "Clarke’s American New Wave classic is the essence of cool, fixing on a group of junkies and jazz musicians hanging out in a decrepit East Village tenement. Music by Freddie Redd with Jackie McLean, Michael Mattos, Larry Ritchie, and Redd performing throughout on camera.\n\n35mm restored print courtesy of the UCLA Film & Television Archive; restoration funding provided by The Film Foundation.",
     "film_url": "https://filmforum.org/film/the-connection-tenement-stories",
-    "poster_url": "/posters/the-connection.png"
+    "poster_url": "/posters/the-connection.png",
+    "film_slug": "the-connection",
+    "ticket_url": "https://my.filmforum.org/events/the-connection-tene"
   },
   {
     "Movie": "LOS SURES",
     "Date": "Saturday, February 21",
     "Time": "12:15",
-    "Tickets": "https://my.filmforum.org/events/los-sures-tene",
     "Datetime": "2026-02-21T12:15:00",
     "country": "U.S.",
     "year": "1984",
@@ -1092,13 +1163,14 @@
     "runtime": "57 min",
     "description": "Diego Echeverria’s film skillfully represents the challenges residents of the Southside faced: poverty, drugs, gang violence, crime, abandoned real estate, racial tension, single-parent homes, and inadequate local resources. The complex portrait also celebrates the vitality of this largely Puerto Rican and Dominican community, showing the strength of their culture, their creativity, and their determination to overcome a desperate situation. Beautifully restored for the 30th anniversary premiere at the New York Film Festival, this documentary is an invaluable piece of New York City history.\n\nShown with Heat\n\nU.S., 2025\n\nDirected by Aicha Cherif\n\nApprox. 22 min.\n\nHeat presented with support from The Endowed Fund for Emerging Filmmakers",
     "film_url": "https://filmforum.org/film/los-sures-tenement-stories",
-    "poster_url": "/posters/los-sures.png"
+    "poster_url": "/posters/los-sures.png",
+    "film_slug": "los-sures",
+    "ticket_url": "https://my.filmforum.org/events/los-sures-tene"
   },
   {
     "Movie": "SWEET LOVE, BITTER",
     "Date": "Saturday, February 21",
     "Time": "1:45",
-    "Tickets": "https://my.filmforum.org/events/sweet-love-bitter",
     "Datetime": "2026-02-21T13:45:00",
     "country": "U.S.",
     "year": "1967",
@@ -1107,13 +1179,14 @@
     "runtime": "92 min",
     "description": "Vérité predecessor to BIRD, as down-and-out prof Don Murray befriends legendary comic Dick Gregory’s “Eagle,” a drugged-out sax player based on Charlie Parker. With Mal Waldron score featuring Chick Corea.\n\n16mm print courtesy Anthology Film Archives.",
     "film_url": "https://filmforum.org/film/sweet-love-bitter-tenement-stories",
-    "poster_url": "/posters/sweet-love-bitter.png"
+    "poster_url": "/posters/sweet-love-bitter.png",
+    "film_slug": "sweet-love-bitter",
+    "ticket_url": "https://my.filmforum.org/events/sweet-love-bitter"
   },
   {
     "Movie": "THE ASPHALT JUNGLE",
     "Date": "Saturday, February 21",
     "Time": "3:45",
-    "Tickets": "https://my.filmforum.org/events/the-asphalt-jungle-tene",
     "Datetime": "2026-02-21T15:45:00",
     "country": "U.S.",
     "year": "1950",
@@ -1122,13 +1195,14 @@
     "runtime": "112 min",
     "description": "“Crime is a left-handed form of human endeavor.” Back from the pen, criminal mastermind Sam Jaffe recruits strong-arm Sterling Hayden, driver James Whitmore, and safecracker Anthony Caruso for that big heist, with backing from lawyer/fence Louis Calhern (whose “niece” is Marilyn Monroe)—but thieves will fall out. The first of the Big Caper pictures, adapted from the W.R. Burnett (LITTLE CAESAR, HIGH SIERRA) classic.",
     "film_url": "https://filmforum.org/film/the-asphalt-jungle-tenement-stories",
-    "poster_url": "/posters/the-asphalt-jungle.png"
+    "poster_url": "/posters/the-asphalt-jungle.png",
+    "film_slug": "the-asphalt-jungle",
+    "ticket_url": "https://my.filmforum.org/events/the-asphalt-jungle-tene"
   },
   {
     "Movie": "THE LANDLORD",
     "Date": "Saturday, February 21",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/the-landlord-tene",
     "Datetime": "2026-02-21T18:10:00",
     "country": "U.S.",
     "year": "1970",
@@ -1137,13 +1211,14 @@
     "runtime": "110 min",
     "description": "“You know what NAACP means, don’t you?” Whiter than white, richer then rich, callower than callow (“I’m 29!”) Beau Bridges tells the camera, on the impeccable lawn of his family compound as the Black butler delivers him a drink, that he needs a home of his own—except his dream house is a tenement in the way-before-gentrification Park Slope! Think he’ll get the African-American tenants to move out? Think he can even get them to start paying rent? And bring back those hubcaps! First feature by Hal Ashby (HAROLD AND MAUDE, SHAMPOO, BEING THERE, COMING HOME) is both a time capsule of ’70s cinema—direct-to-the-camera dialogue, jagged editing, jarring bursts of music on the soundtrack, echoey on-location sound...and those bellbottoms!—as well as an edgy (before the term was coined), rope-dancing-on-the-razor’s-edge dramedy on race in America, with Bridges’ mom, Oscar®-nominated Lee Grant, taking a break from nurse-maiding the Spinal Meningitis Ball to get down on a pot likker with Pearl Bailey; Diana Sands’ painfully making a shocking admission to “Sioux Indian” hubbie Lou Gossett; Robert Klein’s turn in blackface; and the ‘N’ word, but not said by whom, and to whom, you might think. With camera work by the great Gordon Willis (KLUTE, ALL THE PRESIDENT’S MEN, ANNIE HALL, and all three GODFATHERS); screenplay by Black actor/writer Bill Gunn (GANJA AND HESS); and as the good-natured jerk rich boy (“I’m a bastard”), a could-pass-for-18 Beau Bridges, who surprisingly was 29 at the time.",
     "film_url": "https://filmforum.org/film/the-landlord-tenement-stories",
-    "poster_url": "/posters/the-landlord.png"
+    "poster_url": "/posters/the-landlord.png",
+    "film_slug": "the-landlord",
+    "ticket_url": "https://my.filmforum.org/events/the-landlord-tene"
   },
   {
     "Movie": "TAXI DRIVER",
     "Date": "Saturday, February 21",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/taxi-driver-tene",
     "Datetime": "2026-02-21T20:30:00",
     "country": "U.S.",
     "year": "1976",
@@ -1152,13 +1227,14 @@
     "runtime": "113 min",
     "description": "Robert De Niro’s insomniac cabbie Travis Bickle transforms himself into a mohawked, armed-to-the-teeth avenging angel, meeting his own judgment day in the form of child hooker Jodie Foster and her pimp Harvey Keitel. Shot during a sweltering NYC summer-cum-garbage strike.",
     "film_url": "https://filmforum.org/film/taxi-driver-tenement-stories",
-    "poster_url": "/posters/taxi-driver.png"
+    "poster_url": "/posters/taxi-driver.png",
+    "film_slug": "taxi-driver",
+    "ticket_url": "https://my.filmforum.org/events/taxi-driver-tene"
   },
   {
     "Movie": "LITTLE ANNIE ROONEY",
     "Date": "Sunday, February 22",
     "Time": "11:00 – FF Jr.",
-    "Tickets": "https://my.filmforum.org/little-annie-rooney-ffjr",
     "Datetime": "2026-02-22T11:00:00",
     "country": "U.S.",
     "year": "1925",
@@ -1167,13 +1243,14 @@
     "runtime": "95 min",
     "description": "It’s a rowdy world on the lower East Side (painstakingly built on a backlot in Hollywood) for Mary’s final child role (she was 33)—the 12-year-old kid of an Irish cop. But the comedy turns grim when her brother joins a gang strong-arming Jewish shopkeepers.",
     "film_url": "https://filmforum.org/film/little-annie-rooney-tenement-stories",
-    "poster_url": "/posters/little-annie-rooney.png"
+    "poster_url": "/posters/little-annie-rooney.png",
+    "film_slug": "little-annie-rooney",
+    "ticket_url": "https://my.filmforum.org/little-annie-rooney-ffjr"
   },
   {
     "Movie": "UNCLE MOSES",
     "Date": "Sunday, February 22",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/uncle-moses-tene",
     "Datetime": "2026-02-22T13:00:00",
     "country": "U.S.",
     "year": "1932",
@@ -1182,13 +1259,14 @@
     "runtime": "87 min",
     "description": "“When poverty and persecution compel his Polish landsmen to leave their shtetl, ‘Uncle’ Moses, the crude and lusty former butcher, welcomes them to the promised land of his Lower East Side clothing factory. A master in the harsh new American system, with its fourteen-hour workday, Moses attempts to reconstruct the lost harmony of the shtetl community in the paternalistic order of his sweatshop. He uses his wealth to show off and leaves the daily operations to his nephew Sam. When Masha Melnick pleads with him for her father's job, Moses, taken with the girl, rehires him. Masha also happens to be the sweetheart of Charlie, a labor activist who is trying to organize a union in Moses’ factory. Moses begins to court Masha who agrees to marry him in order to improve her family’s desperate financial position. She bears his child but confesses she feels wretched because she did not listen to her heart and marry Charlie who incites the workers to strike. The first Yiddish talkie engaged directly in the progressive currents of the day, political and aesthetic.” – Notes from The National Centre for Jewish Film\n\n16mm print courtesy The National Center for Jewish Film.",
     "film_url": "https://filmforum.org/film/uncle-moses-tenement-stories",
-    "poster_url": "/posters/uncle-moses.png"
+    "poster_url": "/posters/uncle-moses.png",
+    "film_slug": "uncle-moses",
+    "ticket_url": "https://my.filmforum.org/events/uncle-moses-tene"
   },
   {
     "Movie": "HIS PEOPLE",
     "Date": "Sunday, February 22",
     "Time": "3:20",
-    "Tickets": "https://my.filmforum.org/events/his-people",
     "Datetime": "2026-02-22T15:20:00",
     "country": "U.S.",
     "year": "1925",
@@ -1197,13 +1275,14 @@
     "runtime": "91 min",
     "description": "The Cominskys and the Shannons on the Lower East Side in perhaps the most extraordinary portrait of American ghetto life ever produced by Hollywood.",
     "film_url": "https://filmforum.org/film/his-people-tenement-stories",
-    "poster_url": "/posters/his-people.png"
+    "poster_url": "/posters/his-people.png",
+    "film_slug": "his-people",
+    "ticket_url": "https://my.filmforum.org/events/his-people"
   },
   {
     "Movie": "A TREE GROWS IN BROOKLYN",
     "Date": "Sunday, February 22",
     "Time": "5:40",
-    "Tickets": "https://my.filmforum.org/events/a-tree-grows-in-brooklyn",
     "Datetime": "2026-02-22T17:40:00",
     "country": "U.S.",
     "year": "1945",
@@ -1212,13 +1291,14 @@
     "runtime": "128 min",
     "description": "WINNER Academy Awards® – Best Supporting Actor, Academy Juvenile Award, 1944 \n\nApprox. 128 min.\n\nA heartfelt adaptation of Betty Smith’s lauded semi-autobiographical novel, starring James Dunn and Peggy Ann Garner, both in Oscar®-winning roles, alongside Dorothy McGuire and Joan Blondell as an impoverished but hopeful Irish-American family scraping by in a turn-of-the-century Williamsburg tenement.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/a-tree-grows-in-brooklyn-tenement-stories",
-    "poster_url": "/posters/a-tree-grows-in-brooklyn.png"
+    "poster_url": "/posters/a-tree-grows-in-brooklyn.png",
+    "film_slug": "a-tree-grows-in-brooklyn",
+    "ticket_url": "https://my.filmforum.org/events/a-tree-grows-in-brooklyn"
   },
   {
     "Movie": "A RAISIN IN THE SUN",
     "Date": "Sunday, February 22",
     "Time": "8:30",
-    "Tickets": "https://my.filmforum.org/events/a-raisin-in-the-sun-tene",
     "Datetime": "2026-02-22T20:30:00",
     "country": "U.S.",
     "year": "1961",
@@ -1227,13 +1307,14 @@
     "runtime": "128 min",
     "description": "A windfall gives hope to the Youngers, a Black family living on Chicago’s South Side, but conflict arises over how to spend the money. Based on Lorraine Hanberry’s landmark 1959 play, the first play by a Black woman to be performed on Broadway. Sidney Poitier leads a powerhouse ensemble cast featuring Ruby Dee, Ivan Dixon, Louis Gossett Jr., Diana Sands, and Claudia McNeil.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/a-raisin-in-the-sun-tenement-stories",
-    "poster_url": "/posters/a-raisin-in-the-sun.png"
+    "poster_url": "/posters/a-raisin-in-the-sun.png",
+    "film_slug": "a-raisin-in-the-sun",
+    "ticket_url": "https://my.filmforum.org/events/a-raisin-in-the-sun-tene"
   },
   {
     "Movie": "A TREE GROWS IN BROOKLYN",
     "Date": "Monday, February 23",
     "Time": "12:15",
-    "Tickets": "https://my.filmforum.org/events/a-tree-grows-in-brooklyn",
     "Datetime": "2026-02-23T12:15:00",
     "country": "U.S.",
     "year": "1945",
@@ -1242,13 +1323,14 @@
     "runtime": "128 min",
     "description": "WINNER Academy Awards® – Best Supporting Actor, Academy Juvenile Award, 1944 \n\nApprox. 128 min.\n\nA heartfelt adaptation of Betty Smith’s lauded semi-autobiographical novel, starring James Dunn and Peggy Ann Garner, both in Oscar®-winning roles, alongside Dorothy McGuire and Joan Blondell as an impoverished but hopeful Irish-American family scraping by in a turn-of-the-century Williamsburg tenement.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/a-tree-grows-in-brooklyn-tenement-stories",
-    "poster_url": "/posters/a-tree-grows-in-brooklyn.png"
+    "poster_url": "/posters/a-tree-grows-in-brooklyn.png",
+    "film_slug": "a-tree-grows-in-brooklyn",
+    "ticket_url": "https://my.filmforum.org/events/a-tree-grows-in-brooklyn"
   },
   {
     "Movie": "A RAISIN IN THE SUN",
     "Date": "Monday, February 23",
     "Time": "3:00",
-    "Tickets": "https://my.filmforum.org/events/a-raisin-in-the-sun-tene",
     "Datetime": "2026-02-23T15:00:00",
     "country": "U.S.",
     "year": "1961",
@@ -1257,13 +1339,14 @@
     "runtime": "128 min",
     "description": "A windfall gives hope to the Youngers, a Black family living on Chicago’s South Side, but conflict arises over how to spend the money. Based on Lorraine Hanberry’s landmark 1959 play, the first play by a Black woman to be performed on Broadway. Sidney Poitier leads a powerhouse ensemble cast featuring Ruby Dee, Ivan Dixon, Louis Gossett Jr., Diana Sands, and Claudia McNeil.\n\nPresented with support from The Ada Katz Fund for Literature in Film",
     "film_url": "https://filmforum.org/film/a-raisin-in-the-sun-tenement-stories",
-    "poster_url": "/posters/a-raisin-in-the-sun.png"
+    "poster_url": "/posters/a-raisin-in-the-sun.png",
+    "film_slug": "a-raisin-in-the-sun",
+    "ticket_url": "https://my.filmforum.org/events/a-raisin-in-the-sun-tene"
   },
   {
     "Movie": "LONESOME",
     "Date": "Monday, February 23",
     "Time": "5:35",
-    "Tickets": "https://my.filmforum.org/events/lonesome",
     "Datetime": "2026-02-23T17:35:00",
     "country": "U.S.",
     "year": "1928",
@@ -1272,13 +1355,14 @@
     "runtime": "70 min",
     "description": "Glenn Tryon and Barbara Kent, two singleroomed Gotham dwellers, meet and lose each other at a Coney Island excursion, but then discover... Fejos’ tour de force was “part of a movement away from nightclubs, newspaper offices, and marble halls towards the ordinary Joes in the audience” (David Shipman). Silent, with talking sequences and synchronized musical score, as Universal studio’s first film with audible dialogue.\n\nRestoration courtesy George Eastman Museum",
     "film_url": "https://filmforum.org/film/lonesome-tenement-stories",
-    "poster_url": "/posters/lonesome.png"
+    "poster_url": "/posters/lonesome.png",
+    "film_slug": "lonesome",
+    "ticket_url": "https://my.filmforum.org/events/lonesome"
   },
   {
     "Movie": "SHOES",
     "Date": "Monday, February 23",
     "Time": "7:15",
-    "Tickets": "https://my.filmforum.org/events/shoes",
     "Datetime": "2026-02-23T19:15:00",
     "country": "U.S.",
     "year": "1916",
@@ -1287,13 +1371,14 @@
     "runtime": "60 min",
     "description": "Shopgirl Mary MacLaren, unable to afford a decent pair of shoes on her five-and-dime salary, is tempted by the uninvited advances of a cad, leading to... Weber based it on her experiences as a missionary among young girls in the NYC slums.\n\nShown with The New York Hat\n\nU.S., 1912\n\nDirected by D.W. Griffith\n\nWritten by Anita Loos, Frances Marion\n\nStarring Mary Pickford, Lionel Barrymore\n\nApprox. 16 min. \n\nCourtesy FPA Classics, Paris.",
     "film_url": "https://filmforum.org/film/shoes-tenement-stories",
-    "poster_url": "/posters/shoes.png"
+    "poster_url": "/posters/shoes.png",
+    "film_slug": "shoes",
+    "ticket_url": "https://my.filmforum.org/events/shoes"
   },
   {
     "Movie": "THE CONNECTION",
     "Date": "Tuesday, February 24",
     "Time": "1:00",
-    "Tickets": "https://my.filmforum.org/events/the-connection-tene",
     "Datetime": "2026-02-24T13:00:00",
     "country": "U.S.",
     "year": "1961",
@@ -1302,13 +1387,14 @@
     "runtime": "103 min",
     "description": "Clarke’s American New Wave classic is the essence of cool, fixing on a group of junkies and jazz musicians hanging out in a decrepit East Village tenement. Music by Freddie Redd with Jackie McLean, Michael Mattos, Larry Ritchie, and Redd performing throughout on camera.\n\n35mm restored print courtesy of the UCLA Film & Television Archive; restoration funding provided by The Film Foundation.",
     "film_url": "https://filmforum.org/film/the-connection-tenement-stories",
-    "poster_url": "/posters/the-connection.png"
+    "poster_url": "/posters/the-connection.png",
+    "film_slug": "the-connection",
+    "ticket_url": "https://my.filmforum.org/events/the-connection-tene"
   },
   {
     "Movie": "THE ASPHALT JUNGLE",
     "Date": "Tuesday, February 24",
     "Time": "3:20",
-    "Tickets": "https://my.filmforum.org/events/the-asphalt-jungle-tene",
     "Datetime": "2026-02-24T15:20:00",
     "country": "U.S.",
     "year": "1950",
@@ -1317,13 +1403,14 @@
     "runtime": "112 min",
     "description": "“Crime is a left-handed form of human endeavor.” Back from the pen, criminal mastermind Sam Jaffe recruits strong-arm Sterling Hayden, driver James Whitmore, and safecracker Anthony Caruso for that big heist, with backing from lawyer/fence Louis Calhern (whose “niece” is Marilyn Monroe)—but thieves will fall out. The first of the Big Caper pictures, adapted from the W.R. Burnett (LITTLE CAESAR, HIGH SIERRA) classic.",
     "film_url": "https://filmforum.org/film/the-asphalt-jungle-tenement-stories",
-    "poster_url": "/posters/the-asphalt-jungle.png"
+    "poster_url": "/posters/the-asphalt-jungle.png",
+    "film_slug": "the-asphalt-jungle",
+    "ticket_url": "https://my.filmforum.org/events/the-asphalt-jungle-tene"
   },
   {
     "Movie": "MANHATTAN BY NUMBERS",
     "Date": "Tuesday, February 24",
     "Time": "6:00",
-    "Tickets": "https://my.filmforum.org/events/manhattan-by-numbers-tene",
     "Datetime": "2026-02-24T18:00:00",
     "country": "U.S.",
     "year": "1993",
@@ -1332,13 +1419,14 @@
     "runtime": "110 min",
     "description": "Out of work and deeply in debt, George (John Wojda) descends from Washington Heights to the Lower East Side by subway and on foot, searching for an elusive acquaintance who represents his last hope of raising $1,200 to pay his rent. “Manages to become a mesmerizing quest for meaning simply by projecting Manhattan into the foreground and its narrative in the background” – Andrew Sarris, The New York Observer. From the director of the Iranian classic, THE RUNNER.",
     "film_url": "https://filmforum.org/film/manhattan-by-numbers-tenement-stories",
-    "poster_url": "/posters/manhattan-by-numbers.png"
+    "poster_url": "/posters/manhattan-by-numbers.png",
+    "film_slug": "manhattan-by-numbers",
+    "ticket_url": "https://my.filmforum.org/events/manhattan-by-numbers-tene"
   },
   {
     "Movie": "TAXI DRIVER",
     "Date": "Tuesday, February 24",
     "Time": "8:20",
-    "Tickets": "https://my.filmforum.org/events/taxi-driver-tene",
     "Datetime": "2026-02-24T20:20:00",
     "country": "U.S.",
     "year": "1976",
@@ -1347,13 +1435,14 @@
     "runtime": "113 min",
     "description": "Robert De Niro’s insomniac cabbie Travis Bickle transforms himself into a mohawked, armed-to-the-teeth avenging angel, meeting his own judgment day in the form of child hooker Jodie Foster and her pimp Harvey Keitel. Shot during a sweltering NYC summer-cum-garbage strike.",
     "film_url": "https://filmforum.org/film/taxi-driver-tenement-stories",
-    "poster_url": "/posters/taxi-driver.png"
+    "poster_url": "/posters/taxi-driver.png",
+    "film_slug": "taxi-driver",
+    "ticket_url": "https://my.filmforum.org/events/taxi-driver-tene"
   },
   {
     "Movie": "THE ILLEGAL IMMIGRANT",
     "Date": "Wednesday, February 25",
     "Time": "12:15",
-    "Tickets": "https://my.filmforum.org/events/the-illegal-immigrant",
     "Datetime": "2026-02-25T12:15:00",
     "country": "Hong Kong",
     "year": "1985",
@@ -1362,13 +1451,14 @@
     "runtime": "92 min",
     "description": "After Cheung smuggles his way into Chinatown from Hong Kong, he decides to get his green card through a sham marriage, but begins to fall for his new bride.",
     "film_url": "https://filmforum.org/film/the-illegal-immigrant-tenement-stories",
-    "poster_url": ""
+    "poster_url": "",
+    "film_slug": "the-illegal-immigrant",
+    "ticket_url": "https://my.filmforum.org/events/the-illegal-immigrant"
   },
   {
     "Movie": "THE GODFATHER PART II",
     "Date": "Wednesday, February 25",
     "Time": "2:20",
-    "Tickets": "https://my.filmforum.org/events/the-godfather-part-2-tene",
     "Datetime": "2026-02-25T14:20:00",
     "country": "U.S.",
     "year": "1974",
@@ -1377,13 +1467,14 @@
     "runtime": "202 min",
     "description": "Prequel and sequel to the original, as Pacino’s Michael consolidates his empire after dabbling in Cuban futures and vets the family for weaklings, while Oscar®-winner Robert De Niro, as the young Godfather-to-be, takes on the bosses of turn-of-the-20th-century Little Italy.",
     "film_url": "https://filmforum.org/film/the-godfather-part-ii-tenement-stories",
-    "poster_url": "/posters/the-godfather-part-ii.png"
+    "poster_url": "/posters/the-godfather-part-ii.png",
+    "film_slug": "the-godfather-part-ii",
+    "ticket_url": "https://my.filmforum.org/events/the-godfather-part-2-tene"
   },
   {
     "Movie": "REGENERATION",
     "Date": "Wednesday, February 25",
     "Time": "6:10",
-    "Tickets": "https://my.filmforum.org/events/regeneration-tene",
     "Datetime": "2026-02-25T18:10:00",
     "country": "U.S.",
     "year": "1915",
@@ -1392,13 +1483,14 @@
     "runtime": "72 min",
     "description": "Shot on the Bowery with actual bums, winos, hookers, and thugs as extras, and capped with a spectacular cruise ship fire, this is “the most authentic-looking gangster film surviving from the entire silent period.” – Kevin Brownlow\n\nRestoration courtesy Museum of Modern Art.\n\nShown with The Musketeers of Pig Alley\n\nU.S., 1912\n\nDirected by D.W. Griffith\n\nWritten by Anita Loos\n\nStarring Lillian Gish\n\nApprox. 17 min.\n\nRestoration courtesy Museum of Modern Art.",
     "film_url": "https://filmforum.org/film/regeneration-tenement-stories",
-    "poster_url": "/posters/regeneration.png"
+    "poster_url": "/posters/regeneration.png",
+    "film_slug": "regeneration",
+    "ticket_url": "https://my.filmforum.org/events/regeneration-tene"
   },
   {
     "Movie": "THE ILLEGAL IMMIGRANT",
     "Date": "Wednesday, February 25",
     "Time": "8:10",
-    "Tickets": "https://my.filmforum.org/events/the-illegal-immigrant",
     "Datetime": "2026-02-25T20:10:00",
     "country": "Hong Kong",
     "year": "1985",
@@ -1407,13 +1499,14 @@
     "runtime": "92 min",
     "description": "After Cheung smuggles his way into Chinatown from Hong Kong, he decides to get his green card through a sham marriage, but begins to fall for his new bride.",
     "film_url": "https://filmforum.org/film/the-illegal-immigrant-tenement-stories",
-    "poster_url": ""
+    "poster_url": "",
+    "film_slug": "the-illegal-immigrant",
+    "ticket_url": "https://my.filmforum.org/events/the-illegal-immigrant"
   },
   {
     "Movie": "THE ILLEGAL IMMIGRANT",
     "Date": "Thursday, February 26",
     "Time": "12:20",
-    "Tickets": "https://my.filmforum.org/events/the-illegal-immigrant",
     "Datetime": "2026-02-26T12:20:00",
     "country": "Hong Kong",
     "year": "1985",
@@ -1422,13 +1515,14 @@
     "runtime": "92 min",
     "description": "After Cheung smuggles his way into Chinatown from Hong Kong, he decides to get his green card through a sham marriage, but begins to fall for his new bride.",
     "film_url": "https://filmforum.org/film/the-illegal-immigrant-tenement-stories",
-    "poster_url": ""
+    "poster_url": "",
+    "film_slug": "the-illegal-immigrant",
+    "ticket_url": "https://my.filmforum.org/events/the-illegal-immigrant"
   },
   {
     "Movie": "MANHATTAN BY NUMBERS",
     "Date": "Thursday, February 26",
     "Time": "2:30",
-    "Tickets": "https://my.filmforum.org/events/manhattan-by-numbers-tene",
     "Datetime": "2026-02-26T14:30:00",
     "country": "U.S.",
     "year": "1993",
@@ -1437,13 +1531,14 @@
     "runtime": "110 min",
     "description": "Out of work and deeply in debt, George (John Wojda) descends from Washington Heights to the Lower East Side by subway and on foot, searching for an elusive acquaintance who represents his last hope of raising $1,200 to pay his rent. “Manages to become a mesmerizing quest for meaning simply by projecting Manhattan into the foreground and its narrative in the background” – Andrew Sarris, The New York Observer. From the director of the Iranian classic, THE RUNNER.",
     "film_url": "https://filmforum.org/film/manhattan-by-numbers-tenement-stories",
-    "poster_url": "/posters/manhattan-by-numbers.png"
+    "poster_url": "/posters/manhattan-by-numbers.png",
+    "film_slug": "manhattan-by-numbers",
+    "ticket_url": "https://my.filmforum.org/events/manhattan-by-numbers-tene"
   },
   {
     "Movie": "THE LANDLORD",
     "Date": "Thursday, February 26",
     "Time": "4:50",
-    "Tickets": "https://my.filmforum.org/events/the-landlord-tene",
     "Datetime": "2026-02-26T16:50:00",
     "country": "U.S.",
     "year": "1970",
@@ -1452,13 +1547,14 @@
     "runtime": "110 min",
     "description": "“You know what NAACP means, don’t you?” Whiter than white, richer then rich, callower than callow (“I’m 29!”) Beau Bridges tells the camera, on the impeccable lawn of his family compound as the Black butler delivers him a drink, that he needs a home of his own—except his dream house is a tenement in the way-before-gentrification Park Slope! Think he’ll get the African-American tenants to move out? Think he can even get them to start paying rent? And bring back those hubcaps! First feature by Hal Ashby (HAROLD AND MAUDE, SHAMPOO, BEING THERE, COMING HOME) is both a time capsule of ’70s cinema—direct-to-the-camera dialogue, jagged editing, jarring bursts of music on the soundtrack, echoey on-location sound...and those bellbottoms!—as well as an edgy (before the term was coined), rope-dancing-on-the-razor’s-edge dramedy on race in America, with Bridges’ mom, Oscar®-nominated Lee Grant, taking a break from nurse-maiding the Spinal Meningitis Ball to get down on a pot likker with Pearl Bailey; Diana Sands’ painfully making a shocking admission to “Sioux Indian” hubbie Lou Gossett; Robert Klein’s turn in blackface; and the ‘N’ word, but not said by whom, and to whom, you might think. With camera work by the great Gordon Willis (KLUTE, ALL THE PRESIDENT’S MEN, ANNIE HALL, and all three GODFATHERS); screenplay by Black actor/writer Bill Gunn (GANJA AND HESS); and as the good-natured jerk rich boy (“I’m a bastard”), a could-pass-for-18 Beau Bridges, who surprisingly was 29 at the time.",
     "film_url": "https://filmforum.org/film/the-landlord-tenement-stories",
-    "poster_url": "/posters/the-landlord.png"
+    "poster_url": "/posters/the-landlord.png",
+    "film_slug": "the-landlord",
+    "ticket_url": "https://my.filmforum.org/events/the-landlord-tene"
   },
   {
     "Movie": "THE GODFATHER PART II",
     "Date": "Thursday, February 26",
     "Time": "7:10",
-    "Tickets": "https://my.filmforum.org/events/the-godfather-part-2-tene",
     "Datetime": "2026-02-26T19:10:00",
     "country": "U.S.",
     "year": "1974",
@@ -1467,6 +1563,8 @@
     "runtime": "202 min",
     "description": "Prequel and sequel to the original, as Pacino’s Michael consolidates his empire after dabbling in Cuban futures and vets the family for weaklings, while Oscar®-winner Robert De Niro, as the young Godfather-to-be, takes on the bosses of turn-of-the-20th-century Little Italy.",
     "film_url": "https://filmforum.org/film/the-godfather-part-ii-tenement-stories",
-    "poster_url": "/posters/the-godfather-part-ii.png"
+    "poster_url": "/posters/the-godfather-part-ii.png",
+    "film_slug": "the-godfather-part-ii",
+    "ticket_url": "https://my.filmforum.org/events/the-godfather-part-2-tene"
   }
 ]

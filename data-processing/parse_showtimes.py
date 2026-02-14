@@ -107,7 +107,7 @@ def write_csv(rows: List[List[str]], output_path: str) -> None:
     """
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['Movie', 'Date', 'Time', 'Tickets', 'ScrapedAt'])
+        writer.writerow(['Movie', 'Date', 'Time', 'ticket_url', 'ScrapedAt'])
         writer.writerows(rows)
 
 

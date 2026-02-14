@@ -10,8 +10,9 @@
 export interface Movie {
   Movie: string;
   Time: string;
-  Tickets: string;
+  ticket_url: string;
   Datetime: string;
+  film_slug: string;
   year?: string;
   director?: string;
   runtime?: string;
