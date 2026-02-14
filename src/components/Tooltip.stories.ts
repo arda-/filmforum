@@ -16,8 +16,6 @@
  * See: TooltipWrapper.astro
  */
 import TooltipWrapper from './decorators/TooltipWrapper.astro';
-import DarkBackground from './decorators/DarkBackground.astro';
-import FixedWidth from './decorators/FixedWidth.astro';
 
 export default {
   component: TooltipWrapper,
@@ -36,29 +34,4 @@ export const LongText = {
 /** Disabled tooltips should not appear when hovering */
 export const Disabled = {
   args: { text: 'You should not see this', disabled: true, triggerText: 'disabled text' },
-};
-
-/** Tooltip on dark background surface */
-export const OnDarkBackground = {
-  args: { text: 'Tooltip on dark surface', triggerText: 'dark surface' },
-  decorators: [
-    { component: DarkBackground },
-  ],
-};
-
-/** Tooltip in a constrained width container */
-export const ConstrainedWidth = {
-  args: { text: 'Tooltip in narrow container', triggerText: 'narrow space' },
-  decorators: [
-    { component: FixedWidth, props: { width: '300px' } },
-  ],
-};
-
-/** Tooltip with multiple decorators applied */
-export const DarkAndNarrow = {
-  args: { text: 'Combined decorators example', triggerText: 'combined example' },
-  decorators: [
-    { component: FixedWidth, props: { width: '400px' } },
-    { component: DarkBackground, props: { padding: '3rem' } },
-  ],
 };
